@@ -24,20 +24,26 @@ class SammoActionSession:
         del self.action
 
     def run(self):
-        if (self.session.IsDataBaseLayerExistsInCurrentProject()):
-            QMessageBox.information(None, 'Sammo-Boat plugin',
-                        'The session datas layer already exists in the current project')
-            return;
+        if self.session.IsDataBaseLayerExistsInCurrentProject():
+            QMessageBox.information(
+                None,
+                "Sammo-Boat plugin",
+                "The session datas layer already exists "
+                "in the current project",
+            )
+            return
 
-        workingDirectory = QFileDialog.getExistingDirectory(None, "Select a working directory",
-                                                        QDir.currentPath())
+        workingDirectory = QFileDialog.getExistingDirectory(
+            None, "Select a working directory", QDir.currentPath()
+        )
         if not workingDirectory:
             # no directory selected
             return
 
         print("Le répertoire sélectionné = " + workingDirectory)
 
-        if not self.session.IsDataBaseAvailableInThisDirectory(workingDirectory):
+        if not self.session.IsDataBaseAvailableInThisDirectory(
+                workingDirectory):
             # No geopackage DB in this directory
             self.session.CreateEmptyDataBase(workingDirectory)
 

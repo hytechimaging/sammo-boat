@@ -6,8 +6,16 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 import os.path
 
 from PyQt5.QtWidgets import QMessageBox
-from qgis._core import QgsWkbTypes, QgsFields, QgsVectorFileWriter, QgsCoordinateReferenceSystem, \
-    QgsCoordinateTransformContext, QgsFeatureSink, QgsVectorLayer, QgsProject
+from qgis._core import (
+    QgsWkbTypes,
+    QgsFields,
+    QgsVectorFileWriter,
+    QgsCoordinateReferenceSystem,
+    QgsCoordinateTransformContext,
+    QgsFeatureSink,
+    QgsVectorLayer,
+    QgsProject,
+)
 
 
 class SammoDataBase:
@@ -32,29 +40,34 @@ class SammoDataBase:
         opts.layerName = tableName
 
         if not os.path.isfile(db):
-            opts.actionOnExistingFile = QgsVectorFileWriter.CreateOrOverwriteFile
+            opts.actionOnExistingFile = \
+                QgsVectorFileWriter.CreateOrOverwriteFile
         else:
-            opts.actionOnExistingFile = QgsVectorFileWriter.CreateOrOverwriteLayer
+            opts.actionOnExistingFile = \
+                QgsVectorFileWriter.CreateOrOverwriteLayer
 
         crs = QgsCoordinateReferenceSystem.fromEpsgId(4326)
 
         QgsVectorFileWriter.create(
-                db,
-                fields,
-                geom,
-                crs,
-                QgsCoordinateTransformContext(),
-                opts,
-                QgsFeatureSink.SinkFlags(),
-                None,
-                tableName,
-                )
+            db,
+            fields,
+            geom,
+            crs,
+            QgsCoordinateTransformContext(),
+            opts,
+            QgsFeatureSink.SinkFlags(),
+            None,
+            tableName,
+        )
 
     def LoadDataBase(self, directory):
         db = directory + "/" + self.CONST_DB_NAME
         vlayer = QgsVectorLayer(db, self.CONST_LAYER_NAME)
         if not vlayer.isValid():
-            QMessageBox.critical(None, 'Sammo-Boat plugin', 'Impossible to read the file ' + self.CONST_DB_NAME)
+            QMessageBox.critical(
+                None,
+                "Sammo-Boat plugin",
+                "Impossible to read the file " + self.CONST_DB_NAME,
+            )
         else:
             QgsProject.instance().addMapLayer(vlayer)
-
