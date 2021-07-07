@@ -14,18 +14,23 @@ class QgsMapLayerRegistry:
 class SammoSession:
     def __init__(self):
         self.db = SammoDataBase()
+        self.isDbOpened = False
+        self.directoryPath = None
         pass
 
-    def IsDataBaseAvailableInThisDirectory(self, directory):
-        return self.db.IsDataBaseAvailableInThisDirectory(directory)
+    def isDataBaseAvailable(self, directory):
+        return self.db.isDataBaseAvailableInThisDirectory(directory)
 
-    def CreateEmptyDataBase(self, directory):
-        self.db.CreateEmptyDataBase(directory)
+    def createEmptyDataBase(self, directory):
+        self.db.createEmptyDataBase(directory)
 
-    def LoadDataBase(self, directory):
-        self.db.LoadDataBase(directory)
+    def setDirectoryPath(self, directory):
+        self.directoryPath = directory
 
-    def IsDataBaseLayerExistsInCurrentProject(self):
+    def loadDataBase(self):
+        self.db.loadDataBase(self.directoryPath)
+
+    def isDataBaseLayerExistsInCurrentProject(self):
         db_layers = QgsProject.instance().mapLayersByName(
             SammoDataBase.CONST_LAYER_NAME
         )
