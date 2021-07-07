@@ -6,4 +6,4 @@ version=1.0
 qgisMinimumVersion=3.0
 author=Paul Blottière
 email=info@hytech-imaging.fr
-repository=xxxxx
+repository=https://github.com/hytechimaging/sammo-boat/
