@@ -3,7 +3,8 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-from PyQt5.QtWidgets import QAction
+from PyQt5.QtCore import QDir
+from PyQt5.QtWidgets import QAction, QFileDialog
 from PyQt5.QtWidgets import QMessageBox
 
 
@@ -22,5 +23,9 @@ class SammoActionSession:
         del self.action
 
     def run(self):
-        QMessageBox.information(None, "Minimal plugin",
-                                "Do something Fred here")
+        outputFolder = QFileDialog.getExistingDirectory(None, "Select a working directory",
+                                                        QDir.currentPath())
+        if not outputFolder: # no directory selected
+            return
+
+        print("Le répertoire sélectionné = " + outputFolder)
