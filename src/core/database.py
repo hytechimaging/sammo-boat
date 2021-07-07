@@ -17,21 +17,20 @@ from qgis._core import (
     QgsProject,
 )
 
+CONST_DB_NAME = "sammo-boat.gpkg"
+CONST_LAYER_NAME = "session datas"
 
 class SammoDataBase:
-    CONST_DB_NAME = "sammo-boat.gpkg"
-    CONST_LAYER_NAME = "session datas"
-
-    def __init__(self):
-        pass
-
     def isDataBaseAvailableInThisDirectory(self, directory):
-        return os.path.isfile(directory + "/" + self.CONST_DB_NAME)
+        return os.path.isfile(self._getPathToDataBase(directory))
+
+    def getDbName(self):
+        return CONST_DB_NAME
 
     def createEmptyDataBase(self, directory):
         geom = QgsWkbTypes.Point
         tableName = "emptyTable"
-        db = directory + "/" + self.CONST_DB_NAME
+        db = self._getPathToDataBase(directory)
 
         fields = QgsFields()
 
@@ -61,7 +60,7 @@ class SammoDataBase:
         )
 
     def loadDataBase(self, directory):
-        db = directory + "/" + self.CONST_DB_NAME
+        db = self._getPathToDataBase(directory)
         vlayer = QgsVectorLayer(db, self.CONST_LAYER_NAME)
         if not vlayer.isValid():
             QMessageBox.critical(
@@ -71,3 +70,6 @@ class SammoDataBase:
             )
         else:
             QgsProject.instance().addMapLayer(vlayer)
+
+    def _getPathToDataBase(self, directory):
+        return os.path.join(directory, self.CONST_DB_NAME)
