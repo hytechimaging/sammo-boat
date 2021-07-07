@@ -1,1 +1,3 @@
 # sammo-boat
+
+QGIS Plugin.
