@@ -1,5 +1,5 @@
 [general]
-name=Sammo
+name=Sammo-Boat
 description=Tool for megafauna observations from halieutic boats
 about=Tool for megafauna observations
 version=1.0
