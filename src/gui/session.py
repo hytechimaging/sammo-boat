@@ -1,3 +1,8 @@
+# coding: utf8
+
+__contact__ = "info@hytech-imaging.fr"
+__copyright__ = "Copyright (c) 2021 Hytech Imaging"
+
 from PyQt5.QtWidgets import QAction
 from PyQt5.QtWidgets import QMessageBox
 
@@ -8,7 +13,7 @@ class SammoActionSession:
         self.action = None
 
     def initGui(self):
-        self.action = QAction("Sammo", self.iface.mainWindow())
+        self.action = QAction("Session", self.iface.mainWindow())
         self.action.triggered.connect(self.run)
         self.iface.addToolBarIcon(self.action)
 
