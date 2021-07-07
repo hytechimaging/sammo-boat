@@ -26,5 +26,7 @@ class SammoSession:
         self.db.LoadDataBase(directory)
 
     def IsDataBaseLayerExistsInCurrentProject(self):
-        return len(QgsProject.instance()
-                   .mapLayersByName(SammoDataBase.CONST_LAYER_NAME)) != 0
+        db_layers = QgsProject.instance().mapLayersByName(
+            SammoDataBase.CONST_LAYER_NAME
+        )
+        return len(db_layers) != 0
