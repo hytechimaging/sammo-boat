@@ -4,14 +4,15 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 from PyQt5.QtCore import QDir
-from PyQt5.QtWidgets import QAction, QFileDialog
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QAction, QFileDialog, QMessageBox
+from ..core.session import SammoSession
 
 
 class SammoActionSession:
     def __init__(self, iface):
         self.iface = iface
         self.action = None
+        self.session = SammoSession()
 
     def initGui(self):
         self.action = QAction("Session", self.iface.mainWindow())
@@ -23,9 +24,21 @@ class SammoActionSession:
         del self.action
 
     def run(self):
-        outputFolder = QFileDialog.getExistingDirectory(None, "Select a working directory",
+        if (self.session.IsDataBaseLayerExistsInCurrentProject()):
+            QMessageBox.information(None, 'Sammo-Boat plugin',
+                        'The session datas layer already exists in the current project')
+            return;
+
+        workingDirectory = QFileDialog.getExistingDirectory(None, "Select a working directory",
                                                         QDir.currentPath())
-        if not outputFolder: # no directory selected
+        if not workingDirectory:
+            # no directory selected
             return
 
-        print("Le répertoire sélectionné = " + outputFolder)
+        print("Le répertoire sélectionné = " + workingDirectory)
+
+        if not self.session.IsDataBaseAvailableInThisDirectory(workingDirectory):
+            # No geopackage DB in this directory
+            self.session.CreateEmptyDataBase(workingDirectory)
+
+        self.session.LoadDataBase(workingDirectory)
