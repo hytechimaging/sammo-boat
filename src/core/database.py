@@ -25,10 +25,10 @@ class SammoDataBase:
     def __init__(self):
         pass
 
-    def IsDataBaseAvailableInThisDirectory(self, directory):
+    def isDataBaseAvailableInThisDirectory(self, directory):
         return os.path.isfile(directory + "/" + self.CONST_DB_NAME)
 
-    def CreateEmptyDataBase(self, directory):
+    def createEmptyDataBase(self, directory):
         geom = QgsWkbTypes.Point
         tableName = "emptyTable"
         db = directory + "/" + self.CONST_DB_NAME
@@ -60,7 +60,7 @@ class SammoDataBase:
             tableName,
         )
 
-    def LoadDataBase(self, directory):
+    def loadDataBase(self, directory):
         db = directory + "/" + self.CONST_DB_NAME
         vlayer = QgsVectorLayer(db, self.CONST_LAYER_NAME)
         if not vlayer.isValid():
