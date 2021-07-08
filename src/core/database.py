@@ -64,17 +64,5 @@ class SammoDataBase:
             tableName,
         )
 
-    def loadDataBase(self, directory):
-        db = self._pathToDataBase(directory)
-        vlayer = QgsVectorLayer(db, self._layerName())
-        if not vlayer.isValid():
-            QMessageBox.critical(
-                None,
-                "Sammo-Boat plugin",
-                "Impossible to read the file " + self._pathToDataBase(),
-            )
-        else:
-            QgsProject.instance().addMapLayer(vlayer)
-
     def _pathToDataBase(self, directory):
         return os.path.join(directory, DB_NAME)

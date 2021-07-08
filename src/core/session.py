@@ -19,9 +19,6 @@ class SammoSession:
     def createEmptyDataBase(self, directory):
         self.db.createEmptyDataBase(directory)
 
-    def loadDataBase(self):
-        self.db.loadDataBase(self.directoryPath)
-
     def isDataBaseLayerExistsInCurrentProject(self):
         db_layers = QgsProject.instance().mapLayersByName(
             SammoDataBase.dbName

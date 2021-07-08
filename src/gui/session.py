@@ -37,14 +37,3 @@ class SammoActionSession:
 
         self.session.directoryPath = workingDirectory
 
-    def addLayerFromDataBase(self):
-        if self.session.isDataBaseLayerExistsInCurrentProject():
-            QMessageBox.information(
-                None,
-                "Sammo-Boat plugin",
-                "The session data layer already exists "
-                "in the current project",
-            )
-            return
-
-        self.session.loadDataBase()
