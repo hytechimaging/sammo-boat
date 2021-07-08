@@ -31,7 +31,7 @@ class SammoActionSession:
             # no directory selected
             return
 
-        if not self.session.isDataBaseAvailable(workingDirectory):
+        if not SammoSession.isDataBaseAvailable(workingDirectory):
             # No geopackage DB in this directory
             self.session.createEmptyDataBase(workingDirectory)
 

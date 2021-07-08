@@ -13,14 +13,9 @@ class SammoSession:
         self.isDbOpened = False
         self.directoryPath = None
 
-    def isDataBaseAvailable(self, directory):
-        return self.db.isDataBaseAvailableInThisDirectory(directory)
+    @staticmethod
+    def isDataBaseAvailable(directory):
+        return SammoDataBase.isDataBaseAvailableInThisDirectory(directory)
 
     def createEmptyDataBase(self, directory):
         self.db.createEmptyDataBase(directory)
-
-    def isDataBaseLayerExistsInCurrentProject(self):
-        db_layers = QgsProject.instance().mapLayersByName(
-            SammoDataBase.dbName
-        )
-        return len(db_layers) != 0

@@ -21,7 +21,8 @@ LAYER_NAME = "session data"
 
 
 class SammoDataBase:
-    def isDataBaseAvailableInThisDirectory(self, directory):
+    @staticmethod
+    def isDataBaseAvailableInThisDirectory(directory):
         return os.path.isfile(SammoDataBase._pathToDataBase(directory))
 
     @property
