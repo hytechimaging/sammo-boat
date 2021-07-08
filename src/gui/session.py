@@ -4,23 +4,23 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 from qgis.PyQt.QtCore import QDir
-from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
+from qgis.PyQt.QtWidgets import QAction, QFileDialog
 from ..core.session import SammoSession
 
 
 class SammoActionSession:
-    def __init__(self, iface):
-        self.iface = iface
+    def __init__(self, mainWindow, toolBar):
+        self.mainWindow = mainWindow
         self.action = None
         self.session = SammoSession()
+        self.toolBar = toolBar
 
     def initGui(self):
-        self.action = QAction("Session", self.iface.mainWindow())
+        self.action = QAction("Session", self.mainWindow)
         self.action.triggered.connect(self.run)
-        self.iface.addToolBarIcon(self.action)
+        self.toolBar.addAction(self.action)
 
     def unload(self):
-        self.iface.removeToolBarIcon(self.action)
         del self.action
 
     def run(self):
