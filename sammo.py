@@ -4,6 +4,7 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 from .src.gui.session import SammoActionSession
+from .src.gui.onOffEffort import SammoActionOnOffEffort
 
 
 class Sammo:
@@ -11,10 +12,13 @@ class Sammo:
         self.iface = iface
         self.toolBar = self.iface.addToolBar("Sammo ToolBar")
         self.actionSession = SammoActionSession(self.iface.mainWindow(), self.toolBar)
+        self.actionOnOffSession = SammoActionOnOffEffort(self.iface, self.toolBar)
 
     def initGui(self):
         self.actionSession.initGui()
+        self.actionOnOffSession.initGui()
 
     def unload(self):
         self.actionSession.unload()
+        self.actionOnOffSession.unload()
         del self.toolBar
