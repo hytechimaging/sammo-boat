@@ -9,23 +9,20 @@ from ..core.session import SammoSession
 
 
 class SammoActionSession:
-    def __init__(self, iface):
-        self.iface = iface
+    def __init__(self, mainWindow, toolBar):
+        self.mainWindow = mainWindow
         self.action = None
         self.session = SammoSession()
-        self.toolBar = None
+        self.toolBar = toolBar
 
     def initGui(self):
-        self.toolBar = self.iface.addToolBar("SammoToolBar")
-
-        self.action = QAction("Session", self.iface.mainWindow())
+        self.action = QAction("Session", self.mainWindow)
         self.action.triggered.connect(self.run)
         self.toolBar.addAction(self.action)
 
     def unload(self):
-        self.iface.removeToolBarIcon(self.action)
+        # self.iface.removeToolBarIcon(self.action)
         del self.action
-        del self.toolBar
 
     def run(self):
         workingDirectory = QFileDialog.getExistingDirectory(
