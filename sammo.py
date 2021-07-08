@@ -9,7 +9,7 @@ from .src.gui.session import SammoActionSession
 class Sammo:
     def __init__(self, iface):
         self.iface = iface
-        self.toolBar = self.iface.addToolBar("SammoToolBar")
+        self.toolBar = self.iface.addToolBar("Sammo ToolBar")
         self.actionSession = SammoActionSession(self.iface.mainWindow(), self.toolBar)
 
     def initGui(self):
