@@ -36,4 +36,3 @@ class SammoActionSession:
             self.session.createEmptyDataBase(workingDirectory)
 
         self.session.directoryPath = workingDirectory
-
