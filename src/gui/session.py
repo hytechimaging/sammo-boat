@@ -4,7 +4,7 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 from qgis.PyQt.QtCore import QDir
-from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
+from qgis.PyQt.QtWidgets import QAction, QFileDialog
 from ..core.session import SammoSession
 
 
