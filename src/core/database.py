@@ -29,7 +29,7 @@ class SammoDataBase:
         return DB_NAME
 
     @property
-    def _layerName(self, directory):
+    def _layerName(self):
         return LAYER_NAME
 
     def createEmptyDataBase(self, directory):
