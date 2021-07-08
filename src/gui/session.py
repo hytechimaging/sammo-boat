@@ -3,8 +3,8 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-from PyQt5.QtCore import QDir
-from PyQt5.QtWidgets import QAction, QFileDialog, QMessageBox
+from qgis.PyQt.QtCore import QDir
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QMessageBox
 from ..core.session import SammoSession
 
 
@@ -35,14 +35,14 @@ class SammoActionSession:
             # No geopackage DB in this directory
             self.session.createEmptyDataBase(workingDirectory)
 
-        self.session.setDirectoryPath(workingDirectory)
+        self.session.directoryPath = workingDirectory
 
     def addLayerFromDataBase(self):
         if self.session.isDataBaseLayerExistsInCurrentProject():
             QMessageBox.information(
                 None,
                 "Sammo-Boat plugin",
-                "The session datas layer already exists "
+                "The session data layer already exists "
                 "in the current project",
             )
             return

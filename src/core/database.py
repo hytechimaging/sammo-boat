@@ -5,8 +5,8 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
 
-from PyQt5.QtWidgets import QMessageBox
-from qgis._core import (
+from qgis.PyQt.QtWidgets import QMessageBox
+from qgis.core import (
     QgsWkbTypes,
     QgsFields,
     QgsVectorFileWriter,
@@ -17,20 +17,25 @@ from qgis._core import (
     QgsProject,
 )
 
-CONST_DB_NAME = "sammo-boat.gpkg"
-CONST_LAYER_NAME = "session datas"
+DB_NAME = "sammo-boat.gpkg"
+LAYER_NAME = "session data"
 
 class SammoDataBase:
     def isDataBaseAvailableInThisDirectory(self, directory):
-        return os.path.isfile(self._getPathToDataBase(directory))
+        return os.path.isfile(self._pathToDataBase(directory))
 
-    def getDbName(self):
-        return CONST_DB_NAME
+    @property
+    def dbName(self):
+        return DB_NAME
+
+    @property
+    def _layerName(self, directory):
+        return LAYER_NAME
 
     def createEmptyDataBase(self, directory):
         geom = QgsWkbTypes.Point
         tableName = "emptyTable"
-        db = self._getPathToDataBase(directory)
+        db = self._pathToDataBase(directory)
 
         fields = QgsFields()
 
@@ -60,19 +65,16 @@ class SammoDataBase:
         )
 
     def loadDataBase(self, directory):
-        db = self._getPathToDataBase(directory)
-        vlayer = QgsVectorLayer(db, self._getLayerName())
+        db = self._pathToDataBase(directory)
+        vlayer = QgsVectorLayer(db, self._layerName())
         if not vlayer.isValid():
             QMessageBox.critical(
                 None,
                 "Sammo-Boat plugin",
-                "Impossible to read the file " + self._getPathToDataBase(),
+                "Impossible to read the file " + self._pathToDataBase(),
             )
         else:
             QgsProject.instance().addMapLayer(vlayer)
 
-    def _getPathToDataBase(self, directory):
-        return os.path.join(directory, CONST_DB_NAME)
-
-    def _getLayerName(self, directory):
-        return CONST_LAYER_NAME
+    def _pathToDataBase(self, directory):
+        return os.path.join(directory, DB_NAME)
