@@ -5,7 +5,9 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
 
+from PyQt5.QtWidgets import QMessageBox
 from qgis.PyQt.QtCore import QVariant
+from qgis._core import QgsVectorLayer
 from qgis.core import QgsField
 from qgis.core import (
     QgsWkbTypes,
@@ -16,22 +18,15 @@ from qgis.core import (
     QgsFeatureSink,
 )
 
-DB_NAME = "sammo-boat.gpkg"
-LAYER_NAME = "session data"
-
 
 class SammoDataBase:
+    DB_NAME = "sammo-boat.gpkg"
+    LAYER_NAME = "session data"
+    ENVIRONMENT_TABLE_NAME = "environment"
+
     @staticmethod
     def isDataBaseAvailableInThisDirectory(directory):
         return os.path.isfile(SammoDataBase._pathToDataBase(directory))
-
-    @property
-    def dbName(self):
-        return DB_NAME
-
-    @property
-    def _layerName(self):
-        return LAYER_NAME
 
     def createEmptyDataBase(self, directory):
         db = SammoDataBase._pathToDataBase(directory)
@@ -74,7 +69,7 @@ class SammoDataBase:
 
     @staticmethod
     def _pathToDataBase(directory):
-        return os.path.join(directory, DB_NAME)
+        return os.path.join(directory, SammoDataBase.DB_NAME)
 
     def _createFieldsForEnvironmentTable(self):
         fields = QgsFields()
@@ -111,3 +106,7 @@ class SammoDataBase:
     @staticmethod
     def _createFieldShortText(fieldName):
         return QgsField(fieldName, QVariant.String, len=50)
+
+    def loadTable(self, directory, tableName):
+        db = self._pathToDataBase(directory)
+        return QgsVectorLayer(db, tableName)

@@ -3,7 +3,6 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-from qgis.core import QgsProject
 from .database import SammoDataBase
 
 
@@ -19,3 +18,6 @@ class SammoSession:
 
     def createEmptyDataBase(self, directory):
         self.db.createEmptyDataBase(directory)
+
+    def loadTable(self, tableName):
+        return self.db.loadTable(self.directoryPath, tableName)

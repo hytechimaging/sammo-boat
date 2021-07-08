@@ -9,10 +9,10 @@ from ..core.session import SammoSession
 
 
 class SammoActionSession:
-    def __init__(self, mainWindow, toolBar):
+    def __init__(self, mainWindow, toolBar, session):
         self.mainWindow = mainWindow
         self.action = None
-        self.session = SammoSession()
+        self.session = session
         self.toolBar = toolBar
 
     def initGui(self):

@@ -3,18 +3,19 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
+from qgis.PyQt.QtWidgets import QMessageBox, QAction
+from qgis._core import QgsFeature
 
-from qgis.PyQt.QtCore import QDir
-from qgis.PyQt.QtWidgets import QAction, QFileDialog
 from ..core.session import SammoSession
+from ..core.database import SammoDataBase
 
 
 class SammoActionOnOffEffort:
-    def __init__(self, iface, toolBar):
+    def __init__(self, iface, toolBar, session):
         self.iface = iface
         self.mainWindow = self.iface.mainWindow()
         self.action = None
-        self.session = SammoSession()
+        self.session = session
         self.toolBar = toolBar
 
     def initGui(self):
@@ -27,3 +28,15 @@ class SammoActionOnOffEffort:
 
     def run(self):
         print("Effort button pressed")
+        table = self.session.loadTable(SammoDataBase.ENVIRONMENT_TABLE_NAME)
+        if not table.isValid():
+            QMessageBox.critical(
+                None,
+                "Sammo-Boat plugin",
+                "Impossible to read the environment table "
+            )
+            return
+
+        feat = QgsFeature();
+        feat.setFields(table.fields())
+        self.iface.openFeatureForm(table, feat)
