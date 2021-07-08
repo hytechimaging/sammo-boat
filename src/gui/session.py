@@ -13,15 +13,20 @@ class SammoActionSession:
         self.iface = iface
         self.action = None
         self.session = SammoSession()
+        self.toolBar = None
 
     def initGui(self):
+        self.toolBar = self.iface.addToolBar("SammoToolBar")
+
         self.action = QAction("Session", self.iface.mainWindow())
         self.action.triggered.connect(self.run)
-        self.iface.addToolBarIcon(self.action)
+
+        self.toolBar.addAction(self.action)
 
     def unload(self):
         self.iface.removeToolBarIcon(self.action)
         del self.action
+        del self.toolBar
 
     def run(self):
         workingDirectory = QFileDialog.getExistingDirectory(
