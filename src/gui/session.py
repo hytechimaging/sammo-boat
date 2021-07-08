@@ -21,7 +21,6 @@ class SammoActionSession:
         self.toolBar.addAction(self.action)
 
     def unload(self):
-        # self.iface.removeToolBarIcon(self.action)
         del self.action
 
     def run(self):
