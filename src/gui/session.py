@@ -3,22 +3,43 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
+from abc import abstractmethod
+
 from qgis.PyQt.QtCore import QDir
 from qgis.PyQt.QtWidgets import QAction, QFileDialog
 from ..core.session import SammoSession
 
 
+class ParentOfSammoActionSession:
+
+    @abstractmethod
+    def onCreateSession(self):
+        pass
+
+    @property
+    @abstractmethod
+    def mainWindow(self):
+        pass
+
+    @property
+    @abstractmethod
+    def toolBar(self):
+        pass
+
+    @property
+    @abstractmethod
+    def session(self):
+        pass
+
 class SammoActionSession:
-    def __init__(self, mainWindow, toolBar, session):
-        self.mainWindow = mainWindow
+    def __init__(self, parent : ParentOfSammoActionSession):
+        self.parent = parent
         self.action = None
-        self.session = session
-        self.toolBar = toolBar
 
     def initGui(self):
-        self.action = QAction("Session", self.mainWindow)
+        self.action = QAction("Session", self.parent.mainWindow)
         self.action.triggered.connect(self.run)
-        self.toolBar.addAction(self.action)
+        self.parent.toolBar.addAction(self.action)
 
     def unload(self):
         del self.action
@@ -33,6 +54,7 @@ class SammoActionSession:
 
         if not SammoSession.isDataBaseAvailable(workingDirectory):
             # No geopackage DB in this directory
-            self.session.createEmptyDataBase(workingDirectory)
+            self.parent.session.createEmptyDataBase(workingDirectory)
 
-        self.session.directoryPath = workingDirectory
+        self.parent.session.directoryPath = workingDirectory
+        self.parent.onCreateSession()
