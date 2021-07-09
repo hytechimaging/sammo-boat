@@ -22,6 +22,7 @@ class SammoDataBase:
     DB_NAME = "sammo-boat.gpkg"
     LAYER_NAME = "session data"
     ENVIRONMENT_TABLE_NAME = "environment"
+    SPECIES_TABLE_NAME = "species"
     ENVIRONMENT_COMMENT_FIELD_NAME = "commentaire"
 
     @staticmethod
@@ -32,9 +33,10 @@ class SammoDataBase:
         db = SammoDataBase._pathToDataBase(directory)
 
         SammoDataBase._addTableToDataBaseFile(
-            db,
-            self._createFieldsForEnvironmentTable(),
-            SammoDataBase.ENVIRONMENT_TABLE_NAME,
+            db, self._createFieldsForEnvironmentTable(), SammoDataBase.ENVIRONMENT_TABLE_NAME
+        )
+        SammoDataBase._addTableToDataBaseFile(
+            db, self._createFieldsForSpeciesTable(), SammoDataBase.SPECIES_TABLE_NAME
         )
 
     @staticmethod
@@ -108,6 +110,43 @@ class SammoDataBase:
             )
         )
         fields.append(self._createFieldShortText("Survey"))
+
+        return fields
+
+    def _createFieldsForSpeciesTable(self):
+        fields = QgsFields()
+        fields.append(QgsField("code_esp", QVariant.Int))
+        fields.append(self._createFieldShortText("nom_latin"))
+        fields.append(self._createFieldShortText("type"))
+        fields.append(QgsField("cat_group_size", QVariant.Int))
+        fields.append(self._createFieldShortText("groupe"))
+        fields.append(self._createFieldShortText("Famille"))
+        fields.append(self._createFieldShortText("List_sp"))
+        fields.append(self._createFieldShortText("liste_especes_potentielles"))
+        fields.append(self._createFieldShortText("potential_sp"))
+        fields.append(self._createFieldShortText("group_pelgas"))
+        fields.append(self._createFieldShortText("nom_commun"))
+        fields.append(self._createFieldShortText("nom_anglais"))
+        fields.append(self._createFieldShortText("nom_espagnol"))
+        fields.append(self._createFieldShortText("phylum_public"))
+        fields.append(self._createFieldShortText("classe_public"))
+        fields.append(self._createFieldShortText("ordre_public"))
+        fields.append(self._createFieldShortText("famille_public"))
+        fields.append(self._createFieldShortText("taxon_fr"))
+        fields.append(self._createFieldShortText("family_eng"))
+        fields.append(self._createFieldShortText("group_eng"))
+        fields.append(self._createFieldShortText("id_public"))
+        fields.append(self._createFieldShortText("LB_NOM_taxref"))
+        fields.append(self._createFieldShortText("NOM_VERN_taxref"))
+        fields.append(self._createFieldShortText("NOM_VERN_ENG_taxref"))
+        fields.append(self._createFieldShortText("CD_NOM_taxref"))
+        fields.append(self._createFieldShortText("APHIA_ID_taxref"))
+        fields.append(self._createFieldShortText("REGNE_taxref"))
+        fields.append(self._createFieldShortText("PHYLUM_taxref"))
+        fields.append(self._createFieldShortText("CLASSE_taxref"))
+        fields.append(self._createFieldShortText("ORDRE_taxref"))
+        fields.append(self._createFieldShortText("FAMILLE_taxref"))
+        fields.append(self._createFieldShortText("R_Caraibes"))
 
         return fields
 
