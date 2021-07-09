@@ -11,13 +11,13 @@ from .src.core.session import SammoSession
 class Sammo(ParentOfSammoActionSession):
     def __init__(self, iface):
         self.iface = iface
-        self.sammoToolBar = self.iface.addToolBar("Sammo ToolBar")
-        self.sammoSession = SammoSession()
+        self._toolBar = self.iface.addToolBar("Sammo ToolBar")
+        self._session = SammoSession()
         self.actionSession = SammoActionSession(self)
         self.actionOnOffSession = SammoActionOnOffEffort(
             self.iface,
-            self.sammoToolBar,
-            self.sammoSession
+            self._toolBar,
+            self._session
         )
 
     def initGui(self):
@@ -27,7 +27,7 @@ class Sammo(ParentOfSammoActionSession):
     def unload(self):
         self.actionSession.unload()
         self.actionOnOffSession.unload()
-        del self.sammoToolBar
+        del self._toolBar
 
     def onCreateSession(self):
         self.actionOnOffSession.onCreateSession()
@@ -38,8 +38,8 @@ class Sammo(ParentOfSammoActionSession):
 
     @property
     def toolBar(self):
-        return self.sammoToolBar
+        return self._toolBar
 
     @property
     def session(self):
-        return self.sammoSession
+        return self._session
