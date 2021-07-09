@@ -14,7 +14,7 @@ from qgis.core import (
     QgsCoordinateTransformContext,
     QgsFeatureSink,
     QgsVectorLayer,
-    QgsField
+    QgsField,
 )
 
 
@@ -32,7 +32,9 @@ class SammoDataBase:
         db = SammoDataBase._pathToDataBase(directory)
 
         SammoDataBase._addTableToDataBaseFile(
-            db, self._createFieldsForEnvironmentTable(), "environment"
+            db,
+            self._createFieldsForEnvironmentTable(),
+            SammoDataBase.ENVIRONMENT_TABLE_NAME,
         )
 
     @staticmethod
@@ -100,7 +102,11 @@ class SammoDataBase:
         fields.append(QgsField("nebulosite", QVariant.Int))
         fields.append(self._createFieldShortText("cond_generale"))
         fields.append(QgsField("visibilité", QVariant.Double))
-        fields.append(self._createFieldShortText(SammoDataBase.ENVIRONMENT_COMMENT_FIELD_NAME))
+        fields.append(
+            self._createFieldShortText(
+                SammoDataBase.ENVIRONMENT_COMMENT_FIELD_NAME
+            )
+        )
         fields.append(self._createFieldShortText("Survey"))
 
         return fields
@@ -110,7 +116,6 @@ class SammoDataBase:
         for feature in layer.getFeatures():
             if feature.id() > maxId:
                 maxId = feature.id()
-            break
 
         return maxId
 
