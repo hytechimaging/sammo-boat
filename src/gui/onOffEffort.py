@@ -3,10 +3,9 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-from qgis.PyQt.QtWidgets import QMessageBox, QAction, QPushButton
-from qgis.core import QgsFeature
+from qgis.PyQt.QtWidgets import QMessageBox, QPushButton
+from qgis.core import QgsVectorLayerUtils
 
-from ..core.session import SammoSession
 from ..core.database import SammoDataBase
 
 
@@ -43,6 +42,9 @@ class SammoActionOnOffEffort:
             )
             return
 
-        print("Form creation")
-        feat = QgsFeature(table.fields());
-        self.iface.openFeatureForm(table, feat, False)
+        feat = QgsVectorLayerUtils.createFeature(table)
+        table.startEditing()
+        if self.iface.openFeatureForm(table, feat):
+            table.addFeature(feat)
+            table.commitChanges()
+
