@@ -43,6 +43,6 @@ class SammoActionOnOffEffort:
             )
             return
 
-        feat = QgsFeature();
-        feat.setFields(table.fields())
-        self.iface.openFeatureForm(table, feat)
+        print("Form creation")
+        feat = QgsFeature(table.fields());
+        self.iface.openFeatureForm(table, feat, False)
