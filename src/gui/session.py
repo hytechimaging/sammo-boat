@@ -11,6 +11,11 @@ from ..core.session import SammoSession
 
 
 class ParentOfSammoActionSession:
+    """
+    This is the abstract class that Sammo class
+    (which is the owner of the SammoActionSession
+    instance) needs to inherit from
+    """
 
     @abstractmethod
     def onCreateSession(self):
@@ -30,6 +35,7 @@ class ParentOfSammoActionSession:
     @abstractmethod
     def session(self):
         pass
+
 
 class SammoActionSession:
     def __init__(self, parent : ParentOfSammoActionSession):
