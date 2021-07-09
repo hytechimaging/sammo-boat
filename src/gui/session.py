@@ -36,7 +36,7 @@ class ParentOfSammoActionSession:
 
 
 class SammoActionSession:
-    def __init__(self, parent : ParentOfSammoActionSession):
+    def __init__(self, parent: ParentOfSammoActionSession):
         self.parent = parent
         self.action = None
 

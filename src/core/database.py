@@ -5,10 +5,7 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
 
-from PyQt5.QtWidgets import QMessageBox
 from qgis.PyQt.QtCore import QVariant
-from qgis._core import QgsVectorLayer
-from qgis.core import QgsField
 from qgis.core import (
     QgsWkbTypes,
     QgsFields,
@@ -16,6 +13,8 @@ from qgis.core import (
     QgsCoordinateReferenceSystem,
     QgsCoordinateTransformContext,
     QgsFeatureSink,
+    QgsVectorLayer,
+    QgsField
 )
 
 
@@ -49,11 +48,13 @@ class SammoDataBase:
         opts.driverName = "GPKG"
         opts.layerName = tableName
         if not os.path.isfile(db):
-            opts.actionOnExistingFile = \
+            opts.actionOnExistingFile = (
                 QgsVectorFileWriter.CreateOrOverwriteFile
+            )
         else:
-            opts.actionOnExistingFile = \
+            opts.actionOnExistingFile = (
                 QgsVectorFileWriter.CreateOrOverwriteLayer
+            )
         crs = QgsCoordinateReferenceSystem.fromEpsgId(4326)
         QgsVectorFileWriter.create(
             db,
