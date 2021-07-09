@@ -5,7 +5,12 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 from .database import SammoDataBase
 from qgis.PyQt.QtWidgets import QMessageBox
-from qgis.core import QgsVectorLayerUtils, QgsVectorLayer
+from qgis.core import (
+    QgsFeature,
+    QgsVectorLayerUtils,
+    QgsVectorLayer,
+    QgsProject
+)
 from datetime import datetime
 
 
@@ -15,6 +20,7 @@ class SammoSession:
         self.isDbOpened = False
         self._directoryPath: str = None
         self._environmentTable: QgsVectorLayer = None
+        self._speciesTable: QgsVectorLayer = None
 
     @staticmethod
     def isDataBaseAvailable(directory):
@@ -85,3 +91,31 @@ class SammoSession:
         feat = QgsVectorLayerUtils.createFeature(table)
         table.startEditing()
         return feat, table
+
+    def onSessionStart(self, workingDirectory : str):
+        self.directoryPath = workingDirectory
+
+        self._speciesTable = self.loadTable(SammoDataBase.SPECIES_TABLE_NAME)
+        SammoSession._initializeSpeciesTable(self._speciesTable)
+
+    @staticmethod
+    def _initializeSpeciesTable(layer : QgsVectorLayer):
+        print("Nb de champs = " + str(layer.fields().count()))
+        print("field(1) = " +  layer.fields().field(1).name())
+        species_1 = QgsFeature(layer.fields())
+        species_1.setAttribute("code_esp", 1)
+        species_1.setAttribute('nom_commun', 'Dauphin commun')
+        species_1.setAttribute('nom_latin', 'Delphinus delphis')
+        species_1.setAttribute('famille', 'Delphinidae')
+
+        species_1 = QgsFeature(layer.fields())
+        species_1.setAttribute('code_esp', 2)
+        species_1.setAttribute('nom_commun', 'Baleine bleue')
+        species_1.setAttribute('nom_latin', 'Balaenoptera musculus')
+        species_1.setAttribute('famille', 'Balaenopteridae')
+
+        species_1 = QgsFeature(layer.fields())
+        species_1.setAttribute('code_esp', 3)
+        species_1.setAttribute('nom_commun', 'Mouette rieuse')
+        species_1.setAttribute('nom_latin', 'Chroicocephalus ridibundus')
+        species_1.setAttribute('famille', 'Laridés')
