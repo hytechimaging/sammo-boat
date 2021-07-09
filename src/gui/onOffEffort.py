@@ -3,8 +3,8 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-from qgis.PyQt.QtWidgets import QMessageBox, QAction
-from qgis._core import QgsFeature
+from qgis.PyQt.QtWidgets import QMessageBox, QAction, QPushButton
+from qgis.core import QgsFeature
 
 from ..core.session import SammoSession
 from ..core.database import SammoDataBase
@@ -17,14 +17,20 @@ class SammoActionOnOffEffort:
         self.action = None
         self.session = session
         self.toolBar = toolBar
+        self.button = None
 
     def initGui(self):
-        self.action = QAction("Effort", self.mainWindow)
-        self.action.triggered.connect(self.run)
-        self.toolBar.addAction(self.action)
+        self.button = QPushButton(self.mainWindow)
+        self.button.setText("Effort")
+        self.button.clicked.connect(self.run)
+        self.button.setEnabled(False)
+        self.toolBar.addWidget(self.button)
+
+    def onCreateSession(self):
+        self.button.setEnabled(True)
 
     def unload(self):
-        del self.action
+        del self.button
 
     def run(self):
         print("Effort button pressed")
