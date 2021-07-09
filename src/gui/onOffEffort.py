@@ -3,8 +3,7 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-from qgis.PyQt.QtWidgets import QMessageBox, QPushButton
-from qgis.core import QgsVectorLayerUtils
+from qgis.PyQt.QtWidgets import QPushButton
 
 from ..core.database import SammoDataBase
 
@@ -33,18 +32,8 @@ class SammoActionOnOffEffort:
 
     def run(self):
         print("Effort button pressed")
-        table = self.session.loadTable(SammoDataBase.ENVIRONMENT_TABLE_NAME)
-        if not table.isValid():
-            QMessageBox.critical(
-                None,
-                "Sammo-Boat plugin",
-                "Impossible to read the environment table "
-            )
-            return
 
-        feat = QgsVectorLayerUtils.createFeature(table)
-        table.startEditing()
+        [feat, table] = self.session.getReadyToAddNewFeatureToEnvironmentTable()
         if self.iface.openFeatureForm(table, feat):
-            table.addFeature(feat)
-            table.commitChanges()
+            self.session.addNewFeatureToEnvironmentTable(table, feat)
 
