@@ -23,8 +23,8 @@ class SammoDataBase:
     DB_NAME = "sammo-boat.gpkg"
     LAYER_NAME = "session data"
     ENVIRONMENT_TABLE_NAME = "environment"
-    SPECIES_TABLE_NAME = "species"
     ENVIRONMENT_COMMENT_FIELD_NAME = "commentaire"
+    SPECIES_TABLE_NAME = "species"
 
     @staticmethod
     def isDataBaseAvailableInThisDirectory(directory):
