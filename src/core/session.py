@@ -25,12 +25,14 @@ class SammoSession:
             # No geopackage DB in this directory
             self.createEmptyDataBase(directory)
 
-        self._environmentTable = self.loadTable(SammoDataBase.ENVIRONMENT_TABLE_NAME)
+        self._environmentTable = self.loadTable(
+            SammoDataBase.ENVIRONMENT_TABLE_NAME
+        )
         if not self._environmentTable.isValid():
             QMessageBox.critical(
                 None,
                 "Sammo-Boat plugin",
-                "Impossible to read the environment table "
+                "Impossible to read the environment table ",
             )
 
     def createEmptyDataBase(self, directory):
@@ -46,7 +48,7 @@ class SammoSession:
         self._environmentTable.addFeature(feat)
         self._environmentTable.commitChanges()
 
-    def _getReadyToAddNewFeature(self, table : QgsVectorLayer):
+    def _getReadyToAddNewFeature(self, table: QgsVectorLayer):
         feat = QgsVectorLayerUtils.createFeature(table)
         table.startEditing()
 

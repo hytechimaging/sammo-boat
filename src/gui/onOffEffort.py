@@ -30,7 +30,7 @@ class ParentOfSammoActionOnOffEffort:
 
 
 class SammoActionOnOffEffort:
-    def __init__(self, parent : ParentOfSammoActionOnOffEffort):
+    def __init__(self, parent: ParentOfSammoActionOnOffEffort):
         self.parent = parent
         self.button = None
 
