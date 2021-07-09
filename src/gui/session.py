@@ -4,10 +4,8 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 from abc import abstractmethod
-
 from qgis.PyQt.QtCore import QDir
 from qgis.PyQt.QtWidgets import QAction, QFileDialog
-from ..core.session import SammoSession
 
 
 class ParentOfSammoActionSession:
@@ -58,9 +56,4 @@ class SammoActionSession:
             # no directory selected
             return
 
-        if not SammoSession.isDataBaseAvailable(workingDirectory):
-            # No geopackage DB in this directory
-            self.parent.session.createEmptyDataBase(workingDirectory)
-
-        self.parent.session.directoryPath = workingDirectory
-        self.parent.onCreateSession()
+        self.parent.onCreateSession(workingDirectory)
