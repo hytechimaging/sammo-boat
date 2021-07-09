@@ -25,7 +25,11 @@ class ParentOfSammoActionOnOffEffort:
         pass
 
     @abstractmethod
-    def openDialogToAddNewFeatureToEnvironmentTable(self):
+    def OnStartEffort(self):
+        pass
+
+    @abstractmethod
+    def OnStopEffort(self):
         pass
 
 
@@ -39,6 +43,7 @@ class SammoActionOnOffEffort:
         self.button.setText("Effort")
         self.button.clicked.connect(self.run)
         self.button.setEnabled(False)
+        self.button.setCheckable(True)
         self.parent.toolBar.addWidget(self.button)
 
     def onCreateSession(self):
@@ -48,4 +53,7 @@ class SammoActionOnOffEffort:
         del self.button
 
     def run(self):
-        self.parent.openDialogToAddNewFeatureToEnvironmentTable()
+        if self.button.isChecked():
+            self.parent.OnStartEffort()
+        else:
+            self.parent.OnStopEffort()

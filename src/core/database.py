@@ -22,6 +22,7 @@ class SammoDataBase:
     DB_NAME = "sammo-boat.gpkg"
     LAYER_NAME = "session data"
     ENVIRONMENT_TABLE_NAME = "environment"
+    ENVIRONMENT_COMMENT_FIELD_NAME = "commentaire"
 
     @staticmethod
     def isDataBaseAvailableInThisDirectory(directory):
@@ -99,10 +100,19 @@ class SammoDataBase:
         fields.append(QgsField("nebulosite", QVariant.Int))
         fields.append(self._createFieldShortText("cond_generale"))
         fields.append(QgsField("visibilité", QVariant.Double))
-        fields.append(self._createFieldShortText("commentaire"))
+        fields.append(self._createFieldShortText(SammoDataBase.ENVIRONMENT_COMMENT_FIELD_NAME))
         fields.append(self._createFieldShortText("Survey"))
 
         return fields
+
+    def getIdOfLastAddedFeature(self, layer: QgsVectorLayer):
+        maxId = -1
+        for feature in layer.getFeatures():
+            if feature.id() > maxId:
+                maxId = feature.id()
+            break
+
+        return maxId
 
     @staticmethod
     def _createFieldShortText(fieldName):
