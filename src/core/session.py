@@ -73,10 +73,10 @@ class SammoSession:
 
         table.commitChanges()
 
-    def createEmptyDataBase(self, directory):
+    def createEmptyDataBase(self, directory: str):
         self.db.createEmptyDataBase(directory)
 
-    def loadTable(self, tableName):
+    def loadTable(self, tableName: str) -> QgsVectorLayer:
         return self.db.loadTable(self._directoryPath, tableName)
 
     def getReadyToAddNewFeatureToEnvironmentTable(self):
