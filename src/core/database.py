@@ -27,6 +27,7 @@ class SammoDataBase:
     SPECIES_TABLE_NAME = "species"
     OBSERVATION_TABLE_NAME = "observations"
     FOLLOWER_TABLE_NAME = "followers"
+    GPS_TABLE_NAME = "gps"
 
     @staticmethod
     def isDataBaseAvailableInThisDirectory(directory):
@@ -51,9 +52,12 @@ class SammoDataBase:
         self._addTableToDataBaseFile(
             db, self._createFieldsForFollowerTable(), self.FOLLOWER_TABLE_NAME
         )
+        self._addTableToDataBaseFile(
+            db, self._createFieldsForGpsTable(), self.GPS_TABLE_NAME
+        )
 
     @staticmethod
-    def _addTableToDataBaseFile(db, fields, tableName):
+    def _addTableToDataBaseFile(db: str, fields: QgsFields, tableName: str):
         """
         Create the database and save it as gpkg file
 
@@ -232,6 +236,15 @@ class SammoDataBase:
         fields.append(QgsField("nombre", QVariant.Int))
         fields.append(self._createFieldShortText("age"))
         fields.append(self._createFieldShortText("interaction"))
+
+        return fields
+
+    def _createFieldsForGpsTable(self) -> QgsFields:
+        fields = QgsFields()
+        fields.append(QgsField("Latitude", QVariant.Double))
+        fields.append(QgsField("Longitude", QVariant.Double))
+        fields.append(self._createFieldShortText("leg_heure"))
+        fields.append(QgsField("code_leg", QVariant.Int))
 
         return fields
 
