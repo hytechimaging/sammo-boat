@@ -29,7 +29,7 @@ class IParentOfSammoActionOnOffEffort:
         pass
 
     @abstractmethod
-    def OnStopEffort(self):
+    def onStopEffort(self):
         pass
 
 
@@ -56,4 +56,4 @@ class SammoActionOnOffEffort:
         if self.button.isChecked():
             self.parent.onStartEffort()
         else:
-            self.parent.OnStopEffort()
+            self.parent.onStopEffort()
