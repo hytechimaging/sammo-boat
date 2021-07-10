@@ -5,7 +5,7 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 from .database import SammoDataBase
 from qgis.PyQt.QtWidgets import QMessageBox
-from qgis.core import QgsVectorLayerUtils, QgsVectorLayer
+from qgis.core import QgsVectorLayerUtils, QgsVectorLayer, QgsProject
 from datetime import datetime
 
 
@@ -15,6 +15,9 @@ class SammoSession:
         self._directoryPath: str = None
         self._environmentTable: QgsVectorLayer = None
         self._speciesTable: QgsVectorLayer = None
+        self._observationTable: QgsVectorLayer = None
+        self._followerTable: QgsVectorLayer = None
+        self._gpsTable: QgsVectorLayer = None
 
     @staticmethod
     def isDataBaseAvailable(directory):
@@ -30,12 +33,13 @@ class SammoSession:
             SammoDataBase.ENVIRONMENT_TABLE_NAME
         )
         self._speciesTable = self.loadTable(SammoDataBase.SPECIES_TABLE_NAME)
-        if not self._environmentTable.isValid():
-            QMessageBox.critical(
-                None,
-                "Sammo-Boat plugin",
-                "Impossible to read the environment table ",
-            )
+        self._observationTable = self.loadTable(
+            SammoDataBase.OBSERVATION_TABLE_NAME
+        )
+        self._followerTable = self.loadTable(SammoDataBase.FOLLOWER_TABLE_NAME)
+        self._gpsTable = self.loadTable(SammoDataBase.GPS_TABLE_NAME)
+
+        QgsProject.instance().addMapLayer(self._gpsTable)
 
     def onStopEffort(self):
         table = self._environmentTable
@@ -75,7 +79,14 @@ class SammoSession:
         SammoDataBase.initializeSpeciesTable(speciesTable)
 
     def loadTable(self, tableName: str) -> QgsVectorLayer:
-        return self.db.loadTable(self._directoryPath, tableName)
+        layer = self.db.loadTable(self._directoryPath, tableName)
+        if not layer.isValid():
+            QMessageBox.critical(
+                None,
+                "Sammo-Boat plugin",
+                "Impossible to read the table " + tableName,
+            )
+        return layer
 
     def getReadyToAddNewFeatureToEnvironmentTable(self):
         return self._getReadyToAddNewFeature(self._environmentTable)
