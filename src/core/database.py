@@ -15,6 +15,7 @@ from qgis.core import (
     QgsFeatureSink,
     QgsVectorLayer,
     QgsField,
+    QgsFeature
 )
 
 
@@ -169,5 +170,27 @@ class SammoDataBase:
         return QgsField(fieldName, QVariant.String, len=50)
 
     def loadTable(self, directory, tableName) -> QgsVectorLayer:
-        db = self._pathToDataBase(directory)
+        db = self._pathToDataBase(directory) + "|layername=" + tableName
         return QgsVectorLayer(db, tableName)
+
+    @staticmethod
+    def initializeSpeciesTable(speciesTable : QgsVectorLayer):
+        print("Nb de champs = " + str(speciesTable.fields().count()))
+        print("field(1) = " + speciesTable.fields().field(1).name())
+        species_1 = QgsFeature(speciesTable.fields())
+        species_1.setAttribute("code_esp", 1)
+        species_1.setAttribute('nom_commun', 'Dauphin commun')
+        species_1.setAttribute('nom_latin', 'Delphinus delphis')
+        species_1.setAttribute('famille', 'Delphinidae')
+
+        species_1 = QgsFeature(speciesTable.fields())
+        species_1.setAttribute('code_esp', 2)
+        species_1.setAttribute('nom_commun', 'Baleine bleue')
+        species_1.setAttribute('nom_latin', 'Balaenoptera musculus')
+        species_1.setAttribute('famille', 'Balaenopteridae')
+
+        species_1 = QgsFeature(speciesTable.fields())
+        species_1.setAttribute('code_esp', 3)
+        species_1.setAttribute('nom_commun', 'Mouette rieuse')
+        species_1.setAttribute('nom_latin', 'Chroicocephalus ridibundus')
+        species_1.setAttribute('famille', 'Laridés')
