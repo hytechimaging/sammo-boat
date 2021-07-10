@@ -30,12 +30,18 @@ class SammoDataBase:
         return os.path.isfile(SammoDataBase._pathToDataBase(directory))
 
     def createEmptyDataBase(self, directory):
-        db = SammoDataBase._pathToDataBase(directory)
+        db = self._pathToDataBase(directory)
 
-        SammoDataBase._addTableToDataBaseFile(
+        self._addTableToDataBaseFile(
             db,
             self._createFieldsForEnvironmentTable(),
-            SammoDataBase.ENVIRONMENT_TABLE_NAME,
+            self.ENVIRONMENT_TABLE_NAME,
+        )
+
+        self._addTableToDataBaseFile(
+            db,
+            self._createFieldsForSpeciesTable(),
+            self.SPECIES_TABLE_NAME,
         )
 
     @staticmethod
@@ -73,10 +79,10 @@ class SammoDataBase:
         )
 
     @staticmethod
-    def _pathToDataBase(directory):
+    def _pathToDataBase(directory: str) -> str:
         return os.path.join(directory, SammoDataBase.DB_NAME)
 
-    def _createFieldsForEnvironmentTable(self):
+    def _createFieldsForEnvironmentTable(self) -> QgsFields:
         fields = QgsFields()
         fields.append(QgsField("code_leg", QVariant.Int))
         fields.append(self._createFieldShortText("heure"))
@@ -105,14 +111,15 @@ class SammoDataBase:
         fields.append(QgsField("visibilité", QVariant.Double))
         fields.append(
             self._createFieldShortText(
-                SammoDataBase.ENVIRONMENT_COMMENT_FIELD_NAME
+                self.ENVIRONMENT_COMMENT_FIELD_NAME
             )
         )
         fields.append(self._createFieldShortText("Survey"))
 
         return fields
 
-    def getIdOfLastAddedFeature(self, layer: QgsVectorLayer):
+    @staticmethod
+    def getIdOfLastAddedFeature(layer: QgsVectorLayer) -> int:
         maxId = -1
         for feature in layer.getFeatures():
             if feature.id() > maxId:
@@ -120,7 +127,7 @@ class SammoDataBase:
 
         return maxId
 
-    def _createFieldsForSpeciesTable(self):
+    def _createFieldsForSpeciesTable(self) -> QgsFields:
         fields = QgsFields()
         fields.append(QgsField("code_esp", QVariant.Int))
         fields.append(self._createFieldShortText("nom_latin"))
@@ -158,9 +165,9 @@ class SammoDataBase:
         return fields
 
     @staticmethod
-    def _createFieldShortText(fieldName):
+    def _createFieldShortText(fieldName) -> QgsField:
         return QgsField(fieldName, QVariant.String, len=50)
 
-    def loadTable(self, directory, tableName):
+    def loadTable(self, directory, tableName) -> QgsVectorLayer:
         db = self._pathToDataBase(directory)
         return QgsVectorLayer(db, tableName)
