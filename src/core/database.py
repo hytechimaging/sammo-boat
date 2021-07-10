@@ -162,14 +162,6 @@ class SammoDataBase:
         return fields
 
     @staticmethod
-    def _createFieldShortText(fieldName) -> QgsField:
-        return QgsField(fieldName, QVariant.String, len=50)
-
-    def loadTable(self, directory, tableName) -> QgsVectorLayer:
-        db = self._pathToDataBase(directory) + "|layername=" + tableName
-        return QgsVectorLayer(db, tableName)
-
-    @staticmethod
     def initializeSpeciesTable(speciesTable: QgsVectorLayer):
         speciesTable.startEditing()
 
@@ -195,3 +187,11 @@ class SammoDataBase:
         speciesTable.addFeature(species_3)
 
         speciesTable.commitChanges()
+
+    @staticmethod
+    def _createFieldShortText(fieldName) -> QgsField:
+        return QgsField(fieldName, QVariant.String, len=50)
+
+    def loadTable(self, directory, tableName) -> QgsVectorLayer:
+        db = self._pathToDataBase(directory) + "|layername=" + tableName
+        return QgsVectorLayer(db, tableName)
