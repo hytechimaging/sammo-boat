@@ -3,9 +3,14 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-from PyQt5.QtWidgets import QMessageBox
 from .database import SammoDataBase
-from qgis.core import QgsVectorLayerUtils, QgsProject, QgsVectorLayer
+from qgis.PyQt.QtWidgets import QMessageBox
+from qgis.core import (
+    QgsVectorLayerUtils,
+    QgsVectorLayer,
+    QgsProject,
+    QgsFeature,
+)
 from datetime import datetime
 
 
@@ -91,12 +96,22 @@ class SammoSession:
     def getReadyToAddNewFeatureToEnvironmentTable(self):
         return self._getReadyToAddNewFeature(self._environmentTable)
 
-    def addNewFeatureToEnvironmentTable(self, feat):
-        self._environmentTable.addFeature(feat)
-        self._environmentTable.commitChanges()
+    def addNewFeatureToEnvironmentTable(self, feature: QgsFeature):
+        self._addNewFeature(feature, self._environmentTable)
+
+    def getReadyToAddNewFeatureToObservationTable(self):
+        return self._getReadyToAddNewFeature(self._observationTable)
+
+    def addNewFeatureToObservationTable(self, feature: QgsFeature):
+        self._addNewFeature(feature, self._observationTable)
 
     @staticmethod
     def _getReadyToAddNewFeature(table: QgsVectorLayer):
         feat = QgsVectorLayerUtils.createFeature(table)
         table.startEditing()
         return feat, table
+
+    @staticmethod
+    def _addNewFeature(feature: QgsFeature, table: QgsVectorLayer):
+        table.addFeature(feature)
+        table.commitChanges()
