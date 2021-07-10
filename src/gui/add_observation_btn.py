@@ -39,7 +39,6 @@ class AddObservationBtn:
         self.button.setText("Observation")
         self.button.clicked.connect(self.run)
         self.button.setEnabled(False)
-        self.button.setCheckable(True)
         self.parent.toolBar.addWidget(self.button)
 
     def onStartSession(self):
