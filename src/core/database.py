@@ -26,6 +26,7 @@ class SammoDataBase:
     ENVIRONMENT_COMMENT_FIELD_NAME = "commentaire"
     SPECIES_TABLE_NAME = "species"
     OBSERVATION_TABLE_NAME = "observations"
+    FOLLOWER_TABLE_NAME = "followers"
 
     @staticmethod
     def isDataBaseAvailableInThisDirectory(directory):
@@ -46,6 +47,9 @@ class SammoDataBase:
             db,
             self._createFieldsForObservationTable(),
             self.OBSERVATION_TABLE_NAME,
+        )
+        self._addTableToDataBaseFile(
+            db, self._createFieldsForFollowerTable(), self.FOLLOWER_TABLE_NAME
         )
 
     @staticmethod
@@ -215,6 +219,19 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("cptmt_OIS"))
         fields.append(self._createFieldShortText("cptmt_BAT"))
         fields.append(self._createFieldShortText("comment"))
+
+        return fields
+
+    def _createFieldsForFollowerTable(self) -> QgsFields:
+        fields = QgsFields()
+        fields.append(QgsField("code_leg", QVariant.Int))
+        fields.append(self._createFieldShortText("heure"))
+        fields.append(self._createFieldShortText("leg_heure"))
+        fields.append(self._createFieldShortText("peche"))
+        fields.append(self._createFieldShortText("code_esp"))
+        fields.append(QgsField("nombre", QVariant.Int))
+        fields.append(self._createFieldShortText("age"))
+        fields.append(self._createFieldShortText("interaction"))
 
         return fields
 
