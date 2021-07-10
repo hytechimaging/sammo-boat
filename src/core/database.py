@@ -15,7 +15,7 @@ from qgis.core import (
     QgsFeatureSink,
     QgsVectorLayer,
     QgsField,
-    QgsFeature
+    QgsFeature,
 )
 
 
@@ -40,9 +40,7 @@ class SammoDataBase:
         )
 
         self._addTableToDataBaseFile(
-            db,
-            self._createFieldsForSpeciesTable(),
-            self.SPECIES_TABLE_NAME,
+            db, self._createFieldsForSpeciesTable(), self.SPECIES_TABLE_NAME
         )
 
     @staticmethod
@@ -111,9 +109,7 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("cond_generale"))
         fields.append(QgsField("visibilité", QVariant.Double))
         fields.append(
-            self._createFieldShortText(
-                self.ENVIRONMENT_COMMENT_FIELD_NAME
-            )
+            self._createFieldShortText(self.ENVIRONMENT_COMMENT_FIELD_NAME)
         )
         fields.append(self._createFieldShortText("Survey"))
 
@@ -174,23 +170,28 @@ class SammoDataBase:
         return QgsVectorLayer(db, tableName)
 
     @staticmethod
-    def initializeSpeciesTable(speciesTable : QgsVectorLayer):
-        print("Nb de champs = " + str(speciesTable.fields().count()))
-        print("field(1) = " + speciesTable.fields().field(1).name())
+    def initializeSpeciesTable(speciesTable: QgsVectorLayer):
+        speciesTable.startEditing()
+
         species_1 = QgsFeature(speciesTable.fields())
         species_1.setAttribute("code_esp", 1)
-        species_1.setAttribute('nom_commun', 'Dauphin commun')
-        species_1.setAttribute('nom_latin', 'Delphinus delphis')
-        species_1.setAttribute('famille', 'Delphinidae')
+        species_1.setAttribute("nom_commun", "Dauphin commun")
+        species_1.setAttribute("nom_latin", "Delphinus delphis")
+        species_1.setAttribute("famille", "Delphinidae")
+        speciesTable.addFeature(species_1)
 
-        species_1 = QgsFeature(speciesTable.fields())
-        species_1.setAttribute('code_esp', 2)
-        species_1.setAttribute('nom_commun', 'Baleine bleue')
-        species_1.setAttribute('nom_latin', 'Balaenoptera musculus')
-        species_1.setAttribute('famille', 'Balaenopteridae')
+        species_2 = QgsFeature(speciesTable.fields())
+        species_2.setAttribute("code_esp", 2)
+        species_2.setAttribute("nom_commun", "Baleine bleue")
+        species_2.setAttribute("nom_latin", "Balaenoptera musculus")
+        species_2.setAttribute("famille", "Balaenopteridae")
+        speciesTable.addFeature(species_2)
 
-        species_1 = QgsFeature(speciesTable.fields())
-        species_1.setAttribute('code_esp', 3)
-        species_1.setAttribute('nom_commun', 'Mouette rieuse')
-        species_1.setAttribute('nom_latin', 'Chroicocephalus ridibundus')
-        species_1.setAttribute('famille', 'Laridés')
+        species_3 = QgsFeature(speciesTable.fields())
+        species_3.setAttribute("code_esp", 3)
+        species_3.setAttribute("nom_commun", "Mouette rieuse")
+        species_3.setAttribute("nom_latin", "Chroicocephalus ridibundus")
+        species_3.setAttribute("famille", "Laridés")
+        speciesTable.addFeature(species_3)
+
+        speciesTable.commitChanges()

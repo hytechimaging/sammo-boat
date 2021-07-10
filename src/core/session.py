@@ -34,9 +34,7 @@ class SammoSession:
         self._environmentTable = self.loadTable(
             SammoDataBase.ENVIRONMENT_TABLE_NAME
         )
-        self._speciesTable = self.loadTable(
-            SammoDataBase.SPECIES_TABLE_NAME
-        )
+        self._speciesTable = self.loadTable(SammoDataBase.SPECIES_TABLE_NAME)
         if not self._environmentTable.isValid():
             QMessageBox.critical(
                 None,
@@ -78,9 +76,7 @@ class SammoSession:
     def createEmptyDataBase(self, directory: str):
         self.db.createEmptyDataBase(directory)
 
-        speciesTable = self.loadTable(
-            SammoDataBase.SPECIES_TABLE_NAME
-        )
+        speciesTable = self.loadTable(SammoDataBase.SPECIES_TABLE_NAME)
         SammoDataBase.initializeSpeciesTable(speciesTable)
 
     def loadTable(self, tableName: str) -> QgsVectorLayer:
