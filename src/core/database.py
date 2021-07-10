@@ -24,20 +24,24 @@ class SammoDataBase:
     ENVIRONMENT_TABLE_NAME = "environment"
     SPECIES_TABLE_NAME = "species"
     ENVIRONMENT_COMMENT_FIELD_NAME = "commentaire"
-    SPECIES_TABLE_NAME = "species"
 
     @staticmethod
     def isDataBaseAvailableInThisDirectory(directory):
         return os.path.isfile(SammoDataBase._pathToDataBase(directory))
 
     def createEmptyDataBase(self, directory):
-        db = SammoDataBase._pathToDataBase(directory)
+        db = self._pathToDataBase(directory)
 
-        SammoDataBase._addTableToDataBaseFile(
-            db, self._createFieldsForEnvironmentTable(), SammoDataBase.ENVIRONMENT_TABLE_NAME
+        self._addTableToDataBaseFile(
+            db,
+            self._createFieldsForEnvironmentTable(),
+            self.ENVIRONMENT_TABLE_NAME,
         )
-        SammoDataBase._addTableToDataBaseFile(
-            db, self._createFieldsForSpeciesTable(), SammoDataBase.SPECIES_TABLE_NAME
+
+        self._addTableToDataBaseFile(
+            db,
+            self._createFieldsForSpeciesTable(),
+            self.SPECIES_TABLE_NAME,
         )
 
     @staticmethod
@@ -75,10 +79,10 @@ class SammoDataBase:
         )
 
     @staticmethod
-    def _pathToDataBase(directory):
+    def _pathToDataBase(directory: str) -> str:
         return os.path.join(directory, SammoDataBase.DB_NAME)
 
-    def _createFieldsForEnvironmentTable(self):
+    def _createFieldsForEnvironmentTable(self) -> QgsFields:
         fields = QgsFields()
         fields.append(QgsField("code_leg", QVariant.Int))
         fields.append(self._createFieldShortText("heure"))
@@ -107,51 +111,15 @@ class SammoDataBase:
         fields.append(QgsField("visibilité", QVariant.Double))
         fields.append(
             self._createFieldShortText(
-                SammoDataBase.ENVIRONMENT_COMMENT_FIELD_NAME
+                self.ENVIRONMENT_COMMENT_FIELD_NAME
             )
         )
         fields.append(self._createFieldShortText("Survey"))
 
         return fields
 
-    def _createFieldsForSpeciesTable(self):
-        fields = QgsFields()
-        fields.append(QgsField("code_esp", QVariant.Int))
-        fields.append(self._createFieldShortText("nom_latin"))
-        fields.append(self._createFieldShortText("type"))
-        fields.append(QgsField("cat_group_size", QVariant.Int))
-        fields.append(self._createFieldShortText("groupe"))
-        fields.append(self._createFieldShortText("Famille"))
-        fields.append(self._createFieldShortText("List_sp"))
-        fields.append(self._createFieldShortText("liste_especes_potentielles"))
-        fields.append(self._createFieldShortText("potential_sp"))
-        fields.append(self._createFieldShortText("group_pelgas"))
-        fields.append(self._createFieldShortText("nom_commun"))
-        fields.append(self._createFieldShortText("nom_anglais"))
-        fields.append(self._createFieldShortText("nom_espagnol"))
-        fields.append(self._createFieldShortText("phylum_public"))
-        fields.append(self._createFieldShortText("classe_public"))
-        fields.append(self._createFieldShortText("ordre_public"))
-        fields.append(self._createFieldShortText("famille_public"))
-        fields.append(self._createFieldShortText("taxon_fr"))
-        fields.append(self._createFieldShortText("family_eng"))
-        fields.append(self._createFieldShortText("group_eng"))
-        fields.append(self._createFieldShortText("id_public"))
-        fields.append(self._createFieldShortText("LB_NOM_taxref"))
-        fields.append(self._createFieldShortText("NOM_VERN_taxref"))
-        fields.append(self._createFieldShortText("NOM_VERN_ENG_taxref"))
-        fields.append(self._createFieldShortText("CD_NOM_taxref"))
-        fields.append(self._createFieldShortText("APHIA_ID_taxref"))
-        fields.append(self._createFieldShortText("REGNE_taxref"))
-        fields.append(self._createFieldShortText("PHYLUM_taxref"))
-        fields.append(self._createFieldShortText("CLASSE_taxref"))
-        fields.append(self._createFieldShortText("ORDRE_taxref"))
-        fields.append(self._createFieldShortText("FAMILLE_taxref"))
-        fields.append(self._createFieldShortText("R_Caraibes"))
-
-        return fields
-
-    def getIdOfLastAddedFeature(self, layer: QgsVectorLayer):
+    @staticmethod
+    def getIdOfLastAddedFeature(layer: QgsVectorLayer) -> int:
         maxId = -1
         for feature in layer.getFeatures():
             if feature.id() > maxId:
@@ -159,7 +127,7 @@ class SammoDataBase:
 
         return maxId
 
-    def _createFieldsForSpeciesTable(self):
+    def _createFieldsForSpeciesTable(self) -> QgsFields:
         fields = QgsFields()
         fields.append(QgsField("code_esp", QVariant.Int))
         fields.append(self._createFieldShortText("nom_latin"))
@@ -197,9 +165,9 @@ class SammoDataBase:
         return fields
 
     @staticmethod
-    def _createFieldShortText(fieldName):
+    def _createFieldShortText(fieldName) -> QgsField:
         return QgsField(fieldName, QVariant.String, len=50)
 
-    def loadTable(self, directory, tableName):
+    def loadTable(self, directory, tableName) -> QgsVectorLayer:
         db = self._pathToDataBase(directory)
         return QgsVectorLayer(db, tableName)
