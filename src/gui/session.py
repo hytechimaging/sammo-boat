@@ -8,7 +8,7 @@ from qgis.PyQt.QtCore import QDir
 from qgis.PyQt.QtWidgets import QAction, QFileDialog
 
 
-class ParentOfSammoActionSession:
+class IParentOfSammoActionSession:
     """
     This is the abstract class that Sammo class
     (which is the owner of the SammoActionSession
@@ -16,7 +16,7 @@ class ParentOfSammoActionSession:
     """
 
     @abstractmethod
-    def onCreateSession(self):
+    def onCreateSession(self, workingDirectory: str):
         pass
 
     @property
@@ -36,7 +36,7 @@ class ParentOfSammoActionSession:
 
 
 class SammoActionSession:
-    def __init__(self, parent: ParentOfSammoActionSession):
+    def __init__(self, parent: IParentOfSammoActionSession):
         self.parent = parent
         self.action = None
 

@@ -7,7 +7,7 @@ from abc import abstractmethod
 from qgis.PyQt.QtWidgets import QPushButton
 
 
-class ParentOfSammoActionOnOffEffort:
+class IParentOfSammoActionOnOffEffort:
     """
     This is the abstract class that Sammo class
     (which is the owner of the SammoActionOnOffEffort
@@ -25,7 +25,7 @@ class ParentOfSammoActionOnOffEffort:
         pass
 
     @abstractmethod
-    def OnStartEffort(self):
+    def onStartEffort(self):
         pass
 
     @abstractmethod
@@ -34,7 +34,7 @@ class ParentOfSammoActionOnOffEffort:
 
 
 class SammoActionOnOffEffort:
-    def __init__(self, parent: ParentOfSammoActionOnOffEffort):
+    def __init__(self, parent: IParentOfSammoActionOnOffEffort):
         self.parent = parent
         self.button = None
 
@@ -54,6 +54,6 @@ class SammoActionOnOffEffort:
 
     def run(self):
         if self.button.isChecked():
-            self.parent.OnStartEffort()
+            self.parent.onStartEffort()
         else:
             self.parent.OnStopEffort()
