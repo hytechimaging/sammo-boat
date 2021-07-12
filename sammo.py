@@ -7,6 +7,7 @@ from .src.gui.session import SammoActionSession, IParentOfSammoActionSession
 from .src.gui.on_off_effort import SammoActionOnOffEffort, IParentOfSammoActionOnOffEffort
 from .src.gui.add_observation_btn import AddObservationBtn, IParentOfAddObservationBtn
 from .src.core.session import SammoSession
+from .src.core.thread_gps import ThreadGps
 
 
 class Sammo(IParentOfSammoActionSession, IParentOfSammoActionOnOffEffort, IParentOfAddObservationBtn):
@@ -17,6 +18,7 @@ class Sammo(IParentOfSammoActionSession, IParentOfSammoActionOnOffEffort, IParen
         self._actionSession = SammoActionSession(self)
         self._onOffSessionBtn = SammoActionOnOffEffort(self)
         self._addObservationBtn = AddObservationBtn(self)
+        self._threadGps = ThreadGps()
 
     def initGui(self):
         self._actionSession.initGui()
@@ -38,10 +40,12 @@ class Sammo(IParentOfSammoActionSession, IParentOfSammoActionOnOffEffort, IParen
         if self.iface.openFeatureForm(table, feature):
             self._session.addNewFeatureToEnvironmentTable(feature)
             self._addObservationBtn.onStartSession()
+            self._threadGps.run()
 
     def onStopEffort(self):
         self._session.onStopEffort()
         self._addObservationBtn.onStopEffort()
+        self._threadGps.stop()
 
     def onClicObservation(self):
         [feature, table] = self._session.getReadyToAddNewFeatureToObservationTable()
