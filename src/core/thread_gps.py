@@ -25,7 +25,10 @@ class Worker(QObject):
                 sleep(1)
                 if (False == self.isNeedToContinue):
                     break
-                self.progress.emit(line.strip())
+                coordinates = line.strip().split(';')
+                longitude_deg = coordinates[0]
+                latitude_deg = coordinates[1]
+                self.progress.emit("Coordonnées GPS : longitude = {}° - latitude = {}°".format(longitude_deg, latitude_deg))
 
         self.finished.emit()
 
