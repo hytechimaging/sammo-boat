@@ -9,26 +9,34 @@ from time import sleep
 
 class Worker(QObject):
     finished = pyqtSignal()
-    progress = pyqtSignal(int)
+    progress = pyqtSignal(str)
     isNeedToContinue = True
 
+    def __init__(self, testFilePath: str):
+        super().__init__()
+        self.testFilePath = testFilePath
+
     def run(self):
-        """Long-running task."""
-        i = 1
-        while self.isNeedToContinue:
-            sleep(1)
-            self.progress.emit(i)
-            i = i + 1
+        with open(self.testFilePath) as file:
+            lines = file.readlines()
+
+        while True:
+            for line in lines:
+                sleep(1)
+                if (False == self.isNeedToContinue):
+                    break
+                self.progress.emit(line.strip())
 
         self.finished.emit()
 
     def stop(self):
         self.isNeedToContinue = False
 
+
 class ThreadGps:
-    def run(self):
+    def start(self, testFilePath: str):
         self.thread = QThread()
-        self.worker = Worker()
+        self.worker = Worker(testFilePath)
         self.worker.moveToThread(self.thread)
 
         self.thread.started.connect(self.worker.run)
@@ -42,5 +50,5 @@ class ThreadGps:
     def stop(self):
         self.worker.stop()
 
-    def reportProgress(self, u: int):
-        print("Progress : " + str(u))
+    def reportProgress(self, u: str):
+        print("Progress : " + u)

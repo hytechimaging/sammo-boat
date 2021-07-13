@@ -3,6 +3,7 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
+import os.path
 from .src.gui.session import SammoActionSession, IParentOfSammoActionSession
 from .src.gui.on_off_effort import SammoActionOnOffEffort, IParentOfSammoActionOnOffEffort
 from .src.gui.add_observation_btn import AddObservationBtn, IParentOfAddObservationBtn
@@ -40,7 +41,7 @@ class Sammo(IParentOfSammoActionSession, IParentOfSammoActionOnOffEffort, IParen
         if self.iface.openFeatureForm(table, feature):
             self._session.addNewFeatureToEnvironmentTable(feature)
             self._addObservationBtn.onStartSession()
-            self._threadGps.run()
+            self._threadGps.start( os.path.join(self._session._directoryPath, "gps_coordinates_test.fic"))
 
     def onStopEffort(self):
         self._session.onStopEffort()
