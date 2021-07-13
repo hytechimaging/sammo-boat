@@ -19,7 +19,7 @@ class Sammo(IParentOfSammoActionSession, IParentOfSammoActionOnOffEffort, IParen
         self._actionSession = SammoActionSession(self)
         self._onOffSessionBtn = SammoActionOnOffEffort(self)
         self._addObservationBtn = AddObservationBtn(self)
-        self._threadGps = ThreadGps()
+        self._threadGps = ThreadGps(self._session)
 
     def initGui(self):
         self._actionSession.initGui()
@@ -41,7 +41,8 @@ class Sammo(IParentOfSammoActionSession, IParentOfSammoActionOnOffEffort, IParen
         if self.iface.openFeatureForm(table, feature):
             self._session.addNewFeatureToEnvironmentTable(feature)
             self._addObservationBtn.onStartSession()
-            self._threadGps.start( os.path.join(self._session._directoryPath, "gps_coordinates_test.fic"))
+            testFilePath = os.path.join(self._session._directoryPath, "gps_coordinates_test.fic")
+            self._threadGps.start(testFilePath)
 
     def onStopEffort(self):
         self._session.onStopEffort()

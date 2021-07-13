@@ -5,6 +5,7 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 from .database import SammoDataBase
 from qgis.PyQt.QtWidgets import QMessageBox
+from qgis.PyQt.QtCore import QMutex
 from qgis.core import (
     QgsVectorLayerUtils,
     QgsVectorLayer,
@@ -23,6 +24,7 @@ class SammoSession:
         self._observationTable: QgsVectorLayer = None
         self._followerTable: QgsVectorLayer = None
         self._gpsTable: QgsVectorLayer = None
+        self._mutex = QMutex()
 
     @staticmethod
     def isDataBaseAvailable(directory):
@@ -55,20 +57,9 @@ class SammoSession:
         field_idx = table.fields().indexOf(
             SammoDataBase.ENVIRONMENT_COMMENT_FIELD_NAME
         )
-        dateTimeObj = datetime.now()
         timeOfStopEffort = (
             "End of the Effort at : "
-            + "{:02d}".format(dateTimeObj.day)
-            + "/"
-            + "{:02d}".format(dateTimeObj.month)
-            + "/"
-            + str(dateTimeObj.year)
-            + " "
-            + "{:02d}".format(dateTimeObj.hour)
-            + ":"
-            + "{:02d}".format(dateTimeObj.minute)
-            + ":"
-            + "{:02d}".format(dateTimeObj.second)
+            + self.nowToStringThreadSafe()
         )
         if not table.changeAttributeValue(
             idLastAddedFeature, field_idx, timeOfStopEffort
@@ -97,22 +88,87 @@ class SammoSession:
         return self._getReadyToAddNewFeature(self._environmentTable)
 
     def addNewFeatureToEnvironmentTable(self, feature: QgsFeature):
-        self._addNewFeature(feature, self._environmentTable)
+        self._addNewFeatureThreadSafe(feature, self._environmentTable)
 
     def getReadyToAddNewFeatureToObservationTable(self):
         return self._getReadyToAddNewFeature(self._observationTable)
 
     def addNewFeatureToObservationTable(self, feature: QgsFeature):
-        self._addNewFeature(feature, self._observationTable)
+        self._addNewFeatureThreadSafe(feature, self._observationTable)
 
-    @staticmethod
-    def _getReadyToAddNewFeature(table: QgsVectorLayer):
-        feat = QgsVectorLayerUtils.createFeature(table)
+    def addNewFeatureToGpsTable(self, longitude: float, latitude: float):
+        # this methode is usually called from a thread different from the main one
+        self._gpsTable.startEditing();
+
+        time = self.nowToStringThreadSafe()
+
+        feature = self._createFeatureThreadSafe(self._gpsTable)
+
+        if (True == self._setAttributeThreadSafe(feature, SammoDataBase.GPS_TIME_FIELD_NAME, time)):
+            print("_setAttributeThreadSafe(feature, SammoDataBase.GPS_TIME_FIELD_NAME : ok ")
+        else:
+            print("_setAttributeThreadSafe(feature, SammoDataBase.GPS_TIME_FIELD_NAME : échec ")
+
+        if (True == self._setAttributeThreadSafe(feature, SammoDataBase.GPS_LONGITUDE_FIELD_NAME, longitude)):
+            print("_setAttributeThreadSafe(feature, SammoDataBase.GPS_LONGITUDE_FIELD_NAME : ok ")
+        else:
+            print("_setAttributeThreadSafe(feature, SammoDataBase.GPS_LONGITUDE_FIELD_NAME : échec ")
+
+        if (True == self._setAttributeThreadSafe(feature, SammoDataBase.GPS_LATITUDE_FIELD_NAME, latitude)):
+            print("_setAttributeThreadSafe(feature, SammoDataBase.GPS_LATITUDE_FIELD_NAME : ok ")
+        else:
+            print("_setAttributeThreadSafe(feature, SammoDataBase.GPS_LATITUDE_FIELD_NAME : échec ")
+
+        self._addNewFeatureThreadSafe(feature, self._gpsTable)
+
+    def _getReadyToAddNewFeature(self, table: QgsVectorLayer):
+        feat = self._createFeatureThreadSafe(table)
         table.startEditing()
 
         return [feat, table]
 
-    @staticmethod
-    def _addNewFeature(feature: QgsFeature, table: QgsVectorLayer):
-        table.addFeature(feature)
-        table.commitChanges()
+    def _setAttributeThreadSafe(self, feature: QgsFeature, fieldName: str, value) -> bool :
+        self._mutex.lock()
+        result = feature.setAttribute(fieldName, value)
+        self._mutex.unlock()
+        return result
+
+    def _addNewFeatureThreadSafe(self, feature: QgsFeature, table: QgsVectorLayer):
+        self._mutex.lock()
+
+        if (True == table.addFeature(feature)):
+            print("addFeature : ok ")
+        else:
+            print("addFeature : échec ")
+
+        if (True == table.commitChanges()):
+            print("_addNewFeatureThreadSafe : ok ")
+        else:
+            print("_addNewFeatureThreadSafe : échec ")
+
+        self._mutex.unlock()
+
+    def _createFeatureThreadSafe(self, table: QgsVectorLayer) -> QgsFeature:
+        self._mutex.lock()
+        feature = QgsFeature(QgsVectorLayerUtils.createFeature(table))
+        self._mutex.unlock()
+        return feature
+
+    def nowToStringThreadSafe(self) -> str:
+            self._mutex.lock()
+            dateTimeObj = datetime.now()
+            time = (
+                "{:02d}".format(dateTimeObj.day)
+                + "/"
+                + "{:02d}".format(dateTimeObj.month)
+                + "/"
+                + str(dateTimeObj.year)
+                + " "
+                + "{:02d}".format(dateTimeObj.hour)
+                + ":"
+                + "{:02d}".format(dateTimeObj.minute)
+                + ":"
+                + "{:02d}".format(dateTimeObj.second)
+            )
+            self._mutex.unlock()
+            return time
