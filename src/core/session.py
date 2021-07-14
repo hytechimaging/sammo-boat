@@ -13,6 +13,7 @@ from qgis.core import (
     QgsFeature,
 )
 from datetime import datetime
+from .debug import Debug
 
 
 class SammoSession:
@@ -58,13 +59,12 @@ class SammoSession:
             SammoDataBase.ENVIRONMENT_COMMENT_FIELD_NAME
         )
         timeOfStopEffort = (
-            "End of the Effort at : "
-            + self.nowToStringThreadSafe()
+            "End of the Effort at : " + self.nowToStringThreadSafe()
         )
         if not table.changeAttributeValue(
             idLastAddedFeature, field_idx, timeOfStopEffort
         ):
-            print("Echec de la modification du champs commentaire")
+            Debug.error("Echec de la modification du champs commentaire")
 
         table.commitChanges()
 
@@ -97,27 +97,23 @@ class SammoSession:
         self._addNewFeatureThreadSafe(feature, self._observationTable)
 
     def addNewFeatureToGpsTable(self, longitude: float, latitude: float):
-        # this methode is usually called from a thread different from the main one
-        self._gpsTable.startEditing();
+        # this methode is usually called from a thread
+        # different from the main one
+        self._gpsTable.startEditing()
 
         time = self.nowToStringThreadSafe()
 
         feature = self._createFeatureThreadSafe(self._gpsTable)
 
-        if (True == self._setAttributeThreadSafe(feature, SammoDataBase.GPS_TIME_FIELD_NAME, time)):
-            print("_setAttributeThreadSafe(feature, SammoDataBase.GPS_TIME_FIELD_NAME : ok ")
-        else:
-            print("_setAttributeThreadSafe(feature, SammoDataBase.GPS_TIME_FIELD_NAME : échec ")
-
-        if (True == self._setAttributeThreadSafe(feature, SammoDataBase.GPS_LONGITUDE_FIELD_NAME, longitude)):
-            print("_setAttributeThreadSafe(feature, SammoDataBase.GPS_LONGITUDE_FIELD_NAME : ok ")
-        else:
-            print("_setAttributeThreadSafe(feature, SammoDataBase.GPS_LONGITUDE_FIELD_NAME : échec ")
-
-        if (True == self._setAttributeThreadSafe(feature, SammoDataBase.GPS_LATITUDE_FIELD_NAME, latitude)):
-            print("_setAttributeThreadSafe(feature, SammoDataBase.GPS_LATITUDE_FIELD_NAME : ok ")
-        else:
-            print("_setAttributeThreadSafe(feature, SammoDataBase.GPS_LATITUDE_FIELD_NAME : échec ")
+        self._setAttributeThreadSafe(
+            feature, SammoDataBase.GPS_TIME_FIELD_NAME, time
+        )
+        self._setAttributeThreadSafe(
+            feature, SammoDataBase.GPS_LONGITUDE_FIELD_NAME, longitude
+        )
+        self._setAttributeThreadSafe(
+            feature, SammoDataBase.GPS_LATITUDE_FIELD_NAME, latitude
+        )
 
         self._addNewFeatureThreadSafe(feature, self._gpsTable)
 
@@ -127,24 +123,24 @@ class SammoSession:
 
         return [feat, table]
 
-    def _setAttributeThreadSafe(self, feature: QgsFeature, fieldName: str, value) -> bool :
+    def _setAttributeThreadSafe(
+        self, feature: QgsFeature, fieldName: str, value
+    ) -> bool:
         self._mutex.lock()
         result = feature.setAttribute(fieldName, value)
         self._mutex.unlock()
         return result
 
-    def _addNewFeatureThreadSafe(self, feature: QgsFeature, table: QgsVectorLayer):
+    def _addNewFeatureThreadSafe(
+        self, feature: QgsFeature, table: QgsVectorLayer
+    ):
         self._mutex.lock()
 
-        if (True == table.addFeature(feature)):
-            print("addFeature : ok ")
-        else:
-            print("addFeature : échec ")
+        if not table.addFeature(feature):
+            Debug.error("addFeature : échec ")
 
-        if (True == table.commitChanges()):
-            print("_addNewFeatureThreadSafe : ok ")
-        else:
-            print("_addNewFeatureThreadSafe : échec ")
+        if not table.commitChanges():
+            Debug.error("_addNewFeatureThreadSafe : échec ")
 
         self._mutex.unlock()
 
@@ -155,20 +151,20 @@ class SammoSession:
         return feature
 
     def nowToStringThreadSafe(self) -> str:
-            self._mutex.lock()
-            dateTimeObj = datetime.now()
-            time = (
-                "{:02d}".format(dateTimeObj.day)
-                + "/"
-                + "{:02d}".format(dateTimeObj.month)
-                + "/"
-                + str(dateTimeObj.year)
-                + " "
-                + "{:02d}".format(dateTimeObj.hour)
-                + ":"
-                + "{:02d}".format(dateTimeObj.minute)
-                + ":"
-                + "{:02d}".format(dateTimeObj.second)
-            )
-            self._mutex.unlock()
-            return time
+        self._mutex.lock()
+        dateTimeObj = datetime.now()
+        time = (
+            "{:02d}".format(dateTimeObj.day)
+            + "/"
+            + "{:02d}".format(dateTimeObj.month)
+            + "/"
+            + str(dateTimeObj.year)
+            + " "
+            + "{:02d}".format(dateTimeObj.hour)
+            + ":"
+            + "{:02d}".format(dateTimeObj.minute)
+            + ":"
+            + "{:02d}".format(dateTimeObj.second)
+        )
+        self._mutex.unlock()
+        return time

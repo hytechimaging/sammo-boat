@@ -23,16 +23,23 @@ class Worker(QObject):
             lines = file.readlines()
 
         while True:
+            if not self.isNeedToContinue:
+                break
             for line in lines:
                 sleep(1)
-                if (False == self.isNeedToContinue):
+                if not self.isNeedToContinue:
                     break
-                coordinates = line.strip().split(';')
+                coordinates = line.strip().split(";")
                 longitude_deg = coordinates[0]
                 latitude_deg = coordinates[1]
 
-                self._session.addNewFeatureToGpsTable(longitude_deg, latitude_deg)
-                self.progress.emit("Coordonnées GPS : longitude = {}° - latitude = {}°".format(longitude_deg, latitude_deg))
+                self._session.addNewFeatureToGpsTable(
+                    longitude_deg, latitude_deg
+                )
+                self.progress.emit(
+                    "Coordonnées GPS : longitude = {}°"
+                    " - latitude = {}°".format(longitude_deg, latitude_deg)
+                )
 
         self.finished.emit()
 
