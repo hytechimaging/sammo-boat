@@ -11,15 +11,15 @@ DEBUG_FILE_NAME = "Sammo.log"
 class Debug:
     @staticmethod
     def log(msg: str):
-        Debug._log("LOG")
+        Debug._log("LOG", msg)
 
     @staticmethod
     def warning(msg: str):
-        Debug._log("WARNING")
+        Debug._log("WARNING", msg)
 
     @staticmethod
     def error(msg: str):
-        Debug._log("ERROR")
+        Debug._log("ERROR", msg)
 
     @staticmethod
     def _log(prefix: str, msg: str):

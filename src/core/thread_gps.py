@@ -3,69 +3,43 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-from PyQt5.QtCore import QObject, QThread, pyqtSignal
 from time import sleep
+from .other_thread import WorkerForOtherThread, OtherThread
 from .session import SammoSession
 
 
-class Worker(QObject):
-    finished = pyqtSignal()
-    progress = pyqtSignal(str)
-    isNeedToContinue = True
-
+class WorkerGps(WorkerForOtherThread):
     def __init__(self, testFilePath: str, session: SammoSession):
         super().__init__()
         self._testFilePath = testFilePath
         self._session: SammoSession = session
+        self._lines = None
 
-    def run(self):
+    def _toDoInsideLoop(self):
+        for line in self._lines:
+            sleep(1)
+            if self._isNeedToStop:
+                return
+            coordinates = line.strip().split(";")
+            longitude_deg = coordinates[0]
+            latitude_deg = coordinates[1]
+
+            self._session.addNewFeatureToGpsTable(longitude_deg, latitude_deg)
+            self._log(
+                "Coordonnées GPS : longitude = {}°"
+                " - latitude = {}°".format(longitude_deg, latitude_deg)
+            )
+
+    def _onStart(self):
         with open(self._testFilePath) as file:
             lines = file.readlines()
-
-        while True:
-            if not self.isNeedToContinue:
-                break
-            for line in lines:
-                sleep(1)
-                if not self.isNeedToContinue:
-                    break
-                coordinates = line.strip().split(";")
-                longitude_deg = coordinates[0]
-                latitude_deg = coordinates[1]
-
-                self._session.addNewFeatureToGpsTable(
-                    longitude_deg, latitude_deg
-                )
-                self.progress.emit(
-                    "Coordonnées GPS : longitude = {}°"
-                    " - latitude = {}°".format(longitude_deg, latitude_deg)
-                )
-
-        self.finished.emit()
-
-    def stop(self):
-        self.isNeedToContinue = False
+        return lines
 
 
-class ThreadGps:
+class ThreadGps(OtherThread):
     def __init__(self, session: SammoSession):
         self._session: SammoSession = session
 
     def start(self, testFilePath: str):
-        self.thread = QThread()
-        self.worker = Worker(testFilePath, self._session)
-        self.worker.moveToThread(self.thread)
-
-        self.thread.started.connect(self.worker.run)
-        self.worker.finished.connect(self.thread.quit)
-        self.worker.finished.connect(self.worker.deleteLater)
-        self.thread.finished.connect(self.thread.deleteLater)
-        self.worker.progress.connect(self.reportProgress)
-
-        self.thread.start()
-
-    def stop(self):
-        self.worker.stop()
-
-    def reportProgress(self, u: str):
-        print("Progress : " + u)
+        worker = WorkerGps(testFilePath, self._session)
+        super().start(worker)
