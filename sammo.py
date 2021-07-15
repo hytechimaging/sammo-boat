@@ -11,6 +11,7 @@ from .src.gui.add_observation_btn import AddObservationBtn, IParentOfAddObservat
 from .src.core.session import SammoSession
 from .src.core.thread_gps import ThreadGps
 from .src.core.thread_sound_recording import ThreadForSoundRecording
+from datetime import datetime
 
 
 class Sammo(IParentOfSammoActionSession,
@@ -69,7 +70,16 @@ class Sammo(IParentOfSammoActionSession,
             self._session.addNewFeatureToObservationTable(feature)
 
     def onStartSoundRecording(self):
-        soundFilePath = os.path.join(self._session._directoryPath, "test.wav")
+        dateTimeObj = datetime.now()
+        time = (str(dateTimeObj.year)
+            + "{:02d}".format(dateTimeObj.month)
+            + "{:02d}".format(dateTimeObj.day)
+            + "_"
+            + "{:02d}".format(dateTimeObj.hour)
+            + "{:02d}".format(dateTimeObj.minute)
+            + "{:02d}".format(dateTimeObj.second)
+        )
+        soundFilePath = os.path.join(self._session._directoryPath, "sound_recording_{}.wav".format(time))
         self._threadSoundRecording.start(soundFilePath)
 
     def onStopSoundRecording(self):

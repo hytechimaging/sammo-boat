@@ -5,32 +5,39 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 from .other_thread import WorkerForOtherThread, OtherThread
 import sounddevice as sd
-from scipy.io.wavfile import write
 import soundfile as sf
-import numpy  # Make sure NumPy is loaded before it is used in the callback
-assert numpy  # avoid "imported but unused" message (W0611)
 import queue
 
-q = queue.Queue()
-
-
-def callback(indata, frames, time, status):
-    q.put(indata.copy())
+# import numpy  # Make sure NumPy is loaded before it is used in the callback
+# assert numpy  # avoid "imported but unused" message (W0611)
 
 
 class WorkerForSoundRecording(WorkerForOtherThread):
     def __init__(self, soundFilePath: str):
         super().__init__()
         self._soundFilePath = soundFilePath
-        self.fs = 44100
+        self._frameRate = 44100
+        self._queue = queue.Queue()
+
+    def callback(self, inData, frames, time, status):
+        self._queue.put(inData.copy())
 
     def _toDoInsideLoop(self):
         # Make sure the file is opened before recording anything:
-        with sf.SoundFile(self._soundFilePath, mode='x', samplerate=self.fs,
-                      channels=2) as file:
-            with sd.InputStream(samplerate=self.fs, channels=2, callback=callback):
+        with sf.SoundFile(
+            self._soundFilePath,
+            mode="x",
+            samplerate=self._frameRate,
+            channels=2,
+        ) as file:
+            with sd.InputStream(
+                samplerate=self._frameRate, channels=2, callback=self.callback
+            ):
                 while not self._isNeedToStop:
-                    file.write(q.get())
+                    file.write(self._queue.get())
+
+    def _onStart(self):
+        pass
 
 
 class ThreadForSoundRecording(OtherThread):
