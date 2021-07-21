@@ -16,7 +16,7 @@ class ParentOfSammoActionSession:
     """
 
     @abstractmethod
-    def onCreateSession(self):
+    def onCreateSession(self, workingDirectory : str):
         pass
 
     @property

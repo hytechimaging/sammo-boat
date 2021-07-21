@@ -29,12 +29,12 @@ class Sammo(ParentOfSammoActionSession, ParentOfSammoActionOnOffEffort):
         self._session.onCreateSession(workingDirectory)
         self.actionOnOffSession.onCreateSession()
 
-    def OnStartEffort(self):
+    def onStartEffort(self):
         [feat, table] = self._session.getReadyToAddNewFeatureToEnvironmentTable()
         if self.iface.openFeatureForm(table, feat):
             self._session.addNewFeatureToEnvironmentTable(feat)
 
-    def OnStopEffort(self):
+    def onStopEffort(self):
         self._session.onStopEffort()
 
     @property
