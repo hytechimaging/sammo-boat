@@ -62,7 +62,7 @@ class SammoSession:
         )
         if not table.changeAttributeValue(
             idLastAddedFeature, field_idx, timeOfStopEffort
-            ):
+        ):
             print("Echec de la modification du champs commentaire")
 
         table.commitChanges()
@@ -80,8 +80,8 @@ class SammoSession:
         self._environmentTable.addFeature(feat)
         self._environmentTable.commitChanges()
 
-    def _getReadyToAddNewFeature(self, table: QgsVectorLayer):
+    @staticmethod
+    def _getReadyToAddNewFeature(table: QgsVectorLayer):
         feat = QgsVectorLayerUtils.createFeature(table)
         table.startEditing()
-
-        return [feat, table]
+        return feat, table

@@ -9,8 +9,7 @@ from qgis.core import QgsVectorLayer, QgsFeature
 
 
 class SammoActionOnOffEffort(QObject):
-    onStartEffortSignal = pyqtSignal()
-    onStopEffortSignal = pyqtSignal()
+    onChangeEffortStatusSignal = pyqtSignal(bool)
     onAddFeatureToEnvironmentTableSignal = pyqtSignal(QgsFeature)
 
     def __init__(self, parent: QObject, toolbar: QToolBar):
@@ -35,10 +34,10 @@ class SammoActionOnOffEffort(QObject):
 
     def run(self):
         if self.button.isChecked():
-            self.onStartEffortSignal.emit()
+            self.onChangeEffortStatusSignal.emit(True)
         else:
-            self.onStopEffortSignal.emit()
+            self.onChangeEffortStatusSignal.emit(False)
 
-    def OpenFeatureForm(self, iface, table: QgsVectorLayer, feat: QgsFeature):
+    def openFeatureForm(self, iface, table: QgsVectorLayer, feat: QgsFeature):
         if iface.openFeatureForm(table, feat):
             self.onAddFeatureToEnvironmentTableSignal.emit(feat)
