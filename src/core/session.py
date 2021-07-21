@@ -58,9 +58,7 @@ class SammoSession:
         field_idx = table.fields().indexOf(
             SammoDataBase.ENVIRONMENT_COMMENT_FIELD_NAME
         )
-        timeOfStopEffort = (
-            "End of the Effort at : " + self.nowToString()
-        )
+        timeOfStopEffort = "End of the Effort at : " + self.nowToString()
         if not table.changeAttributeValue(
             idLastAddedFeature, field_idx, timeOfStopEffort
         ):
@@ -100,7 +98,9 @@ class SammoSession:
         self._gpsTable.startEditing()
 
         feature = QgsFeature(QgsVectorLayerUtils.createFeature(self._gpsTable))
-        feature.setAttribute(SammoDataBase.GPS_TIME_FIELD_NAME, self.nowToString())
+        feature.setAttribute(
+            SammoDataBase.GPS_TIME_FIELD_NAME, self.nowToString()
+        )
         feature.setAttribute(SammoDataBase.GPS_LONGITUDE_FIELD_NAME, longitude)
         feature.setAttribute(SammoDataBase.GPS_LATITUDE_FIELD_NAME, latitude)
 
@@ -115,14 +115,10 @@ class SammoSession:
 
     @staticmethod
     def _addNewFeature(feature: QgsFeature, table: QgsVectorLayer):
-        try:
-            if not table.addFeature(feature):
-                Debug.error("addFeature : échec ")
-
-            if not table.commitChanges():
-                Debug.error("_addNewFeatureThreadSafe : échec ")
-        except:
-            Debug.error("_addNewFeatureThreadSafe : exception ")
+        if not table.addFeature(feature):
+            Debug.error("addFeature : échec ")
+        if not table.commitChanges():
+            Debug.error("_addNewFeatureThreadSafe : échec ")
 
     @staticmethod
     def nowToString() -> str:

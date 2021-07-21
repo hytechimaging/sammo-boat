@@ -27,7 +27,9 @@ class WorkerGps(WorkerForOtherThread):
             longitude_deg = coordinates[0]
             latitude_deg = coordinates[1]
 
-            self.addNewFeatureToGpsTableSignal.emit(float(longitude_deg), float(latitude_deg))
+            self.addNewFeatureToGpsTableSignal.emit(
+                float(longitude_deg), float(latitude_deg)
+            )
             self._log(
                 "Coordonnées GPS : longitude = {}°"
                 " - latitude = {}°".format(longitude_deg, latitude_deg)
@@ -48,8 +50,12 @@ class ThreadGps(OtherThread):
 
     def start(self, testFilePath: str):
         worker = WorkerGps(testFilePath, self._session)
-        worker.addNewFeatureToGpsTableSignal.connect(self.addNewFeatureToGpsTable)
+        worker.addNewFeatureToGpsTableSignal.connect(
+            self.addNewFeatureToGpsTable
+        )
         super().start(worker)
 
-    def addNewFeatureToGpsTable(self, longitude_deg: float, latitude_deg: float):
+    def addNewFeatureToGpsTable(
+        self, longitude_deg: float, latitude_deg: float
+    ):
         self.addNewFeatureToGpsTableSignal.emit(longitude_deg, latitude_deg)
