@@ -4,46 +4,22 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 from abc import abstractmethod
-from qgis.PyQt.QtCore import QDir
 from qgis.PyQt.QtWidgets import QAction, QFileDialog
+from qgis.PyQt.QtCore import QDir, pyqtSignal, QObject
 
 
-class ParentOfSammoActionSession:
-    """
-    This is the abstract class that Sammo class
-    (which is the owner of the SammoActionSession
-    instance) needs to inherit from
-    """
+class SammoActionSession(QObject):
+    create = pyqtSignal(str)
 
-    @abstractmethod
-    def onCreateSession(self, workingDirectory : str):
-        pass
-
-    @property
-    @abstractmethod
-    def mainWindow(self):
-        pass
-
-    @property
-    @abstractmethod
-    def toolBar(self):
-        pass
-
-    @property
-    @abstractmethod
-    def session(self):
-        pass
-
-
-class SammoActionSession:
-    def __init__(self, parent: ParentOfSammoActionSession):
-        self.parent = parent
+    def __init__(self, parent, toolbar):
+        super().__init__()
         self.action = None
+        self.initGui(parent, toolbar)
 
-    def initGui(self):
-        self.action = QAction("Session", self.parent.mainWindow)
+    def initGui(self, parent, toolbar):
+        self.action = QAction("Session", parent)
         self.action.triggered.connect(self.run)
-        self.parent.toolBar.addAction(self.action)
+        toolbar.addAction(self.action)
 
     def unload(self):
         del self.action
@@ -56,4 +32,4 @@ class SammoActionSession:
             # no directory selected
             return
 
-        self.parent.onCreateSession(workingDirectory)
+        self.create.emit(workingDirectory)
