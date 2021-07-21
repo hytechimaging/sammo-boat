@@ -2,5 +2,3 @@
 
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
-
-test
