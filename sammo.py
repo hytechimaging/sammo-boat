@@ -19,7 +19,9 @@ class Sammo(IParentOfSammoActionSession, IParentOfSammoActionOnOffEffort, IParen
         self._actionSession = SammoActionSession(self)
         self._onOffSessionBtn = SammoActionOnOffEffort(self)
         self._addObservationBtn = AddObservationBtn(self)
+
         self._threadGps = ThreadGps(self._session)
+        self._threadGps.addNewFeatureToGpsTableSignal.connect(self._session.addNewFeatureToGpsTable)
 
     def initGui(self):
         self._actionSession.initGui()

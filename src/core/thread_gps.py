@@ -5,10 +5,13 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 from time import sleep
 from .other_thread import WorkerForOtherThread, OtherThread
+from qgis.PyQt.QtCore import pyqtSignal
 from .session import SammoSession
 
 
 class WorkerGps(WorkerForOtherThread):
+    addNewFeatureToGpsTableSignal = pyqtSignal(float, float)
+
     def __init__(self, testFilePath: str, session: SammoSession):
         super().__init__()
         self._testFilePath = testFilePath
@@ -24,7 +27,7 @@ class WorkerGps(WorkerForOtherThread):
             longitude_deg = coordinates[0]
             latitude_deg = coordinates[1]
 
-            self._session.addNewFeatureToGpsTable(longitude_deg, latitude_deg)
+            self.addNewFeatureToGpsTableSignal.emit(float(longitude_deg), float(latitude_deg))
             self._log(
                 "Coordonnées GPS : longitude = {}°"
                 " - latitude = {}°".format(longitude_deg, latitude_deg)
@@ -37,9 +40,16 @@ class WorkerGps(WorkerForOtherThread):
 
 
 class ThreadGps(OtherThread):
+    addNewFeatureToGpsTableSignal = pyqtSignal(float, float)
+
     def __init__(self, session: SammoSession):
+        super().__init__()
         self._session: SammoSession = session
 
     def start(self, testFilePath: str):
         worker = WorkerGps(testFilePath, self._session)
+        worker.addNewFeatureToGpsTableSignal.connect(self.addNewFeatureToGpsTable)
         super().start(worker)
+
+    def addNewFeatureToGpsTable(self, longitude_deg: float, latitude_deg: float):
+        self.addNewFeatureToGpsTableSignal.emit(longitude_deg, latitude_deg)

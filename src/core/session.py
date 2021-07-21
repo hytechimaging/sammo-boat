@@ -59,7 +59,7 @@ class SammoSession:
             SammoDataBase.ENVIRONMENT_COMMENT_FIELD_NAME
         )
         timeOfStopEffort = (
-            "End of the Effort at : " + self.nowToStringThreadSafe()
+            "End of the Effort at : " + self.nowToString()
         )
         if not table.changeAttributeValue(
             idLastAddedFeature, field_idx, timeOfStopEffort
@@ -88,70 +88,44 @@ class SammoSession:
         return self._getReadyToAddNewFeature(self._environmentTable)
 
     def addNewFeatureToEnvironmentTable(self, feature: QgsFeature):
-        self._addNewFeatureThreadSafe(feature, self._environmentTable)
+        self._addNewFeature(feature, self._environmentTable)
 
     def getReadyToAddNewFeatureToObservationTable(self):
         return self._getReadyToAddNewFeature(self._observationTable)
 
     def addNewFeatureToObservationTable(self, feature: QgsFeature):
-        self._addNewFeatureThreadSafe(feature, self._observationTable)
+        self._addNewFeature(feature, self._observationTable)
 
     def addNewFeatureToGpsTable(self, longitude: float, latitude: float):
-        # this methode is usually called from a thread
-        # different from the main one
         self._gpsTable.startEditing()
 
-        time = self.nowToStringThreadSafe()
+        feature = QgsFeature(QgsVectorLayerUtils.createFeature(self._gpsTable))
+        feature.setAttribute(SammoDataBase.GPS_TIME_FIELD_NAME, self.nowToString())
+        feature.setAttribute(SammoDataBase.GPS_LONGITUDE_FIELD_NAME, longitude)
+        feature.setAttribute(SammoDataBase.GPS_LATITUDE_FIELD_NAME, latitude)
 
-        feature = self._createFeatureThreadSafe(self._gpsTable)
+        self._addNewFeature(feature, self._gpsTable)
 
-        self._setAttributeThreadSafe(
-            feature, SammoDataBase.GPS_TIME_FIELD_NAME, time
-        )
-        self._setAttributeThreadSafe(
-            feature, SammoDataBase.GPS_LONGITUDE_FIELD_NAME, longitude
-        )
-        self._setAttributeThreadSafe(
-            feature, SammoDataBase.GPS_LATITUDE_FIELD_NAME, latitude
-        )
-
-        self._addNewFeatureThreadSafe(feature, self._gpsTable)
-
-    def _getReadyToAddNewFeature(self, table: QgsVectorLayer):
-        feat = self._createFeatureThreadSafe(table)
+    @staticmethod
+    def _getReadyToAddNewFeature(table: QgsVectorLayer):
+        feat = QgsFeature(QgsVectorLayerUtils.createFeature(table))
         table.startEditing()
 
         return [feat, table]
 
-    def _setAttributeThreadSafe(
-        self, feature: QgsFeature, fieldName: str, value
-    ) -> bool:
-        self._mutex.lock()
-        result = feature.setAttribute(fieldName, value)
-        self._mutex.unlock()
-        return result
+    @staticmethod
+    def _addNewFeature(feature: QgsFeature, table: QgsVectorLayer):
+        try:
+            if not table.addFeature(feature):
+                Debug.error("addFeature : échec ")
 
-    def _addNewFeatureThreadSafe(
-        self, feature: QgsFeature, table: QgsVectorLayer
-    ):
-        self._mutex.lock()
+            if not table.commitChanges():
+                Debug.error("_addNewFeatureThreadSafe : échec ")
+        except:
+            Debug.error("_addNewFeatureThreadSafe : exception ")
 
-        if not table.addFeature(feature):
-            Debug.error("addFeature : échec ")
-
-        if not table.commitChanges():
-            Debug.error("_addNewFeatureThreadSafe : échec ")
-
-        self._mutex.unlock()
-
-    def _createFeatureThreadSafe(self, table: QgsVectorLayer) -> QgsFeature:
-        self._mutex.lock()
-        feature = QgsFeature(QgsVectorLayerUtils.createFeature(table))
-        self._mutex.unlock()
-        return feature
-
-    def nowToStringThreadSafe(self) -> str:
-        self._mutex.lock()
+    @staticmethod
+    def nowToString() -> str:
         dateTimeObj = datetime.now()
         time = (
             "{:02d}".format(dateTimeObj.day)
@@ -166,5 +140,4 @@ class SammoSession:
             + ":"
             + "{:02d}".format(dateTimeObj.second)
         )
-        self._mutex.unlock()
         return time

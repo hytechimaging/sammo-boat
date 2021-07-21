@@ -39,7 +39,7 @@ class WorkerForOtherThread(QObject):
         self._isNeedToStop = True
 
 
-class OtherThread:
+class OtherThread(QObject):
     def start(self, worker: WorkerForOtherThread):
         self.thread = QThread()
         self.worker = worker
