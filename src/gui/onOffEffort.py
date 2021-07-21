@@ -3,48 +3,29 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-from abc import abstractmethod
-from qgis.PyQt.QtWidgets import QPushButton
+from qgis.PyQt.QtWidgets import QPushButton, QToolBar
+from qgis.PyQt.QtCore import pyqtSignal, QObject
+from qgis.core import QgsVectorLayer, QgsFeature
 
 
-class ParentOfSammoActionOnOffEffort:
-    """
-    This is the abstract class that Sammo class
-    (which is the owner of the SammoActionOnOffEffort
-    instance) needs to inherit from
-    """
+class SammoActionOnOffEffort(QObject):
+    onStartEffortSignal = pyqtSignal()
+    onStopEffortSignal = pyqtSignal()
+    onAddFeatureToEnvironmentTableSignal = pyqtSignal(QgsFeature)
 
-    @property
-    @abstractmethod
-    def mainWindow(self):
-        pass
-
-    @property
-    @abstractmethod
-    def toolBar(self):
-        pass
-
-    @abstractmethod
-    def onStartEffort(self):
-        pass
-
-    @abstractmethod
-    def onStopEffort(self):
-        pass
-
-
-class SammoActionOnOffEffort:
-    def __init__(self, parent: ParentOfSammoActionOnOffEffort):
+    def __init__(self, parent: QObject, toolbar: QToolBar):
+        super().__init__()
         self.parent = parent
-        self.button = None
+        self.button: QPushButton = None
+        self.initGui(parent, toolbar)
 
-    def initGui(self):
-        self.button = QPushButton(self.parent.mainWindow)
+    def initGui(self, parent: QObject, toolbar: QToolBar):
+        self.button = QPushButton(parent)
         self.button.setText("Effort")
         self.button.clicked.connect(self.run)
         self.button.setEnabled(False)
         self.button.setCheckable(True)
-        self.parent.toolBar.addWidget(self.button)
+        toolbar.addWidget(self.button)
 
     def onCreateSession(self):
         self.button.setEnabled(True)
@@ -54,6 +35,10 @@ class SammoActionOnOffEffort:
 
     def run(self):
         if self.button.isChecked():
-            self.parent.onStartEffort()
+            self.onStartEffortSignal.emit()
         else:
-            self.parent.onStopEffort()
+            self.onStopEffortSignal.emit()
+
+    def OpenFeatureForm(self, iface, table: QgsVectorLayer, feat: QgsFeature):
+        if iface.openFeatureForm(table, feat):
+            self.onAddFeatureToEnvironmentTableSignal.emit(feat)
