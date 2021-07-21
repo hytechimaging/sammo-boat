@@ -4,13 +4,9 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'src/**'
   pull_request:
     branches:
       - main
-    paths:
-      - 'src/**'
 
 jobs:
   build:
@@ -29,4 +25,4 @@ jobs:
 
       - name: Flake8
         run: |
-          source venv/bin/activate && flake8 src
+          source venv/bin/activate && flake8 src sammo.py
