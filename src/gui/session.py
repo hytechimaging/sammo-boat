@@ -3,20 +3,19 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-from abc import abstractmethod
-from qgis.PyQt.QtWidgets import QAction, QFileDialog
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QToolBar
 from qgis.PyQt.QtCore import QDir, pyqtSignal, QObject
 
 
 class SammoActionSession(QObject):
-    create = pyqtSignal(str)
+    createSignal = pyqtSignal(str)
 
-    def __init__(self, parent, toolbar):
+    def __init__(self, parent: QObject, toolbar: QToolBar):
         super().__init__()
-        self.action = None
+        self.action: QAction = None
         self.initGui(parent, toolbar)
 
-    def initGui(self, parent, toolbar):
+    def initGui(self, parent: QObject, toolbar: QToolBar):
         self.action = QAction("Session", parent)
         self.action.triggered.connect(self.run)
         toolbar.addAction(self.action)
@@ -32,4 +31,4 @@ class SammoActionSession(QObject):
             # no directory selected
             return
 
-        self.create.emit(workingDirectory)
+        self.createSignal.emit(workingDirectory)
