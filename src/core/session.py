@@ -3,6 +3,7 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
+from PyQt5.QtWidgets import QMessageBox
 from .database import SammoDataBase
 from qgis.PyQt.QtWidgets import QMessageBox
 from qgis.core import (
@@ -104,6 +105,18 @@ class SammoSession:
 
     def addNewFeatureToObservationTable(self, feature: QgsFeature):
         self._addNewFeature(feature, self._observationTable)
+
+    def addNewFeatureToGpsTable(self, longitude: float, latitude: float):
+        self._gpsTable.startEditing()
+
+        feature = QgsFeature(QgsVectorLayerUtils.createFeature(self._gpsTable))
+        feature.setAttribute(
+            SammoDataBase.GPS_TIME_FIELD_NAME, self.nowToString()
+        )
+        feature.setAttribute(SammoDataBase.GPS_LONGITUDE_FIELD_NAME, longitude)
+        feature.setAttribute(SammoDataBase.GPS_LATITUDE_FIELD_NAME, latitude)
+
+        self._addNewFeature(feature, self._gpsTable)
 
     @staticmethod
     def _getReadyToAddNewFeature(table: QgsVectorLayer):
