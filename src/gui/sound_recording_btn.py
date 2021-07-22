@@ -28,6 +28,7 @@ class SammoSoundRecordingBtn(QObject):
         self.button.setEnabled(True)
 
     def onStopEffort(self):
+        self.button.setChecked(False)
         self.button.setEnabled(False)
 
     def unload(self):
