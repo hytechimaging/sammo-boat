@@ -8,7 +8,6 @@ from .src.gui.session import SammoActionSession
 from .src.gui.on_off_effort import SammoActionOnOffEffort
 from .src.core.session import SammoSession
 from .src.gui.add_observation_btn import SammoAddObservationBtn
-from .src.gui.add_observation_btn import AddObservationBtn
 from .src.gui.sound_recording_btn import SammoSoundRecordingBtn
 from .src.core.thread_sound_recording import ThreadForSoundRecording
 from .src.core.thread_gps import ThreadGps
@@ -104,6 +103,8 @@ class Sammo:
                 self._threadGps.stop()
             self._addObservationBtn.onChangeEffortStatus(False)
             self._soundRecordingBtn.onStopEffort()
+            if self._threadSoundRecording.isProceeding:
+                self._threadSoundRecording.stop()
 
     def onClickObservation(self):
         feat, table = self._session.getReadyToAddNewFeatureToObservationTable()
