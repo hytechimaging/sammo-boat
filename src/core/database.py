@@ -6,7 +6,6 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 import os.path
 
 from qgis.PyQt.QtCore import QVariant
-from qgis.core import QgsField
 from qgis.core import (
     QgsWkbTypes,
     QgsFields,
@@ -14,29 +13,28 @@ from qgis.core import (
     QgsCoordinateReferenceSystem,
     QgsCoordinateTransformContext,
     QgsFeatureSink,
+    QgsVectorLayer,
+    QgsField,
 )
-
-DB_NAME = "sammo-boat.gpkg"
-LAYER_NAME = "session data"
 
 
 class SammoDataBase:
-    def isDataBaseAvailableInThisDirectory(self, directory):
+    DB_NAME = "sammo-boat.gpkg"
+    LAYER_NAME = "session data"
+    ENVIRONMENT_TABLE_NAME = "environment"
+    ENVIRONMENT_COMMENT_FIELD_NAME = "commentaire"
+
+    @staticmethod
+    def isDataBaseAvailableInThisDirectory(directory):
         return os.path.isfile(SammoDataBase._pathToDataBase(directory))
-
-    @property
-    def dbName(self):
-        return DB_NAME
-
-    @property
-    def _layerName(self):
-        return LAYER_NAME
 
     def createEmptyDataBase(self, directory):
         db = SammoDataBase._pathToDataBase(directory)
 
         SammoDataBase._addTableToDataBaseFile(
-            db, self._createFieldsForEnvironmentTable(), "environment"
+            db,
+            self._createFieldsForEnvironmentTable(),
+            SammoDataBase.ENVIRONMENT_TABLE_NAME,
         )
 
     @staticmethod
@@ -75,7 +73,7 @@ class SammoDataBase:
 
     @staticmethod
     def _pathToDataBase(directory):
-        return os.path.join(directory, DB_NAME)
+        return os.path.join(directory, SammoDataBase.DB_NAME)
 
     def _createFieldsForEnvironmentTable(self):
         fields = QgsFields()
@@ -104,11 +102,27 @@ class SammoDataBase:
         fields.append(QgsField("nebulosite", QVariant.Int))
         fields.append(self._createFieldShortText("cond_generale"))
         fields.append(QgsField("visibilité", QVariant.Double))
-        fields.append(self._createFieldShortText("commentaire"))
+        fields.append(
+            self._createFieldShortText(
+                SammoDataBase.ENVIRONMENT_COMMENT_FIELD_NAME
+            )
+        )
         fields.append(self._createFieldShortText("Survey"))
 
         return fields
 
+    def getIdOfLastAddedFeature(self, layer: QgsVectorLayer):
+        maxId = -1
+        for feature in layer.getFeatures():
+            if feature.id() > maxId:
+                maxId = feature.id()
+
+        return maxId
+
     @staticmethod
     def _createFieldShortText(fieldName):
         return QgsField(fieldName, QVariant.String, len=50)
+
+    def loadTable(self, directory, tableName):
+        db = self._pathToDataBase(directory)
+        return QgsVectorLayer(db, tableName)
