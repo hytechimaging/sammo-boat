@@ -77,6 +77,11 @@ class Sammo:
         pass
 
     def unload(self):
+        if self._threadGps.isProceeding:
+            self._threadGps.stop()
+        if self._threadSoundRecording.isProceeding:
+            self._threadSoundRecording.stop()
+
         self._soundRecordingBtn.unload()
         self._actionSession.unload()
         self._onOffSessionBtn.unload()
