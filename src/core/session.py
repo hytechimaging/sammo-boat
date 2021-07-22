@@ -108,14 +108,14 @@ class SammoSession:
     def addNewFeatureToObservationTable(self, feature: QgsFeature):
         self._addNewFeature(feature, self._observationTable)
 
-    def addNewFeatureToGpsTable(self, longitude: float, latitude: float):
+    def addNewFeatureToGpsTable(self, longitude: float, latitude: float, dateTime: str):
         self._gpsTable.startEditing()
 
         feature = QgsFeature(QgsVectorLayerUtils.createFeature(self._gpsTable))
         layerPoint = QgsPointXY(longitude, latitude)
         feature.setGeometry(QgsGeometry.fromPointXY(layerPoint))
         feature.setAttribute(
-            SammoDataBase.GPS_TIME_FIELD_NAME, self.nowToString()
+            SammoDataBase.GPS_TIME_FIELD_NAME, dateTime
         )
 
         self._addNewFeature(feature, self._gpsTable)
@@ -133,20 +133,3 @@ class SammoSession:
         if not table.commitChanges():
             Logger.error("_addNewFeatureThreadSafe : échec ")
 
-    @staticmethod
-    def nowToString() -> str:
-        dateTimeObj = datetime.now()
-        time = (
-            "{:02d}".format(dateTimeObj.day)
-            + "/"
-            + "{:02d}".format(dateTimeObj.month)
-            + "/"
-            + str(dateTimeObj.year)
-            + " "
-            + "{:02d}".format(dateTimeObj.hour)
-            + ":"
-            + "{:02d}".format(dateTimeObj.minute)
-            + ":"
-            + "{:02d}".format(dateTimeObj.second)
-        )
-        return time

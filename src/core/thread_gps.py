@@ -7,6 +7,7 @@ from time import sleep
 from .other_thread import WorkerForOtherThread, OtherThread
 from qgis.PyQt.QtCore import pyqtSignal
 from .session import SammoSession
+from datetime import datetime
 
 
 class WorkerGps(WorkerForOtherThread):
@@ -42,7 +43,7 @@ class WorkerGps(WorkerForOtherThread):
 
 
 class ThreadGps(OtherThread):
-    addNewFeatureToGpsTableSignal = pyqtSignal(float, float)
+    addNewFeatureToGpsTableSignal = pyqtSignal(float, float, str)
 
     def __init__(self, session: SammoSession):
         super().__init__()
@@ -58,4 +59,22 @@ class ThreadGps(OtherThread):
     def addNewFeatureToGpsTable(
         self, longitude_deg: float, latitude_deg: float
     ):
-        self.addNewFeatureToGpsTableSignal.emit(longitude_deg, latitude_deg)
+        self.addNewFeatureToGpsTableSignal.emit(longitude_deg, latitude_deg, self.nowToString())
+
+    @staticmethod
+    def nowToString() -> str:
+        dateTimeObj = datetime.now()
+        time = (
+            "{:02d}".format(dateTimeObj.day)
+            + "/"
+            + "{:02d}".format(dateTimeObj.month)
+            + "/"
+            + str(dateTimeObj.year)
+            + " "
+            + "{:02d}".format(dateTimeObj.hour)
+            + ":"
+            + "{:02d}".format(dateTimeObj.minute)
+            + ":"
+            + "{:02d}".format(dateTimeObj.second)
+        )
+        return time
