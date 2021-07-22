@@ -28,6 +28,7 @@ class SammoDataBase:
     OBSERVATION_TABLE_NAME = "observations"
     FOLLOWER_TABLE_NAME = "followers"
     GPS_TABLE_NAME = "gps"
+    GPS_TIME_FIELD_NAME = "leg_heure"
 
     @staticmethod
     def isDataBaseAvailableInThisDirectory(directory):
@@ -245,7 +246,7 @@ class SammoDataBase:
 
     def _createFieldsForGpsTable(self) -> QgsFields:
         fields = QgsFields()
-        fields.append(self._createFieldShortText("leg_heure"))
+        fields.append(self._createFieldShortText(self.GPS_TIME_FIELD_NAME))
         fields.append(QgsField("code_leg", QVariant.Int))
 
         return fields

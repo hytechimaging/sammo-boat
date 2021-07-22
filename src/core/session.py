@@ -3,16 +3,18 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-from PyQt5.QtWidgets import QMessageBox
-from .database import SammoDataBase
 from qgis.PyQt.QtWidgets import QMessageBox
+from .database import SammoDataBase
+from .logger import Logger
+from datetime import datetime
 from qgis.core import (
     QgsVectorLayerUtils,
-    QgsVectorLayer,
     QgsProject,
+    QgsVectorLayer,
     QgsFeature,
+    QgsGeometry,
+    QgsPointXY,
 )
-from datetime import datetime
 
 
 class SammoSession:
@@ -110,11 +112,11 @@ class SammoSession:
         self._gpsTable.startEditing()
 
         feature = QgsFeature(QgsVectorLayerUtils.createFeature(self._gpsTable))
+        layerPoint = QgsPointXY(longitude, latitude)
+        feature.setGeometry(QgsGeometry.fromPointXY(layerPoint))
         feature.setAttribute(
             SammoDataBase.GPS_TIME_FIELD_NAME, self.nowToString()
         )
-        feature.setAttribute(SammoDataBase.GPS_LONGITUDE_FIELD_NAME, longitude)
-        feature.setAttribute(SammoDataBase.GPS_LATITUDE_FIELD_NAME, latitude)
 
         self._addNewFeature(feature, self._gpsTable)
 
@@ -126,5 +128,25 @@ class SammoSession:
 
     @staticmethod
     def _addNewFeature(feature: QgsFeature, table: QgsVectorLayer):
-        table.addFeature(feature)
-        table.commitChanges()
+        if not table.addFeature(feature):
+            Logger.error("addFeature : échec ")
+        if not table.commitChanges():
+            Logger.error("_addNewFeatureThreadSafe : échec ")
+
+    @staticmethod
+    def nowToString() -> str:
+        dateTimeObj = datetime.now()
+        time = (
+            "{:02d}".format(dateTimeObj.day)
+            + "/"
+            + "{:02d}".format(dateTimeObj.month)
+            + "/"
+            + str(dateTimeObj.year)
+            + " "
+            + "{:02d}".format(dateTimeObj.hour)
+            + ":"
+            + "{:02d}".format(dateTimeObj.minute)
+            + ":"
+            + "{:02d}".format(dateTimeObj.second)
+        )
+        return time
