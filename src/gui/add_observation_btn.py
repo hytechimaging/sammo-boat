@@ -7,7 +7,7 @@ from qgis.PyQt.QtCore import pyqtSignal, QObject
 from qgis.PyQt.QtWidgets import QPushButton, QToolBar
 
 
-class AddObservationBtn(QObject):
+class SammoAddObservationBtn(QObject):
     onClickObservationSignal = pyqtSignal()
 
     def __init__(self, parent: QObject, toolbar: QToolBar):

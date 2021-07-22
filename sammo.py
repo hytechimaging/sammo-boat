@@ -6,7 +6,7 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 from .src.gui.session import SammoActionSession
 from .src.gui.on_off_effort import SammoActionOnOffEffort
 from .src.core.session import SammoSession
-from .src.gui.add_observation_btn import AddObservationBtn
+from .src.gui.add_observation_btn import SammoAddObservationBtn
 from qgis.PyQt.QtWidgets import QToolBar
 from qgis.core import QgsFeature
 
@@ -32,7 +32,7 @@ class Sammo:
             self.onAddFeatureToEnvironmentTableSignal
         )
 
-        self._addObservationBtn = AddObservationBtn(
+        self._addObservationBtn = SammoAddObservationBtn(
             iface.mainWindow(), self._toolBar
         )
         self._addObservationBtn.onClickObservationSignal.connect(
