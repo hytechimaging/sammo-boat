@@ -3,22 +3,22 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-from qgis.PyQt.QtCore import QDir
-from qgis.PyQt.QtWidgets import QAction, QFileDialog
-from ..core.session import SammoSession
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QToolBar
+from qgis.PyQt.QtCore import QDir, pyqtSignal, QObject
 
 
-class SammoActionSession:
-    def __init__(self, mainWindow, toolBar):
-        self.mainWindow = mainWindow
-        self.action = None
-        self.session = SammoSession()
-        self.toolBar = toolBar
+class SammoActionSession(QObject):
+    createSignal = pyqtSignal(str)
 
-    def initGui(self):
-        self.action = QAction("Session", self.mainWindow)
+    def __init__(self, parent: QObject, toolbar: QToolBar):
+        super().__init__()
+        self.action: QAction = None
+        self.initGui(parent, toolbar)
+
+    def initGui(self, parent: QObject, toolbar: QToolBar):
+        self.action = QAction("Session", parent)
         self.action.triggered.connect(self.run)
-        self.toolBar.addAction(self.action)
+        toolbar.addAction(self.action)
 
     def unload(self):
         del self.action
@@ -31,8 +31,4 @@ class SammoActionSession:
             # no directory selected
             return
 
-        if not self.session.isDataBaseAvailable(workingDirectory):
-            # No geopackage DB in this directory
-            self.session.createEmptyDataBase(workingDirectory)
-
-        self.session.directoryPath = workingDirectory
+        self.createSignal.emit(workingDirectory)
