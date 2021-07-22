@@ -46,13 +46,6 @@ class Sammo:
             self._session.addNewFeatureToGpsTable
         )
 
-        self._addObservationBtn = AddObservationBtn(
-            iface.mainWindow(), self._toolBar
-        )
-        self._addObservationBtn.onClickObservationSignal.connect(
-            self.onClickObservation
-        )
-
     def initGui(self):
         pass
 
