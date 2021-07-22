@@ -9,7 +9,7 @@ from .src.gui.on_off_effort import SammoActionOnOffEffort
 from .src.core.session import SammoSession
 from .src.gui.add_observation_btn import SammoAddObservationBtn
 from .src.gui.add_observation_btn import AddObservationBtn
-from .src.gui.sound_recording_btn import SoundRecordingBtn
+from .src.gui.sound_recording_btn import SammoSoundRecordingBtn
 from .src.core.thread_sound_recording import ThreadForSoundRecording
 from .src.core.thread_gps import ThreadGps
 from qgis.PyQt.QtWidgets import QToolBar
@@ -28,7 +28,8 @@ class Sammo:
         self._onOffSessionBtn = self.createOnOffEffortBtn()
         self._addObservationBtn = self.createAddObservationBtn()
         self._simuGpsBtn, self._threadGps = self.createSimuGps()
-        self._soundRecordingBtn = SoundRecordingBtn(
+
+        self._soundRecordingBtn = SammoSoundRecordingBtn(
             iface.mainWindow(), self._toolBar
         )
         self._soundRecordingBtn.onChangeSoundRecordingStatusSignal.connect(

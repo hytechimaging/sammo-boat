@@ -7,7 +7,7 @@ from qgis.PyQt.QtWidgets import QPushButton, QToolBar
 from qgis.PyQt.QtCore import pyqtSignal, QObject
 
 
-class SoundRecordingBtn(QObject):
+class SammoSoundRecordingBtn(QObject):
     onChangeSoundRecordingStatusSignal = pyqtSignal(bool)
 
     def __init__(self, parent: QObject, toolBar: QToolBar):
