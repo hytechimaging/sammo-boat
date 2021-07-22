@@ -3,12 +3,14 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
+import os.path
 from .src.gui.session import SammoActionSession
 from .src.gui.on_off_effort import SammoActionOnOffEffort
 from .src.core.session import SammoSession
 from .src.gui.add_observation_btn import SammoAddObservationBtn
 from qgis.PyQt.QtWidgets import QToolBar
 from qgis.core import QgsFeature
+from .src.core.thread_gps import ThreadGps
 
 
 class Sammo:
@@ -39,6 +41,18 @@ class Sammo:
             self.onClickObservation
         )
 
+        self._threadGps = ThreadGps(self._session)
+        self._threadGps.addNewFeatureToGpsTableSignal.connect(
+            self._session.addNewFeatureToGpsTable
+        )
+
+        self._addObservationBtn = AddObservationBtn(
+            iface.mainWindow(), self._toolBar
+        )
+        self._addObservationBtn.onClickObservationSignal.connect(
+            self.onClickObservation
+        )
+
     def initGui(self):
         pass
 
@@ -61,6 +75,7 @@ class Sammo:
             self._onOffSessionBtn.openFeatureForm(self.iface, table, feat)
         else:
             self._session.onStopEffort()
+            self._threadGps.stop()
             self._addObservationBtn.onChangeEffortStatus(False)
 
     def onClickObservation(self):
@@ -70,4 +85,8 @@ class Sammo:
 
     def onAddFeatureToEnvironmentTableSignal(self, feat: QgsFeature):
         self._session.addNewFeatureToEnvironmentTable(feat)
+        testFilePath = os.path.join(
+            self._session._directoryPath, "gps_coordinates_test.fic"
+        )
+        self._threadGps.start(testFilePath)
         self._addObservationBtn.onChangeEffortStatus(True)
