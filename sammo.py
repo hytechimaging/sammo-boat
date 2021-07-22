@@ -17,18 +17,19 @@ class Sammo:
         self._session = SammoSession()
 
         self.actionSession = SammoActionSession(
-                        iface.mainWindow(),
-                        self._toolBar)
+            iface.mainWindow(), self._toolBar
+        )
         self.actionSession.createSignal.connect(self.onCreateSession)
 
-        self.actionOnOffSession = \
-            SammoActionOnOffEffort(iface.mainWindow(),
-                                   self._toolBar)
-        self.actionOnOffSession.\
-            onChangeEffortStatusSignal.connect(self.onChangeEffortStatus)
-        self.actionOnOffSession.\
-            onAddFeatureToEnvironmentTableSignal.\
-            connect(self.onAddFeatureToEnvironmentTableSignal)
+        self.actionOnOffSession = SammoActionOnOffEffort(
+            iface.mainWindow(), self._toolBar
+        )
+        self.actionOnOffSession.onChangeEffortStatusSignal.connect(
+            self.onChangeEffortStatus
+        )
+        self.actionOnOffSession.onAddFeatureToEnvironmentTableSignal.connect(
+            self.onAddFeatureToEnvironmentTableSignal
+        )
 
     def initGui(self):
         pass
@@ -38,13 +39,16 @@ class Sammo:
         self.actionOnOffSession.unload()
         del self._toolBar
 
-    def onCreateSession(self, workingDirectory : str):
+    def onCreateSession(self, workingDirectory: str):
         self._session.onCreateSession(workingDirectory)
         self.actionOnOffSession.onCreateSession()
 
     def onChangeEffortStatus(self, isChecked: bool):
         if isChecked:
-            feat, table = self._session.getReadyToAddNewFeatureToEnvironmentTable()
+            (
+                feat,
+                table,
+            ) = self._session.getReadyToAddNewFeatureToEnvironmentTable()
             self.actionOnOffSession.openFeatureForm(self.iface, table, feat)
         else:
             self._session.onStopEffort()
