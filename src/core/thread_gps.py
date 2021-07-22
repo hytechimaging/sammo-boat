@@ -59,7 +59,9 @@ class ThreadGps(OtherThread):
     def addNewFeatureToGpsTable(
         self, longitude_deg: float, latitude_deg: float
     ):
-        self.addNewFeatureToGpsTableSignal.emit(longitude_deg, latitude_deg, self.nowToString())
+        self.addNewFeatureToGpsTableSignal.emit(
+            longitude_deg, latitude_deg, self.nowToString()
+        )
 
     @staticmethod
     def nowToString() -> str:
