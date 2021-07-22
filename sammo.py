@@ -102,12 +102,12 @@ class Sammo:
             if self._simuGpsBtn is not None and self._simuGpsBtn.isChecked():
                 self._threadGps.stop()
             self._addObservationBtn.onChangeEffortStatus(False)
+            self._soundRecordingBtn.onStopEffort()
 
     def onClickObservation(self):
         feat, table = self._session.getReadyToAddNewFeatureToObservationTable()
         if self.iface.openFeatureForm(table, feat):
             self._session.addNewFeatureToObservationTable(feat)
-            self._soundRecordingBtn.onStopEffort()
 
     def onChangeSoundRecordingStatus(self, isAskForRecording: bool):
         if isAskForRecording:
