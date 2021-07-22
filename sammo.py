@@ -8,9 +8,13 @@ from .src.gui.session import SammoActionSession
 from .src.gui.on_off_effort import SammoActionOnOffEffort
 from .src.core.session import SammoSession
 from .src.gui.add_observation_btn import SammoAddObservationBtn
+from .src.gui.add_observation_btn import AddObservationBtn
+from .src.gui.sound_recording_btn import SoundRecordingBtn
+from .src.core.thread_sound_recording import ThreadForSoundRecording
+from .src.core.thread_gps import ThreadGps
 from qgis.PyQt.QtWidgets import QToolBar
 from qgis.core import QgsFeature
-from .src.core.thread_gps import ThreadGps
+from datetime import datetime
 from .src.gui.simu_gps_btn import SammoSimuGpsBtn
 
 
@@ -24,6 +28,13 @@ class Sammo:
         self._onOffSessionBtn = self.createOnOffEffortBtn()
         self._addObservationBtn = self.createAddObservationBtn()
         self._simuGpsBtn, self._threadGps = self.createSimuGps()
+        self._soundRecordingBtn = SoundRecordingBtn(
+            iface.mainWindow(), self._toolBar
+        )
+        self._soundRecordingBtn.onChangeSoundRecordingStatusSignal.connect(
+            self.onChangeSoundRecordingStatus
+        )
+        self._threadSoundRecording = ThreadForSoundRecording()
 
     def createSimuGps(self) -> [SammoSimuGpsBtn, ThreadGps]:
         if os.environ.get("SAMMO_DEBUG") is None:
@@ -66,6 +77,7 @@ class Sammo:
         pass
 
     def unload(self):
+        self._soundRecordingBtn.unload()
         self._actionSession.unload()
         self._onOffSessionBtn.unload()
         self._addObservationBtn.unload()
@@ -95,9 +107,31 @@ class Sammo:
         feat, table = self._session.getReadyToAddNewFeatureToObservationTable()
         if self.iface.openFeatureForm(table, feat):
             self._session.addNewFeatureToObservationTable(feat)
+            self._soundRecordingBtn.onStopEffort()
+
+    def onChangeSoundRecordingStatus(self, isAskForRecording: bool):
+        if isAskForRecording:
+            dateTimeObj = datetime.now()
+            time = (
+                str(dateTimeObj.year)
+                + "{:02d}".format(dateTimeObj.month)
+                + "{:02d}".format(dateTimeObj.day)
+                + "_"
+                + "{:02d}".format(dateTimeObj.hour)
+                + "{:02d}".format(dateTimeObj.minute)
+                + "{:02d}".format(dateTimeObj.second)
+            )
+            soundFilePath = os.path.join(
+                self._session._directoryPath,
+                "sound_recording_{}.wav".format(time),
+            )
+            self._threadSoundRecording.start(soundFilePath)
+        else:
+            self._threadSoundRecording.stop()
 
     def onAddFeatureToEnvironmentTableSignal(self, feat: QgsFeature):
         self._session.addNewFeatureToEnvironmentTable(feat)
+        self._soundRecordingBtn.onStartEffort()
         if self._simuGpsBtn is not None and self._simuGpsBtn.isChecked():
             self._threadGps.start()
         self._addObservationBtn.onChangeEffortStatus(True)
