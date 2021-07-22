@@ -53,11 +53,16 @@ class SammoDataBase:
             db, self._createFieldsForFollowerTable(), self.FOLLOWER_TABLE_NAME
         )
         self._addTableToDataBaseFile(
-            db, self._createFieldsForGpsTable(), self.GPS_TABLE_NAME, QgsWkbTypes.PointGeometry
+            db,
+            self._createFieldsForGpsTable(),
+            self.GPS_TABLE_NAME,
+            QgsWkbTypes.PointGeometry,
         )
 
     @staticmethod
-    def _addTableToDataBaseFile(db: str, fields: QgsFields, tableName: str, geom = QgsWkbTypes.NoGeometry):
+    def _addTableToDataBaseFile(
+        db: str, fields: QgsFields, tableName: str, geom=QgsWkbTypes.NoGeometry
+    ):
         """
         Create the database and save it as gpkg file
 
