@@ -21,13 +21,14 @@ class Sammo:
                         self._toolBar)
         self.actionSession.createSignal.connect(self.onCreateSession)
 
-        self.actionOnOffSession = SammoActionOnOffEffort(
-                        iface.mainWindow(),
-                        self._toolBar)
-        self.actionOnOffSession.onChangeEffortStatusSignal.connect(
-                        self.onChangeEffortStatus)
-        self.actionOnOffSession.onAddFeatureToEnvironmentTableSignal.\
-                    connect(self.onAddFeatureToEnvironmentTableSignal)
+        self.actionOnOffSession = \
+            SammoActionOnOffEffort(iface.mainWindow(),
+                                   self._toolBar)
+        self.actionOnOffSession.\
+            onChangeEffortStatusSignal.connect(self.onChangeEffortStatus)
+        self.actionOnOffSession.\
+            onAddFeatureToEnvironmentTableSignal.\
+            connect(self.onAddFeatureToEnvironmentTableSignal)
 
     def initGui(self):
         pass
