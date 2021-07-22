@@ -3,52 +3,32 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-from abc import abstractmethod
-from qgis.PyQt.QtWidgets import QPushButton
+from qgis.PyQt.QtCore import pyqtSignal, QObject
+from qgis.PyQt.QtWidgets import QPushButton, QToolBar
 
 
-class IParentOfAddObservationBtn:
-    """
-    This is the abstract class that Sammo class
-    (which is the owner of the SammoActionAddObservation
-    instance) needs to inherit from
-    """
+class AddObservationBtn(QObject):
+    onClickObservationSignal = pyqtSignal()
 
-    @property
-    @abstractmethod
-    def mainWindow(self):
-        pass
-
-    @property
-    @abstractmethod
-    def toolBar(self):
-        pass
-
-    @abstractmethod
-    def onClicObservation(self):
-        pass
-
-
-class AddObservationBtn:
-    def __init__(self, parent: IParentOfAddObservationBtn):
+    def __init__(self, parent: QObject, toolbar: QToolBar):
+        super().__init__()
         self.parent = parent
-        self.button = None
+        self.button: QPushButton = None
+        self.initGui(parent, toolbar)
 
-    def initGui(self):
-        self.button = QPushButton(self.parent.mainWindow)
+    def initGui(self, parent: QObject, toolbar: QToolBar):
+        self.button = QPushButton(parent)
         self.button.setText("Observation")
-        self.button.clicked.connect(self.run)
+        self.button.clicked.connect(self.onClick)
         self.button.setEnabled(False)
-        self.parent.toolBar.addWidget(self.button)
+        toolbar.addWidget(self.button)
 
-    def onStartSession(self):
-        self.button.setEnabled(True)
-
-    def onStopEffort(self):
-        self.button.setEnabled(False)
+    def onChangeEffortStatus(self, effortStatus: bool):
+        # effortStatus = True means that an effort is in progress
+        self.button.setEnabled(effortStatus)
 
     def unload(self):
         del self.button
 
-    def run(self):
-        self.parent.onClicObservation()
+    def onClick(self):
+        self.onClickObservationSignal.emit()
