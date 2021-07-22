@@ -3,8 +3,9 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
+from PyQt5.QtWidgets import QMessageBox
 from .database import SammoDataBase
-from qgis.core import QgsVectorLayerUtils, QgsVectorLayer
+from qgis.core import QgsVectorLayerUtils, QgsProject, QgsVectorLayer
 from datetime import datetime
 
 
