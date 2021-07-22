@@ -56,7 +56,7 @@ class SammoDataBase:
             db,
             self._createFieldsForGpsTable(),
             self.GPS_TABLE_NAME,
-            QgsWkbTypes.PointGeometry,
+            QgsWkbTypes.Point,
         )
 
     @staticmethod
