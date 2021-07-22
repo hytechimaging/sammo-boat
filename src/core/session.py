@@ -4,7 +4,6 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 from .database import SammoDataBase
-from qgis.PyQt.QtWidgets import QMessageBox
 from qgis.core import QgsVectorLayerUtils, QgsVectorLayer
 from datetime import datetime
 
@@ -12,9 +11,9 @@ from datetime import datetime
 class SammoSession:
     def __init__(self):
         self.db = SammoDataBase()
-        self.isDbOpened = False
         self._directoryPath: str = None
         self._environmentTable: QgsVectorLayer = None
+        self._speciesTable: QgsVectorLayer = None
 
     @staticmethod
     def isDataBaseAvailable(directory):
@@ -29,12 +28,7 @@ class SammoSession:
         self._environmentTable = self.loadTable(
             SammoDataBase.ENVIRONMENT_TABLE_NAME
         )
-        if not self._environmentTable.isValid():
-            QMessageBox.critical(
-                None,
-                "Sammo-Boat plugin",
-                "Impossible to read the environment table ",
-            )
+        self._speciesTable = self.loadTable(SammoDataBase.SPECIES_TABLE_NAME)
 
     def onStopEffort(self):
         table = self._environmentTable
@@ -67,10 +61,13 @@ class SammoSession:
 
         table.commitChanges()
 
-    def createEmptyDataBase(self, directory):
+    def createEmptyDataBase(self, directory: str):
         self.db.createEmptyDataBase(directory)
 
-    def loadTable(self, tableName):
+        speciesTable = self.loadTable(SammoDataBase.SPECIES_TABLE_NAME)
+        SammoDataBase.initializeSpeciesTable(speciesTable)
+
+    def loadTable(self, tableName: str) -> QgsVectorLayer:
         return self.db.loadTable(self._directoryPath, tableName)
 
     def getReadyToAddNewFeatureToEnvironmentTable(self):
