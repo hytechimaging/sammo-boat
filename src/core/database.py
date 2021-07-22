@@ -25,6 +25,7 @@ class SammoDataBase:
     ENVIRONMENT_TABLE_NAME = "environment"
     ENVIRONMENT_COMMENT_FIELD_NAME = "commentaire"
     SPECIES_TABLE_NAME = "species"
+    OBSERVATION_TABLE_NAME = "observations"
 
     @staticmethod
     def isDataBaseAvailableInThisDirectory(directory):
@@ -38,9 +39,13 @@ class SammoDataBase:
             self._createFieldsForEnvironmentTable(),
             self.ENVIRONMENT_TABLE_NAME,
         )
-
         self._addTableToDataBaseFile(
             db, self._createFieldsForSpeciesTable(), self.SPECIES_TABLE_NAME
+        )
+        self._addTableToDataBaseFile(
+            db,
+            self._createFieldsForObservationTable(),
+            self.OBSERVATION_TABLE_NAME,
         )
 
     @staticmethod
@@ -162,14 +167,6 @@ class SammoDataBase:
         return fields
 
     @staticmethod
-    def _createFieldShortText(fieldName) -> QgsField:
-        return QgsField(fieldName, QVariant.String, len=50)
-
-    def loadTable(self, directory, tableName) -> QgsVectorLayer:
-        db = self._pathToDataBase(directory) + "|layername=" + tableName
-        return QgsVectorLayer(db, tableName)
-
-    @staticmethod
     def initializeSpeciesTable(speciesTable: QgsVectorLayer):
         speciesTable.startEditing()
 
@@ -195,3 +192,36 @@ class SammoDataBase:
         speciesTable.addFeature(species_3)
 
         speciesTable.commitChanges()
+
+    def _createFieldsForObservationTable(self) -> QgsFields:
+        fields = QgsFields()
+        fields.append(QgsField("code_leg", QVariant.Int))
+        fields.append(self._createFieldShortText("heure"))
+        fields.append(self._createFieldShortText("leg_heure"))
+        fields.append(self._createFieldShortText("code_esp"))
+        fields.append(QgsField("nombre", QVariant.Int))
+        fields.append(QgsField("min", QVariant.Int))
+        fields.append(QgsField("max", QVariant.Int))
+        fields.append(self._createFieldShortText("age"))
+        fields.append(QgsField("distance", QVariant.Double))
+        fields.append(QgsField("angle", QVariant.Double))
+        fields.append(QgsField("route", QVariant.Double))
+        fields.append(self._createFieldShortText("cote"))
+        fields.append(self._createFieldShortText("cptmt_general"))
+        fields.append(self._createFieldShortText("cptmt_groupe"))
+        fields.append(self._createFieldShortText("malchance"))
+        fields.append(self._createFieldShortText("association"))
+        fields.append(self._createFieldShortText("cptmt_MM"))
+        fields.append(self._createFieldShortText("cptmt_OIS"))
+        fields.append(self._createFieldShortText("cptmt_BAT"))
+        fields.append(self._createFieldShortText("comment"))
+
+        return fields
+
+    @staticmethod
+    def _createFieldShortText(fieldName) -> QgsField:
+        return QgsField(fieldName, QVariant.String, len=50)
+
+    def loadTable(self, directory, tableName) -> QgsVectorLayer:
+        db = self._pathToDataBase(directory) + "|layername=" + tableName
+        return QgsVectorLayer(db, tableName)
