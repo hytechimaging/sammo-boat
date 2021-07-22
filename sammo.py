@@ -16,11 +16,13 @@ class Sammo:
         self._toolBar: QToolBar = self.iface.addToolBar("Sammo ToolBar")
         self._session = SammoSession()
 
-        self.actionSession = SammoActionSession(iface.mainWindow(),
+        self.actionSession = SammoActionSession(
+                        iface.mainWindow(),
                         self._toolBar)
         self.actionSession.createSignal.connect(self.onCreateSession)
 
-        self.actionOnOffSession = SammoActionOnOffEffort(iface.mainWindow(),
+        self.actionOnOffSession = SammoActionOnOffEffort(
+                        iface.mainWindow(),
                         self._toolBar)
         self.actionOnOffSession.onChangeEffortStatusSignal.connect(
                         self.onChangeEffortStatus)

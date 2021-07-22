@@ -85,4 +85,3 @@ class SammoSession:
         feat = QgsVectorLayerUtils.createFeature(table)
         table.startEditing()
         return feat, table
-      
