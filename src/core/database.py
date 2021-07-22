@@ -53,11 +53,11 @@ class SammoDataBase:
             db, self._createFieldsForFollowerTable(), self.FOLLOWER_TABLE_NAME
         )
         self._addTableToDataBaseFile(
-            db, self._createFieldsForGpsTable(), self.GPS_TABLE_NAME
+            db, self._createFieldsForGpsTable(), self.GPS_TABLE_NAME, QgsWkbTypes.PointGeometry
         )
 
     @staticmethod
-    def _addTableToDataBaseFile(db: str, fields: QgsFields, tableName: str):
+    def _addTableToDataBaseFile(db: str, fields: QgsFields, tableName: str, geom = QgsWkbTypes.NoGeometry):
         """
         Create the database and save it as gpkg file
 
@@ -65,7 +65,6 @@ class SammoDataBase:
         :param fields: the fields of the table
         :param tableName: the name of the table
         """
-        geom = QgsWkbTypes.NoGeometry
         opts = QgsVectorFileWriter.SaveVectorOptions()
         opts.driverName = "GPKG"
         opts.layerName = tableName
@@ -241,8 +240,6 @@ class SammoDataBase:
 
     def _createFieldsForGpsTable(self) -> QgsFields:
         fields = QgsFields()
-        fields.append(QgsField("Latitude", QVariant.Double))
-        fields.append(QgsField("Longitude", QVariant.Double))
         fields.append(self._createFieldShortText("leg_heure"))
         fields.append(QgsField("code_leg", QVariant.Int))
 
