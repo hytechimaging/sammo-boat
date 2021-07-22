@@ -15,6 +15,7 @@ from qgis.core import (
     QgsFeatureSink,
     QgsVectorLayer,
     QgsField,
+    QgsFeature,
 )
 
 
@@ -23,18 +24,23 @@ class SammoDataBase:
     LAYER_NAME = "session data"
     ENVIRONMENT_TABLE_NAME = "environment"
     ENVIRONMENT_COMMENT_FIELD_NAME = "commentaire"
+    SPECIES_TABLE_NAME = "species"
 
     @staticmethod
     def isDataBaseAvailableInThisDirectory(directory):
         return os.path.isfile(SammoDataBase._pathToDataBase(directory))
 
     def createEmptyDataBase(self, directory):
-        db = SammoDataBase._pathToDataBase(directory)
+        db = self._pathToDataBase(directory)
 
-        SammoDataBase._addTableToDataBaseFile(
+        self._addTableToDataBaseFile(
             db,
             self._createFieldsForEnvironmentTable(),
-            SammoDataBase.ENVIRONMENT_TABLE_NAME,
+            self.ENVIRONMENT_TABLE_NAME,
+        )
+
+        self._addTableToDataBaseFile(
+            db, self._createFieldsForSpeciesTable(), self.SPECIES_TABLE_NAME
         )
 
     @staticmethod
@@ -72,10 +78,10 @@ class SammoDataBase:
         )
 
     @staticmethod
-    def _pathToDataBase(directory):
+    def _pathToDataBase(directory: str) -> str:
         return os.path.join(directory, SammoDataBase.DB_NAME)
 
-    def _createFieldsForEnvironmentTable(self):
+    def _createFieldsForEnvironmentTable(self) -> QgsFields:
         fields = QgsFields()
         fields.append(QgsField("code_leg", QVariant.Int))
         fields.append(self._createFieldShortText("heure"))
@@ -103,15 +109,14 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("cond_generale"))
         fields.append(QgsField("visibilité", QVariant.Double))
         fields.append(
-            self._createFieldShortText(
-                SammoDataBase.ENVIRONMENT_COMMENT_FIELD_NAME
-            )
+            self._createFieldShortText(self.ENVIRONMENT_COMMENT_FIELD_NAME)
         )
         fields.append(self._createFieldShortText("Survey"))
 
         return fields
 
-    def getIdOfLastAddedFeature(self, layer: QgsVectorLayer):
+    @staticmethod
+    def getIdOfLastAddedFeature(layer: QgsVectorLayer) -> int:
         maxId = -1
         for feature in layer.getFeatures():
             if feature.id() > maxId:
@@ -119,10 +124,74 @@ class SammoDataBase:
 
         return maxId
 
+    def _createFieldsForSpeciesTable(self) -> QgsFields:
+        fields = QgsFields()
+        fields.append(QgsField("code_esp", QVariant.Int))
+        fields.append(self._createFieldShortText("nom_latin"))
+        fields.append(self._createFieldShortText("type"))
+        fields.append(QgsField("cat_group_size", QVariant.Int))
+        fields.append(self._createFieldShortText("groupe"))
+        fields.append(self._createFieldShortText("Famille"))
+        fields.append(self._createFieldShortText("List_sp"))
+        fields.append(self._createFieldShortText("liste_especes_potentielles"))
+        fields.append(self._createFieldShortText("potential_sp"))
+        fields.append(self._createFieldShortText("group_pelgas"))
+        fields.append(self._createFieldShortText("nom_commun"))
+        fields.append(self._createFieldShortText("nom_anglais"))
+        fields.append(self._createFieldShortText("nom_espagnol"))
+        fields.append(self._createFieldShortText("phylum_public"))
+        fields.append(self._createFieldShortText("classe_public"))
+        fields.append(self._createFieldShortText("ordre_public"))
+        fields.append(self._createFieldShortText("famille_public"))
+        fields.append(self._createFieldShortText("taxon_fr"))
+        fields.append(self._createFieldShortText("family_eng"))
+        fields.append(self._createFieldShortText("group_eng"))
+        fields.append(self._createFieldShortText("id_public"))
+        fields.append(self._createFieldShortText("LB_NOM_taxref"))
+        fields.append(self._createFieldShortText("NOM_VERN_taxref"))
+        fields.append(self._createFieldShortText("NOM_VERN_ENG_taxref"))
+        fields.append(self._createFieldShortText("CD_NOM_taxref"))
+        fields.append(self._createFieldShortText("APHIA_ID_taxref"))
+        fields.append(self._createFieldShortText("REGNE_taxref"))
+        fields.append(self._createFieldShortText("PHYLUM_taxref"))
+        fields.append(self._createFieldShortText("CLASSE_taxref"))
+        fields.append(self._createFieldShortText("ORDRE_taxref"))
+        fields.append(self._createFieldShortText("FAMILLE_taxref"))
+        fields.append(self._createFieldShortText("R_Caraibes"))
+
+        return fields
+
     @staticmethod
-    def _createFieldShortText(fieldName):
+    def _createFieldShortText(fieldName) -> QgsField:
         return QgsField(fieldName, QVariant.String, len=50)
 
-    def loadTable(self, directory, tableName):
-        db = self._pathToDataBase(directory)
+    def loadTable(self, directory, tableName) -> QgsVectorLayer:
+        db = self._pathToDataBase(directory) + "|layername=" + tableName
         return QgsVectorLayer(db, tableName)
+
+    @staticmethod
+    def initializeSpeciesTable(speciesTable: QgsVectorLayer):
+        speciesTable.startEditing()
+
+        species_1 = QgsFeature(speciesTable.fields())
+        species_1.setAttribute("code_esp", 1)
+        species_1.setAttribute("nom_commun", "Dauphin commun")
+        species_1.setAttribute("nom_latin", "Delphinus delphis")
+        species_1.setAttribute("famille", "Delphinidae")
+        speciesTable.addFeature(species_1)
+
+        species_2 = QgsFeature(speciesTable.fields())
+        species_2.setAttribute("code_esp", 2)
+        species_2.setAttribute("nom_commun", "Baleine bleue")
+        species_2.setAttribute("nom_latin", "Balaenoptera musculus")
+        species_2.setAttribute("famille", "Balaenopteridae")
+        speciesTable.addFeature(species_2)
+
+        species_3 = QgsFeature(speciesTable.fields())
+        species_3.setAttribute("code_esp", 3)
+        species_3.setAttribute("nom_commun", "Mouette rieuse")
+        species_3.setAttribute("nom_latin", "Chroicocephalus ridibundus")
+        species_3.setAttribute("famille", "Laridés")
+        speciesTable.addFeature(species_3)
+
+        speciesTable.commitChanges()
