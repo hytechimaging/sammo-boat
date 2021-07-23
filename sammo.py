@@ -19,32 +19,45 @@ class Sammo:
         self._toolBar: QToolBar = self.iface.addToolBar("Sammo ToolBar")
         self._session = SammoSession()
 
-        self._actionSession = SammoActionSession(
-            iface.mainWindow(), self._toolBar
-        )
-        self._actionSession.createSignal.connect(self.onCreateSession)
+        self._actionSession = self.createSessionBtn()
+        self._onOffSessionBtn = self.createOnOffEffortBtn()
+        self._addObservationBtn = self.createAddObservationBtn()
+        self._threadGps = self.createThreadGps()
 
-        self._onOffSessionBtn = SammoActionOnOffEffort(
-            iface.mainWindow(), self._toolBar
-        )
-        self._onOffSessionBtn.onChangeEffortStatusSignal.connect(
-            self.onChangeEffortStatus
-        )
-        self._onOffSessionBtn.onAddFeatureToEnvironmentTableSignal.connect(
-            self.onAddFeatureToEnvironmentTableSignal
-        )
-
-        self._addObservationBtn = SammoAddObservationBtn(
-            iface.mainWindow(), self._toolBar
-        )
-        self._addObservationBtn.onClickObservationSignal.connect(
-            self.onClickObservation
-        )
-
-        self._threadGps = ThreadGps(self._session)
-        self._threadGps.addNewFeatureToGpsTableSignal.connect(
+    def createThreadGps(self) -> ThreadGps:
+        threadGps = ThreadGps(self._session)
+        threadGps.addNewFeatureToGpsTableSignal.connect(
             self._session.addNewFeatureToGpsTable
         )
+        return threadGps
+
+    def createAddObservationBtn(self) -> SammoAddObservationBtn:
+        button = SammoAddObservationBtn(
+            self.iface.mainWindow(), self._toolBar
+        )
+        button.onClickObservationSignal.connect(
+            self.onClickObservation
+        )
+        return button
+
+    def createOnOffEffortBtn(self) -> SammoActionOnOffEffort:
+        button = SammoActionOnOffEffort(
+            self.iface.mainWindow(), self._toolBar
+        )
+        button.onChangeEffortStatusSignal.connect(
+            self.onChangeEffortStatus
+        )
+        button.onAddFeatureToEnvironmentTableSignal.connect(
+            self.onAddFeatureToEnvironmentTableSignal
+        )
+        return button
+
+    def createSessionBtn(self) -> SammoActionSession:
+        button = SammoActionSession(
+            self.iface.mainWindow(), self._toolBar
+        )
+        button.createSignal.connect(self.onCreateSession)
+        return button
 
     def initGui(self):
         pass
