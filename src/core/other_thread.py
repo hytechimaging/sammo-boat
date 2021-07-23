@@ -17,7 +17,7 @@ class WorkerForOtherThread(QObject):
         self._isNeedToStop = False
 
     def run(self):
-        self._lines = self._onStart()
+        self._onStart()
 
         while not self._isNeedToStop:
             self._toDoInsideLoop()

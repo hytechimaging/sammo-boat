@@ -8,9 +8,9 @@ from qgis.PyQt.QtCore import pyqtSignal, QObject
 from qgis.core import QgsVectorLayer, QgsFeature
 
 
-class SammoActionOnOffEffort(QObject):
-    onChangeEffortStatusSignal = pyqtSignal(bool)
-    onAddFeatureToEnvironmentTableSignal = pyqtSignal(QgsFeature)
+class SammoSimuGpsBtn(QObject):
+    # the parameter value is true if GPS simulation is ON
+    onChangeSimuGpsStatusSignal = pyqtSignal(bool)
 
     def __init__(self, parent: QObject, toolbar: QToolBar):
         super().__init__()
@@ -20,9 +20,9 @@ class SammoActionOnOffEffort(QObject):
 
     def initGui(self, parent: QObject, toolbar: QToolBar):
         self.button = QPushButton(parent)
-        self.button.setText("Effort")
-        self.button.clicked.connect(self.run)
-        self.button.setEnabled(False)
+        self.button.setText("Simu GPS")
+        self.button.clicked.connect(self.onClick)
+        self.button.setEnabled(True)
         self.button.setCheckable(True)
         toolbar.addWidget(self.button)
 
@@ -32,15 +32,12 @@ class SammoActionOnOffEffort(QObject):
     def unload(self):
         del self.button
 
-    def run(self):
-        if self.button.isChecked():
-            self.onChangeEffortStatusSignal.emit(True)
-        else:
-            self.onChangeEffortStatusSignal.emit(False)
+    def onClick(self):
+        self.onChangeSimuGpsStatusSignal.emit(self.button.isChecked())
+
+    def isChecked(self) -> bool:
+        return self.button.isChecked()
 
     def openFeatureForm(self, iface, table: QgsVectorLayer, feat: QgsFeature):
         if iface.openFeatureForm(table, feat):
             self.onAddFeatureToEnvironmentTableSignal.emit(feat)
-
-    def isChecked(self) -> bool:
-        return self.button.isChecked()

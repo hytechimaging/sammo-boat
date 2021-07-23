@@ -13,18 +13,27 @@ from datetime import datetime
 class WorkerGps(WorkerForOtherThread):
     addNewFeatureToGpsTableSignal = pyqtSignal(float, float)
 
-    def __init__(self, testFilePath: str, session: SammoSession):
+    def __init__(
+        self,
+        testFilePath: str,
+        session: SammoSession,
+        indexOfNextGpsPoint: int,
+    ):
         super().__init__()
         self._testFilePath = testFilePath
         self._session: SammoSession = session
         self._lines = None
+        self._indexOfNextGpsPoint = indexOfNextGpsPoint
 
     def _toDoInsideLoop(self):
-        for line in self._lines:
+        print(self._lines)
+        nbLines = len(self._lines)
+        for i in range(self._indexOfNextGpsPoint, nbLines):
             sleep(1)
             if self._isNeedToStop:
                 return
-            coordinates = line.strip().split(";")
+
+            coordinates = self._lines[i].strip().split(";")
             longitude_deg = coordinates[0]
             latitude_deg = coordinates[1]
 
@@ -35,11 +44,13 @@ class WorkerGps(WorkerForOtherThread):
                 "Coordonnées GPS : longitude = {}°"
                 " - latitude = {}°".format(longitude_deg, latitude_deg)
             )
+            self._indexOfNextGpsPoint = self._indexOfNextGpsPoint + 1
+
+        self._indexOfNextGpsPoint = 0
 
     def _onStart(self):
         with open(self._testFilePath) as file:
-            lines = file.readlines()
-        return lines
+            self._lines = file.readlines()
 
 
 class ThreadGps(OtherThread):
@@ -48,13 +59,20 @@ class ThreadGps(OtherThread):
     def __init__(self, session: SammoSession):
         super().__init__()
         self._session: SammoSession = session
+        self.indexOfNextGpsPoint: int = 0
 
     def start(self, testFilePath: str):
-        worker = WorkerGps(testFilePath, self._session)
+        worker = WorkerGps(
+            testFilePath, self._session, self.indexOfNextGpsPoint
+        )
         worker.addNewFeatureToGpsTableSignal.connect(
             self.addNewFeatureToGpsTable
         )
         super().start(worker)
+
+    def stop(self):
+        self.indexOfNextGpsPoint = self.worker._indexOfNextGpsPoint
+        super().stop()
 
     def addNewFeatureToGpsTable(
         self, longitude_deg: float, latitude_deg: float
