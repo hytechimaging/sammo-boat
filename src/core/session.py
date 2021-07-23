@@ -111,14 +111,15 @@ class SammoSession:
         self._addNewFeature(feature, self._observationTable)
 
     def addNewFeatureToGpsTable(
-        self, longitude: float, latitude: float, dateTime: str
+        self, longitude: float, latitude: float, leg_heure: str, code_leg: int
     ):
         self._gpsTable.startEditing()
 
         feature = QgsFeature(QgsVectorLayerUtils.createFeature(self._gpsTable))
         layerPoint = QgsPointXY(longitude, latitude)
         feature.setGeometry(QgsGeometry.fromPointXY(layerPoint))
-        feature.setAttribute(SammoDataBase.GPS_TIME_FIELD_NAME, dateTime)
+        feature.setAttribute("leg_heure", leg_heure)
+        feature.setAttribute("code_leg", code_leg)
 
         self._addNewFeature(feature, self._gpsTable)
 

@@ -51,7 +51,7 @@ class Sammo:
         button = SammoSimuGpsBtn(self.iface.mainWindow(), self._toolBar)
         button.onChangeSimuGpsStatusSignal.connect(self.onChangeSimuGpsStatus)
         testFilePath = os.path.join(
-            self.pluginFolder(), "src/core/gps_coordinates_test.fic"
+            self.pluginFolder(), "src/core/trace_simu_gps.csv"
         )
         threadGps = ThreadSimuGps(self._session, testFilePath)
         threadGps.addNewFeatureToGpsTableSignal.connect(
