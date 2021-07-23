@@ -102,7 +102,9 @@ class SammoSession:
     def addNewFeatureToEnvironmentTable(self, feature: QgsFeature):
         self._addNewFeature(feature, self._environmentTable)
 
-    def getReadyToAddNewFeatureToObservationTable(self):
+    def getReadyToAddNewFeatureToObservationTable(
+        self,
+    ) -> (QgsFeature, QgsVectorLayer):
         return self._getReadyToAddNewFeature(self._observationTable)
 
     def addNewFeatureToObservationTable(self, feature: QgsFeature):
@@ -121,7 +123,9 @@ class SammoSession:
         self._addNewFeature(feature, self._gpsTable)
 
     @staticmethod
-    def _getReadyToAddNewFeature(table: QgsVectorLayer):
+    def _getReadyToAddNewFeature(
+        table: QgsVectorLayer,
+    ) -> (QgsFeature, QgsVectorLayer):
         feat = QgsVectorLayerUtils.createFeature(table)
         table.startEditing()
         return feat, table

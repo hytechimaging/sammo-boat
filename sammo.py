@@ -4,8 +4,8 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
-from .src.gui.session import SammoActionSession
-from .src.gui.on_off_effort import SammoActionOnOffEffort
+from .src.gui.session_btn import SammoActionSession
+from .src.gui.on_off_effort_btn import SammoOnOffEffortBtn
 from .src.core.session import SammoSession
 from .src.gui.add_observation_btn import SammoAddObservationBtn
 from .src.gui.sound_recording_btn import SammoSoundRecordingBtn
@@ -23,14 +23,18 @@ class Sammo:
         self._toolBar: QToolBar = self.iface.addToolBar("Sammo ToolBar")
         self._session = SammoSession()
 
-        self._actionSession = self.createSessionBtn()
-        self._onOffSessionBtn = self.createOnOffEffortBtn()
+        self._sessionBtn = self.createSessionBtn()
+        self._onOffEffortBtn = self.createOnOffEffortBtn()
         self._addObservationBtn = self.createAddObservationBtn()
-        self._soundRecordingBtn, self._threadSoundRecording \
-            = self.createSoundRecording()
-        self._simuGpsBtn, self._threadGps = self.createSimuGps()
+        (
+            self._soundRecordingBtn,
+            self._threadSoundRecording,
+        ) = self.createSoundRecording()
+        self._simuGpsBtn, self._threadSimuGps = self.createSimuGps()
 
-    def createSoundRecording(self):
+    def createSoundRecording(
+        self,
+    ) -> [SammoSoundRecordingBtn, ThreadForSoundRecording]:
         soundRecordingBtn = SammoSoundRecordingBtn(
             self.iface.mainWindow(), self._toolBar
         )
@@ -40,7 +44,7 @@ class Sammo:
         threadSoundRecording = ThreadForSoundRecording()
         return soundRecordingBtn, threadSoundRecording
 
-    def createSimuGps(self) -> [SammoSimuGpsBtn, ThreadGps]:
+    def createSimuGps(self) -> [SammoSimuGpsBtn, ThreadSimuGps]:
         if os.environ.get("SAMMO_DEBUG") is None:
             return [None, None]
 
@@ -64,8 +68,8 @@ class Sammo:
         button.onClickObservationSignal.connect(self.onClickObservation)
         return button
 
-    def createOnOffEffortBtn(self) -> SammoActionOnOffEffort:
-        button = SammoActionOnOffEffort(self.iface.mainWindow(), self._toolBar)
+    def createOnOffEffortBtn(self) -> SammoOnOffEffortBtn:
+        button = SammoOnOffEffortBtn(self.iface.mainWindow(), self._toolBar)
         button.onChangeEffortStatusSignal.connect(self.onChangeEffortStatus)
         button.onAddFeatureToEnvironmentTableSignal.connect(
             self.onAddFeatureToEnvironmentTableSignal
@@ -81,14 +85,14 @@ class Sammo:
         pass
 
     def unload(self):
-        if self._threadGps.isProceeding:
-            self._threadGps.stop()
+        if self._threadSimuGps.isProceeding:
+            self._threadSimuGps.stop()
         if self._threadSoundRecording.isProceeding:
             self._threadSoundRecording.stop()
 
         self._soundRecordingBtn.unload()
-        self._actionSession.unload()
-        self._onOffSessionBtn.unload()
+        self._sessionBtn.unload()
+        self._onOffEffortBtn.unload()
         self._addObservationBtn.unload()
         if self._simuGpsBtn is not None:
             self._simuGpsBtn.unload()
@@ -97,7 +101,7 @@ class Sammo:
 
     def onCreateSession(self, workingDirectory: str):
         self._session.onCreateSession(workingDirectory)
-        self._onOffSessionBtn.onCreateSession()
+        self._onOffEffortBtn.onCreateSession()
 
     def onChangeEffortStatus(self, isChecked: bool):
         if isChecked:
@@ -105,11 +109,11 @@ class Sammo:
                 feat,
                 table,
             ) = self._session.getReadyToAddNewFeatureToEnvironmentTable()
-            self._onOffSessionBtn.openFeatureForm(self.iface, table, feat)
+            self._onOffEffortBtn.openFeatureForm(self.iface, table, feat)
         else:
             self._session.onStopEffort()
             if self._simuGpsBtn is not None and self._simuGpsBtn.isChecked():
-                self._threadGps.stop()
+                self._threadSimuGps.stop()
             self._addObservationBtn.onChangeEffortStatus(False)
             self._soundRecordingBtn.onStopEffort()
             if self._threadSoundRecording.isProceeding:
@@ -148,10 +152,10 @@ class Sammo:
         self._addObservationBtn.onChangeEffortStatus(True)
 
     def onChangeSimuGpsStatus(self, isOn: bool):
-        if not self._onOffSessionBtn.isChecked():
+        if not self._onOffEffortBtn.isChecked():
             return
 
         if self._simuGpsBtn.isChecked():
             self._threadGps.start()
         else:
-            self._threadGps.stop()
+            self._threadSimuGps.stop()
