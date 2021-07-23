@@ -23,7 +23,8 @@ class Sammo:
         self._actionSession = self.createSessionBtn()
         self._onOffSessionBtn = self.createOnOffEffortBtn()
         self._addObservationBtn = self.createAddObservationBtn()
-        self._simuGpsBtn, self._threadGps = self.createSimuGps()
+        self._simuGpsBtn: SammoSimuGpsBtn = None
+        self._threadGps: ThreadGps = None
 
     def createSimuGps(self) -> [SammoSimuGpsBtn, ThreadGps]:
         if os.environ.get("SAMMO_DEBUG") is None:
@@ -32,7 +33,8 @@ class Sammo:
 
         button = SammoSimuGpsBtn(self.iface.mainWindow(), self._toolBar)
         button.onChangeSimuGpsStatusSignal.connect(self.onChangeSimuGpsStatus)
-        threadGps = ThreadGps(self._session)
+        testFilePath = os.path.join(self._session.directoryPath, "gps_coordinates_test.fic")
+        threadGps = ThreadGps(self._session, testFilePath)
         threadGps.addNewFeatureToGpsTableSignal.connect(
             self._session.addNewFeatureToGpsTable
         )
@@ -71,6 +73,7 @@ class Sammo:
     def onCreateSession(self, workingDirectory: str):
         self._session.onCreateSession(workingDirectory)
         self._onOffSessionBtn.onCreateSession()
+        self._simuGpsBtn, self._threadGps = self.createSimuGps()
 
     def onChangeEffortStatus(self, isChecked: bool):
         if isChecked:
@@ -93,7 +96,7 @@ class Sammo:
     def onAddFeatureToEnvironmentTableSignal(self, feat: QgsFeature):
         self._session.addNewFeatureToEnvironmentTable(feat)
         if self._simuGpsBtn is not None and self._simuGpsBtn.isChecked():
-            self.startThreadSimuGps()
+            self._threadGps.start()
         self._addObservationBtn.onChangeEffortStatus(True)
 
     def onChangeSimuGpsStatus(self, isOn: bool):
@@ -101,12 +104,6 @@ class Sammo:
             return
 
         if self._simuGpsBtn.isChecked():
-            self.startThreadSimuGps()
+            self._threadGps.start()
         else:
             self._threadGps.stop()
-
-    def startThreadSimuGps(self):
-        testFilePath = os.path.join(
-            self._session._directoryPath, "gps_coordinates_test.fic"
-        )
-        self._threadGps.start(testFilePath)

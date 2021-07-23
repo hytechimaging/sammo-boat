@@ -20,7 +20,7 @@ from qgis.core import (
 class SammoSession:
     def __init__(self):
         self.db = SammoDataBase()
-        self._directoryPath: str = None
+        self.directoryPath: str = None
         self._environmentTable: QgsVectorLayer = None
         self._speciesTable: QgsVectorLayer = None
         self._observationTable: QgsVectorLayer = None
@@ -32,7 +32,7 @@ class SammoSession:
         return SammoDataBase.isDataBaseAvailableInThisDirectory(directory)
 
     def onCreateSession(self, directory):
-        self._directoryPath = directory
+        self.directoryPath = directory
         if not self.isDataBaseAvailable(directory):
             # No geopackage DB in this directory
             self.createEmptyDataBase(directory)
@@ -87,7 +87,7 @@ class SammoSession:
         SammoDataBase.initializeSpeciesTable(speciesTable)
 
     def loadTable(self, tableName: str) -> QgsVectorLayer:
-        layer = self.db.loadTable(self._directoryPath, tableName)
+        layer = self.db.loadTable(self.directoryPath, tableName)
         if not layer.isValid():
             QMessageBox.critical(
                 None,

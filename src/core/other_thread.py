@@ -40,7 +40,7 @@ class WorkerForOtherThread(QObject):
 
 
 class OtherThread(QObject):
-    def start(self, worker: WorkerForOtherThread):
+    def _start(self, worker: WorkerForOtherThread):
         self.thread = QThread()
         self.worker = worker
         self.worker.moveToThread(self.thread)
