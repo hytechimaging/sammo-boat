@@ -23,8 +23,7 @@ class Sammo:
         self._actionSession = self.createSessionBtn()
         self._onOffSessionBtn = self.createOnOffEffortBtn()
         self._addObservationBtn = self.createAddObservationBtn()
-        self._simuGpsBtn: SammoSimuGpsBtn = None
-        self._threadGps: ThreadGps = None
+        self._simuGpsBtn, self._threadGps = self.createSimuGps()
 
     def createSimuGps(self) -> [SammoSimuGpsBtn, ThreadGps]:
         if os.environ.get("SAMMO_DEBUG") is None:
@@ -33,12 +32,16 @@ class Sammo:
 
         button = SammoSimuGpsBtn(self.iface.mainWindow(), self._toolBar)
         button.onChangeSimuGpsStatusSignal.connect(self.onChangeSimuGpsStatus)
-        testFilePath = os.path.join(self._session.directoryPath, "gps_coordinates_test.fic")
+        testFilePath = os.path.join(self.pluginFolder(), "src/core/gps_coordinates_test.fic")
         threadGps = ThreadGps(self._session, testFilePath)
         threadGps.addNewFeatureToGpsTableSignal.connect(
             self._session.addNewFeatureToGpsTable
         )
         return [button, threadGps]
+
+    @staticmethod
+    def pluginFolder():
+        return os.path.abspath(os.path.dirname(__file__))
 
     def createAddObservationBtn(self) -> SammoAddObservationBtn:
         button = SammoAddObservationBtn(self.iface.mainWindow(), self._toolBar)
@@ -73,7 +76,6 @@ class Sammo:
     def onCreateSession(self, workingDirectory: str):
         self._session.onCreateSession(workingDirectory)
         self._onOffSessionBtn.onCreateSession()
-        self._simuGpsBtn, self._threadGps = self.createSimuGps()
 
     def onChangeEffortStatus(self, isChecked: bool):
         if isChecked:
