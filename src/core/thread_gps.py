@@ -52,7 +52,7 @@ class WorkerGps(WorkerForOtherThread):
             self._lines = file.readlines()
 
 
-class ThreadGps(OtherThread):
+class ThreadSimuGps(OtherThread):
     addNewFeatureToGpsTableSignal = pyqtSignal(float, float, str)
 
     def __init__(self, session: SammoSession, testFilePath: str):
