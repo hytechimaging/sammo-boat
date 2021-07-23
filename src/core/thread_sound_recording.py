@@ -43,4 +43,4 @@ class WorkerForSoundRecording(WorkerForOtherThread):
 class ThreadForSoundRecording(OtherThread):
     def start(self, soundFilePath: str):
         worker = WorkerForSoundRecording(soundFilePath)
-        super().start(worker)
+        super()._start(worker)

@@ -44,7 +44,7 @@ class OtherThread(QObject):
         super().__init__()
         self.isProceeding: bool = False
 
-    def start(self, worker: WorkerForOtherThread):
+    def _start(self, worker: WorkerForOtherThread):
         self.thread = QThread()
         self.worker = worker
         self.worker.moveToThread(self.thread)
