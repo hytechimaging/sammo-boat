@@ -26,7 +26,6 @@ class WorkerGps(WorkerForOtherThread):
         self._indexOfNextGpsPoint = indexOfNextGpsPoint
 
     def _toDoInsideLoop(self):
-        print(self._lines)
         nbLines = len(self._lines)
         for i in range(self._indexOfNextGpsPoint, nbLines):
             sleep(1)
@@ -56,19 +55,20 @@ class WorkerGps(WorkerForOtherThread):
 class ThreadGps(OtherThread):
     addNewFeatureToGpsTableSignal = pyqtSignal(float, float, str)
 
-    def __init__(self, session: SammoSession):
+    def __init__(self, session: SammoSession, testFilePath: str):
         super().__init__()
         self._session: SammoSession = session
+        self._testFilePath = testFilePath
         self.indexOfNextGpsPoint: int = 0
 
-    def start(self, testFilePath: str):
+    def start(self):
         worker = WorkerGps(
-            testFilePath, self._session, self.indexOfNextGpsPoint
+            self._testFilePath, self._session, self.indexOfNextGpsPoint
         )
         worker.addNewFeatureToGpsTableSignal.connect(
             self.addNewFeatureToGpsTable
         )
-        super().start(worker)
+        super()._start(worker)
 
     def stop(self):
         self.indexOfNextGpsPoint = self.worker._indexOfNextGpsPoint
