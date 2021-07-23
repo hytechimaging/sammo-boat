@@ -26,15 +26,19 @@ class Sammo:
         self._actionSession = self.createSessionBtn()
         self._onOffSessionBtn = self.createOnOffEffortBtn()
         self._addObservationBtn = self.createAddObservationBtn()
+        self._soundRecordingBtn, self._threadSoundRecording \
+            = self.createSoundRecording()
         self._simuGpsBtn, self._threadGps = self.createSimuGps()
 
-        self._soundRecordingBtn = SammoSoundRecordingBtn(
-            iface.mainWindow(), self._toolBar
+    def createSoundRecording(self):
+        soundRecordingBtn = SammoSoundRecordingBtn(
+            self.iface.mainWindow(), self._toolBar
         )
-        self._soundRecordingBtn.onChangeSoundRecordingStatusSignal.connect(
+        soundRecordingBtn.onChangeSoundRecordingStatusSignal.connect(
             self.onChangeSoundRecordingStatus
         )
-        self._threadSoundRecording = ThreadForSoundRecording()
+        threadSoundRecording = ThreadForSoundRecording()
+        return soundRecordingBtn, threadSoundRecording
 
     def createSimuGps(self) -> [SammoSimuGpsBtn, ThreadGps]:
         if os.environ.get("SAMMO_DEBUG") is None:
