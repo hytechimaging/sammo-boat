@@ -10,7 +10,7 @@ from .src.core.session import SammoSession
 from .src.gui.add_observation_btn import SammoAddObservationBtn
 from .src.gui.sound_recording_btn import SammoSoundRecordingBtn
 from .src.core.thread_sound_recording import ThreadForSoundRecording
-from .src.core.thread_gps import ThreadGps
+from .src.core.thread_gps import ThreadSimuGps
 from qgis.PyQt.QtWidgets import QToolBar
 from qgis.core import QgsFeature
 from datetime import datetime
@@ -53,7 +53,7 @@ class Sammo:
         testFilePath = os.path.join(
             self.pluginFolder(), "src/core/gps_coordinates_test.fic"
         )
-        threadGps = ThreadGps(self._session, testFilePath)
+        threadGps = ThreadSimuGps(self._session, testFilePath)
         threadGps.addNewFeatureToGpsTableSignal.connect(
             self._session.addNewFeatureToGpsTable
         )
@@ -85,7 +85,10 @@ class Sammo:
         pass
 
     def unload(self):
-        if self._threadSimuGps.isProceeding:
+        if (
+            self._threadSimuGps is not None
+            and self._threadSimuGps.isProceeding
+        ):
             self._threadSimuGps.stop()
         if self._threadSoundRecording.isProceeding:
             self._threadSoundRecording.stop()
@@ -137,7 +140,7 @@ class Sammo:
                 + "{:02d}".format(dateTimeObj.second)
             )
             soundFilePath = os.path.join(
-                self._session._directoryPath,
+                self._session.directoryPath,
                 "sound_recording_{}.wav".format(time),
             )
             self._threadSoundRecording.start(soundFilePath)
@@ -148,14 +151,14 @@ class Sammo:
         self._session.addNewFeatureToEnvironmentTable(feat)
         self._soundRecordingBtn.onStartEffort()
         if self._simuGpsBtn is not None and self._simuGpsBtn.isChecked():
-            self._threadGps.start()
+            self._threadSimuGps.start()
         self._addObservationBtn.onChangeEffortStatus(True)
 
     def onChangeSimuGpsStatus(self, isOn: bool):
         if not self._onOffEffortBtn.isChecked():
             return
 
-        if self._simuGpsBtn.isChecked():
-            self._threadGps.start()
+        if isOn:
+            self._threadSimuGps.start()
         else:
             self._threadSimuGps.stop()
