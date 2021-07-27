@@ -8,7 +8,7 @@ from qgis.PyQt.QtCore import pyqtSignal, QObject
 from qgis.core import QgsVectorLayer, QgsFeature
 
 
-class SammoActionOnOffEffort(QObject):
+class SammoOnOffEffortBtn(QObject):
     onChangeEffortStatusSignal = pyqtSignal(bool)
     onAddFeatureToEnvironmentTableSignal = pyqtSignal(QgsFeature)
 
@@ -21,7 +21,7 @@ class SammoActionOnOffEffort(QObject):
     def initGui(self, parent: QObject, toolbar: QToolBar):
         self.button = QPushButton(parent)
         self.button.setText("Effort")
-        self.button.clicked.connect(self.run)
+        self.button.clicked.connect(self.onClick)
         self.button.setEnabled(False)
         self.button.setCheckable(True)
         toolbar.addWidget(self.button)
@@ -32,7 +32,7 @@ class SammoActionOnOffEffort(QObject):
     def unload(self):
         del self.button
 
-    def run(self):
+    def onClick(self):
         if self.button.isChecked():
             self.onChangeEffortStatusSignal.emit(True)
         else:
