@@ -40,6 +40,10 @@ class WorkerForOtherThread(QObject):
 
 
 class OtherThread(QObject):
+    def __init__(self):
+        super().__init__()
+        self.isProceeding: bool = False
+
     def _start(self, worker: WorkerForOtherThread):
         self.thread = QThread()
         self.worker = worker
@@ -52,9 +56,11 @@ class OtherThread(QObject):
         self.worker.logSignal.connect(self.log)
 
         self.thread.start()
+        self.isProceeding = True
 
     def stop(self):
         self.worker.stop()
+        self.isProceeding = False
 
     def log(self, msg: str):
         Logger.log("{} - {}".format(__name__, msg))
