@@ -59,13 +59,11 @@ class ImportSpeciesFromCsv:
 
         columnsOfIntType = ["id_public", "CD_NOM_taxref", "APHIA_ID_taxref"]
 
-        for i in range(1, len(lines)):
+        for line in lines[1:]:
             params = [
                 '"{}"'.format(x)
                 for x in list(
-                    csv.reader(
-                        [lines[i].strip()], delimiter=",", quotechar='"'
-                    )
+                    csv.reader([line.strip()], delimiter=",", quotechar='"')
                 )[0]
             ]
 
