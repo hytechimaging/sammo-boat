@@ -40,7 +40,7 @@ class WorkerGps(WorkerForOtherThread):
                 float(longitude_deg), float(latitude_deg)
             )
             self._log(
-                "Coordonnées GPS : longitude = {}°"
+                "GPS : longitude = {}°"
                 " - latitude = {}°".format(longitude_deg, latitude_deg)
             )
             self._indexOfNextGpsPoint = self._indexOfNextGpsPoint + 1

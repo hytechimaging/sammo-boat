@@ -27,7 +27,6 @@ class Sammo:
 
     def createSimuGps(self) -> [SammoSimuGpsBtn, ThreadGps]:
         if os.environ.get("SAMMO_DEBUG") is None:
-            print("SAMMO_DEBUG inconnue")
             return [None, None]
 
         button = SammoSimuGpsBtn(self.iface.mainWindow(), self._toolBar)

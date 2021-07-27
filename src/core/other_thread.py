@@ -57,4 +57,4 @@ class OtherThread(QObject):
         self.worker.stop()
 
     def log(self, msg: str):
-        Logger.log(__name__ + " - " + msg)
+        Logger.log("{} - {}".format(__name__, msg))

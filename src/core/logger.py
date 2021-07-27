@@ -4,6 +4,7 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 from datetime import datetime
+from qgis.core import QgsMessageLog
 
 LOG_FILE_NAME = "Sammo.log"
 
@@ -23,11 +24,10 @@ class Logger:
 
     @staticmethod
     def _log(prefix: str, msg: str):
-        print(prefix + " - " + msg)
+        msg = "{} - {}".format(prefix, msg)
+        QgsMessageLog.logMessage(msg, "Sammo-Boat")
         with open(LOG_FILE_NAME, "a") as file:
-            file.write(
-                Logger.nowToString() + " - " + prefix + " - " + msg + "\n"
-            )
+            file.write("{} - {}\n".format(Logger.nowToString(), msg))
 
     @staticmethod
     def nowToString() -> str:
