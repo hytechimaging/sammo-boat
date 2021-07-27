@@ -22,6 +22,43 @@ class ImportSpeciesFromCsv:
 
         table.startEditing()
 
+        columnNames = [
+            "code_esp",
+            "nom_latin",
+            "type",
+            "cat_group_size",
+            "groupe",
+            "Famille",
+            "List_sp",
+            "liste_especes_potentielles",
+            "potential_sp",
+            "group_pelgas",
+            "nom_commun",
+            "nom_anglais",
+            "nom_espagnol",
+            "phylum_public",
+            "classe_public",
+            "ordre_public",
+            "famille_public",
+            "taxon_fr",
+            "family_eng",
+            "group_eng",
+            "id_public",
+            "LB_NOM_taxref",
+            "NOM_VERN_taxref",
+            "NOM_VERN_ENG_taxref",
+            "CD_NOM_taxref",
+            "APHIA_ID_taxref",
+            "REGNE_taxref",
+            "PHYLUM_taxref",
+            "CLASSE_taxref",
+            "ORDRE_taxref",
+            "FAMILLE_taxref",
+            "R_Caraibes",
+        ]
+
+        columnsOfIntType = ["id_public", "CD_NOM_taxref", "APHIA_ID_taxref"]
+
         for i in range(1, len(lines)):
             params = [
                 '"{}"'.format(x)
@@ -33,102 +70,16 @@ class ImportSpeciesFromCsv:
             ]
 
             newSpecies = QgsFeature(table.fields())
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "code_esp", params[0]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "nom_latin", params[1]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "type", params[2]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "cat_group_size", params[3]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "groupe", params[4]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "Famille", params[5]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "List_sp", params[6]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "liste_especes_potentielles", params[7]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "potential_sp", params[8]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "group_pelgas", params[9]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "nom_commun", params[10]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "nom_anglais", params[11]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "nom_espagnol", params[12]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "phylum_public", params[13]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "classe_public", params[14]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "ordre_public", params[15]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "famille_public", params[16]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "taxon_fr", params[17]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "family_eng", params[18]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "group_eng", params[19]
-            )
-            ImportSpeciesFromCsv._setAttributeAsInt(
-                newSpecies, "id_public", params[20]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "LB_NOM_taxref", params[21]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "NOM_VERN_taxref", params[22]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "NOM_VERN_ENG_taxref", params[23]
-            )
-            ImportSpeciesFromCsv._setAttributeAsInt(
-                newSpecies, "CD_NOM_taxref", params[24]
-            )
-            ImportSpeciesFromCsv._setAttributeAsInt(
-                newSpecies, "APHIA_ID_taxref", params[25]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "REGNE_taxref", params[26]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "PHYLUM_taxref", params[27]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "CLASSE_taxref", params[28]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "ORDRE_taxref", params[29]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "FAMILLE_taxref", params[30]
-            )
-            ImportSpeciesFromCsv._setAttributeAsText(
-                newSpecies, "R_Caraibes", params[31]
-            )
+
+            for index, columnName in enumerate(columnNames):
+                if columnName in columnsOfIntType:
+                    ImportSpeciesFromCsv._setAttributeAsInt(
+                        newSpecies, columnName, params[index]
+                    )
+                else:
+                    ImportSpeciesFromCsv._setAttributeAsText(
+                        newSpecies, columnName, params[index]
+                    )
 
             table.addFeature(newSpecies)
 
@@ -138,7 +89,7 @@ class ImportSpeciesFromCsv:
     def _setAttributeAsText(
         feat: QgsFeature, attributeName: str, paramFromCsv: str
     ):
-        paramFromCsv = ImportSpeciesFromCsv._removeApostrophes(paramFromCsv)
+        paramFromCsv = ImportSpeciesFromCsv._removeQuotes(paramFromCsv)
         if not paramFromCsv:
             # let NULL if the string is empty
             return
@@ -148,7 +99,7 @@ class ImportSpeciesFromCsv:
     def _setAttributeAsInt(
         feat: QgsFeature, attributeName: str, paramFromCsv: str
     ):
-        paramFromCsv = ImportSpeciesFromCsv._removeApostrophes(paramFromCsv)
+        paramFromCsv = ImportSpeciesFromCsv._removeQuotes(paramFromCsv)
         if not ImportSpeciesFromCsv._isAFloat(paramFromCsv):
             # let NULL if the string is not an integer
             return
@@ -163,7 +114,7 @@ class ImportSpeciesFromCsv:
             return False
 
     @staticmethod
-    def _removeApostrophes(strValue: str) -> str:
+    def _removeQuotes(strValue: str) -> str:
         strLen = len(strValue)
         if strValue[0] == '"' and strValue[strLen - 1] == '"':
             strValue = strValue[1 : strLen - 1]
