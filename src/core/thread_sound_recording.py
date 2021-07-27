@@ -8,9 +8,6 @@ import sounddevice as sd
 import soundfile as sf
 import queue
 
-# import numpy  # Make sure NumPy is loaded before it is used in the callback
-# assert numpy  # avoid "imported but unused" message (W0611)
-
 
 class WorkerForSoundRecording(WorkerForOtherThread):
     def __init__(self, soundFilePath: str):
