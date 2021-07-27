@@ -4,7 +4,6 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
-
 from qgis.PyQt.QtCore import QVariant
 from qgis.core import (
     QgsWkbTypes,
@@ -15,8 +14,8 @@ from qgis.core import (
     QgsFeatureSink,
     QgsVectorLayer,
     QgsField,
-    QgsFeature,
 )
+from .import_species_from_csv import ImportSpeciesFromCsv
 
 
 class SammoDataBase:
@@ -144,10 +143,10 @@ class SammoDataBase:
 
     def _createFieldsForSpeciesTable(self) -> QgsFields:
         fields = QgsFields()
-        fields.append(QgsField("code_esp", QVariant.Int))
+        fields.append(self._createFieldShortText("code_esp"))
         fields.append(self._createFieldShortText("nom_latin"))
         fields.append(self._createFieldShortText("type"))
-        fields.append(QgsField("cat_group_size", QVariant.Int))
+        fields.append(self._createFieldShortText("cat_group_size"))
         fields.append(self._createFieldShortText("groupe"))
         fields.append(self._createFieldShortText("Famille"))
         fields.append(self._createFieldShortText("List_sp"))
@@ -164,12 +163,12 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("taxon_fr"))
         fields.append(self._createFieldShortText("family_eng"))
         fields.append(self._createFieldShortText("group_eng"))
-        fields.append(self._createFieldShortText("id_public"))
+        fields.append(QgsField("id_public", QVariant.Int))
         fields.append(self._createFieldShortText("LB_NOM_taxref"))
         fields.append(self._createFieldShortText("NOM_VERN_taxref"))
         fields.append(self._createFieldShortText("NOM_VERN_ENG_taxref"))
-        fields.append(self._createFieldShortText("CD_NOM_taxref"))
-        fields.append(self._createFieldShortText("APHIA_ID_taxref"))
+        fields.append(QgsField("CD_NOM_taxref", QVariant.Int))
+        fields.append(QgsField("APHIA_ID_taxref", QVariant.Int))
         fields.append(self._createFieldShortText("REGNE_taxref"))
         fields.append(self._createFieldShortText("PHYLUM_taxref"))
         fields.append(self._createFieldShortText("CLASSE_taxref"))
@@ -181,30 +180,7 @@ class SammoDataBase:
 
     @staticmethod
     def initializeSpeciesTable(speciesTable: QgsVectorLayer):
-        speciesTable.startEditing()
-
-        species_1 = QgsFeature(speciesTable.fields())
-        species_1.setAttribute("code_esp", 1)
-        species_1.setAttribute("nom_commun", "Dauphin commun")
-        species_1.setAttribute("nom_latin", "Delphinus delphis")
-        species_1.setAttribute("famille", "Delphinidae")
-        speciesTable.addFeature(species_1)
-
-        species_2 = QgsFeature(speciesTable.fields())
-        species_2.setAttribute("code_esp", 2)
-        species_2.setAttribute("nom_commun", "Baleine bleue")
-        species_2.setAttribute("nom_latin", "Balaenoptera musculus")
-        species_2.setAttribute("famille", "Balaenopteridae")
-        speciesTable.addFeature(species_2)
-
-        species_3 = QgsFeature(speciesTable.fields())
-        species_3.setAttribute("code_esp", 3)
-        species_3.setAttribute("nom_commun", "Mouette rieuse")
-        species_3.setAttribute("nom_latin", "Chroicocephalus ridibundus")
-        species_3.setAttribute("famille", "Laridés")
-        speciesTable.addFeature(species_3)
-
-        speciesTable.commitChanges()
+        ImportSpeciesFromCsv.importInto(speciesTable)
 
     def _createFieldsForObservationTable(self) -> QgsFields:
         fields = QgsFields()
