@@ -10,7 +10,7 @@ from .src.core.session import SammoSession
 from .src.gui.add_observation_btn import SammoAddObservationBtn
 from .src.gui.sound_recording_btn import SammoSoundRecordingBtn
 from .src.core.thread_sound_recording import ThreadForSoundRecording
-from .src.core.thread_gps import ThreadSimuGps
+from .src.core.thread_simu_gps import ThreadSimuGps
 from qgis.PyQt.QtWidgets import QToolBar
 from qgis.core import QgsFeature
 from datetime import datetime

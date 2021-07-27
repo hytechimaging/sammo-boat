@@ -10,7 +10,7 @@ from .session import SammoSession
 from datetime import datetime
 
 
-class WorkerGps(WorkerForOtherThread):
+class WorkerSimuGps(WorkerForOtherThread):
     addNewFeatureToGpsTableSignal = pyqtSignal(float, float, str, int)
 
     def __init__(
@@ -35,7 +35,7 @@ class WorkerGps(WorkerForOtherThread):
             coordinates = self._lines[i].strip().split(",")
             longitude_deg = coordinates[0]
             latitude_deg = coordinates[1]
-            leg_heure = self._removeApostrophes(coordinates[2])
+            leg_heure = self._removeQuotes(coordinates[2])
             code_leg = int(coordinates[3])
 
             self.addNewFeatureToGpsTableSignal.emit(
@@ -55,14 +55,14 @@ class WorkerGps(WorkerForOtherThread):
             self._lines = file.readlines()
 
     @staticmethod
-    def _removeApostrophes(strValue: str) -> str:
+    def _removeQuotes(strValue: str) -> str:
         strLen = len(strValue)
         if strValue[0] == '"' and strValue[strLen - 1] == '"':
             strValue = strValue[1 : strLen - 1]
         return strValue
 
 
-class ThreadGps(OtherThread):
+class ThreadSimuGps(OtherThread):
     addNewFeatureToGpsTableSignal = pyqtSignal(float, float, str, int)
 
     def __init__(self, session: SammoSession, testFilePath: str):
@@ -73,7 +73,7 @@ class ThreadGps(OtherThread):
         self.indexOfNextGpsPoint: int = 1
 
     def start(self):
-        worker = WorkerGps(
+        worker = WorkerSimuGps(
             self._testFilePath, self._session, self.indexOfNextGpsPoint
         )
         worker.addNewFeatureToGpsTableSignal.connect(
