@@ -7,7 +7,6 @@ from .other_thread import WorkerForOtherThread, OtherThread
 import sounddevice as sd
 import soundfile as sf
 import queue
-from .logger import Logger
 from qgis.PyQt.QtCore import pyqtSignal
 from datetime import datetime, timedelta
 
@@ -20,7 +19,7 @@ class WorkerForSoundRecording(WorkerForOtherThread):
         self._soundFilePath = soundFilePath
         self._frameRate = 44100
         self._queue = queue.Queue()
-        self._startRecordingTime: datetime = None
+        self.startRecordingTime: datetime = None
         self._automaticStopTime: datetime = None
 
     def callback(self, inData, frames, time, status):
@@ -34,14 +33,14 @@ class WorkerForSoundRecording(WorkerForOtherThread):
             samplerate=self._frameRate,
             channels=2,
         ) as file:
-            self._startRecordingTime = datetime.now()
+            self.startRecordingTime = datetime.now()
             with sd.InputStream(
                 samplerate=self._frameRate, channels=2, callback=self.callback
             ):
                 while not self._isNeedToStop:
-                    self.recordingLoop(file)
+                    self._recordingLoop(file)
 
-    def recordingLoop(self, file):
+    def _recordingLoop(self, file):
         file.write(self._queue.get())
         if self._automaticStopTime is not None:
             if self._automaticStopTime < datetime.now():
@@ -53,8 +52,12 @@ class WorkerForSoundRecording(WorkerForOtherThread):
         pass
 
     def setAutomaticStopTimer(self, duration_s: int):
-        self._automaticStopTime = datetime.now() + timedelta(seconds=duration_s)
-        self._log("setAutomaticStopTimer begins")
+        if duration_s < 0:
+            self._automaticStopTime = None
+        else:
+            self._automaticStopTime = datetime.now() + timedelta(
+                seconds=duration_s
+            )
 
 
 class ThreadForSoundRecording(OtherThread):
@@ -62,15 +65,28 @@ class ThreadForSoundRecording(OtherThread):
 
     def __init__(self, onAutomaticStopRecordingTimerEndedMethod):
         super().__init__()
-        self._onAutomaticStopRecordingTimerEndedMethod = onAutomaticStopRecordingTimerEndedMethod
+        self._onAutomaticStopRecordingTimerEndedMethod = (
+            onAutomaticStopRecordingTimerEndedMethod
+        )
+        self._worker: WorkerForOtherThread = None
 
     def start(self, soundFilePath: str):
-        Logger.log("ThreadForSoundRecording::start begins")
-        worker = WorkerForSoundRecording(soundFilePath)
-        Logger.log("ThreadForSoundRecording::start 1")
-        worker.onAutomaticStopTimerEndedSignal.connect(self._onAutomaticStopRecordingTimerEndedMethod)
-        Logger.log("ThreadForSoundRecording::start 2")
-        self.setAutomaticStopTimerSignal.connect(worker.setAutomaticStopTimer)
-        Logger.log("ThreadForSoundRecording::start 3")
-        super()._start(worker)
-        Logger.log("ThreadForSoundRecording::start 4")
+        self._worker = WorkerForSoundRecording(soundFilePath)
+        self._worker.onAutomaticStopTimerEndedSignal.connect(
+            self._onAutomaticStopRecordingTimerEndedMethod
+        )
+        self.setAutomaticStopTimerSignal.connect(
+            self._worker.setAutomaticStopTimer
+        )
+        super()._start(self._worker)
+
+    def recordTimer_s(self) -> float:
+        """
+        For how many seconds the sound is recorded ?
+        """
+        if not self.isProceeding:
+            raise RuntimeError("there is no recording currently")
+
+        return (
+            datetime.now() - self._worker.startRecordingTime
+        ).total_seconds()

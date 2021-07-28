@@ -31,7 +31,9 @@ class Sammo:
 
     def createSoundRecordingController(self) -> SammoSoundRecordingController:
         controller = SammoSoundRecordingController()
-        controller.onStopSoundRecordingForObservationSignal.connect(self._session.onStopSoundRecordingForObservation)
+        controller.onStopSoundRecordingForObservationSignal.connect(
+            self._session.onStopSoundRecordingForObservation
+        )
         return controller
 
     def createSimuGps(self) -> [SammoSimuGpsBtn, ThreadSimuGps]:

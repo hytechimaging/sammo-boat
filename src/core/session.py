@@ -52,9 +52,7 @@ class SammoSession:
     def onStopSoundRecordingForObservation(self, soundRecordingDatas: str):
         table = self._observationTable
         table.startEditing()
-        idLastAddedFeature = self.db.getIdOfLastAddedFeature(
-            table
-        )
+        idLastAddedFeature = self.db.getIdOfLastAddedFeature(table)
         field_idx = table.fields().indexOf("fichier_son")
         table.changeAttributeValue(
             idLastAddedFeature, field_idx, soundRecordingDatas
@@ -64,9 +62,7 @@ class SammoSession:
     def onStopEffort(self):
         table = self._environmentTable
         table.startEditing()
-        idLastAddedFeature = self.db.getIdOfLastAddedFeature(
-            table
-        )
+        idLastAddedFeature = self.db.getIdOfLastAddedFeature(table)
         field_idx = table.fields().indexOf(
             SammoDataBase.ENVIRONMENT_COMMENT_FIELD_NAME
         )
