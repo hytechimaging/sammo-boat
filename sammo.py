@@ -113,7 +113,7 @@ class Sammo:
             self._soundRecordingController.onChangeObservationStatus(False)
 
     def onAddFeatureToEnvironmentTableSignal(self, feat: QgsFeature):
-        self._session.addNewFeatureToEnvironmentTable(feat)
+        self._session.onStartEffort(feat)
         if self._simuGpsBtn and self._simuGpsBtn.isChecked():
             self._threadSimuGps.start()
 

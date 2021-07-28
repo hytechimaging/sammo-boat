@@ -128,6 +128,7 @@ class SammoDataBase:
             self._createFieldShortText(self.ENVIRONMENT_COMMENT_FIELD_NAME)
         )
         fields.append(self._createFieldShortText("Survey"))
+        fields.append(self._createFieldShortText("geom"))
 
         return fields
 
