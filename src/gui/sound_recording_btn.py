@@ -13,7 +13,7 @@ class SammoSoundRecordingBtn(QObject):
     def __init__(self, parent: QObject, toolBar: QToolBar):
         super().__init__()
         self.parent = parent
-        self.button = None
+        self.button: QPushButton = None
         self.initGui(parent, toolBar)
 
     def initGui(self, parent: QObject, toolBar: QToolBar):

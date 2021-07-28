@@ -46,7 +46,20 @@ class SammoSoundRecordingController:
                 self._threadSoundRecording.stop()
 
     def onChangeObservationStatus(self, observationStatus: bool):
-        pass
+        if observationStatus:
+            # on start observation
+            if self._soundRecordingBtn.button.isChecked():
+                return # a recording is already on
+            else:
+                # start sound recording
+                self.automaticChangeOfSoundRecordingStatus(True)
+        else:
+            # on end observation
+            self.automaticChangeOfSoundRecordingStatus(False)
+
+    def automaticChangeOfSoundRecordingStatus(self, recordingStatus: bool):
+        self._soundRecordingBtn.button.setChecked(recordingStatus)
+        self._soundRecordingBtn.onClick()
 
     def onCreateSession(self, workingDirectory: str):
         self._workingDirectory = workingDirectory

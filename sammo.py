@@ -106,9 +106,11 @@ class Sammo:
             self._soundRecordingController.onChangeEffortStatus(False)
 
     def onClickObservation(self):
+        self._soundRecordingController.onChangeObservationStatus(True)
         feat, table = self._session.getReadyToAddNewFeatureToObservationTable()
         if self.iface.openFeatureForm(table, feat):
             self._session.addNewFeatureToObservationTable(feat)
+            self._soundRecordingController.onChangeObservationStatus(False)
 
     def onAddFeatureToEnvironmentTableSignal(self, feat: QgsFeature):
         self._session.addNewFeatureToEnvironmentTable(feat)
