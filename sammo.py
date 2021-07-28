@@ -124,8 +124,8 @@ class Sammo:
             self._soundRecordingController.onChangeObservationStatus(False)
 
     def onClickAddFollower(self):
-            feat, table = self._session.getReadyToAddNewFeatureToFollowerTable()
-            self._addFollowerBtn.openFeatureForm(self.iface, table, feat)
+        feat, table = self._session.getReadyToAddNewFeatureToFollowerTable()
+        self._addFollowerBtn.openFeatureForm(self.iface, table, feat)
 
     def onAddFeatureToEnvironmentTableSignal(self, feat: QgsFeature):
         self._session.addNewFeatureToEnvironmentTable(feat)
