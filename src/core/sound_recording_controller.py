@@ -40,18 +40,24 @@ class SammoSoundRecordingController(QObject):
                 -1
             )  # cancel automatic stop
             if self._startTimerOnRecordForCurrentObservation > 0:
-                soundRecordingDatas = "{} - between the seconds {:.1f} and {:.1f} ".format(
-                    self._currentSoundFileName,
-                    self._startTimerOnRecordForCurrentObservation,
-                    self._threadSoundRecording.recordTimer_s(),
+                soundRecordingDatas = (
+                    "{} - between the seconds {:.1f} and {:.1f} ".format(
+                        self._currentSoundFileName,
+                        self._startTimerOnRecordForCurrentObservation,
+                        self._threadSoundRecording.recordTimer_s(),
+                    )
                 )
             else:
-                soundRecordingDatas = "{} - from the beginning to the second {:.1f}".format(
-                    self._currentSoundFileName,
-                    self._threadSoundRecording.recordTimer_s(),
+                soundRecordingDatas = (
+                    "{} - from the beginning to the second {:.1f}".format(
+                        self._currentSoundFileName,
+                        self._threadSoundRecording.recordTimer_s(),
+                    )
                 )
             self.finalizeObservation(soundRecordingDatas)
-            self._startTimerOnRecordForCurrentObservation = self._threadSoundRecording.recordTimer_s()
+            self._startTimerOnRecordForCurrentObservation = (
+                self._threadSoundRecording.recordTimer_s()
+            )
 
         else:
             # on end observation
@@ -84,9 +90,11 @@ class SammoSoundRecordingController(QObject):
 
     def onAutomaticStopRecordingTimerEnded(self):
         if self._startTimerOnRecordForCurrentObservation > 0:
-            soundRecordingDatas = "{} - from the second {:.1f} to the end".format(
-                self._currentSoundFileName,
-                self._startTimerOnRecordForCurrentObservation,
+            soundRecordingDatas = (
+                "{} - from the second {:.1f} to the end".format(
+                    self._currentSoundFileName,
+                    self._startTimerOnRecordForCurrentObservation,
+                )
             )
         else:
             soundRecordingDatas = self._currentSoundFileName
