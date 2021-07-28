@@ -23,9 +23,8 @@ class SammoAddObservationBtn(QObject):
         self.button.setEnabled(False)
         toolbar.addWidget(self.button)
 
-    def onChangeEffortStatus(self, effortStatus: bool):
-        # effortStatus = True means that an effort is in progress
-        self.button.setEnabled(effortStatus)
+    def onCreateSession(self):
+        self.button.setEnabled(True)
 
     def unload(self):
         del self.button

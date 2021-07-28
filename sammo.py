@@ -90,6 +90,7 @@ class Sammo:
     def onCreateSession(self, workingDirectory: str):
         self._session.onCreateSession(workingDirectory)
         self._onOffEffortBtn.onCreateSession()
+        self._addObservationBtn.onCreateSession()
         self._soundRecordingController.onCreateSession(workingDirectory)
         if self._simuGpsBtn:
             self._simuGpsBtn.onCreateSession()
@@ -116,7 +117,6 @@ class Sammo:
         self._session.addNewFeatureToEnvironmentTable(feat)
         if self._simuGpsBtn and self._simuGpsBtn.isChecked():
             self._threadSimuGps.start()
-        self._addObservationBtn.onChangeEffortStatus(True)
 
     def onChangeSimuGpsStatus(self, isOn: bool):
         if isOn:
