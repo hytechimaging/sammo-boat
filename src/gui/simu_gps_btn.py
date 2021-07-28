@@ -22,7 +22,7 @@ class SammoSimuGpsBtn(QObject):
         self.button = QPushButton(parent)
         self.button.setText("Simu GPS")
         self.button.clicked.connect(self.onClick)
-        self.button.setEnabled(True)
+        self.button.setEnabled(False)
         self.button.setCheckable(True)
         toolbar.addWidget(self.button)
 

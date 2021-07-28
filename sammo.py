@@ -105,6 +105,8 @@ class Sammo:
     def onCreateSession(self, workingDirectory: str):
         self._session.onCreateSession(workingDirectory)
         self._onOffEffortBtn.onCreateSession()
+        if self._simuGpsBtn is not None:
+            self._simuGpsBtn.onCreateSession()
 
     def onChangeEffortStatus(self, isChecked: bool):
         if isChecked:
@@ -115,8 +117,6 @@ class Sammo:
             self._onOffEffortBtn.openFeatureForm(self.iface, table, feat)
         else:
             self._session.onStopEffort()
-            if self._simuGpsBtn is not None and self._simuGpsBtn.isChecked():
-                self._threadSimuGps.stop()
             self._addObservationBtn.onChangeEffortStatus(False)
             self._soundRecordingBtn.onStopEffort()
             if self._threadSoundRecording.isProceeding:
@@ -150,14 +150,9 @@ class Sammo:
     def onAddFeatureToEnvironmentTableSignal(self, feat: QgsFeature):
         self._session.addNewFeatureToEnvironmentTable(feat)
         self._soundRecordingBtn.onStartEffort()
-        if self._simuGpsBtn is not None and self._simuGpsBtn.isChecked():
-            self._threadSimuGps.start()
         self._addObservationBtn.onChangeEffortStatus(True)
 
     def onChangeSimuGpsStatus(self, isOn: bool):
-        if not self._onOffEffortBtn.isChecked():
-            return
-
         if isOn:
             self._threadSimuGps.start()
         else:

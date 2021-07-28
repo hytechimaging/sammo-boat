@@ -33,8 +33,8 @@ class WorkerSimuGps(WorkerForOtherThread):
                 return
 
             coordinates = self._lines[i].strip().split(",")
-            longitude_deg = coordinates[0]
-            latitude_deg = coordinates[1]
+            latitude_deg = coordinates[0]
+            longitude_deg = coordinates[1]
             leg_heure = self._removeQuotes(coordinates[2])
             code_leg = int(coordinates[3])
 
@@ -73,13 +73,13 @@ class ThreadSimuGps(OtherThread):
         self.indexOfNextGpsPoint: int = 1
 
     def start(self):
-        worker = WorkerSimuGps(
+        self.worker = WorkerSimuGps(
             self._testFilePath, self._session, self.indexOfNextGpsPoint
         )
-        worker.addNewFeatureToGpsTableSignal.connect(
+        self.worker.addNewFeatureToGpsTableSignal.connect(
             self.addNewFeatureToGpsTable
         )
-        super()._start(worker)
+        super()._start(self.worker)
 
     def stop(self):
         self.indexOfNextGpsPoint = self.worker._indexOfNextGpsPoint
