@@ -7,6 +7,7 @@ import os.path
 from .src.gui.session_btn import SammoActionSession
 from .src.gui.on_off_effort_btn import SammoOnOffEffortBtn
 from .src.core.session import SammoSession
+from .src.gui.add_follower_btn import SammoAddFollowerBtn
 from .src.gui.add_observation_btn import SammoAddObservationBtn
 from .src.gui.sound_recording_btn import SammoSoundRecordingBtn
 from .src.core.thread_sound_recording import ThreadForSoundRecording
@@ -25,6 +26,7 @@ class Sammo:
 
         self._sessionBtn = self.createSessionBtn()
         self._onOffEffortBtn = self.createOnOffEffortBtn()
+        self._addFollowerBtn = self.createAddFollowerBtn()
         self._addObservationBtn = self.createAddObservationBtn()
         (
             self._soundRecordingBtn,
@@ -62,6 +64,14 @@ class Sammo:
     @staticmethod
     def pluginFolder():
         return os.path.abspath(os.path.dirname(__file__))
+
+    def createAddFollowerBtn(self) -> SammoAddFollowerBtn:
+        button = SammoAddFollowerBtn(self.iface.mainWindow(), self._toolBar)
+        button.onClickAddFollowerSignal.connect(self.onClickAddFollower)
+        button.onAddFeatureToFollowerTableSignal.connect(
+            self.onAddFeatureToFollowerTableSignal
+        )
+        return button
 
     def createAddObservationBtn(self) -> SammoAddObservationBtn:
         button = SammoAddObservationBtn(self.iface.mainWindow(), self._toolBar)
@@ -105,6 +115,7 @@ class Sammo:
     def onCreateSession(self, workingDirectory: str):
         self._session.onCreateSession(workingDirectory)
         self._onOffEffortBtn.onCreateSession()
+        self._addFollowerBtn.onCreateSession()
 
     def onChangeEffortStatus(self, isChecked: bool):
         if isChecked:
@@ -126,6 +137,10 @@ class Sammo:
         feat, table = self._session.getReadyToAddNewFeatureToObservationTable()
         if self.iface.openFeatureForm(table, feat):
             self._session.addNewFeatureToObservationTable(feat)
+
+    def onClickAddFollower(self):
+            feat, table = self._session.getReadyToAddNewFeatureToFollowerTable()
+            self._addFollowerBtn.openFeatureForm(self.iface, table, feat)
 
     def onChangeSoundRecordingStatus(self, isAskForRecording: bool):
         if isAskForRecording:
@@ -153,6 +168,9 @@ class Sammo:
         if self._simuGpsBtn is not None and self._simuGpsBtn.isChecked():
             self._threadSimuGps.start()
         self._addObservationBtn.onChangeEffortStatus(True)
+
+    def onAddFeatureToFollowerTableSignal(self, feat: QgsFeature):
+        self._session.addNewFeatureToFollowerTable(feat)
 
     def onChangeSimuGpsStatus(self, isOn: bool):
         if not self._onOffEffortBtn.isChecked():
