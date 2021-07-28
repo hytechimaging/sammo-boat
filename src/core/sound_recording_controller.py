@@ -35,13 +35,18 @@ class SammoSoundRecordingController:
         threadSoundRecording = ThreadForSoundRecording()
         return soundRecordingBtn, threadSoundRecording
 
-    def onStartEffort(self):
-        self._soundRecordingBtn.onStartEffort()
+    def onChangeEffortStatus(self, effortStatus: bool):
+        if effortStatus:
+            # on start effort
+            self._soundRecordingBtn.onStartEffort()
+        else :
+            # on stop effort
+            self._soundRecordingBtn.onStopEffort()
+            if self._threadSoundRecording.isProceeding:
+                self._threadSoundRecording.stop()
 
-    def onStopEffort(self):
-        self._soundRecordingBtn.onStopEffort()
-        if self._threadSoundRecording.isProceeding:
-            self._threadSoundRecording.stop()
+    def onChangeObservationStatus(self, observationStatus: bool):
+        pass
 
     def onCreateSession(self, workingDirectory: str):
         self._workingDirectory = workingDirectory

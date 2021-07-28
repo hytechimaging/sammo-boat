@@ -103,7 +103,7 @@ class Sammo:
         else:
             self._session.onStopEffort()
             self._addObservationBtn.onChangeEffortStatus(False)
-            self._soundRecordingController.onStopEffort()
+            self._soundRecordingController.onChangeEffortStatus(False)
 
     def onClickObservation(self):
         feat, table = self._session.getReadyToAddNewFeatureToObservationTable()
@@ -112,7 +112,7 @@ class Sammo:
 
     def onAddFeatureToEnvironmentTableSignal(self, feat: QgsFeature):
         self._session.addNewFeatureToEnvironmentTable(feat)
-        self._soundRecordingController.onStartEffort()
+        self._soundRecordingController.onChangeEffortStatus(True)
         if self._simuGpsBtn is not None and self._simuGpsBtn.isChecked():
             self._threadSimuGps.start()
         self._addObservationBtn.onChangeEffortStatus(True)
