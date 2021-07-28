@@ -22,9 +22,8 @@ class SammoSoundRecordingController(QObject):
         if self._threadSoundRecording.isProceeding:
             self._threadSoundRecording.stop()
 
-    @staticmethod
-    def createSoundRecording() -> ThreadForSoundRecording:
-        threadSoundRecording = ThreadForSoundRecording()
+    def createSoundRecording(self) -> ThreadForSoundRecording:
+        threadSoundRecording = ThreadForSoundRecording(self.onAutomaticStopRecordingTimerEnded)
         return threadSoundRecording
 
     def onChangeObservationStatus(self, observationStatus: bool):
@@ -33,8 +32,7 @@ class SammoSoundRecordingController(QObject):
             self.changeSoundRecordingStatus(True)
         else:
             # on end observation
-            self.onStopSoundRecordingForObservationSignal.emit(self._currentSoundFileName)
-            self.changeSoundRecordingStatus(False)
+            self._threadSoundRecording.setAutomaticStopTimerSignal.emit(15)
 
     def onCreateSession(self, workingDirectory: str):
         self._workingDirectory = workingDirectory
@@ -60,4 +58,8 @@ class SammoSoundRecordingController(QObject):
         else:
             self._threadSoundRecording.stop()
             self._currentSoundFileName = None
+
+    def onAutomaticStopRecordingTimerEnded(self):
+        self.onStopSoundRecordingForObservationSignal.emit(self._currentSoundFileName)
+        self.changeSoundRecordingStatus(False)
 
