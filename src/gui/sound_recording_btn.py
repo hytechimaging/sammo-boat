@@ -31,6 +31,10 @@ class SammoSoundRecordingBtn(QObject):
         self.button.setChecked(False)
         self.button.setEnabled(False)
 
+    def onStartObservation(self):
+        if not self.button.isChecked():
+            self.onClick()
+
     def unload(self):
         del self.button
 

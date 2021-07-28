@@ -15,6 +15,7 @@ from qgis.PyQt.QtWidgets import QToolBar
 from qgis.core import QgsFeature
 from datetime import datetime
 from .src.gui.simu_gps_btn import SammoSimuGpsBtn
+from .src.core.sound_recording_controller import SammoSoundRecordingController
 
 
 class Sammo:
@@ -22,27 +23,13 @@ class Sammo:
         self.iface = iface
         self._toolBar: QToolBar = self.iface.addToolBar("Sammo ToolBar")
         self._session = SammoSession()
-
         self._sessionBtn = self.createSessionBtn()
         self._onOffEffortBtn = self.createOnOffEffortBtn()
         self._addObservationBtn = self.createAddObservationBtn()
-        (
-            self._soundRecordingBtn,
-            self._threadSoundRecording,
-        ) = self.createSoundRecording()
         self._simuGpsBtn, self._threadSimuGps = self.createSimuGps()
-
-    def createSoundRecording(
-        self,
-    ) -> [SammoSoundRecordingBtn, ThreadForSoundRecording]:
-        soundRecordingBtn = SammoSoundRecordingBtn(
+        self._soundRecordingController = SammoSoundRecordingController(
             self.iface.mainWindow(), self._toolBar
         )
-        soundRecordingBtn.onChangeSoundRecordingStatusSignal.connect(
-            self.onChangeSoundRecordingStatus
-        )
-        threadSoundRecording = ThreadForSoundRecording()
-        return soundRecordingBtn, threadSoundRecording
 
     def createSimuGps(self) -> [SammoSimuGpsBtn, ThreadSimuGps]:
         if not os.environ.get("SAMMO_DEBUG"):
@@ -90,10 +77,7 @@ class Sammo:
             and self._threadSimuGps.isProceeding
         ):
             self._threadSimuGps.stop()
-        if self._threadSoundRecording.isProceeding:
-            self._threadSoundRecording.stop()
-
-        self._soundRecordingBtn.unload()
+        self._soundRecordingController.unload()
         self._sessionBtn.unload()
         self._onOffEffortBtn.unload()
         self._addObservationBtn.unload()
@@ -105,6 +89,7 @@ class Sammo:
     def onCreateSession(self, workingDirectory: str):
         self._session.onCreateSession(workingDirectory)
         self._onOffEffortBtn.onCreateSession()
+        self._soundRecordingController.onCreateSession(workingDirectory)
         if self._simuGpsBtn:
             self._simuGpsBtn.onCreateSession()
 
@@ -118,38 +103,18 @@ class Sammo:
         else:
             self._session.onStopEffort()
             self._addObservationBtn.onChangeEffortStatus(False)
-            self._soundRecordingBtn.onStopEffort()
-            if self._threadSoundRecording.isProceeding:
-                self._threadSoundRecording.stop()
+            self._soundRecordingController.onStopEffort()
 
     def onClickObservation(self):
         feat, table = self._session.getReadyToAddNewFeatureToObservationTable()
         if self.iface.openFeatureForm(table, feat):
             self._session.addNewFeatureToObservationTable(feat)
 
-    def onChangeSoundRecordingStatus(self, isAskForRecording: bool):
-        if isAskForRecording:
-            dateTimeObj = datetime.now()
-            time = (
-                str(dateTimeObj.year)
-                + "{:02d}".format(dateTimeObj.month)
-                + "{:02d}".format(dateTimeObj.day)
-                + "_"
-                + "{:02d}".format(dateTimeObj.hour)
-                + "{:02d}".format(dateTimeObj.minute)
-                + "{:02d}".format(dateTimeObj.second)
-            )
-            soundFilePath = os.path.join(
-                self._session.directoryPath,
-                "sound_recording_{}.wav".format(time),
-            )
-            self._threadSoundRecording.start(soundFilePath)
-        else:
-            self._threadSoundRecording.stop()
-
     def onAddFeatureToEnvironmentTableSignal(self, feat: QgsFeature):
         self._session.addNewFeatureToEnvironmentTable(feat)
-        self._soundRecordingBtn.onStartEffort()
+        self._soundRecordingController.onStartEffort()
+        if self._simuGpsBtn is not None and self._simuGpsBtn.isChecked():
+            self._threadSimuGps.start()
         self._addObservationBtn.onChangeEffortStatus(True)
 
     def onChangeSimuGpsStatus(self, isOn: bool):
