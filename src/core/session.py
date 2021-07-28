@@ -49,11 +49,23 @@ class SammoSession:
 
         QgsProject.instance().addMapLayer(self._gpsTable)
 
+    def onStopSoundRecordingForObservation(self, soundRecordingDatas: str):
+        table = self._observationTable
+        table.startEditing()
+        idLastAddedFeature = self.db.getIdOfLastAddedFeature(
+            table
+        )
+        field_idx = table.fields().indexOf("fichier_son")
+        table.changeAttributeValue(
+            idLastAddedFeature, field_idx, soundRecordingDatas
+        )
+        table.commitChanges()
+
     def onStopEffort(self):
         table = self._environmentTable
         table.startEditing()
         idLastAddedFeature = self.db.getIdOfLastAddedFeature(
-            self._environmentTable
+            table
         )
         field_idx = table.fields().indexOf(
             SammoDataBase.ENVIRONMENT_COMMENT_FIELD_NAME
@@ -73,11 +85,9 @@ class SammoSession:
             + ":"
             + "{:02d}".format(dateTimeObj.second)
         )
-        if not table.changeAttributeValue(
+        table.changeAttributeValue(
             idLastAddedFeature, field_idx, timeOfStopEffort
-        ):
-            print("Echec de la modification du champs commentaire")
-
+        )
         table.commitChanges()
 
     def createEmptyDataBase(self, directory: str):

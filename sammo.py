@@ -27,14 +27,18 @@ class Sammo:
         self._onOffEffortBtn = self.createOnOffEffortBtn()
         self._addObservationBtn = self.createAddObservationBtn()
         self._simuGpsBtn, self._threadSimuGps = self.createSimuGps()
-        self._soundRecordingController = SammoSoundRecordingController(
+        self._soundRecordingController = self.createSoundRecordingController()
+
+    def createSoundRecordingController(self) -> SammoSoundRecordingController:
+        controller = SammoSoundRecordingController(
             self.iface.mainWindow(), self._toolBar
         )
+        controller.onStopSoundRecordingForObservationSignal.connect(self._session.onStopSoundRecordingForObservation)
+        return controller
 
     def createSimuGps(self) -> [SammoSimuGpsBtn, ThreadSimuGps]:
         if not os.environ.get("SAMMO_DEBUG"):
             return [None, None]
-
         button = SammoSimuGpsBtn(self.iface.mainWindow(), self._toolBar)
         button.onChangeSimuGpsStatusSignal.connect(self.onChangeSimuGpsStatus)
         testFilePath = os.path.join(

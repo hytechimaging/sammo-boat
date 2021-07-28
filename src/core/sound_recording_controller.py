@@ -11,14 +11,18 @@ from qgis.PyQt.QtWidgets import QToolBar
 from datetime import datetime
 
 
-class SammoSoundRecordingController:
+class SammoSoundRecordingController(QObject):
+    onStopSoundRecordingForObservationSignal = pyqtSignal(str)
+
     def __init__(self, parent: QObject, toolBar: QToolBar):
+        super().__init__(parent)
         self._workingDirectory: str = None
         self.parent = parent
         (
             self._soundRecordingBtn,
             self._threadSoundRecording,
         ) = self.createSoundRecording(parent, toolBar)
+        self._currentSoundFileName: str = None
 
     def unload(self):
         if self._threadSoundRecording.isProceeding:
@@ -55,6 +59,7 @@ class SammoSoundRecordingController:
                 self.automaticChangeOfSoundRecordingStatus(True)
         else:
             # on end observation
+            self.onStopSoundRecordingForObservationSignal.emit(self._currentSoundFileName)
             self.automaticChangeOfSoundRecordingStatus(False)
 
     def automaticChangeOfSoundRecordingStatus(self, recordingStatus: bool):
@@ -76,10 +81,13 @@ class SammoSoundRecordingController:
                 + "{:02d}".format(dateTimeObj.minute)
                 + "{:02d}".format(dateTimeObj.second)
             )
+            self._currentSoundFileName = "sound_recording_{}.wav".format(time)
             soundFilePath = os.path.join(
                 self._workingDirectory,
-                "sound_recording_{}.wav".format(time),
+                self._currentSoundFileName
             )
             self._threadSoundRecording.start(soundFilePath)
         else:
             self._threadSoundRecording.stop()
+            self._currentSoundFileName = None
+

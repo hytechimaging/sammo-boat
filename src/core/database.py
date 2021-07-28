@@ -203,6 +203,7 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("cptmt_OIS"))
         fields.append(self._createFieldShortText("cptmt_BAT"))
         fields.append(self._createFieldShortText("comment"))
+        fields.append(self._createFieldShortText("fichier_son"))
 
         return fields
 
