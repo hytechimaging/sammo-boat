@@ -16,7 +16,7 @@ from qgis.core import (
     QgsField,
 )
 from .import_species_from_csv import ImportSpeciesFromCsv
-from .dashboard_controller import SammoDashboardController
+from .dashboard.dashboard_controller import SammoDashboardController
 
 
 class SammoDataBase:

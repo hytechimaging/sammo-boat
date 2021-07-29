@@ -18,14 +18,15 @@ from qgis.core import (
 class SammoDashboardController:
     def __init__(self, pluginFolder: str):
         self._pathToLayerFile = os.path.join(
-            pluginFolder, "src", "core", "dashboard.qlr"
+            pluginFolder, "src", "core", "dashboard", "dashboard.qlr"
         )
         self._pathToTableFile = os.path.join(
-            pluginFolder, "src", "core", "dashboard.shp"
+            pluginFolder, "src", "core", "dashboard", "dashboard.shp"
         )
 
     def onCreateSession(self):
-        QgsLayerDefinition.loadLayerDefinition(self._pathToLayerFile, QgsProject.instance(), QgsProject.instance().layerTreeRoot())
+        if not QgsProject.instance().mapLayersByName("dashboard"):
+            QgsLayerDefinition.loadLayerDefinition(self._pathToLayerFile, QgsProject.instance(), QgsProject.instance().layerTreeRoot())
 
     def loadTable(self) -> QgsVectorLayer:
         vLayer = QgsVectorLayer(self._pathToTableFile, "dashboard", "ogr")
@@ -39,8 +40,9 @@ class SammoDashboardController:
 
         effortTimer_label = QgsFeature(dashboardTable.fields())
 
+        xMax, yMax = 185, 90
         effortTimer_label.setGeometry(QgsGeometry.fromPolygonXY(
-            [[QgsPointXY(1,1), QgsPointXY(-1,1), QgsPointXY(-1,-1), QgsPointXY(1,-1),QgsPointXY(1,1)]]
+            [[QgsPointXY(xMax,yMax), QgsPointXY(-xMax,yMax), QgsPointXY(-xMax,-yMax), QgsPointXY(xMax,-yMax),QgsPointXY(xMax,yMax)]]
         ))
         effortTimer_label.setAttribute("name", "effortTimer_label")
         effortTimer_label.setAttribute("geometry_g", "point_n( @map_extent, 4 )")

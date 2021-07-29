@@ -47,7 +47,8 @@ class SammoSession:
         self._followerTable = self.loadTable(SammoDataBase.FOLLOWER_TABLE_NAME)
         self._gpsTable = self.loadTable(SammoDataBase.GPS_TABLE_NAME)
 
-        QgsProject.instance().addMapLayer(self._gpsTable)
+        if not QgsProject.instance().mapLayersByName(SammoDataBase.GPS_TABLE_NAME):
+            QgsProject.instance().addMapLayer(self._gpsTable)
 
     def onStopEffort(self):
         table = self._environmentTable
