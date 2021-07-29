@@ -10,8 +10,8 @@ from .session import SammoSession
 from datetime import datetime
 
 
-class WorkerGps(WorkerForOtherThread):
-    addNewFeatureToGpsTableSignal = pyqtSignal(float, float)
+class WorkerSimuGps(WorkerForOtherThread):
+    addNewFeatureToGpsTableSignal = pyqtSignal(float, float, str, int)
 
     def __init__(
         self,
@@ -32,12 +32,14 @@ class WorkerGps(WorkerForOtherThread):
             if self._isNeedToStop:
                 return
 
-            coordinates = self._lines[i].strip().split(";")
-            longitude_deg = coordinates[0]
-            latitude_deg = coordinates[1]
+            coordinates = self._lines[i].strip().split(",")
+            latitude_deg = coordinates[0]
+            longitude_deg = coordinates[1]
+            leg_heure = self._removeQuotes(coordinates[2])
+            code_leg = int(coordinates[3])
 
             self.addNewFeatureToGpsTableSignal.emit(
-                float(longitude_deg), float(latitude_deg)
+                float(longitude_deg), float(latitude_deg), leg_heure, code_leg
             )
             self._log(
                 "GPS : longitude = {}°"
@@ -45,40 +47,53 @@ class WorkerGps(WorkerForOtherThread):
             )
             self._indexOfNextGpsPoint = self._indexOfNextGpsPoint + 1
 
-        self._indexOfNextGpsPoint = 0
+        # always begins at the second line because the first is for titles
+        self._indexOfNextGpsPoint = 1
 
     def _onStart(self):
         with open(self._testFilePath) as file:
             self._lines = file.readlines()
 
+    @staticmethod
+    def _removeQuotes(strValue: str) -> str:
+        strLen = len(strValue)
+        if strValue[0] == '"' and strValue[strLen - 1] == '"':
+            strValue = strValue[1 : strLen - 1]
+        return strValue
+
 
 class ThreadSimuGps(OtherThread):
-    addNewFeatureToGpsTableSignal = pyqtSignal(float, float, str)
+    addNewFeatureToGpsTableSignal = pyqtSignal(float, float, str, int)
 
     def __init__(self, session: SammoSession, testFilePath: str):
         super().__init__()
         self._session: SammoSession = session
         self._testFilePath = testFilePath
-        self.indexOfNextGpsPoint: int = 0
+        # always begins at the second line because the first is for titles
+        self.indexOfNextGpsPoint: int = 1
 
     def start(self):
-        worker = WorkerGps(
+        self.worker = WorkerSimuGps(
             self._testFilePath, self._session, self.indexOfNextGpsPoint
         )
-        worker.addNewFeatureToGpsTableSignal.connect(
+        self.worker.addNewFeatureToGpsTableSignal.connect(
             self.addNewFeatureToGpsTable
         )
-        super()._start(worker)
+        super()._start(self.worker)
 
     def stop(self):
         self.indexOfNextGpsPoint = self.worker._indexOfNextGpsPoint
         super().stop()
 
     def addNewFeatureToGpsTable(
-        self, longitude_deg: float, latitude_deg: float
+        self,
+        longitude_deg: float,
+        latitude_deg: float,
+        leg_heure: str,
+        code_leg: int,
     ):
         self.addNewFeatureToGpsTableSignal.emit(
-            longitude_deg, latitude_deg, self.nowToString()
+            longitude_deg, latitude_deg, leg_heure, code_leg
         )
 
     @staticmethod
