@@ -45,13 +45,13 @@ class Sammo:
         return soundRecordingBtn, threadSoundRecording
 
     def createSimuGps(self) -> [SammoSimuGpsBtn, ThreadSimuGps]:
-        if os.environ.get("SAMMO_DEBUG") is None:
+        if not os.environ.get("SAMMO_DEBUG"):
             return [None, None]
 
         button = SammoSimuGpsBtn(self.iface.mainWindow(), self._toolBar)
         button.onChangeSimuGpsStatusSignal.connect(self.onChangeSimuGpsStatus)
         testFilePath = os.path.join(
-            self.pluginFolder(), "src/core/trace_simu_gps.csv"
+            self.pluginFolder(), "src", "core", "trace_simu_gps.csv"
         )
         threadGps = ThreadSimuGps(self._session, testFilePath)
         threadGps.addNewFeatureToGpsTableSignal.connect(
@@ -105,7 +105,7 @@ class Sammo:
     def onCreateSession(self, workingDirectory: str):
         self._session.onCreateSession(workingDirectory)
         self._onOffEffortBtn.onCreateSession()
-        if self._simuGpsBtn is not None:
+        if self._simuGpsBtn:
             self._simuGpsBtn.onCreateSession()
 
     def onChangeEffortStatus(self, isChecked: bool):
