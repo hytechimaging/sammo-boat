@@ -35,7 +35,7 @@ class Sammo:
         self._dashboardController = self.createDashboardController()
 
     def createDashboardController(self) -> SammoDashboardController:
-        controller = SammoDashboardController(self.pluginFolder())
+        controller = SammoDashboardController(self.pluginFolder(), self._session, self.iface)
         return controller
 
     def createSoundRecording(
@@ -105,6 +105,7 @@ class Sammo:
         self._addObservationBtn.unload()
         if self._simuGpsBtn is not None:
             self._simuGpsBtn.unload()
+        self._dashboardController.unload()
 
         del self._toolBar
 

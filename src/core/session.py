@@ -26,6 +26,7 @@ class SammoSession:
         self._observationTable: QgsVectorLayer = None
         self._followerTable: QgsVectorLayer = None
         self._gpsTable: QgsVectorLayer = None
+        self._dashboardTable: QgsVectorLayer = None
 
     @staticmethod
     def isDataBaseAvailable(directory):
@@ -46,6 +47,7 @@ class SammoSession:
         )
         self._followerTable = self.loadTable(SammoDataBase.FOLLOWER_TABLE_NAME)
         self._gpsTable = self.loadTable(SammoDataBase.GPS_TABLE_NAME)
+        self._dashboardTable = self.loadTable("dashboard")
 
         if not QgsProject.instance().mapLayersByName(SammoDataBase.GPS_TABLE_NAME):
             QgsProject.instance().addMapLayer(self._gpsTable)
@@ -79,6 +81,20 @@ class SammoSession:
         ):
             print("Echec de la modification du champs commentaire")
 
+        table.commitChanges()
+
+    def changeTxtOfDashboardLabel(self, nameOfLabel: str, txt: str):
+        table = self._dashboardTable
+        table.startEditing()
+        query = '"name"="{}"'.format(nameOfLabel)
+        Logger.log("dashboard table query = " + query)
+        table.selectByExpression(query)
+        selection = table.selectedFeatures()
+        id = selection[0].id()
+        field_idx = table.fields().indexOf("txt")
+        table.changeAttributeValue(
+            id, field_idx, txt
+        )
         table.commitChanges()
 
     def createEmptyDataBase(self, directory: str, dashboardLayer: QgsVectorLayer):
@@ -124,6 +140,18 @@ class SammoSession:
         feature.setGeometry(QgsGeometry.fromPointXY(layerPoint))
         feature.setAttribute("leg_heure", leg_heure)
         feature.setAttribute("code_leg", code_leg)
+
+        self._addNewFeature(feature, self._gpsTable)
+
+    def addNewFeatureToGpsTable(
+        self, longitude: float, latitude: float, dateTime: str
+    ):
+        self._gpsTable.startEditing()
+
+        feature = QgsFeature(QgsVectorLayerUtils.createFeature(self._gpsTable))
+        layerPoint = QgsPointXY(longitude, latitude)
+        feature.setGeometry(QgsGeometry.fromPointXY(layerPoint))
+        feature.setAttribute(SammoDataBase.GPS_TIME_FIELD_NAME, dateTime)
 
         self._addNewFeature(feature, self._gpsTable)
 

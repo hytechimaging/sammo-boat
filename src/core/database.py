@@ -16,7 +16,7 @@ from qgis.core import (
     QgsField,
 )
 from .import_species_from_csv import ImportSpeciesFromCsv
-from .dashboard.dashboard_controller import SammoDashboardController
+from .dashboard.dashboardTableInitializer import DashboadTableInitializer
 
 
 class SammoDataBase:
@@ -195,7 +195,7 @@ class SammoDataBase:
 
     @staticmethod
     def initializeDashboardTable(dashboardTable: QgsVectorLayer):
-        SammoDashboardController.initializeTable(dashboardTable)
+        DashboadTableInitializer.initializeTable(dashboardTable)
 
     def _createFieldsForObservationTable(self) -> QgsFields:
         fields = QgsFields()
