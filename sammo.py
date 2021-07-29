@@ -16,6 +16,7 @@ from qgis.PyQt.QtWidgets import QToolBar
 from qgis.core import QgsFeature
 from datetime import datetime
 from .src.gui.simu_gps_btn import SammoSimuGpsBtn
+from .src.core.logger import Logger
 
 
 class Sammo:
@@ -105,8 +106,8 @@ class Sammo:
         self._addObservationBtn.unload()
         if self._simuGpsBtn is not None:
             self._simuGpsBtn.unload()
-        self._dashboardController.unload()
 
+        self._dashboardController.unload()
         del self._toolBar
 
     def onCreateSession(self, workingDirectory: str):

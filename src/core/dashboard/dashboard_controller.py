@@ -34,19 +34,21 @@ class SammoDashboardController:
         self._thread.start(self.updateTimer)
 
     def unload(self):
-        if self._thread.isProceeding:
-            self._thread.stop()
+        # pass
+        if self._thread and self._thread.isProceeding:
+             self._thread.stop()
+             self._thread = None
 
     def loadTable(self) -> QgsVectorLayer:
         vLayer = QgsVectorLayer(self._pathToTableFile, "dashboard", "ogr")
-        if not vLayer.isValid():
-            print("Layer failed to load!")
         return vLayer
 
     def updateTimer(self):
+        if not self._thread:
+            return
+
         dateTimeObj = datetime.now()
         txt = "{:02d}:{:02d}:{:02d}".format(dateTimeObj.hour, dateTimeObj.minute,dateTimeObj.second)
         self._session.changeTxtOfDashboardLabel("effortTimer_label",txt)
         layer = QgsProject.instance().mapLayersByName("dashboard")[0]
         layer.reload()
-

@@ -82,7 +82,7 @@ class ThreadSimuGps(OtherThread):
         super()._start(self.worker)
 
     def stop(self):
-        self.indexOfNextGpsPoint = self.worker._indexOfNextGpsPoint
+        self.indexOfNextGpsPoint = self._worker._indexOfNextGpsPoint
         super().stop()
 
     def addNewFeatureToGpsTable(

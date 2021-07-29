@@ -43,23 +43,25 @@ class OtherThread(QObject):
     def __init__(self):
         super().__init__()
         self.isProceeding: bool = False
+        self._worker: WorkerForOtherThread = None
 
     def _start(self, worker: WorkerForOtherThread):
-        self.thread = QThread()
-        self.worker = worker
-        self.worker.moveToThread(self.thread)
+        self._thread = QThread()
+        self._worker = worker
+        self._worker.moveToThread(self._thread)
 
-        self.thread.started.connect(self.worker.run)
-        self.worker.finishedSignal.connect(self.thread.quit)
-        self.worker.finishedSignal.connect(self.worker.deleteLater)
-        self.thread.finished.connect(self.thread.deleteLater)
-        self.worker.logSignal.connect(self.log)
+        self._thread.started.connect(self._worker.run)
+        self._worker.finishedSignal.connect(self._thread.quit)
+        self._worker.finishedSignal.connect(self._worker.deleteLater)
+        self._thread.finished.connect(self._thread.deleteLater)
+        self._worker.logSignal.connect(self.log)
 
-        self.thread.start()
+        self._thread.start()
         self.isProceeding = True
 
     def stop(self):
-        self.worker.stop()
+        self._worker.stop()
+        self._worker = None
         self.isProceeding = False
 
     def log(self, msg: str):

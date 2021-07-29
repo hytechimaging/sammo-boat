@@ -7,6 +7,7 @@ from time import sleep
 from ..other_thread import WorkerForOtherThread, OtherThread
 from qgis.PyQt.QtCore import pyqtSignal
 from datetime import datetime
+from ..logger import Logger
 
 
 class WorkerDashboard(WorkerForOtherThread):
@@ -17,7 +18,6 @@ class WorkerDashboard(WorkerForOtherThread):
         self._lines = None
 
     def _toDoInsideLoop(self):
-        while not self._isNeedToStop:
             sleep(1)
             self.updateTimerSignal.emit()
 
@@ -26,6 +26,9 @@ class WorkerDashboard(WorkerForOtherThread):
 
 
 class ThreadDashboard(OtherThread):
+    def __init__(self):
+        super().__init__()
+
     def start(self, updateTimerMethod):
         worker = WorkerDashboard()
         worker.updateTimerSignal.connect(
@@ -34,7 +37,9 @@ class ThreadDashboard(OtherThread):
         super()._start(worker)
 
     def stop(self):
+        Logger.log("ThreadDashboard:stop - 0")
         super().stop()
+        Logger.log("ThreadDashboard:stop - 1")
 
     @staticmethod
     def nowToString() -> str:
