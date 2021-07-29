@@ -109,7 +109,7 @@ class Sammo:
         del self._toolBar
 
     def onCreateSession(self, workingDirectory: str):
-        self._session.onCreateSession(workingDirectory, self._dashboardController.LoadTable())
+        self._session.onCreateSession(workingDirectory, self._dashboardController.loadTable())
         self._onOffEffortBtn.onCreateSession()
         self._dashboardController.onCreateSession()
         if self._simuGpsBtn:

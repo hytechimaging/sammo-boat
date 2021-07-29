@@ -16,6 +16,7 @@ from qgis.core import (
     QgsField,
 )
 from .import_species_from_csv import ImportSpeciesFromCsv
+from .dashboard_controller import SammoDashboardController
 
 
 class SammoDataBase:
@@ -34,8 +35,6 @@ class SammoDataBase:
 
     def createEmptyDataBase(self, directory, dashboardLayer: QgsVectorLayer):
         db = self._pathToDataBase(directory)
-
-        self._addTableToDataBaseFile(db, dashboardLayer)
 
         self._createTableIntoDataBaseFile(
             db,
@@ -63,11 +62,13 @@ class SammoDataBase:
             db, self._createFieldsForFollowerTable(), self.FOLLOWER_TABLE_NAME
         )
 
+        self._copyTableIntoDataBaseFile(db, "dashboard", dashboardLayer, QgsWkbTypes.Polygon)
+
     @staticmethod
-    def _addTableToDataBaseFile(
-        db: str, table: QgsVectorLayer
+    def _copyTableIntoDataBaseFile(
+        db: str, tableName: str, table: QgsVectorLayer, geometry: QgsWkbTypes
     ):
-        QgsVectorFileWriter.writeAsVectorFormat(table,db,"UTF-8",table.crs(),"GPKG")
+        SammoDataBase._createTableIntoDataBaseFile(db, table.fields(), tableName, geom=geometry)
 
     @staticmethod
     def _createTableIntoDataBaseFile(
@@ -191,6 +192,10 @@ class SammoDataBase:
     @staticmethod
     def initializeSpeciesTable(speciesTable: QgsVectorLayer):
         ImportSpeciesFromCsv.importInto(speciesTable)
+
+    @staticmethod
+    def initializeDashboardTable(dashboardTable: QgsVectorLayer):
+        SammoDashboardController.initializeTable(dashboardTable)
 
     def _createFieldsForObservationTable(self) -> QgsFields:
         fields = QgsFields()

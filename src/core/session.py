@@ -86,6 +86,9 @@ class SammoSession:
         speciesTable = self.loadTable(SammoDataBase.SPECIES_TABLE_NAME)
         SammoDataBase.initializeSpeciesTable(speciesTable)
 
+        dashboardTable = self.loadTable("dashboard")
+        SammoDataBase.initializeDashboardTable(dashboardTable)
+
     def loadTable(self, tableName: str) -> QgsVectorLayer:
         layer = self.db.loadTable(self.directoryPath, tableName)
         if not layer.isValid():
