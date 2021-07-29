@@ -86,11 +86,12 @@ class SammoSession:
     def changeTxtOfDashboardLabel(self, nameOfLabel: str, txt: str):
         table = self._dashboardTable
         table.startEditing()
-        query = '"name"="{}"'.format(nameOfLabel)
-        Logger.log("dashboard table query = " + query)
-        table.selectByExpression(query)
-        selection = table.selectedFeatures()
-        id = selection[0].id()
+        # query = '"name"="{}"'.format(nameOfLabel)
+        # Logger.log("dashboard table query = " + query)
+        # table.selectByExpression(query)
+        # selection = table.selectedFeatures()
+        # id = selection[0].id()
+        id = 1
         field_idx = table.fields().indexOf("txt")
         table.changeAttributeValue(
             id, field_idx, txt

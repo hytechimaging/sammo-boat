@@ -12,6 +12,7 @@ from qgis.core import (
 from .thread_dashboard import ThreadDashboard
 from ..session import SammoSession
 from ..logger import Logger
+from datetime import datetime
 
 
 class SammoDashboardController:
@@ -43,7 +44,9 @@ class SammoDashboardController:
         return vLayer
 
     def updateTimer(self):
-        self._session.changeTxtOfDashboardLabel("effortTimer_label","fuck")
-        self._iface.mapCanvas().refresh()
-        Logger.log("updateTimer")
+        dateTimeObj = datetime.now()
+        txt = "{:02d}:{:02d}:{:02d}".format(dateTimeObj.hour, dateTimeObj.minute,dateTimeObj.second)
+        self._session.changeTxtOfDashboardLabel("effortTimer_label",txt)
+        layer = QgsProject.instance().mapLayersByName("dashboard")[0]
+        layer.reload()
 
