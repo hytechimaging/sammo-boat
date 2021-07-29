@@ -31,11 +31,11 @@ class SammoSession:
     def isDataBaseAvailable(directory):
         return SammoDataBase.isDataBaseAvailableInThisDirectory(directory)
 
-    def onCreateSession(self, directory):
+    def onCreateSession(self, directory: str, dashboardLayer: QgsVectorLayer):
         self.directoryPath = directory
         if not self.isDataBaseAvailable(directory):
             # No geopackage DB in this directory
-            self.createEmptyDataBase(directory)
+            self.createEmptyDataBase(directory, dashboardLayer)
 
         self._environmentTable = self.loadTable(
             SammoDataBase.ENVIRONMENT_TABLE_NAME
@@ -80,8 +80,8 @@ class SammoSession:
 
         table.commitChanges()
 
-    def createEmptyDataBase(self, directory: str):
-        self.db.createEmptyDataBase(directory)
+    def createEmptyDataBase(self, directory: str, dashboardLayer: QgsVectorLayer):
+        self.db.createEmptyDataBase(directory, dashboardLayer)
 
         speciesTable = self.loadTable(SammoDataBase.SPECIES_TABLE_NAME)
         SammoDataBase.initializeSpeciesTable(speciesTable)

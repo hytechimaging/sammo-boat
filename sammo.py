@@ -11,6 +11,7 @@ from .src.gui.add_observation_btn import SammoAddObservationBtn
 from .src.gui.sound_recording_btn import SammoSoundRecordingBtn
 from .src.core.thread_sound_recording import ThreadForSoundRecording
 from .src.core.thread_simu_gps import ThreadSimuGps
+from .src.core.dashboard_controller import SammoDashboardController
 from qgis.PyQt.QtWidgets import QToolBar
 from qgis.core import QgsFeature
 from datetime import datetime
@@ -31,6 +32,11 @@ class Sammo:
             self._threadSoundRecording,
         ) = self.createSoundRecording()
         self._simuGpsBtn, self._threadSimuGps = self.createSimuGps()
+        self._dashboardController = self.createDashboardController()
+
+    def createDashboardController(self) -> SammoDashboardController:
+        controller = SammoDashboardController(self.pluginFolder())
+        return controller
 
     def createSoundRecording(
         self,
@@ -103,8 +109,9 @@ class Sammo:
         del self._toolBar
 
     def onCreateSession(self, workingDirectory: str):
-        self._session.onCreateSession(workingDirectory)
+        self._session.onCreateSession(workingDirectory, self._dashboardController.LoadTable())
         self._onOffEffortBtn.onCreateSession()
+        self._dashboardController.onCreateSession()
         if self._simuGpsBtn:
             self._simuGpsBtn.onCreateSession()
 

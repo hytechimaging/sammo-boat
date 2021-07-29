@@ -32,34 +32,45 @@ class SammoDataBase:
     def isDataBaseAvailableInThisDirectory(directory):
         return os.path.isfile(SammoDataBase._pathToDataBase(directory))
 
-    def createEmptyDataBase(self, directory):
+    def createEmptyDataBase(self, directory, dashboardLayer: QgsVectorLayer):
         db = self._pathToDataBase(directory)
 
-        self._addTableToDataBaseFile(
+        self._addTableToDataBaseFile(db, dashboardLayer)
+
+        self._createTableIntoDataBaseFile(
             db,
             self._createFieldsForEnvironmentTable(),
             self.ENVIRONMENT_TABLE_NAME,
         )
-        self._addTableToDataBaseFile(
+        self._createTableIntoDataBaseFile(
             db, self._createFieldsForSpeciesTable(), self.SPECIES_TABLE_NAME
         )
-        self._addTableToDataBaseFile(
+        self._createTableIntoDataBaseFile(
             db,
             self._createFieldsForObservationTable(),
             self.OBSERVATION_TABLE_NAME,
         )
-        self._addTableToDataBaseFile(
+        self._createTableIntoDataBaseFile(
             db, self._createFieldsForFollowerTable(), self.FOLLOWER_TABLE_NAME
         )
-        self._addTableToDataBaseFile(
+        self._createTableIntoDataBaseFile(
             db,
             self._createFieldsForGpsTable(),
             self.GPS_TABLE_NAME,
             QgsWkbTypes.Point,
         )
+        self._createTableIntoDataBaseFile(
+            db, self._createFieldsForFollowerTable(), self.FOLLOWER_TABLE_NAME
+        )
 
     @staticmethod
     def _addTableToDataBaseFile(
+        db: str, table: QgsVectorLayer
+    ):
+        QgsVectorFileWriter.writeAsVectorFormat(table,db,"UTF-8",table.crs(),"GPKG")
+
+    @staticmethod
+    def _createTableIntoDataBaseFile(
         db: str, fields: QgsFields, tableName: str, geom=QgsWkbTypes.NoGeometry
     ):
         """
