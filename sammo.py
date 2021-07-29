@@ -8,12 +8,9 @@ from .src.gui.session_btn import SammoActionSession
 from .src.gui.on_off_effort_btn import SammoOnOffEffortBtn
 from .src.core.session import SammoSession
 from .src.gui.add_observation_btn import SammoAddObservationBtn
-from .src.gui.sound_recording_btn import SammoSoundRecordingBtn
-from .src.core.thread_sound_recording import ThreadForSoundRecording
 from .src.core.thread_simu_gps import ThreadSimuGps
 from qgis.PyQt.QtWidgets import QToolBar
 from qgis.core import QgsFeature
-from datetime import datetime
 from .src.gui.simu_gps_btn import SammoSimuGpsBtn
 from .src.core.sound_recording_controller import SammoSoundRecordingController
 
