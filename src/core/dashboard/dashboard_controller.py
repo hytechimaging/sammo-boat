@@ -11,7 +11,6 @@ from qgis.core import (
 )
 from .thread_dashboard import ThreadDashboard
 from ..session import SammoSession
-from ..logger import Logger
 from datetime import datetime
 
 
@@ -28,25 +27,14 @@ class SammoDashboardController:
         self._thread = ThreadDashboard()
 
     def onCreateSession(self):
-        Logger.log("DashboardController:onCreateSession - 0")
         if not QgsProject.instance().mapLayersByName("dashboard"):
-            QgsLayerDefinition.loadLayerDefinition(self._pathToLayerFile, QgsProject.instance(), QgsProject.instance().layerTreeRoot())
-
-    def onStartEffort(self):
-        pass
-        # self._thread.start(self.updateTimer)
-
-    def onStopEffort(self):
-        pass
-        # self._thread.stop()
+            QgsLayerDefinition.loadLayerDefinition(self._pathToLayerFile, QgsProject.instance(),
+                                                   QgsProject.instance().layerTreeRoot())
+        self._thread.start(self.updateTimer)
 
     def unload(self):
-        pass
-        # Logger.log("DashboardController:unload - 0 - with isProceeding = " + str(self._thread.isProceeding))
-        # if self._thread and self._thread.isProceeding:
-        #      Logger.log("DashboardController:unload - 1")
-        #      self._thread.stop()
-        #      Logger.log("DashboardController:unload - 2")
+        if self._thread and self._thread.isProceeding:
+            self._thread.stop()
 
     def loadTable(self) -> QgsVectorLayer:
         vLayer = QgsVectorLayer(self._pathToTableFile, "dashboard", "ogr")
@@ -57,7 +45,7 @@ class SammoDashboardController:
             return
 
         dateTimeObj = datetime.now()
-        txt = "{:02d}:{:02d}:{:02d}".format(dateTimeObj.hour, dateTimeObj.minute,dateTimeObj.second)
-        self._session.changeTxtOfDashboardLabel("effortTimer_label",txt)
+        txt = "{:02d}:{:02d}:{:02d}".format(dateTimeObj.hour, dateTimeObj.minute, dateTimeObj.second)
+        self._session.changeTxtOfDashboardLabel("effortTimer_label", txt)
         layer = QgsProject.instance().mapLayersByName("dashboard")[0]
         layer.reload()

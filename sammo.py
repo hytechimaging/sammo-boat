@@ -16,12 +16,11 @@ from qgis.PyQt.QtWidgets import QToolBar
 from qgis.core import QgsFeature
 from datetime import datetime
 from .src.gui.simu_gps_btn import SammoSimuGpsBtn
-from .src.core.logger import Logger
+from .src.gui.stop_threads_btn import StopThreadsBtn
 
 
 class Sammo:
     def __init__(self, iface):
-        Logger.log("Sammo:__init__ - 0")
         self.iface = iface
         self._toolBar: QToolBar = self.iface.addToolBar("Sammo ToolBar")
         self._session = SammoSession()
@@ -35,6 +34,7 @@ class Sammo:
         ) = self.createSoundRecording()
         self._simuGpsBtn, self._threadSimuGps = self.createSimuGps()
         self._dashboardController = self.createDashboardController()
+        self._stopThreadsBtn = self.createStopThreadsBtn()
 
     def createDashboardController(self) -> SammoDashboardController:
         controller = SammoDashboardController(self.pluginFolder(), self._session, self.iface)
@@ -67,6 +67,14 @@ class Sammo:
         )
         return [button, threadGps]
 
+    def createStopThreadsBtn(self) -> StopThreadsBtn:
+        if not os.environ.get("SAMMO_DEBUG"):
+            return
+
+        button = StopThreadsBtn(self.iface.mainWindow(), self._toolBar)
+        button.onStopThreadsSignal.connect(self.onClickStopThreads)
+        return button
+
     @staticmethod
     def pluginFolder():
         return os.path.abspath(os.path.dirname(__file__))
@@ -93,7 +101,6 @@ class Sammo:
         pass
 
     def unload(self):
-        Logger.log("Sammo:unload - 0")
         if (
             self._threadSimuGps is not None
             and self._threadSimuGps.isProceeding
@@ -106,13 +113,20 @@ class Sammo:
         self._sessionBtn.unload()
         self._onOffEffortBtn.unload()
         self._addObservationBtn.unload()
-        if self._simuGpsBtn is not None:
+        if self._stopThreadsBtn:
+            self._stopThreadsBtn.unload()
+        if self._simuGpsBtn:
             self._simuGpsBtn.unload()
 
-        Logger.log("Sammo:unload - 1")
         self._dashboardController.unload()
-        Logger.log("Sammo:unload - 2")
         del self._toolBar
+
+    def onClickStopThreads(self):
+        if self._threadSimuGps and self._threadSimuGps.isProceeding:
+            self._threadSimuGps.stop()
+        if self._threadSoundRecording.isProceeding:
+            self._threadSoundRecording.stop()
+        self._dashboardController.unload()
 
     def onCreateSession(self, workingDirectory: str):
         self._session.onCreateSession(workingDirectory, self._dashboardController.loadTable())
