@@ -101,6 +101,15 @@ class SammoSession:
         )
         table.commitChanges()
 
+    def changeBackgroundColorLabel(self, id: int, newColor: str):
+        table = self._dashboardTable
+        table.startEditing()
+        field_idx = table.fields().indexOf("background")
+        table.changeAttributeValue(
+            id, field_idx, newColor
+        )
+        table.commitChanges()
+
     def createEmptyDataBase(self, directory: str, dashboardLayer: QgsVectorLayer):
         self.db.createEmptyDataBase(directory, dashboardLayer)
 
@@ -144,18 +153,6 @@ class SammoSession:
         feature.setGeometry(QgsGeometry.fromPointXY(layerPoint))
         feature.setAttribute("leg_heure", leg_heure)
         feature.setAttribute("code_leg", code_leg)
-
-        self._addNewFeature(feature, self._gpsTable)
-
-    def addNewFeatureToGpsTable(
-        self, longitude: float, latitude: float, dateTime: str
-    ):
-        self._gpsTable.startEditing()
-
-        feature = QgsFeature(QgsVectorLayerUtils.createFeature(self._gpsTable))
-        layerPoint = QgsPointXY(longitude, latitude)
-        feature.setGeometry(QgsGeometry.fromPointXY(layerPoint))
-        feature.setAttribute(SammoDataBase.GPS_TIME_FIELD_NAME, dateTime)
 
         self._addNewFeature(feature, self._gpsTable)
 

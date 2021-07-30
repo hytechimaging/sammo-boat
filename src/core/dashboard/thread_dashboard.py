@@ -10,29 +10,37 @@ from datetime import datetime
 
 
 class WorkerDashboard(WorkerForOtherThread):
-    updateTimerSignal = pyqtSignal()
+    timer_1sec_signal = pyqtSignal()
+    timer_500msec_signal = pyqtSignal()
 
     def __init__(self):
         super().__init__()
         self._lines = None
 
     def _toDoInsideLoop(self):
-        sleep(1)
-        self.updateTimerSignal.emit()
+        sleep(0.5)
+        self.timer_500msec_signal.emit()
+        sleep(0.5)
+        self.timer_500msec_signal.emit()
+        self.timer_1sec_signal.emit()
 
     def _onStart(self):
         pass
 
 
 class ThreadDashboard(OtherThread):
-    def __init__(self, updateTimerMethod):
+    def __init__(self, timerMethod_1sec, timerMethod_500msec):
         super().__init__()
-        self._updateTimerMethod = updateTimerMethod
+        self._timerMethod_1sec = timerMethod_1sec
+        self._timerMethod_500msec = timerMethod_500msec
 
     def start(self):
         worker = WorkerDashboard()
-        worker.updateTimerSignal.connect(
-            self._updateTimerMethod
+        worker.timer_1sec_signal.connect(
+            self._timerMethod_1sec
+        )
+        worker.timer_500msec_signal.connect(
+            self._timerMethod_500msec
         )
         super()._start(worker)
 

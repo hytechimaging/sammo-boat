@@ -16,6 +16,8 @@ from datetime import datetime
 
 
 class SammoDashboardController:
+    soundRecordingLabelBackgroundColor = ["#aa0000", "#ff0000"]
+
     def __init__(self, pluginFolder: str, session: SammoSession, iface):
         self._pathToLayerFile = os.path.join(
             pluginFolder, "src", "core", "dashboard", "dashboard.qlr"
@@ -25,9 +27,10 @@ class SammoDashboardController:
         )
         self._session: SammoSession = session
         self._iface = iface
-        self._thread = ThreadDashboard(self.updateEffortTimerLabel)
+        self._thread = ThreadDashboard(self.onTimer_1sec, self.onTimer_500msec)
         self._timeWhenEffortBegan: datetime = None
         self._isRecordingSound = False
+        self._idOfSoundRecordingLabelBackgroundColor = 0
 
     def onCreateSession(self):
         if not QgsProject.instance().mapLayersByName("dashboard"):
@@ -71,7 +74,7 @@ class SammoDashboardController:
         else:
             self._session.changeOffsetsDashboardLabel(id, DashboardTableInitializer.Invisible_offset_x)
 
-        self.updateEffortTimerLabel()
+        self.onTimer_1sec()
 
     def showSoundRecordingLabel(self, isVisible: bool):
         id = DashboardTableInitializer.soundRecording_ID
@@ -82,7 +85,7 @@ class SammoDashboardController:
 
         self.reloadDashboard()
 
-    def updateEffortTimerLabel(self):
+    def onTimer_1sec(self):
         txt = ""
         if self._timeWhenEffortBegan:
             elapsed = datetime.now() - self._timeWhenEffortBegan
@@ -90,7 +93,13 @@ class SammoDashboardController:
             minutes = divmod(elapsed.seconds - 3600 * hours, 60)[0]
             seconds = elapsed.seconds - hours * 3600 - minutes * 60
             txt = "Effort - {:02d}:{:02d}:{:02d}".format(hours, minutes, seconds)
-        self._session.changeTxtOfDashboardLabel(1, txt)
+        self._session.changeTxtOfDashboardLabel(DashboardTableInitializer.effortTimer_ID, txt)
+
+    def onTimer_500msec(self):
+        self._idOfSoundRecordingLabelBackgroundColor = 1 - self._idOfSoundRecordingLabelBackgroundColor
+        newColor = self.soundRecordingLabelBackgroundColor[self._idOfSoundRecordingLabelBackgroundColor]
+        self._session.changeBackgroundColorLabel(DashboardTableInitializer.soundRecording_ID, newColor)
+
         self.reloadDashboard()
 
     @staticmethod
