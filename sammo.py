@@ -21,6 +21,7 @@ from .src.core.logger import Logger
 
 class Sammo:
     def __init__(self, iface):
+        Logger.log("Sammo:__init__ - 0")
         self.iface = iface
         self._toolBar: QToolBar = self.iface.addToolBar("Sammo ToolBar")
         self._session = SammoSession()
@@ -92,6 +93,7 @@ class Sammo:
         pass
 
     def unload(self):
+        Logger.log("Sammo:unload - 0")
         if (
             self._threadSimuGps is not None
             and self._threadSimuGps.isProceeding
@@ -107,7 +109,9 @@ class Sammo:
         if self._simuGpsBtn is not None:
             self._simuGpsBtn.unload()
 
+        Logger.log("Sammo:unload - 1")
         self._dashboardController.unload()
+        Logger.log("Sammo:unload - 2")
         del self._toolBar
 
     def onCreateSession(self, workingDirectory: str):
@@ -130,6 +134,7 @@ class Sammo:
             self._soundRecordingBtn.onStopEffort()
             if self._threadSoundRecording.isProceeding:
                 self._threadSoundRecording.stop()
+            self._dashboardController.onStopEffort()
 
     def onClickObservation(self):
         feat, table = self._session.getReadyToAddNewFeatureToObservationTable()
@@ -160,6 +165,7 @@ class Sammo:
         self._session.addNewFeatureToEnvironmentTable(feat)
         self._soundRecordingBtn.onStartEffort()
         self._addObservationBtn.onChangeEffortStatus(True)
+        self._dashboardController.onStartEffort()
 
     def onChangeSimuGpsStatus(self, isOn: bool):
         if isOn:

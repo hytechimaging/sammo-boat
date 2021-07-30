@@ -5,6 +5,8 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 from datetime import datetime
 from qgis.core import QgsMessageLog
+from pathlib import Path
+import os.path
 
 LOG_FILE_NAME = "Sammo.log"
 
@@ -26,7 +28,7 @@ class Logger:
     def _log(prefix: str, msg: str):
         msg = "{} - {}".format(prefix, msg)
         QgsMessageLog.logMessage(msg, "Sammo-Boat")
-        with open(LOG_FILE_NAME, "a") as file:
+        with open(os.path.join(Path.home(),LOG_FILE_NAME), "a") as file:
             file.write("{} - {}\n".format(Logger.nowToString(), msg))
 
     @staticmethod

@@ -28,16 +28,25 @@ class SammoDashboardController:
         self._thread = ThreadDashboard()
 
     def onCreateSession(self):
+        Logger.log("DashboardController:onCreateSession - 0")
         if not QgsProject.instance().mapLayersByName("dashboard"):
             QgsLayerDefinition.loadLayerDefinition(self._pathToLayerFile, QgsProject.instance(), QgsProject.instance().layerTreeRoot())
 
-        self._thread.start(self.updateTimer)
+    def onStartEffort(self):
+        pass
+        # self._thread.start(self.updateTimer)
+
+    def onStopEffort(self):
+        pass
+        # self._thread.stop()
 
     def unload(self):
-        # pass
-        if self._thread and self._thread.isProceeding:
-             self._thread.stop()
-             self._thread = None
+        pass
+        # Logger.log("DashboardController:unload - 0 - with isProceeding = " + str(self._thread.isProceeding))
+        # if self._thread and self._thread.isProceeding:
+        #      Logger.log("DashboardController:unload - 1")
+        #      self._thread.stop()
+        #      Logger.log("DashboardController:unload - 2")
 
     def loadTable(self) -> QgsVectorLayer:
         vLayer = QgsVectorLayer(self._pathToTableFile, "dashboard", "ogr")
