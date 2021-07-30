@@ -10,6 +10,7 @@ from qgis.core import (
     QgsVectorLayer,
 )
 from .thread_dashboard import ThreadDashboard
+from .dashboardTableInitializer import DashboardTableInitializer
 from ..session import SammoSession
 from datetime import datetime
 
@@ -24,15 +25,38 @@ class SammoDashboardController:
         )
         self._session: SammoSession = session
         self._iface = iface
-        self._thread = ThreadDashboard()
+        self._thread = ThreadDashboard(self.updateEffortTimerLabel)
+        self._timeWhenEffortBegan: datetime = None
+        self._isRecordingSound = False
 
     def onCreateSession(self):
         if not QgsProject.instance().mapLayersByName("dashboard"):
             QgsLayerDefinition.loadLayerDefinition(self._pathToLayerFile, QgsProject.instance(),
                                                    QgsProject.instance().layerTreeRoot())
-        self._thread.start(self.updateTimer)
+
+    def onChangeEffortStatus(self, effortStatus: bool):
+        if effortStatus:
+            self._timeWhenEffortBegan = datetime.now()
+            self.showUpdateEffortTimeLabel(True)
+            self._startThread()
+        else:
+            self.endThread()
+            self.showUpdateEffortTimeLabel(False)
+
+    def onChangeSoundRecordingStatus(self, isRecording: bool):
+        if isRecording:
+            self.showSoundRecordingLabel(True)
+        else:
+            self.showSoundRecordingLabel(False)
 
     def unload(self):
+        self.endThread()
+
+    def _startThread(self):
+        if not self._thread.isProceeding:
+            self._thread.start()
+
+    def endThread(self):
         if self._thread and self._thread.isProceeding:
             self._thread.stop()
 
@@ -40,12 +64,36 @@ class SammoDashboardController:
         vLayer = QgsVectorLayer(self._pathToTableFile, "dashboard", "ogr")
         return vLayer
 
-    def updateTimer(self):
-        if not self._thread:
-            return
+    def showUpdateEffortTimeLabel(self, isVisible: bool):
+        id = DashboardTableInitializer.effortTimer_ID
+        if isVisible:
+            self._session.changeOffsetsDashboardLabel(id, DashboardTableInitializer.effortTimer_offset_x)
+        else:
+            self._session.changeOffsetsDashboardLabel(id, DashboardTableInitializer.Invisible_offset_x)
 
-        dateTimeObj = datetime.now()
-        txt = "{:02d}:{:02d}:{:02d}".format(dateTimeObj.hour, dateTimeObj.minute, dateTimeObj.second)
-        self._session.changeTxtOfDashboardLabel("effortTimer_label", txt)
+        self.updateEffortTimerLabel()
+
+    def showSoundRecordingLabel(self, isVisible: bool):
+        id = DashboardTableInitializer.soundRecording_ID
+        if isVisible:
+            self._session.changeOffsetsDashboardLabel(id, DashboardTableInitializer.soundRecording_offset_x)
+        else:
+            self._session.changeOffsetsDashboardLabel(id, DashboardTableInitializer.Invisible_offset_x)
+
+        self.reloadDashboard()
+
+    def updateEffortTimerLabel(self):
+        txt = ""
+        if self._timeWhenEffortBegan:
+            elapsed = datetime.now() - self._timeWhenEffortBegan
+            hours = divmod(elapsed.seconds, 3600)[0]
+            minutes = divmod(elapsed.seconds - 3600 * hours, 60)[0]
+            seconds = elapsed.seconds - hours * 3600 - minutes * 60
+            txt = "Effort - {:02d}:{:02d}:{:02d}".format(hours, minutes, seconds)
+        self._session.changeTxtOfDashboardLabel(1, txt)
+        self.reloadDashboard()
+
+    @staticmethod
+    def reloadDashboard():
         layer = QgsProject.instance().mapLayersByName("dashboard")[0]
         layer.reload()

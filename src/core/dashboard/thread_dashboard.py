@@ -25,13 +25,14 @@ class WorkerDashboard(WorkerForOtherThread):
 
 
 class ThreadDashboard(OtherThread):
-    def __init__(self):
+    def __init__(self, updateTimerMethod):
         super().__init__()
+        self._updateTimerMethod = updateTimerMethod
 
-    def start(self, updateTimerMethod):
+    def start(self):
         worker = WorkerDashboard()
         worker.updateTimerSignal.connect(
-            updateTimerMethod
+            self._updateTimerMethod
         )
         super()._start(worker)
 

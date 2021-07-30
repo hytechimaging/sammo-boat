@@ -88,7 +88,7 @@ class Sammo:
         button = SammoOnOffEffortBtn(self.iface.mainWindow(), self._toolBar)
         button.onChangeEffortStatusSignal.connect(self.onChangeEffortStatus)
         button.onAddFeatureToEnvironmentTableSignal.connect(
-            self.onAddFeatureToEnvironmentTableSignal
+            self.startEffort
         )
         return button
 
@@ -126,7 +126,7 @@ class Sammo:
             self._threadSimuGps.stop()
         if self._threadSoundRecording.isProceeding:
             self._threadSoundRecording.stop()
-        self._dashboardController.unload()
+        self._dashboardController.endThread()
 
     def onCreateSession(self, workingDirectory: str):
         self._session.onCreateSession(workingDirectory, self._dashboardController.loadTable())
@@ -148,7 +148,7 @@ class Sammo:
             self._soundRecordingBtn.onStopEffort()
             if self._threadSoundRecording.isProceeding:
                 self._threadSoundRecording.stop()
-            self._dashboardController.onStopEffort()
+            self._dashboardController.onChangeEffortStatus(False)
 
     def onClickObservation(self):
         feat, table = self._session.getReadyToAddNewFeatureToObservationTable()
@@ -172,14 +172,16 @@ class Sammo:
                 "sound_recording_{}.wav".format(time),
             )
             self._threadSoundRecording.start(soundFilePath)
+            self._dashboardController.onChangeSoundRecordingStatus(True)
         else:
             self._threadSoundRecording.stop()
+            self._dashboardController.onChangeSoundRecordingStatus(False)
 
-    def onAddFeatureToEnvironmentTableSignal(self, feat: QgsFeature):
+    def startEffort(self, feat: QgsFeature):
         self._session.addNewFeatureToEnvironmentTable(feat)
         self._soundRecordingBtn.onStartEffort()
         self._addObservationBtn.onChangeEffortStatus(True)
-        self._dashboardController.onStartEffort()
+        self._dashboardController.onChangeEffortStatus(True)
 
     def onChangeSimuGpsStatus(self, isOn: bool):
         if isOn:
