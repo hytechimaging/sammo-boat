@@ -36,12 +36,8 @@ class ThreadDashboard(OtherThread):
 
     def start(self):
         worker = WorkerDashboard()
-        worker.timer_1sec_signal.connect(
-            self._timerMethod_1sec
-        )
-        worker.timer_500msec_signal.connect(
-            self._timerMethod_500msec
-        )
+        worker.timer_1sec_signal.connect(self._timerMethod_1sec)
+        worker.timer_500msec_signal.connect(self._timerMethod_500msec)
         super()._start(worker)
 
     def stop(self):

@@ -62,13 +62,17 @@ class SammoDataBase:
             db, self._createFieldsForFollowerTable(), self.FOLLOWER_TABLE_NAME
         )
 
-        self._copyTableIntoDataBaseFile(db, "dashboard", dashboardLayer, QgsWkbTypes.Polygon)
+        self._copyTableIntoDataBaseFile(
+            db, "dashboard", dashboardLayer, QgsWkbTypes.Polygon
+        )
 
     @staticmethod
     def _copyTableIntoDataBaseFile(
         db: str, tableName: str, table: QgsVectorLayer, geometry: QgsWkbTypes
     ):
-        SammoDataBase._createTableIntoDataBaseFile(db, table.fields(), tableName, geom=geometry)
+        SammoDataBase._createTableIntoDataBaseFile(
+            db, table.fields(), tableName, geom=geometry
+        )
 
     @staticmethod
     def _createTableIntoDataBaseFile(

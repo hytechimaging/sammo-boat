@@ -37,7 +37,9 @@ class Sammo:
         self._stopThreadsBtn = self.createStopThreadsBtn()
 
     def createDashboardController(self) -> SammoDashboardController:
-        controller = SammoDashboardController(self.pluginFolder(), self._session, self.iface)
+        controller = SammoDashboardController(
+            self.pluginFolder(), self._session, self.iface
+        )
         return controller
 
     def createSoundRecording(
@@ -87,9 +89,7 @@ class Sammo:
     def createOnOffEffortBtn(self) -> SammoOnOffEffortBtn:
         button = SammoOnOffEffortBtn(self.iface.mainWindow(), self._toolBar)
         button.onChangeEffortStatusSignal.connect(self.onChangeEffortStatus)
-        button.onAddFeatureToEnvironmentTableSignal.connect(
-            self.startEffort
-        )
+        button.onAddFeatureToEnvironmentTableSignal.connect(self.startEffort)
         return button
 
     def createSessionBtn(self) -> SammoActionSession:
@@ -129,7 +129,9 @@ class Sammo:
         self._dashboardController.endThread()
 
     def onCreateSession(self, workingDirectory: str):
-        self._session.onCreateSession(workingDirectory, self._dashboardController.loadTable())
+        self._session.onCreateSession(
+            workingDirectory, self._dashboardController.loadTable()
+        )
         self._onOffEffortBtn.onCreateSession()
         self._dashboardController.onCreateSession()
         if self._simuGpsBtn:

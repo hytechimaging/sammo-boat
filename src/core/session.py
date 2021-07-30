@@ -49,7 +49,9 @@ class SammoSession:
         self._gpsTable = self.loadTable(SammoDataBase.GPS_TABLE_NAME)
         self._dashboardTable = self.loadTable("dashboard")
 
-        if not QgsProject.instance().mapLayersByName(SammoDataBase.GPS_TABLE_NAME):
+        if not QgsProject.instance().mapLayersByName(
+            SammoDataBase.GPS_TABLE_NAME
+        ):
             QgsProject.instance().addMapLayer(self._gpsTable)
 
     def onStopEffort(self):
@@ -87,30 +89,26 @@ class SammoSession:
         table = self._dashboardTable
         table.startEditing()
         field_idx = table.fields().indexOf("txt")
-        table.changeAttributeValue(
-            id, field_idx, txt
-        )
+        table.changeAttributeValue(id, field_idx, txt)
         table.commitChanges()
 
     def changeOffsetsDashboardLabel(self, id: int, offset_x: int):
         table = self._dashboardTable
         table.startEditing()
         field_idx = table.fields().indexOf("offset_x")
-        table.changeAttributeValue(
-            id, field_idx, offset_x
-        )
+        table.changeAttributeValue(id, field_idx, offset_x)
         table.commitChanges()
 
     def changeBackgroundColorLabel(self, id: int, newColor: str):
         table = self._dashboardTable
         table.startEditing()
         field_idx = table.fields().indexOf("background")
-        table.changeAttributeValue(
-            id, field_idx, newColor
-        )
+        table.changeAttributeValue(id, field_idx, newColor)
         table.commitChanges()
 
-    def createEmptyDataBase(self, directory: str, dashboardLayer: QgsVectorLayer):
+    def createEmptyDataBase(
+        self, directory: str, dashboardLayer: QgsVectorLayer
+    ):
         self.db.createEmptyDataBase(directory, dashboardLayer)
 
         speciesTable = self.loadTable(SammoDataBase.SPECIES_TABLE_NAME)
