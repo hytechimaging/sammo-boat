@@ -37,7 +37,9 @@ class Sammo:
 
     def createOpenApi(self) -> [SammoOpenApiTestBtn, SammoOpenApi]:
         openApi = SammoOpenApi()
-        openApiTestBtn = SammoOpenApiTestBtn(self.iface.mainWindow(), self._toolBar)
+        openApiTestBtn = SammoOpenApiTestBtn(
+            self.iface.mainWindow(), self._toolBar
+        )
         openApiTestBtn.onClickTestSignal.connect(openApi.onClickTestButton)
         return openApiTestBtn, openApi
 

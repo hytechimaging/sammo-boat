@@ -8,43 +8,66 @@ import requests as rq
 
 
 class SammoOpenApi:
-    url = "http://localhost:8000/api"
+    urlDB = "http://localhost:8000"
+    failedConnexionMsg = "*** Connection to data base failed."
 
     @staticmethod
     def onClickTestButton():
-        print("**** Base de donnée distante :")
+        print("**** Read data base :")
         print(json.dumps(SammoOpenApi.readAll(), indent=4))
-        print("**** Lecture d'un seul enregistrement :")
+        print("**** Read one row :")
         print(SammoOpenApi.readOne("Farrell"))
-        print("**** Ajout d'un enregistrement : Zitta Frédéric")
+        print("**** Add a row : Zitta Frédéric")
         print(SammoOpenApi.addPerson("Zitta", "Frederic"))
         print(json.dumps(SammoOpenApi.readAll(), indent=4))
-        print("**** Modification d'un enregistrement : le prénom de Zitta")
+        print("**** Modify a row : the first name of Zitta")
         print(SammoOpenApi.updatePerson("Zitta", "Guillaume"))
         print(json.dumps(SammoOpenApi.readAll(), indent=4))
-        print("**** Suppression d'un enregistrement : Zitta")
+        print("**** Delete a row : Zitta")
         print(SammoOpenApi.delPerson("Zitta"))
         print(json.dumps(SammoOpenApi.readAll(), indent=4))
 
     @staticmethod
     def readAll():
-        outputAsDictionary = json.loads(rq.get("http://localhost:8000/api/people").text)
-        return outputAsDictionary
+        try:
+            result = rq.get("{}/api/people".format(SammoOpenApi.urlDB))
+            outputAsDictionary = json.loads(result.text)
+            return outputAsDictionary
+        except rq.exceptions.RequestException:
+            print(SammoOpenApi.failedConnexionMsg)
 
     @staticmethod
     def readOne(lname: str):
-        return rq.get("http://localhost:8000/api/people/"+lname).text
+        try:
+            result = rq.get(
+                "{}/api/people/{}".format(SammoOpenApi.urlDB, lname)
+            )
+            return result.text
+        except rq.exceptions.RequestException:
+            print(SammoOpenApi.failedConnexionMsg)
 
     @staticmethod
     def addPerson(lname: str, fname: str):
-        person = {"fname":fname,"lname":lname}
-        rq.post("http://localhost:8000/api/people", json=person)
+        try:
+            person = {"fname": fname, "lname": lname}
+            rq.post("{}/api/people".format(SammoOpenApi.urlDB), json=person)
+        except rq.exceptions.RequestException:
+            print(SammoOpenApi.failedConnexionMsg)
 
     @staticmethod
     def delPerson(lname: str):
-        rq.delete("http://localhost:8000/api/people/" + lname)
+        try:
+            rq.delete("{}/api/people/{}".format(SammoOpenApi.urlDB, lname))
+        except rq.exceptions.RequestException:
+            print(SammoOpenApi.failedConnexionMsg)
 
     @staticmethod
     def updatePerson(lname: str, fname: str):
-        person = {"fname":fname,"lname":lname}
-        rq.put("http://localhost:8000/api/people/" + lname, json=person)
+        try:
+            person = {"fname": fname, "lname": lname}
+            rq.put(
+                "{}/api/people/{}".format(SammoOpenApi.urlDB, lname),
+                json=person,
+            )
+        except rq.exceptions.RequestException:
+            print(SammoOpenApi.failedConnexionMsg)
