@@ -15,6 +15,8 @@ from qgis.PyQt.QtWidgets import QToolBar
 from qgis.core import QgsFeature
 from datetime import datetime
 from .src.gui.simu_gps_btn import SammoSimuGpsBtn
+from .src.core.open_api import SammoOpenApi
+from .src.gui.open_api_test_btn import SammoOpenApiTestBtn
 
 
 class Sammo:
@@ -31,6 +33,13 @@ class Sammo:
             self._threadSoundRecording,
         ) = self.createSoundRecording()
         self._simuGpsBtn, self._threadSimuGps = self.createSimuGps()
+        self._openApiTestBtn, self._openApi = self.createOpenApi()
+
+    def createOpenApi(self) -> [SammoOpenApiTestBtn, SammoOpenApi]:
+        openApi = SammoOpenApi()
+        openApiTestBtn = SammoOpenApiTestBtn(self.iface.mainWindow(), self._toolBar)
+        openApiTestBtn.onClickTestSignal.connect(openApi.onClickTestButton)
+        return openApiTestBtn, openApi
 
     def createSoundRecording(
         self,
