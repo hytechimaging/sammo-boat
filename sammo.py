@@ -114,7 +114,7 @@ class Sammo:
 
     def onAddFeatureToEnvironmentTableSignal(self, feat: QgsFeature):
         self._session.addNewFeatureToEnvironmentTable(feat)
-        if self._simuGpsBtn is not None and self._simuGpsBtn.isChecked():
+        if self._simuGpsBtn and self._simuGpsBtn.isChecked():
             self._threadSimuGps.start()
         self._addObservationBtn.onChangeEffortStatus(True)
 

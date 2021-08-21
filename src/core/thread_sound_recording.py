@@ -42,7 +42,7 @@ class WorkerForSoundRecording(WorkerForOtherThread):
 
     def _recordingLoop(self, file):
         file.write(self._queue.get())
-        if self._automaticStopTime is not None:
+        if self._automaticStopTime:
             if self._automaticStopTime < datetime.now():
                 self.onAutomaticStopTimerEndedSignal.emit()
                 self._log("Automatic timer ended")
