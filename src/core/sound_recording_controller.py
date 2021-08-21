@@ -70,7 +70,9 @@ class SammoSoundRecordingController(QObject):
         if isAskForRecording:
             dateTimeObj = datetime.now()
             timeTxt = dateTimeObj.strftime("%Y%m%d_%H%M%S")
-            self._currentSoundFileName = "sound_recording_{}.wav".format(timeTxt)
+            self._currentSoundFileName = "sound_recording_{}.wav".format(
+                timeTxt
+            )
             soundFilePath = os.path.join(
                 self._workingDirectory, self._currentSoundFileName
             )
