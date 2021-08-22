@@ -41,6 +41,8 @@ class SammoOnOffEffortBtn(QObject):
     def openFeatureForm(self, iface, table: QgsVectorLayer, feat: QgsFeature):
         if iface.openFeatureForm(table, feat):
             self.onAddFeatureToEnvironmentTableSignal.emit(feat)
+        else:
+            self.button.setChecked(False)
 
     def isChecked(self) -> bool:
         return self.button.isChecked()
