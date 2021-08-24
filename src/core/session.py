@@ -49,14 +49,18 @@ class SammoSession:
 
         QgsProject.instance().addMapLayer(self._gpsTable)
 
-    def onStopSoundRecordingForObservation(self, soundRecordingDatas: str):
+    def onStopSoundRecordingForObservation(
+        self, soundFile: str, soundStart: str, soundEnd: str
+    ):
         table = self._observationTable
         table.startEditing()
         idLastAddedFeature = self.db.getIdOfLastAddedFeature(table)
         field_idx = table.fields().indexOf("fichier_son")
-        table.changeAttributeValue(
-            idLastAddedFeature, field_idx, soundRecordingDatas
-        )
+        table.changeAttributeValue(idLastAddedFeature, field_idx, soundFile)
+        field_idx = table.fields().indexOf("sound_start")
+        table.changeAttributeValue(idLastAddedFeature, field_idx, soundStart)
+        field_idx = table.fields().indexOf("sound_end")
+        table.changeAttributeValue(idLastAddedFeature, field_idx, soundEnd)
         table.commitChanges()
 
     def onStopEffort(self):

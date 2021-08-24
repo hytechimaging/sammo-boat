@@ -10,7 +10,7 @@ from datetime import datetime
 
 
 class SammoSoundRecordingController(QObject):
-    onStopSoundRecordingForObservationSignal = pyqtSignal(str)
+    onStopSoundRecordingForObservationSignal = pyqtSignal(str, str, str)
 
     def __init__(self):
         super().__init__()
@@ -39,22 +39,18 @@ class SammoSoundRecordingController(QObject):
             self._threadSoundRecording.setAutomaticStopTimerSignal.emit(
                 -1
             )  # cancel automatic stop
+            soundEnd = "{:.1f}".format(
+                self._threadSoundRecording.recordTimer_s()
+            )
             if self._startTimerOnRecordForCurrentObservation > 0:
-                soundRecordingDatas = (
-                    "{} - between the seconds {:.1f} and {:.1f} ".format(
-                        self._currentSoundFileName,
-                        self._startTimerOnRecordForCurrentObservation,
-                        self._threadSoundRecording.recordTimer_s(),
-                    )
+                soundStart = "{:.1f}".format(
+                    self._startTimerOnRecordForCurrentObservation
                 )
             else:
-                soundRecordingDatas = (
-                    "{} - from the beginning to the second {:.1f}".format(
-                        self._currentSoundFileName,
-                        self._threadSoundRecording.recordTimer_s(),
-                    )
-                )
-            self.finalizeObservation(soundRecordingDatas)
+                soundStart = "0"
+            self.finalizeObservation(
+                self._currentSoundFileName, soundStart, soundEnd
+            )
             self._startTimerOnRecordForCurrentObservation = (
                 self._threadSoundRecording.recordTimer_s()
             )
@@ -83,18 +79,22 @@ class SammoSoundRecordingController(QObject):
             self._currentSoundFileName = None
 
     def onAutomaticStopRecordingTimerEnded(self):
+        soundEnd = "{:.1f}".format(self._threadSoundRecording.recordTimer_s())
         if self._startTimerOnRecordForCurrentObservation > 0:
-            soundRecordingDatas = (
-                "{} - from the second {:.1f} to the end".format(
-                    self._currentSoundFileName,
-                    self._startTimerOnRecordForCurrentObservation,
-                )
+            soundStart = "{:.1f}".format(
+                self._startTimerOnRecordForCurrentObservation
             )
         else:
-            soundRecordingDatas = self._currentSoundFileName
-        self.finalizeObservation(soundRecordingDatas)
+            soundStart = "0"
+        self.finalizeObservation(
+            self._currentSoundFileName, soundStart, soundEnd
+        )
         self.changeSoundRecordingStatus(False)
 
-    def finalizeObservation(self, soundRecordingDatas: str):
+    def finalizeObservation(
+        self, soundFile: str, soundStart: str, soundEnd: str
+    ):
         self._startTimerOnRecordForCurrentObservation = None
-        self.onStopSoundRecordingForObservationSignal.emit(soundRecordingDatas)
+        self.onStopSoundRecordingForObservationSignal.emit(
+            soundFile, soundStart, soundEnd
+        )
