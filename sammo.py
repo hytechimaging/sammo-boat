@@ -104,7 +104,6 @@ class Sammo:
             self._onOffEffortBtn.openFeatureForm(self.iface, table, feat)
         else:
             self._session.onStopEffort()
-            self._addObservationBtn.onChangeEffortStatus(False)
 
     def onClickObservation(self):
         self._soundRecordingController.onChangeObservationStatus(True)
