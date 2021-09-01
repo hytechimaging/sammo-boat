@@ -62,8 +62,8 @@ class SammoSession:
             # Save the QGIS projet into the database
             QgsProject.instance().addMapLayer(self._gpsTable)
             QgsProject.instance().write(uri)
-        else:
-            QgsProject.instance().read(uri)
+
+        QgsProject.instance().read(uri)
 
     def onStopSoundRecordingForObservation(
         self, soundFile: str, soundStart: str, soundEnd: str
