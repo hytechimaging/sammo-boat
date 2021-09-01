@@ -3,6 +3,8 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
+import os
+
 from qgis.PyQt.QtWidgets import QMessageBox
 from .database import SammoDataBase
 from .logger import Logger
@@ -35,9 +37,11 @@ class SammoSession:
 
     def onCreateSession(self, directory):
         self.directoryPath = directory
+        isNewDataBase = False
         if not self.isDataBaseAvailable(directory):
             # No geopackage DB in this directory
             self.createEmptyDataBase(directory)
+            isNewDataBase = True
 
         self._environmentTable = self.loadTable(
             SammoDataBase.ENVIRONMENT_TABLE_NAME
@@ -50,6 +54,10 @@ class SammoSession:
         self._gpsTable = self.loadTable(SammoDataBase.GPS_TABLE_NAME)
 
         QgsProject.instance().addMapLayer(self._gpsTable)
+        if isNewDataBase:
+            # Save the QGIS projet into the database
+            uri = "geopackage:" + SammoDataBase.pathToDataBase(directory) + "?projectName=sammo_boat_project"
+            QgsProject.instance().write(uri)
 
     def onStopSoundRecordingForObservation(
         self, soundFile: str, soundStart: str, soundEnd: str
