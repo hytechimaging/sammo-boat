@@ -57,10 +57,9 @@ class SammoSession:
             + "?projectName=sammo_boat_project"
         )
         if isNewDataBase:
-            QgsProject.instance().clear()
-            # Save the QGIS projet into the database
-            QgsProject.instance().addMapLayer(self._gpsTable)
-            QgsProject.instance().write(uri)
+            project = QgsProject()
+            project.addMapLayer(self._gpsTable)
+            project.write(uri)  # Save the QGIS projet into the database
 
         QgsProject.instance().read(uri)
 
