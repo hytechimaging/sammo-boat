@@ -6,6 +6,7 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt import QtGui
 from qgis.PyQt.QtWidgets import QDockWidget, QWidget, QGridLayout, QVBoxLayout, QLabel
+from ..core.thread_widget import ThreadWidget
 
 
 class Widget:
@@ -13,8 +14,33 @@ class Widget:
 
     def __init__(self, iface):
         self.iface = iface
-        if not self._isDockWidgetExists():
-            self.createDockWidget()
+        self._effortLabel: QLabel = None
+        self._soundRecordingLabel: QLabel = None
+        self._isClignotantEffort: bool = False
+        self._thread = ThreadWidget(self.onTimer_1sec, self.onTimer_500msec)
+        self._startThread()
+        #if not self._isDockWidgetExists():
+        self.createDockWidget()
+
+    def onTimer_1sec(self):
+        pass
+
+    def onTimer_500msec(self):
+        if not self._effortLabel:
+            return
+
+        self._isClignotantEffort = ~self._isClignotantEffort
+        if self._isClignotantEffort:
+            self._effortLabel.setText("Effort ON")
+        else:
+            self._effortLabel.setText("")
+
+    def unload(self):
+        self.endThread()
+
+    def endThread(self):
+        if self._thread and self._thread.isProceeding:
+            self._thread.stop()
 
     def createDockWidget(self):
         self.dock = QDockWidget(Widget.widgetName, self.iface.mainWindow())
@@ -25,11 +51,11 @@ class Widget:
         self.internalWidget.setLayout(QGridLayout())
 
         gpsWidget = self.createGpsWidget()
-        effortLabel = self.createEffortLabel()
-        soundRecordingLabel = self.createSoundRecordingLabel()
+        self._effortLabel = self.createEffortLabel()
+        self._soundRecordingLabel = self.createSoundRecordingLabel()
         self.internalWidget.layout().addWidget(gpsWidget, 0, 0)
-        self.internalWidget.layout().addWidget(effortLabel, 0, 1)
-        self.internalWidget.layout().addWidget(soundRecordingLabel, 0, 2)
+        self.internalWidget.layout().addWidget(self._effortLabel, 0, 1)
+        self.internalWidget.layout().addWidget(self._soundRecordingLabel, 0, 2)
 
     def createEffortLabel(self) -> QLabel:
         label = QLabel("ON/OFF effort")
@@ -66,6 +92,10 @@ class Widget:
         gpsWidget.layout().addWidget(QLabel("Longitude : YYY"))
 
         return gpsWidget
+
+    def _startThread(self):
+        if not self._thread.isProceeding:
+            self._thread.start()
 
     def _isDockWidgetExists(self) -> bool :
         for dockWidget in self.iface.mainWindow().findChildren(QDockWidget):

@@ -98,6 +98,7 @@ class Sammo:
         if self._simuGpsBtn is not None:
             self._simuGpsBtn.unload()
 
+        self._widget.unload()
         del self._widget
         del self._toolBar
 
