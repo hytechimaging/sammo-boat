@@ -11,6 +11,7 @@ from datetime import datetime
 
 class SammoSoundRecordingController(QObject):
     onStopSoundRecordingForObservationSignal = pyqtSignal(str, str, str)
+    onSoundRecordingStatusChanged = pyqtSignal(bool)
 
     def __init__(self):
         super().__init__()
@@ -77,6 +78,8 @@ class SammoSoundRecordingController(QObject):
         else:
             self._threadSoundRecording.stop()
             self._currentSoundFileName = None
+
+        self.onSoundRecordingStatusChanged.emit(isAskForRecording)
 
     def onAutomaticStopRecordingTimerEnded(self):
         soundEnd = "{:.1f}".format(self._threadSoundRecording.recordTimer_s())

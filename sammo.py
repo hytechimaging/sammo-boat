@@ -36,6 +36,7 @@ class Sammo:
         controller.onStopSoundRecordingForObservationSignal.connect(
             self._session.onStopSoundRecordingForObservation
         )
+        controller.onSoundRecordingStatusChanged.connect(self.onSoundRecordingStatusChanged)
         return controller
 
     def createSimuGps(self) -> [SammoSimuGpsBtn, ThreadSimuGps]:
@@ -120,6 +121,7 @@ class Sammo:
             self._onOffEffortBtn.openFeatureForm(self.iface, table, feat)
         else:
             self._session.onStopEffort()
+            self._widget.isEffortOn = False
 
     def onClickObservation(self):
         self._soundRecordingController.onChangeObservationStatus(True)
@@ -134,6 +136,7 @@ class Sammo:
 
     def onAddFeatureToEnvironmentTableSignal(self, feat: QgsFeature):
         self._session.onStartEffort(feat)
+        self._widget.isEffortOn = True
 
     def onAddFeatureToFollowerTableSignal(self, feat: QgsFeature):
         self._session.addNewFeatureToFollowerTable(feat)
@@ -143,6 +146,9 @@ class Sammo:
             self._threadSimuGps.start()
         else:
             self._threadSimuGps.stop()
+
+    def onSoundRecordingStatusChanged(self, isOn: bool):
+        self._widget.isSoundRecordingOn = isOn
 
     def projectLoaded(self):
         try:

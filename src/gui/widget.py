@@ -16,7 +16,9 @@ class Widget:
         self.iface = iface
         self._effortLabel: QLabel = None
         self._soundRecordingLabel: QLabel = None
-        self._isClignotantEffort: bool = False
+        self._isClignotantOn: bool = False
+        self.isEffortOn: bool = False
+        self.isSoundRecordingOn: bool = False
         self._thread = ThreadWidget(self.onTimer_1sec, self.onTimer_500msec)
         self._startThread()
         #if not self._isDockWidgetExists():
@@ -29,11 +31,17 @@ class Widget:
         if not self._effortLabel:
             return
 
-        self._isClignotantEffort = ~self._isClignotantEffort
-        if self._isClignotantEffort:
+        self._isClignotantOn = ~self._isClignotantOn
+
+        if self._isClignotantOn and self.isEffortOn:
             self._effortLabel.setText("Effort ON")
         else:
             self._effortLabel.setText("")
+
+        if self._isClignotantOn and self.isSoundRecordingOn:
+            self._soundRecordingLabel.setText("RECORDING")
+        else:
+            self._soundRecordingLabel.setText("")
 
     def unload(self):
         self.endThread()
@@ -58,8 +66,8 @@ class Widget:
         self.internalWidget.layout().addWidget(self._soundRecordingLabel, 0, 2)
 
     def createEffortLabel(self) -> QLabel:
-        label = QLabel("ON/OFF effort")
-        label.setStyleSheet("QLabel { background-color : rgb(150,150,150); color : black; }")
+        label = QLabel("")
+        label.setStyleSheet("QLabel { background-color : rgb(150,150,150); color : blue; }")
         label.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
         myFont= QtGui.QFont()
         myFont.setBold(True)
@@ -68,8 +76,8 @@ class Widget:
         return label
 
     def createSoundRecordingLabel(self) -> QLabel:
-        label = QLabel("Recording")
-        label.setStyleSheet("QLabel { background-color : rgb(200,255,200); color : black; }")
+        label = QLabel("")
+        label.setStyleSheet("QLabel { background-color : rgb(200,255,200); color : red; }")
         label.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
         myFont= QtGui.QFont()
         myFont.setBold(True)
