@@ -4,7 +4,6 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
-
 from .src.gui.session_btn import SammoActionSession
 from .src.gui.on_off_effort_btn import SammoOnOffEffortBtn
 from .src.core.session import SammoSession
@@ -13,6 +12,7 @@ from .src.gui.add_observation_btn import SammoAddObservationBtn
 from .src.core.thread_simu_gps import ThreadSimuGps
 from .src.gui.simu_gps_btn import SammoSimuGpsBtn
 from .src.core.sound_recording_controller import SammoSoundRecordingController
+from .src.gui.widget import Widget
 from qgis.PyQt.QtWidgets import QToolBar
 from qgis.core import QgsFeature, QgsProject
 
@@ -28,6 +28,7 @@ class Sammo:
         self._addObservationBtn = self.createAddObservationBtn()
         self._simuGpsBtn, self._threadSimuGps = self.createSimuGps()
         self._soundRecordingController = self.createSoundRecordingController()
+        self._widget = Widget(self.iface)
         QgsProject.instance().readProject.connect(self.projectLoaded)
 
     def createSoundRecordingController(self) -> SammoSoundRecordingController:
@@ -97,6 +98,7 @@ class Sammo:
         if self._simuGpsBtn is not None:
             self._simuGpsBtn.unload()
 
+        del self._widget
         del self._toolBar
 
     def onCreateSession(self, workingDirectory: str):
