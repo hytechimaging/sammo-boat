@@ -3,8 +3,6 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-import os
-
 from qgis.PyQt.QtWidgets import QMessageBox
 from .database import SammoDataBase
 from .logger import Logger
