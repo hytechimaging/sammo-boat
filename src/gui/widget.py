@@ -16,6 +16,8 @@ class Widget:
         self.iface = iface
         self._effortLabel: QLabel = None
         self._soundRecordingLabel: QLabel = None
+        self._longitudeLabel: QLabel = None
+        self._latitudeLabel: QLabel = None
         self._isClignotantOn: bool = False
         self.isEffortOn: bool = False
         self.isSoundRecordingOn: bool = False
@@ -42,6 +44,10 @@ class Widget:
             self._soundRecordingLabel.setText("RECORDING")
         else:
             self._soundRecordingLabel.setText("")
+
+    def UpdateGpsLocation(self, longitude: float, latitude: float):
+        self._latitudeLabel.setText("Latitude : " + str(latitude))
+        self._longitudeLabel.setText("Longitude : " + str(longitude))
 
     def unload(self):
         self.endThread()
@@ -95,9 +101,11 @@ class Widget:
         myFont.setBold(True)
         title.setFont(myFont)
 
+        self._latitudeLabel = QLabel("Latitude : XXX")
+        self._longitudeLabel = QLabel("Longitude : XXX")
         gpsWidget.layout().addWidget(title)
-        gpsWidget.layout().addWidget(QLabel("Latitude : XXX"))
-        gpsWidget.layout().addWidget(QLabel("Longitude : YYY"))
+        gpsWidget.layout().addWidget(self._longitudeLabel)
+        gpsWidget.layout().addWidget(self._latitudeLabel)
 
         return gpsWidget
 

@@ -49,7 +49,7 @@ class Sammo:
         )
         threadGps = ThreadSimuGps(self._session, testFilePath)
         threadGps.addNewFeatureToGpsTableSignal.connect(
-            self._session.addNewFeatureToGpsTable
+            self.addNewFeatureToGpsTableSignal
         )
         return [button, threadGps]
 
@@ -149,6 +149,12 @@ class Sammo:
 
     def onSoundRecordingStatusChanged(self, isOn: bool):
         self._widget.isSoundRecordingOn = isOn
+
+    def addNewFeatureToGpsTableSignal(
+        self, longitude: float, latitude: float, leg_heure: str, code_leg: int
+    ):
+        self._session.addNewFeatureToGpsTable(longitude, latitude, leg_heure, code_leg)
+        self._widget.UpdateGpsLocation(longitude, latitude)
 
     def projectLoaded(self):
         try:
