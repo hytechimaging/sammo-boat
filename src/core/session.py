@@ -41,6 +41,21 @@ class SammoSession:
             self.createEmptyDataBase(directory)
             isNewDataBase = True
 
+        uri = (
+            "geopackage:"
+            + SammoDataBase.pathToDataBase(directory)
+            + "?projectName=sammo_boat_project"
+        )
+        if isNewDataBase:
+            project = QgsProject()
+            gpsTable = self.loadTable(SammoDataBase.GPS_TABLE_NAME)
+            project.addMapLayer(gpsTable)
+            project.write(uri)  # Save the QGIS projet into the database
+
+        QgsProject.instance().read(uri)
+        self._loadTables()
+
+    def _loadTables(self):
         self._environmentTable = self.loadTable(
             SammoDataBase.ENVIRONMENT_TABLE_NAME
         )
@@ -50,18 +65,6 @@ class SammoSession:
         )
         self._followerTable = self.loadTable(SammoDataBase.FOLLOWER_TABLE_NAME)
         self._gpsTable = self.loadTable(SammoDataBase.GPS_TABLE_NAME)
-
-        uri = (
-            "geopackage:"
-            + SammoDataBase.pathToDataBase(directory)
-            + "?projectName=sammo_boat_project"
-        )
-        if isNewDataBase:
-            project = QgsProject()
-            project.addMapLayer(self._gpsTable)
-            project.write(uri)  # Save the QGIS projet into the database
-
-        QgsProject.instance().read(uri)
 
     def onStopSoundRecordingForObservation(
         self, soundFile: str, soundStart: str, soundEnd: str
