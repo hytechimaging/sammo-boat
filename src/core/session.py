@@ -14,6 +14,7 @@ from qgis.core import (
     QgsFeature,
     QgsGeometry,
     QgsPointXY,
+    QgsPoint,
 )
 
 
@@ -26,7 +27,7 @@ class SammoSession:
         self._observationTable: QgsVectorLayer = None
         self._followerTable: QgsVectorLayer = None
         self._gpsTable: QgsVectorLayer = None
-        self._gpsLocationsDuringEffort: str = None
+        self._gpsLocationsDuringEffort = []
 
     @staticmethod
     def isDataBaseAvailable(directory):
@@ -71,7 +72,6 @@ class SammoSession:
         field_idx = table.fields().indexOf(
             SammoDataBase.ENVIRONMENT_COMMENT_FIELD_NAME
         )
-        gpsLocations_idx = table.fields().indexOf("geom")
         dateTimeObj = datetime.now()
         timeOfStopEffort = (
             "End of the Effort at : "
@@ -90,10 +90,9 @@ class SammoSession:
         table.changeAttributeValue(
             idLastAddedFeature, field_idx, timeOfStopEffort
         )
-        table.changeAttributeValue(
+        table.changeGeometry(
             idLastAddedFeature,
-            gpsLocations_idx,
-            self._gpsLocationsDuringEffort,
+            QgsGeometry.fromPolyline(self._gpsLocationsDuringEffort),
         )
         table.commitChanges()
 
@@ -118,7 +117,7 @@ class SammoSession:
 
     def onStartEffort(self, feature: QgsFeature):
         self._addNewFeature(feature, self._environmentTable)
-        self._gpsLocationsDuringEffort = None
+        self._gpsLocationsDuringEffort = []
 
     def getReadyToAddNewFeatureToObservationTable(
         self,
@@ -139,14 +138,7 @@ class SammoSession:
         feature.setAttribute("code_leg", code_leg)
 
         self._addNewFeature(feature, self._gpsTable)
-
-        stringToAdd = "{} - long:{} - lat:{}".format(
-            leg_heure, longitude, latitude
-        )
-        if self._gpsLocationsDuringEffort is None:
-            self._gpsLocationsDuringEffort = stringToAdd
-        else:
-            self._gpsLocationsDuringEffort += "\n{}".format(stringToAdd)
+        self._gpsLocationsDuringEffort.append(QgsPoint(longitude, latitude))
 
     @staticmethod
     def _getReadyToAddNewFeature(

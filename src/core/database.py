@@ -39,6 +39,7 @@ class SammoDataBase:
             db,
             self._createFieldsForEnvironmentTable(),
             self.ENVIRONMENT_TABLE_NAME,
+            QgsWkbTypes.LineString,
         )
         self._addTableToDataBaseFile(
             db, self._createFieldsForSpeciesTable(), self.SPECIES_TABLE_NAME
@@ -128,7 +129,6 @@ class SammoDataBase:
             self._createFieldShortText(self.ENVIRONMENT_COMMENT_FIELD_NAME)
         )
         fields.append(self._createFieldShortText("Survey"))
-        fields.append(self._createFieldShortText("geom"))
 
         return fields
 
