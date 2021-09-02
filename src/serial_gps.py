@@ -1,68 +1,61 @@
+import sys
+
 import serial
 
 SERIAL_PORT = "/dev/ttyUSB0"
 running = True
 
-# In the NMEA message, the position gets transmitted as:
-# DDMM.MMMMM, where DD denotes the degrees and MM.MMMMM denotes
-# the minutes. However, I want to convert this format to the following:
-# DD.MMMM. This method converts a transmitted string to the desired format
-def formatDegreesMinutes(coordinates, digits):
 
-    parts = coordinates.split(".")
+def isGpggaLine(line: str) -> bool:
+    typeOfLine = line[0:6]
+    return typeOfLine == "$GPGGA"
 
-    if (len(parts) != 2):
-        return coordinates
 
-    if (digits > 3 or digits < 2):
-        return coordinates
+def getPositionData(line: str) -> (float, float):
+    components = line.split(",")
+    time = components[1]
+    if not time:
+        return sys.float_info.max, sys.float_info.max
 
-    left = parts[0]
-    right = parts[1]
-    degrees = str(left[:digits])
-    minutes = str(right[:3])
+    latitudeAsTxt = components[2]
+    latitude_deg = latitudeAsTxt[0:2]
+    latitude_min = latitudeAsTxt[2:]
+    latitude = float(latitude_deg) + float(latitude_min) / 60.0
+    if components[3] != "N":
+        latitude = -latitude
 
-    return degrees + "." + minutes
+    longitudeAsTxt = components[4]
+    longitude_deg = longitudeAsTxt[0:3]
+    longitude_min = longitudeAsTxt[3:]
+    longitude = float(longitude_deg) + float(longitude_min) / 60.0
+    if components[5] != "E":
+        longitude = -longitude
 
-# This method reads the data from the serial port, the GPS dongle is attached to,
-# and then parses the NMEA messages it transmits.
-# gps is the serial port, that's used to communicate with the GPS adapter
-def getPositionData(gps):
-    data = gps.readline()
-    print(str(data))
-    message = data[0:6]
-    if (message == "$GPRMC"):
-        # GPRMC = Recommended minimum specific GPS/Transit data
-        # Reading the GPS fix data is an alternative approach that also works
-        parts = data.split(",")
-        if parts[2] == 'V':
-            # V = Warning, most likely, there are no satellites in view...
-            print("GPS receiver warning")
-        else:
-            # Get the position data that was transmitted with the GPRMC message
-            # In this example, I'm only interested in the longitude and latitude
-            # for other values, that can be read, refer to: http://aprs.gids.nl/nmea/#rmc
-            longitude = formatDegreesMinutes(parts[5], 3)
-            latitude = formatDegreesMinutes(parts[3], 2)
-            print("Your position: lon = " + str(longitude) + ", lat = " + str(latitude))
-    else:
-        # Handle other NMEA messages and unsupported strings
-        pass
+    return longitude, latitude
+
+# test : $GPGGA,122630,4822.4652,N,00435.3043,W,1,12,1.9,111.9,M,50.3,M,,*5E
 
 print("Application started!")
 try:
-	gps = serial.Serial(SERIAL_PORT, baudrate = 4800, timeout = 0.5)
+    gps = serial.Serial(SERIAL_PORT, baudrate=4800, timeout=0.5)
 except:
-	print("Impossible d'ouvrir le port")
-	exit()
+    print("Impossible d'ouvrir le port")
+    exit()
 
 while running:
     try:
-        getPositionData(gps)
-    except KeyboardInterrupt:
-        running = False
-        gps.close()
-        print("Application closed!")
+        line = gps.readline()
+        if not line:
+            continue
+        line = line.decode('UTF-8')
+        if not isGpggaLine(line):
+            continue
+
+        position = getPositionData(line)
+        if position[0] != sys.float_info.max:
+            print("GPS position : longitude = {} - latitude = {}".format(position[0], position[1]))
+        else:
+            print("GPS offline")
+
     except:
-        # You should do some error handling here...
-        print("Application error!")
+        continue
