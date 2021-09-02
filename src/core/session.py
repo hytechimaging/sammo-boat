@@ -106,11 +106,17 @@ class SammoSession:
             )
         return layer
 
+    def getReadyToAddNewFeatureToFollowerTable(self):
+        return self._getReadyToAddNewFeature(self._followerTable)
+
     def getReadyToAddNewFeatureToEnvironmentTable(self):
         return self._getReadyToAddNewFeature(self._environmentTable)
 
     def addNewFeatureToEnvironmentTable(self, feature: QgsFeature):
         self._addNewFeature(feature, self._environmentTable)
+
+    def addNewFeatureToFollowerTable(self, feature: QgsFeature):
+        self._addNewFeature(feature, self._followerTable)
 
     def getReadyToAddNewFeatureToObservationTable(
         self,

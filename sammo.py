@@ -7,6 +7,7 @@ import os.path
 from .src.gui.session_btn import SammoActionSession
 from .src.gui.on_off_effort_btn import SammoOnOffEffortBtn
 from .src.core.session import SammoSession
+from .src.gui.add_follower_btn import SammoAddFollowerBtn
 from .src.gui.add_observation_btn import SammoAddObservationBtn
 from .src.core.thread_simu_gps import ThreadSimuGps
 from qgis.PyQt.QtWidgets import QToolBar
@@ -22,6 +23,7 @@ class Sammo:
         self._session = SammoSession()
         self._sessionBtn = self.createSessionBtn()
         self._onOffEffortBtn = self.createOnOffEffortBtn()
+        self._addFollowerBtn = self.createAddFollowerBtn()
         self._addObservationBtn = self.createAddObservationBtn()
         self._simuGpsBtn, self._threadSimuGps = self.createSimuGps()
         self._soundRecordingController = self.createSoundRecordingController()
@@ -50,6 +52,14 @@ class Sammo:
     @staticmethod
     def pluginFolder():
         return os.path.abspath(os.path.dirname(__file__))
+
+    def createAddFollowerBtn(self) -> SammoAddFollowerBtn:
+        button = SammoAddFollowerBtn(self.iface.mainWindow(), self._toolBar)
+        button.onClickAddFollowerSignal.connect(self.onClickAddFollower)
+        button.onAddFeatureToFollowerTableSignal.connect(
+            self.onAddFeatureToFollowerTableSignal
+        )
+        return button
 
     def createAddObservationBtn(self) -> SammoAddObservationBtn:
         button = SammoAddObservationBtn(self.iface.mainWindow(), self._toolBar)
@@ -90,6 +100,7 @@ class Sammo:
     def onCreateSession(self, workingDirectory: str):
         self._session.onCreateSession(workingDirectory)
         self._onOffEffortBtn.onCreateSession()
+        self._addFollowerBtn.onCreateSession()
         self._addObservationBtn.onCreateSession()
         self._soundRecordingController.onCreateSession(workingDirectory)
         if self._simuGpsBtn:
@@ -112,10 +123,17 @@ class Sammo:
             self._session.addNewFeatureToObservationTable(feat)
             self._soundRecordingController.onChangeObservationStatus(False)
 
+    def onClickAddFollower(self):
+        feat, table = self._session.getReadyToAddNewFeatureToFollowerTable()
+        self._addFollowerBtn.openFeatureForm(self.iface, table, feat)
+
     def onAddFeatureToEnvironmentTableSignal(self, feat: QgsFeature):
         self._session.addNewFeatureToEnvironmentTable(feat)
         if self._simuGpsBtn and self._simuGpsBtn.isChecked():
             self._threadSimuGps.start()
+
+    def onAddFeatureToFollowerTableSignal(self, feat: QgsFeature):
+        self._session.addNewFeatureToFollowerTable(feat)
 
     def onChangeSimuGpsStatus(self, isOn: bool):
         if isOn:
