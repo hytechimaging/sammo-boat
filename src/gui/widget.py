@@ -4,7 +4,6 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import sys
-
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt import QtGui
 from qgis.PyQt.QtWidgets import (
@@ -31,14 +30,11 @@ class Widget:
         self.isEffortOn: bool = False
         self.isSoundRecordingOn: bool = False
         self._isGpsOffline = True
-        self._thread = ThreadWidget(self.onTimer_1sec, self.onTimer_500msec)
+        self._thread = ThreadWidget(self.onTimer_500msec)
         self._startThread()
         self._counter500msWithoutGpsInfo = 0
         # if not self._isDockWidgetExists():
         self._createDockWidget()
-
-    def onTimer_1sec(self):
-        pass
 
     def onTimer_500msec(self):
         if not self._effortLabel:
