@@ -7,7 +7,13 @@ import sys
 
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt import QtGui
-from qgis.PyQt.QtWidgets import QDockWidget, QWidget, QGridLayout, QVBoxLayout, QLabel
+from qgis.PyQt.QtWidgets import (
+    QDockWidget,
+    QWidget,
+    QGridLayout,
+    QVBoxLayout,
+    QLabel,
+)
 from ..core.thread_widget import ThreadWidget
 
 
@@ -28,8 +34,8 @@ class Widget:
         self._thread = ThreadWidget(self.onTimer_1sec, self.onTimer_500msec)
         self._startThread()
         self._counter500msWithoutGpsInfo = 0
-        #if not self._isDockWidgetExists():
-        self.createDockWidget()
+        # if not self._isDockWidgetExists():
+        self._createDockWidget()
 
     def onTimer_1sec(self):
         pass
@@ -40,7 +46,7 @@ class Widget:
 
         self._counter500msWithoutGpsInfo = self._counter500msWithoutGpsInfo + 1
         if self._counter500msWithoutGpsInfo > 4:
-            self.onGpsOffline()
+            self._onGpsOffline()
 
         self._isClignotantOn = ~self._isClignotantOn
 
@@ -58,7 +64,7 @@ class Widget:
         self._counter500msWithoutGpsInfo = 0
 
         if longitude == sys.float_info.max:
-            self.onGpsOffline()
+            self._onGpsOffline()
         else:
             self._isGpsOffline = False
             self._gpsTitleLabel.setText("GPS online")
@@ -66,7 +72,10 @@ class Widget:
             self._longitudeLabel.setText("Longitude : {}°".format(longitude))
             self._updateGpsWidgetColor()
 
-    def onGpsOffline(self):
+    def unload(self):
+        self._endThread()
+
+    def _onGpsOffline(self):
         self._isGpsOffline = True
         self._gpsTitleLabel.setText("GPS offline")
         self._latitudeLabel.setText("Latitude : ---")
@@ -75,18 +84,24 @@ class Widget:
 
     def _updateGpsWidgetColor(self):
         if self._isGpsOffline:
-            self._gpsWidget.setStyleSheet("QWidget { background-color : rgb(100,0,0); color : red; }")
+            self._gpsWidget.setStyleSheet(
+                "QWidget { background-color : rgb(100,0,0); " "color : red; }"
+            )
         else:
-            self._gpsWidget.setStyleSheet("QWidget { background-color : rgb(100,0,0); color : rgb(0,255,0); }")
+            self._gpsWidget.setStyleSheet(
+                "QWidget { background-color : rgb(100,0,0); "
+                "color : rgb(0,255,0); }"
+            )
 
-    def unload(self):
-        self.endThread()
+    def _startThread(self):
+        if not self._thread.isProceeding:
+            self._thread.start()
 
-    def endThread(self):
+    def _endThread(self):
         if self._thread and self._thread.isProceeding:
             self._thread.stop()
 
-    def createDockWidget(self):
+    def _createDockWidget(self):
         self.dock = QDockWidget(Widget.widgetName, self.iface.mainWindow())
         self.iface.addDockWidget(Qt.TopDockWidgetArea, self.dock)
 
@@ -95,27 +110,31 @@ class Widget:
         self.internalWidget.setLayout(QGridLayout())
 
         self._createGpsWidget()
-        self._effortLabel = self.createEffortLabel()
-        self._soundRecordingLabel = self.createSoundRecordingLabel()
+        self._effortLabel = self._createEffortLabel()
+        self._soundRecordingLabel = self._createSoundRecordingLabel()
         self.internalWidget.layout().addWidget(self._gpsWidget, 0, 0)
         self.internalWidget.layout().addWidget(self._effortLabel, 0, 1)
         self.internalWidget.layout().addWidget(self._soundRecordingLabel, 0, 2)
 
-    def createEffortLabel(self) -> QLabel:
+    def _createEffortLabel(self) -> QLabel:
         label = QLabel("")
-        label.setStyleSheet("QLabel { background-color : rgb(150,150,150); color : blue; }")
+        label.setStyleSheet(
+            "QLabel { background-color : rgb(150,150,150); color : blue; }"
+        )
         label.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-        myFont= QtGui.QFont("Arial", 24)
+        myFont = QtGui.QFont("Arial", 24)
         myFont.setBold(True)
         label.setFont(myFont)
 
         return label
 
-    def createSoundRecordingLabel(self) -> QLabel:
+    def _createSoundRecordingLabel(self) -> QLabel:
         label = QLabel("")
-        label.setStyleSheet("QLabel { background-color : rgb(200,255,200); color : red; }")
+        label.setStyleSheet(
+            "QLabel { background-color : rgb(200,255,200); color : red; }"
+        )
         label.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-        myFont= QtGui.QFont("Arial", 24)
+        myFont = QtGui.QFont("Arial", 24)
         myFont.setBold(True)
         label.setFont(myFont)
 
@@ -127,7 +146,7 @@ class Widget:
         self._updateGpsWidgetColor()
         self._gpsTitleLabel = QLabel()
         self._gpsTitleLabel.setAlignment(Qt.AlignCenter)
-        myFont= QtGui.QFont()
+        myFont = QtGui.QFont()
         myFont.setBold(True)
         self._gpsTitleLabel.setFont(myFont)
 
@@ -139,11 +158,7 @@ class Widget:
 
         self.updateGpsLocation(sys.float_info.max, sys.float_info.max)
 
-    def _startThread(self):
-        if not self._thread.isProceeding:
-            self._thread.start()
-
-    def _isDockWidgetExists(self) -> bool :
+    def _isDockWidgetExists(self) -> bool:
         for dockWidget in self.iface.mainWindow().findChildren(QDockWidget):
             if dockWidget.windowTitle() == Widget.widgetName:
                 return True

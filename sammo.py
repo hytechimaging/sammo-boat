@@ -36,7 +36,9 @@ class Sammo:
         controller.onStopSoundRecordingForObservationSignal.connect(
             self._session.onStopSoundRecordingForObservation
         )
-        controller.onSoundRecordingStatusChanged.connect(self.onSoundRecordingStatusChanged)
+        controller.onSoundRecordingStatusChanged.connect(
+            self.onSoundRecordingStatusChanged
+        )
         return controller
 
     def createSimuGps(self) -> [SammoSimuGpsBtn, ThreadSimuGps]:
@@ -153,7 +155,9 @@ class Sammo:
     def addNewFeatureToGpsTableSignal(
         self, longitude: float, latitude: float, leg_heure: str, code_leg: int
     ):
-        self._session.addNewFeatureToGpsTable(longitude, latitude, leg_heure, code_leg)
+        self._session.addNewFeatureToGpsTable(
+            longitude, latitude, leg_heure, code_leg
+        )
         self._widget.updateGpsLocation(longitude, latitude)
 
     def projectLoaded(self):
