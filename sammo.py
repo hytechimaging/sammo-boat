@@ -154,7 +154,7 @@ class Sammo:
         self, longitude: float, latitude: float, leg_heure: str, code_leg: int
     ):
         self._session.addNewFeatureToGpsTable(longitude, latitude, leg_heure, code_leg)
-        self._widget.UpdateGpsLocation(longitude, latitude)
+        self._widget.updateGpsLocation(longitude, latitude)
 
     def projectLoaded(self):
         try:

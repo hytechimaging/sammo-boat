@@ -3,6 +3,8 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
+import sys
+
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt import QtGui
 from qgis.PyQt.QtWidgets import QDockWidget, QWidget, QGridLayout, QVBoxLayout, QLabel
@@ -16,13 +18,16 @@ class Widget:
         self.iface = iface
         self._effortLabel: QLabel = None
         self._soundRecordingLabel: QLabel = None
+        self._gpsTitleLabel: QLabel = None
         self._longitudeLabel: QLabel = None
         self._latitudeLabel: QLabel = None
         self._isClignotantOn: bool = False
         self.isEffortOn: bool = False
         self.isSoundRecordingOn: bool = False
+        self._isGpsOffline = True
         self._thread = ThreadWidget(self.onTimer_1sec, self.onTimer_500msec)
         self._startThread()
+        self._counter500msWithoutGpsInfo = 0
         #if not self._isDockWidgetExists():
         self.createDockWidget()
 
@@ -32,6 +37,10 @@ class Widget:
     def onTimer_500msec(self):
         if not self._effortLabel:
             return
+
+        self._counter500msWithoutGpsInfo = self._counter500msWithoutGpsInfo + 1
+        if self._counter500msWithoutGpsInfo > 4:
+            self.onGpsOffline()
 
         self._isClignotantOn = ~self._isClignotantOn
 
@@ -45,9 +54,30 @@ class Widget:
         else:
             self._soundRecordingLabel.setText("")
 
-    def UpdateGpsLocation(self, longitude: float, latitude: float):
-        self._latitudeLabel.setText("Latitude : " + str(latitude))
-        self._longitudeLabel.setText("Longitude : " + str(longitude))
+    def updateGpsLocation(self, longitude: float, latitude: float):
+        self._counter500msWithoutGpsInfo = 0
+
+        if longitude == sys.float_info.max:
+            self.onGpsOffline()
+        else:
+            self._isGpsOffline = False
+            self._gpsTitleLabel.setText("GPS online")
+            self._latitudeLabel.setText("Latitude : {}°".format(latitude))
+            self._longitudeLabel.setText("Longitude : {}°".format(longitude))
+            self._updateGpsWidgetColor()
+
+    def onGpsOffline(self):
+        self._isGpsOffline = True
+        self._gpsTitleLabel.setText("GPS offline")
+        self._latitudeLabel.setText("Latitude : ---")
+        self._longitudeLabel.setText("Longitude : ---")
+        self._updateGpsWidgetColor()
+
+    def _updateGpsWidgetColor(self):
+        if self._isGpsOffline:
+            self._gpsWidget.setStyleSheet("QWidget { background-color : rgb(100,0,0); color : red; }")
+        else:
+            self._gpsWidget.setStyleSheet("QWidget { background-color : rgb(100,0,0); color : rgb(0,255,0); }")
 
     def unload(self):
         self.endThread()
@@ -64,10 +94,10 @@ class Widget:
         self.dock.setWidget(self.internalWidget)
         self.internalWidget.setLayout(QGridLayout())
 
-        gpsWidget = self.createGpsWidget()
+        self._createGpsWidget()
         self._effortLabel = self.createEffortLabel()
         self._soundRecordingLabel = self.createSoundRecordingLabel()
-        self.internalWidget.layout().addWidget(gpsWidget, 0, 0)
+        self.internalWidget.layout().addWidget(self._gpsWidget, 0, 0)
         self.internalWidget.layout().addWidget(self._effortLabel, 0, 1)
         self.internalWidget.layout().addWidget(self._soundRecordingLabel, 0, 2)
 
@@ -75,7 +105,7 @@ class Widget:
         label = QLabel("")
         label.setStyleSheet("QLabel { background-color : rgb(150,150,150); color : blue; }")
         label.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-        myFont= QtGui.QFont()
+        myFont= QtGui.QFont("Arial", 24)
         myFont.setBold(True)
         label.setFont(myFont)
 
@@ -85,29 +115,29 @@ class Widget:
         label = QLabel("")
         label.setStyleSheet("QLabel { background-color : rgb(200,255,200); color : red; }")
         label.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-        myFont= QtGui.QFont()
+        myFont= QtGui.QFont("Arial", 24)
         myFont.setBold(True)
         label.setFont(myFont)
 
         return label
 
-    def createGpsWidget(self) -> QWidget:
-        gpsWidget = QWidget(self.dock)
-        gpsWidget.setLayout(QVBoxLayout())
-        gpsWidget.setStyleSheet("QWidget { background-color : rgb(255,150,150); color : black; }")
-        title = QLabel("GPS online")
-        title.setAlignment(Qt.AlignCenter)
+    def _createGpsWidget(self) -> QWidget:
+        self._gpsWidget = QWidget(self.dock)
+        self._gpsWidget.setLayout(QVBoxLayout())
+        self._updateGpsWidgetColor()
+        self._gpsTitleLabel = QLabel()
+        self._gpsTitleLabel.setAlignment(Qt.AlignCenter)
         myFont= QtGui.QFont()
         myFont.setBold(True)
-        title.setFont(myFont)
+        self._gpsTitleLabel.setFont(myFont)
 
-        self._latitudeLabel = QLabel("Latitude : XXX")
-        self._longitudeLabel = QLabel("Longitude : XXX")
-        gpsWidget.layout().addWidget(title)
-        gpsWidget.layout().addWidget(self._longitudeLabel)
-        gpsWidget.layout().addWidget(self._latitudeLabel)
+        self._latitudeLabel = QLabel()
+        self._longitudeLabel = QLabel()
+        self._gpsWidget.layout().addWidget(self._gpsTitleLabel)
+        self._gpsWidget.layout().addWidget(self._longitudeLabel)
+        self._gpsWidget.layout().addWidget(self._latitudeLabel)
 
-        return gpsWidget
+        self.updateGpsLocation(sys.float_info.max, sys.float_info.max)
 
     def _startThread(self):
         if not self._thread.isProceeding:
