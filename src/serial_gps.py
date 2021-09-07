@@ -2,7 +2,7 @@ import sys
 
 import serial
 
-SERIAL_PORT = "/dev/ttyUSB0"
+SERIAL_PORT = "/dev/ttyUSB1"
 running = True
 
 
@@ -38,6 +38,7 @@ def getPositionData(line: str) -> (float, float):
 print("Application started!")
 try:
     gps = serial.Serial(SERIAL_PORT, baudrate=4800, timeout=0.5)
+    print("Port ouvert")
 except:
     print("Impossible d'ouvrir le port")
     exit()
@@ -45,9 +46,11 @@ except:
 while running:
     try:
         line = gps.readline()
+        # print(line)
         if not line:
             continue
         line = line.decode('UTF-8')
+        print(line)
         if not isGpggaLine(line):
             continue
 

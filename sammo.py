@@ -4,13 +4,15 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
-
 from .src.gui.session_btn import SammoActionSession
 from .src.gui.on_off_effort_btn import SammoOnOffEffortBtn
 from .src.core.session import SammoSession
 from .src.gui.add_follower_btn import SammoAddFollowerBtn
 from .src.gui.add_observation_btn import SammoAddObservationBtn
 from .src.core.thread_simu_gps import ThreadSimuGps
+from .src.core.thread_gps_extractor import ThreadGpsExtractor
+from qgis.PyQt.QtWidgets import QToolBar
+from qgis.core import QgsFeature
 from .src.gui.simu_gps_btn import SammoSimuGpsBtn
 from .src.core.sound_recording_controller import SammoSoundRecordingController
 from qgis.PyQt.QtWidgets import QToolBar
@@ -28,6 +30,7 @@ class Sammo:
         self._addObservationBtn = self.createAddObservationBtn()
         self._simuGpsBtn, self._threadSimuGps = self.createSimuGps()
         self._soundRecordingController = self.createSoundRecordingController()
+        self._threadGpsExtractor = self.createGpsExtractor()
         QgsProject.instance().readProject.connect(self.projectLoaded)
 
     def createSoundRecordingController(self) -> SammoSoundRecordingController:
@@ -50,6 +53,14 @@ class Sammo:
             self._session.addNewFeatureToGpsTable
         )
         return [button, threadGps]
+
+    def createGpsExtractor(self) -> ThreadGpsExtractor:
+        threadGps = ThreadGpsExtractor(self._session)
+        threadGps.addNewFeatureToGpsTableSignal.connect(
+            self._session.addNewFeatureToGpsTable
+        )
+        threadGps.start()
+        return threadGps
 
     @staticmethod
     def pluginFolder():
@@ -85,6 +96,8 @@ class Sammo:
         pass
 
     def unload(self):
+        if self._threadGpsExtractor.isProceeding:
+            self._threadGpsExtractor.stop()
         if (
             self._threadSimuGps is not None
             and self._threadSimuGps.isProceeding
