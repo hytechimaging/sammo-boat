@@ -3,9 +3,12 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-from qgis.PyQt.QtWidgets import QPushButton, QToolBar
+import os
+
+from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import pyqtSignal, QObject
 from qgis.core import QgsVectorLayer, QgsFeature
+from qgis.PyQt.QtWidgets import QAction, QToolBar
 
 
 class SammoOnOffEffortBtn(QObject):
@@ -15,16 +18,16 @@ class SammoOnOffEffortBtn(QObject):
     def __init__(self, parent: QObject, toolbar: QToolBar):
         super().__init__()
         self.parent = parent
-        self.button: QPushButton = None
+        self.button: QIcon = None
         self.initGui(parent, toolbar)
 
     def initGui(self, parent: QObject, toolbar: QToolBar):
-        self.button = QPushButton(parent)
-        self.button.setText("Effort")
-        self.button.clicked.connect(self.onClick)
+        self.button = QAction(parent)
+        self.button.setIcon(self.icon)
+        self.button.triggered.connect(self.onClick)
         self.button.setEnabled(False)
         self.button.setCheckable(True)
-        toolbar.addWidget(self.button)
+        toolbar.addAction(self.button)
 
     def onCreateSession(self):
         self.button.setEnabled(True)
@@ -46,3 +49,9 @@ class SammoOnOffEffortBtn(QObject):
 
     def isChecked(self) -> bool:
         return self.button.isChecked()
+
+    @property
+    def icon(self):
+        d = os.path.dirname(os.path.abspath(__file__))
+        root = os.path.dirname(os.path.dirname(d))
+        return QIcon(os.path.join(root, "images", "effort.png"))

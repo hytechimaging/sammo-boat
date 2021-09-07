@@ -3,9 +3,12 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
+import os
+
+from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import pyqtSignal, QObject
-from qgis.PyQt.QtWidgets import QPushButton, QToolBar
 from qgis.core import QgsVectorLayer, QgsFeature
+from qgis.PyQt.QtWidgets import QAction, QToolBar
 
 
 class SammoAddFollowerBtn(QObject):
@@ -15,15 +18,15 @@ class SammoAddFollowerBtn(QObject):
     def __init__(self, parent: QObject, toolbar: QToolBar):
         super().__init__()
         self.parent = parent
-        self.button: QPushButton = None
+        self.button: QAction = None
         self.initGui(parent, toolbar)
 
     def initGui(self, parent: QObject, toolbar: QToolBar):
-        self.button = QPushButton(parent)
-        self.button.setText("Add follower")
-        self.button.clicked.connect(self.onClick)
+        self.button = QAction(parent)
+        self.button.setIcon(self.icon)
+        self.button.triggered.connect(self.onClick)
         self.button.setEnabled(False)
-        toolbar.addWidget(self.button)
+        toolbar.addAction(self.button)
 
     def onCreateSession(self):
         # effortStatus = True means that an effort is in progress
@@ -38,3 +41,9 @@ class SammoAddFollowerBtn(QObject):
     def openFeatureForm(self, iface, table: QgsVectorLayer, feat: QgsFeature):
         if iface.openFeatureForm(table, feat):
             self.onAddFeatureToFollowerTableSignal.emit(feat)
+
+    @property
+    def icon(self):
+        d = os.path.dirname(os.path.abspath(__file__))
+        root = os.path.dirname(os.path.dirname(d))
+        return QIcon(os.path.join(root, "images", "seabird.png"))
