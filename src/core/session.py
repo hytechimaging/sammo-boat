@@ -14,6 +14,7 @@ from qgis.core import (
     QgsFeature,
     QgsGeometry,
     QgsPointXY,
+    QgsCoordinateReferenceSystem,
     QgsPoint,
 )
 
@@ -50,6 +51,7 @@ class SammoSession:
             project = QgsProject()
             gpsTable = self.loadTable(SammoDataBase.GPS_TABLE_NAME)
             project.addMapLayer(gpsTable)
+            project.setCrs(QgsCoordinateReferenceSystem(4326))
             project.write(uri)  # Save the QGIS projet into the database
 
         QgsProject.instance().read(uri)
