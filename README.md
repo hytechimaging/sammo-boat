@@ -3,9 +3,9 @@
 QGIS Plugin.
 
 
-## Issues
+## Known issues
 
-#### Map cnvas blinking
+#### Map canvas blinking
 
 If the canvas is blinking when the GPS layer is updated, you need to lower the
 `Map Update Interval` parameter (in `Settings`) according to the current
