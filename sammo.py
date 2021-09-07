@@ -128,9 +128,7 @@ class Sammo:
         self._addFollowerBtn.openFeatureForm(self.iface, table, feat)
 
     def onAddFeatureToEnvironmentTableSignal(self, feat: QgsFeature):
-        self._session.addNewFeatureToEnvironmentTable(feat)
-        if self._simuGpsBtn and self._simuGpsBtn.isChecked():
-            self._threadSimuGps.start()
+        self._session.onStartEffort(feat)
 
     def onAddFeatureToFollowerTableSignal(self, feat: QgsFeature):
         self._session.addNewFeatureToFollowerTable(feat)

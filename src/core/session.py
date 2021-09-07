@@ -14,6 +14,7 @@ from qgis.core import (
     QgsFeature,
     QgsGeometry,
     QgsPointXY,
+    QgsPoint,
 )
 
 
@@ -26,6 +27,7 @@ class SammoSession:
         self._observationTable: QgsVectorLayer = None
         self._followerTable: QgsVectorLayer = None
         self._gpsTable: QgsVectorLayer = None
+        self._gpsLocationsDuringEffort = []
 
     @staticmethod
     def isDataBaseAvailable(directory):
@@ -88,6 +90,10 @@ class SammoSession:
         table.changeAttributeValue(
             idLastAddedFeature, field_idx, timeOfStopEffort
         )
+        table.changeGeometry(
+            idLastAddedFeature,
+            QgsGeometry.fromPolyline(self._gpsLocationsDuringEffort),
+        )
         table.commitChanges()
 
     def createEmptyDataBase(self, directory: str):
@@ -112,8 +118,9 @@ class SammoSession:
     def getReadyToAddNewFeatureToEnvironmentTable(self):
         return self._getReadyToAddNewFeature(self._environmentTable)
 
-    def addNewFeatureToEnvironmentTable(self, feature: QgsFeature):
+    def onStartEffort(self, feature: QgsFeature):
         self._addNewFeature(feature, self._environmentTable)
+        self._gpsLocationsDuringEffort = []
 
     def addNewFeatureToFollowerTable(self, feature: QgsFeature):
         self._addNewFeature(feature, self._followerTable)
@@ -130,7 +137,6 @@ class SammoSession:
         self, longitude: float, latitude: float, leg_heure: str, code_leg: int
     ):
         self._gpsTable.startEditing()
-
         feature = QgsFeature(QgsVectorLayerUtils.createFeature(self._gpsTable))
         layerPoint = QgsPointXY(longitude, latitude)
         feature.setGeometry(QgsGeometry.fromPointXY(layerPoint))
@@ -138,6 +144,7 @@ class SammoSession:
         feature.setAttribute("code_leg", code_leg)
 
         self._addNewFeature(feature, self._gpsTable)
+        self._gpsLocationsDuringEffort.append(QgsPoint(longitude, latitude))
 
     @staticmethod
     def _getReadyToAddNewFeature(

@@ -39,6 +39,7 @@ class SammoDataBase:
             db,
             self._createFieldsForEnvironmentTable(),
             self.ENVIRONMENT_TABLE_NAME,
+            QgsWkbTypes.LineString,
         )
         self._addTableToDataBaseFile(
             db, self._createFieldsForSpeciesTable(), self.SPECIES_TABLE_NAME
