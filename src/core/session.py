@@ -56,6 +56,7 @@ class SammoSession:
 
         QgsProject.instance().read(uri)
         self._loadTables()
+        self._configureAutoRefreshLayers()
 
     def _loadTables(self):
         self._environmentTable = self.loadTable(
@@ -67,6 +68,12 @@ class SammoSession:
         )
         self._followerTable = self.loadTable(SammoDataBase.FOLLOWER_TABLE_NAME)
         self._gpsTable = self.loadTable(SammoDataBase.GPS_TABLE_NAME)
+
+    @staticmethod
+    def _configureAutoRefreshLayers():
+        layer = QgsProject.instance().mapLayersByName("gps")[0]
+        layer.setAutoRefreshInterval(1000)
+        layer.setAutoRefreshEnabled(True)
 
     def onStopSoundRecordingForObservation(
         self, soundFile: str, soundStart: str, soundEnd: str
