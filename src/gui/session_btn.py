@@ -22,6 +22,7 @@ class SammoActionSession(QObject):
         self.action = QAction(parent)
         self.action.triggered.connect(self.run)
         self.action.setIcon(self.icon)
+        self.action.setToolTip("Create/open session")
         toolbar.addAction(self.action)
 
     def unload(self):

@@ -24,6 +24,7 @@ class SammoOnOffEffortBtn(QObject):
     def initGui(self, parent: QObject, toolbar: QToolBar):
         self.button = QAction(parent)
         self.button.setIcon(self.icon)
+        self.button.setToolTip("Start/stop effort")
         self.button.triggered.connect(self.onClick)
         self.button.setEnabled(False)
         self.button.setCheckable(True)

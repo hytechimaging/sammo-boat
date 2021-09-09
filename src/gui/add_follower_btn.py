@@ -24,6 +24,7 @@ class SammoAddFollowerBtn(QObject):
     def initGui(self, parent: QObject, toolbar: QToolBar):
         self.button = QAction(parent)
         self.button.setIcon(self.icon)
+        self.button.setToolTip("New follower")
         self.button.triggered.connect(self.onClick)
         self.button.setEnabled(False)
         toolbar.addAction(self.button)
