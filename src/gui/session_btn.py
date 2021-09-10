@@ -3,8 +3,11 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-from qgis.PyQt.QtWidgets import QAction, QFileDialog, QToolBar
+import os
+
+from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import QDir, pyqtSignal, QObject
+from qgis.PyQt.QtWidgets import QAction, QFileDialog, QToolBar
 
 
 class SammoActionSession(QObject):
@@ -16,8 +19,10 @@ class SammoActionSession(QObject):
         self.initGui(parent, toolbar)
 
     def initGui(self, parent: QObject, toolbar: QToolBar):
-        self.action = QAction("Session", parent)
+        self.action = QAction(parent)
         self.action.triggered.connect(self.run)
+        self.action.setIcon(self.icon)
+        self.action.setToolTip("Create/open session")
         toolbar.addAction(self.action)
 
     def unload(self):
@@ -32,3 +37,9 @@ class SammoActionSession(QObject):
             return
 
         self.createSignal.emit(workingDirectory)
+
+    @property
+    def icon(self):
+        d = os.path.dirname(os.path.abspath(__file__))
+        root = os.path.dirname(os.path.dirname(d))
+        return QIcon(os.path.join(root, "images", "session.png"))
