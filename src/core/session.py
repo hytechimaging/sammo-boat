@@ -50,7 +50,7 @@ class SammoSession:
         uri = (
             "geopackage:"
             + SammoDataBase.pathToDataBase(directory)
-            + "?projectName=sammo_boat_project"
+            + "?projectName=project"
         )
         if isNewDataBase:
             project = QgsProject()
