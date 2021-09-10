@@ -34,6 +34,11 @@ class SammoSession:
     def isDataBaseAvailable(directory):
         return SammoDataBase.isDataBaseAvailableInThisDirectory(directory)
 
+    def onLoadProject(self, directory):
+        self.directoryPath = directory
+        self._loadTables()
+        self._configureAutoRefreshLayers()
+
     def onCreateSession(self, directory):
         self.directoryPath = directory
         isNewDataBase = False

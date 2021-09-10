@@ -29,7 +29,7 @@ class SammoAddFollowerBtn(QObject):
         self.button.setEnabled(False)
         toolbar.addAction(self.button)
 
-    def onCreateSession(self):
+    def onNewSession(self):
         # effortStatus = True means that an effort is in progress
         self.button.setEnabled(True)
 
