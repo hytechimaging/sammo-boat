@@ -142,11 +142,14 @@ class Sammo:
             self._threadSimuGps.stop()
 
     def projectLoaded(self):
-        workingDirectory = QgsProject.instance().readPath("./")
-        self._session.onLoadProject(workingDirectory)
-        self._onOffEffortBtn.onNewSession()
-        self._addFollowerBtn.onNewSession()
-        self._addObservationBtn.onNewSession()
-        self._soundRecordingController.onNewSession(workingDirectory)
-        if self._simuGpsBtn:
-            self._simuGpsBtn.onNewSession()
+        try:
+            workingDirectory = QgsProject.instance().readPath("./")
+            self._session.onLoadProject(workingDirectory)
+            self._onOffEffortBtn.onNewSession()
+            self._addFollowerBtn.onNewSession()
+            self._addObservationBtn.onNewSession()
+            self._soundRecordingController.onNewSession(workingDirectory)
+            if self._simuGpsBtn:
+                self._simuGpsBtn.onNewSession()
+        except IndexError:
+            pass
