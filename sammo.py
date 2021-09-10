@@ -12,6 +12,7 @@ from .src.gui.add_observation_btn import SammoAddObservationBtn
 from .src.core.thread_simu_gps import ThreadSimuGps
 from .src.gui.simu_gps_btn import SammoSimuGpsBtn
 from .src.core.sound_recording_controller import SammoSoundRecordingController
+from .src.gui.status_dock import StatusDock
 from .src.gui.widget import Widget
 from qgis.PyQt.QtWidgets import QToolBar
 from qgis.core import QgsFeature, QgsProject
@@ -28,6 +29,7 @@ class Sammo:
         self._addObservationBtn = self.createAddObservationBtn()
         self._simuGpsBtn, self._threadSimuGps = self.createSimuGps()
         self._soundRecordingController = self.createSoundRecordingController()
+        self._statusDock = StatusDock(self.iface)
         self._widget = Widget(self.iface)
         QgsProject.instance().readProject.connect(self.projectLoaded)
 
@@ -101,8 +103,8 @@ class Sammo:
         if self._simuGpsBtn is not None:
             self._simuGpsBtn.unload()
 
-        self._widget.unload()
-        del self._widget
+        self._statusDock.unload()
+        del self._statusDock
         del self._toolBar
 
     def onCreateSession(self, workingDirectory: str):
@@ -123,7 +125,7 @@ class Sammo:
             self._onOffEffortBtn.openFeatureForm(self.iface, table, feat)
         else:
             self._session.onStopEffort()
-            self._widget.isEffortOn = False
+            self._statusDock.isEffortOn = False
 
     def onClickObservation(self):
         self._soundRecordingController.onChangeObservationStatus(True)
@@ -138,7 +140,7 @@ class Sammo:
 
     def onAddFeatureToEnvironmentTableSignal(self, feat: QgsFeature):
         self._session.onStartEffort(feat)
-        self._widget.isEffortOn = True
+        self._statusDock.isEffortOn = True
 
     def onAddFeatureToFollowerTableSignal(self, feat: QgsFeature):
         self._session.addNewFeatureToFollowerTable(feat)
@@ -150,7 +152,7 @@ class Sammo:
             self._threadSimuGps.stop()
 
     def onSoundRecordingStatusChanged(self, isOn: bool):
-        self._widget.isSoundRecordingOn = isOn
+        self._statusDock.isSoundRecordingOn = isOn
 
     def addNewFeatureToGpsTableSignal(
         self, longitude: float, latitude: float, leg_heure: str, code_leg: int
@@ -158,7 +160,7 @@ class Sammo:
         self._session.addNewFeatureToGpsTable(
             longitude, latitude, leg_heure, code_leg
         )
-        self._widget.updateGpsLocation(longitude, latitude)
+        self._statusDock.updateGpsLocation(longitude, latitude)
 
     def projectLoaded(self):
         try:

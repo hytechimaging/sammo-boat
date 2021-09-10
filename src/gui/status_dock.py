@@ -16,8 +16,8 @@ from qgis.PyQt.QtWidgets import (
 from ..core.thread_widget import ThreadWidget
 
 
-class Widget:
-    widgetName = "MyDock"
+class StatusDock:
+    widgetName = "Sammo Status"
 
     def __init__(self, iface):
         self.iface = iface
@@ -98,7 +98,7 @@ class Widget:
             self._thread.stop()
 
     def _createDockWidget(self):
-        self.dock = QDockWidget(Widget.widgetName, self.iface.mainWindow())
+        self.dock = QDockWidget(StatusDock.widgetName, self.iface.mainWindow())
         self.iface.addDockWidget(Qt.TopDockWidgetArea, self.dock)
 
         self.internalWidget = QWidget(self.dock)
@@ -156,6 +156,6 @@ class Widget:
 
     def _isDockWidgetExists(self) -> bool:
         for dockWidget in self.iface.mainWindow().findChildren(QDockWidget):
-            if dockWidget.windowTitle() == Widget.widgetName:
+            if dockWidget.windowTitle() == StatusDock.widgetName:
                 return True
         return False
