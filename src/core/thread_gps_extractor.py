@@ -14,10 +14,9 @@ import time
 class WorkerGpsExtractor(WorkerForOtherThread):
     addNewFeatureToGpsTableSignal = pyqtSignal(float, float, str, int)
     serialPortPrefix = "/dev/ttyUSB"
+    code_leg = 23034
 
-    def __init__(
-        self
-    ):
+    def __init__(self):
         super().__init__()
         self._gps: serial.Serial = None
         self.isGpsOnline: bool = False
@@ -28,8 +27,10 @@ class WorkerGpsExtractor(WorkerForOtherThread):
 
     def _toDoInsideLoop(self):
         if not self._gps:
-            for i in range(0,9):
-                port ="{}{}".format(WorkerGpsExtractor.serialPortPrefix, str(i))
+            for i in range(0, 9):
+                port = "{}{}".format(
+                    WorkerGpsExtractor.serialPortPrefix, str(i)
+                )
                 try:
                     self._gps = serial.Serial(port, baudrate=4800, timeout=0.5)
                     print("Port GPS ouvert sur " + port)
@@ -44,19 +45,26 @@ class WorkerGpsExtractor(WorkerForOtherThread):
 
         try:
             line = self._gps.readline()
-            line = line.decode('cp1250')
+            line = line.decode("cp1250")
             if not self.isGpggaLine(line):
                 return
             position = self.getPositionData(line)
             longitude_deg = position[0]
             if longitude_deg != sys.float_info.max:
                 latitude_deg = position[1]
-                leg_heure = "23034_14_25_00"
-                code_leg = 23034
-                print("GPS position : longitude = {} - latitude = {}".format(longitude_deg, latitude_deg))
-                self.addNewFeatureToGpsTableSignal.emit(
-                    float(longitude_deg), float(latitude_deg), leg_heure, code_leg
+                leg_heure = self.getLegHeureData(line)  # "23034_14_25_00"
+                # code_leg = 23034
+                print(
+                    "GPS position : longitude = {} - latitude = {}".format(
+                        longitude_deg, latitude_deg
                     )
+                )
+                self.addNewFeatureToGpsTableSignal.emit(
+                    float(longitude_deg),
+                    float(latitude_deg),
+                    leg_heure,
+                    self.code_leg,
+                )
                 self.isGpsOnline = True
             else:
                 print("GPS offline")
@@ -72,6 +80,18 @@ class WorkerGpsExtractor(WorkerForOtherThread):
     def isGpggaLine(line: str) -> bool:
         typeOfLine = line[0:6]
         return typeOfLine == "$GPGGA"
+
+    @staticmethod
+    def getLegHeureData(line: str) -> (float, float):
+        # "23034_14_25_00"
+        components = line.split(",")
+        time = components[1]
+        hour = time[0:2]
+        minutes = time[2:4]
+        secondes = time[4:]
+        return "{}_{}_{}_{}".format(
+            WorkerGpsExtractor.code_leg, hour, minutes, secondes
+        )
 
     @staticmethod
     def getPositionData(line: str) -> (float, float):
@@ -118,11 +138,12 @@ class ThreadGpsExtractor(OtherThread):
         leg_heure: str,
         code_leg: int,
     ):
-        print("addNewFeatureToGpsTable : longitude_deg="
-              + str(longitude_deg)
-              + " - latitude_deg="
-              + str(latitude_deg)
-              )
+        print(
+            "addNewFeatureToGpsTable : longitude_deg="
+            + str(longitude_deg)
+            + " - latitude_deg="
+            + str(latitude_deg)
+        )
         self.addNewFeatureToGpsTableSignal.emit(
             longitude_deg, latitude_deg, leg_heure, code_leg
         )
