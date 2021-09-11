@@ -39,9 +39,6 @@ class Sammo:
         QgsProject.instance().readProject.connect(self.projectLoaded)
         self.gpsExtractor = GpsExtractor()
 
-    def onTimer(self):
-        self.gpsExtractor.core()
-
     def createSoundRecordingController(self) -> SammoSoundRecordingController:
         controller = SammoSoundRecordingController()
         controller.onStopSoundRecordingForObservationSignal.connect(
@@ -132,7 +129,6 @@ class Sammo:
 
     def onAskForCloserPermanentsThreads(self):
         self._threadGpsExtractor.stop()
-        # self.timer.stop()
         pass
 
     def onCreateSession(self, workingDirectory: str):
