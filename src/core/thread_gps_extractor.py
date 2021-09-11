@@ -11,17 +11,9 @@ import sys
 import time
 
 
-# def isGpggaLine(line: str) -> bool:
-#     typeOfLine = line[0:6]
-#     return typeOfLine == "$GPGGA"
-
-
-
-
-
 class WorkerGpsExtractor(WorkerForOtherThread):
     addNewFeatureToGpsTableSignal = pyqtSignal(float, float, str, int)
-    SERIAL_PORT = "/dev/ttyUSB0"
+    serialPortPrefix = "/dev/ttyUSB"
 
     def __init__(
         self
@@ -29,20 +21,26 @@ class WorkerGpsExtractor(WorkerForOtherThread):
         super().__init__()
         self._gps: serial.Serial = None
         self.isGpsOnline: bool = False
+        self.idOfPort: int = 0
 
     def _onStart(self):
         pass
 
     def _toDoInsideLoop(self):
         if not self._gps:
-            try:
-                self._gps = serial.Serial(WorkerGpsExtractor.SERIAL_PORT, baudrate=4800, timeout=0.5)
-                print("Port GPS ouvert")
-            except:
-                self._gps = None
-                time.sleep(1.0)
-                print("Impossible d'ouvrir le port GPS")
-                return
+            for i in range(0,9):
+                port ="{}{}".format(WorkerGpsExtractor.serialPortPrefix, str(i))
+                try:
+                    self._gps = serial.Serial(port, baudrate=4800, timeout=0.5)
+                    print("Port GPS ouvert sur " + port)
+                    break
+                except:
+                    continue
+
+        if not self._gps:
+            time.sleep(1.0)
+            print("Impossible d'ouvrir le port GPS")
+            return
 
         try:
             line = self._gps.readline()
@@ -67,6 +65,7 @@ class WorkerGpsExtractor(WorkerForOtherThread):
         except:
             print("read datas failed")
             self.isGpsOnline = False
+            self._gps = None
             return
 
     @staticmethod
