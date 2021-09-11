@@ -11,32 +11,12 @@ import sys
 import time
 
 
-def isGpggaLine(line: str) -> bool:
-    typeOfLine = line[0:6]
-    return typeOfLine == "$GPGGA"
+# def isGpggaLine(line: str) -> bool:
+#     typeOfLine = line[0:6]
+#     return typeOfLine == "$GPGGA"
 
 
-def getPositionData(line: str) -> (float, float):
-    components = line.split(",")
-    time = components[1]
-    if not time:
-        return sys.float_info.max, sys.float_info.max
 
-    latitudeAsTxt = components[2]
-    latitude_deg = latitudeAsTxt[0:2]
-    latitude_min = latitudeAsTxt[2:]
-    latitude = float(latitude_deg) + float(latitude_min) / 60.0
-    if components[3] != "N":
-        latitude = -latitude
-
-    longitudeAsTxt = components[4]
-    longitude_deg = longitudeAsTxt[0:3]
-    longitude_min = longitudeAsTxt[3:]
-    longitude = float(longitude_deg) + float(longitude_min) / 60.0
-    if components[5] != "E":
-        longitude = -longitude
-
-    return longitude, latitude
 
 
 class WorkerGpsExtractor(WorkerForOtherThread):
@@ -65,15 +45,11 @@ class WorkerGpsExtractor(WorkerForOtherThread):
                 return
 
         try:
-            # print("etape 0")
             line = self._gps.readline()
-            # print("etape 1")
             line = line.decode('cp1250')
-            # print("etape 2 - " + line)
-            if not isGpggaLine(line):
+            if not self.isGpggaLine(line):
                 return
-            # print("ok c'est un GPGGA !!!!!!!!!")
-            position = getPositionData(line)
+            position = self.getPositionData(line)
             longitude_deg = position[0]
             if longitude_deg != sys.float_info.max:
                 latitude_deg = position[1]
@@ -93,32 +69,33 @@ class WorkerGpsExtractor(WorkerForOtherThread):
             self.isGpsOnline = False
             return
 
-    # def isGpggaLine(line: str) -> bool:
-    #     typeOfLine = line[0:6]
-    #     print("typeOfLine=[" + typeOfLine + "]")
-    #     return typeOfLine == "$GPGGA"
-    #
-    # def getPositionData(line: str) -> (float, float):
-    #     components = line.split(",")
-    #     time = components[1]
-    #     if not time:
-    #         return sys.float_info.max, sys.float_info.max
-    #
-    #     latitudeAsTxt = components[2]
-    #     latitude_deg = latitudeAsTxt[0:2]
-    #     latitude_min = latitudeAsTxt[2:]
-    #     latitude = float(latitude_deg) + float(latitude_min) / 60.0
-    #     if components[3] != "N":
-    #         latitude = -latitude
-    #
-    #     longitudeAsTxt = components[4]
-    #     longitude_deg = longitudeAsTxt[0:3]
-    #     longitude_min = longitudeAsTxt[3:]
-    #     longitude = float(longitude_deg) + float(longitude_min) / 60.0
-    #     if components[5] != "E":
-    #         longitude = -longitude
-    #
-    #     return longitude, latitude
+    @staticmethod
+    def isGpggaLine(line: str) -> bool:
+        typeOfLine = line[0:6]
+        return typeOfLine == "$GPGGA"
+
+    @staticmethod
+    def getPositionData(line: str) -> (float, float):
+        components = line.split(",")
+        time = components[1]
+        if not time:
+            return sys.float_info.max, sys.float_info.max
+
+        latitudeAsTxt = components[2]
+        latitude_deg = latitudeAsTxt[0:2]
+        latitude_min = latitudeAsTxt[2:]
+        latitude = float(latitude_deg) + float(latitude_min) / 60.0
+        if components[3] != "N":
+            latitude = -latitude
+
+        longitudeAsTxt = components[4]
+        longitude_deg = longitudeAsTxt[0:3]
+        longitude_min = longitudeAsTxt[3:]
+        longitude = float(longitude_deg) + float(longitude_min) / 60.0
+        if components[5] != "E":
+            longitude = -longitude
+
+        return longitude, latitude
 
 
 class ThreadGpsExtractor(OtherThread):
