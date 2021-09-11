@@ -4,6 +4,7 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
+from .src.core.gps_extractor import GpsExtractor
 from .src.gui.permanents_threads_closer_btn import SammoPermanentsThreadsCloserBtn
 from .src.gui.session_btn import SammoActionSession
 from .src.gui.on_off_effort_btn import SammoOnOffEffortBtn
@@ -36,6 +37,10 @@ class Sammo:
         self._statusDock = StatusDock(self.iface)
         self._permanentThreadsCloser = self.createPermanentThreadsCloser()
         QgsProject.instance().readProject.connect(self.projectLoaded)
+        self.gpsExtractor = GpsExtractor()
+
+    def onTimer(self):
+        self.gpsExtractor.core()
 
     def createSoundRecordingController(self) -> SammoSoundRecordingController:
         controller = SammoSoundRecordingController()
@@ -127,6 +132,8 @@ class Sammo:
 
     def onAskForCloserPermanentsThreads(self):
         self._threadGpsExtractor.stop()
+        # self.timer.stop()
+        pass
 
     def onCreateSession(self, workingDirectory: str):
         self._session.onNewSession(workingDirectory)

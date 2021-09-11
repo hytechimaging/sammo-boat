@@ -2,7 +2,7 @@ import sys
 
 import serial
 
-SERIAL_PORT = "/dev/ttyUSB1"
+SERIAL_PORT = "/dev/ttyUSB0"
 running = True
 
 
@@ -50,7 +50,7 @@ while running:
         if not line:
             continue
         line = line.decode('UTF-8')
-        print(line)
+        # print(line)
         if not isGpggaLine(line):
             continue
 
