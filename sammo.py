@@ -4,6 +4,10 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
+
+from .src.gui.permanents_threads_closer_btn import (
+    SammoPermanentsThreadsCloserBtn,
+)
 from .src.core.gps_extractor import GpsExtractor
 from .src.gui.permanents_threads_closer_btn import SammoPermanentsThreadsCloserBtn
 from .src.gui.session_btn import SammoActionSession
@@ -60,8 +64,12 @@ class Sammo:
         return [button, threadGps]
 
     def createPermanentThreadsCloser(self) -> SammoPermanentsThreadsCloserBtn:
-        button = SammoPermanentsThreadsCloserBtn(self.iface.mainWindow(), self._toolBar)
-        button.onAskForCloserPermanentsThreadsSignal.connect(self.onAskForCloserPermanentsThreads)
+        button = SammoPermanentsThreadsCloserBtn(
+            self.iface.mainWindow(), self._toolBar
+        )
+        button.onAskForCloserPermanentsThreadsSignal.connect(
+            self.onAskForCloserPermanentsThreads
+        )
         return button
 
     def createGpsExtractor(self) -> ThreadGpsExtractor:

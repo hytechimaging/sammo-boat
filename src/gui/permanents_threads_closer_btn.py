@@ -5,7 +5,6 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 from qgis.PyQt.QtWidgets import QPushButton, QToolBar
 from qgis.PyQt.QtCore import pyqtSignal, QObject
-from qgis.core import QgsVectorLayer, QgsFeature
 
 
 class SammoPermanentsThreadsCloserBtn(QObject):
