@@ -4,6 +4,7 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
+from .src.gui.permanents_threads_closer_btn import SammoPermanentsThreadsCloserBtn
 from .src.gui.session_btn import SammoActionSession
 from .src.gui.on_off_effort_btn import SammoOnOffEffortBtn
 from .src.core.session import SammoSession
@@ -33,6 +34,7 @@ class Sammo:
         self._soundRecordingController = self.createSoundRecordingController()
         self._threadGpsExtractor = self.createGpsExtractor()
         self._statusDock = StatusDock(self.iface)
+        self._permanentThreadsCloser = self.createPermanentThreadsCloser()
         QgsProject.instance().readProject.connect(self.projectLoaded)
 
     def createSoundRecordingController(self) -> SammoSoundRecordingController:
@@ -58,6 +60,11 @@ class Sammo:
             self.addNewFeatureToGpsTableSignal
         )
         return [button, threadGps]
+
+    def createPermanentThreadsCloser(self) -> SammoPermanentsThreadsCloserBtn:
+        button = SammoPermanentsThreadsCloserBtn(self.iface.mainWindow(), self._toolBar)
+        button.onAskForCloserPermanentsThreadsSignal.connect(self.onAskForCloserPermanentsThreads)
+        return button
 
     def createGpsExtractor(self) -> ThreadGpsExtractor:
         threadGps = ThreadGpsExtractor(self._session)
@@ -101,8 +108,7 @@ class Sammo:
         pass
 
     def unload(self):
-        if self._threadGpsExtractor.isProceeding:
-            self._threadGpsExtractor.stop()
+        self._threadGpsExtractor.stop()
         if (
             self._threadSimuGps is not None
             and self._threadSimuGps.isProceeding
@@ -118,6 +124,9 @@ class Sammo:
         self._statusDock.unload()
         del self._statusDock
         del self._toolBar
+
+    def onAskForCloserPermanentsThreads(self):
+        self._threadGpsExtractor.stop()
 
     def onCreateSession(self, workingDirectory: str):
         self._session.onNewSession(workingDirectory)
