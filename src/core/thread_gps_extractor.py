@@ -37,8 +37,7 @@ class WorkerGpsExtractor(WorkerForOtherThread):
     def _toDoInsideLoop(self):
         if not self._gps:
             for i in range(0, 9):
-                port = "{}{}".format(self._serialPortPrefix(), str(i)
-                )
+                port = "{}{}".format(self._serialPortPrefix(), str(i))
                 try:
                     self._gps = serial.Serial(port, baudrate=4800, timeout=0.5)
                     print("Port GPS ouvert sur " + port)
@@ -85,7 +84,8 @@ class WorkerGpsExtractor(WorkerForOtherThread):
 
     def toDoIfNotAGpggaLine(self):
         if self.isGpsOnline and (time.time() - self.timeOfLastContact) > 5:
-            # if no contact with the GPS after 5 secondes, we consider that it is offline
+            # if no contact with the GPS after 5 secondes,
+            # we consider that it is offline
             self.isGpsOnline = False
             print("GPS offline - time with no contact too long")
 
