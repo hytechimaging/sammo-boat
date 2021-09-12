@@ -6,6 +6,7 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 import serial
 import sys
 import time
+import platform
 from serial import SerialException
 from .other_thread import WorkerForOtherThread, OtherThread
 from qgis.PyQt.QtCore import pyqtSignal
@@ -14,7 +15,6 @@ from .session import SammoSession
 
 class WorkerGpsExtractor(WorkerForOtherThread):
     addNewFeatureToGpsTableSignal = pyqtSignal(float, float, str, int)
-    serialPortPrefix = "/dev/ttyUSB"
     code_leg = 23034
 
     def __init__(self):
@@ -27,11 +27,17 @@ class WorkerGpsExtractor(WorkerForOtherThread):
     def _onStart(self):
         pass
 
+    @staticmethod
+    def _serialPortPrefix() -> str:
+        if platform.system() == "Windows":
+            return "COM"
+        else:
+            return "/dev/ttyUSB"
+
     def _toDoInsideLoop(self):
         if not self._gps:
             for i in range(0, 9):
-                port = "{}{}".format(
-                    WorkerGpsExtractor.serialPortPrefix, str(i)
+                port = "{}{}".format(self._serialPortPrefix(), str(i)
                 )
                 try:
                     self._gps = serial.Serial(port, baudrate=4800, timeout=0.5)
@@ -70,19 +76,18 @@ class WorkerGpsExtractor(WorkerForOtherThread):
                 )
                 self.isGpsOnline = True
             else:
-                print("GPS offline")
+                print("GPS offline - position not valid")
                 self.isGpsOnline = False
         except Exception:
             self._gps = None
-            print("GPS offline")
+            print("GPS offline - exception when trying to read")
             self.isGpsOnline = False
 
     def toDoIfNotAGpggaLine(self):
-        if self.isGpsOnline and (time.time() - self.timeOfLastContact) > 2:
-            # if no contact with the GPS after 2 secondes, we consider that it is offline
+        if self.isGpsOnline and (time.time() - self.timeOfLastContact) > 5:
+            # if no contact with the GPS after 5 secondes, we consider that it is offline
             self.isGpsOnline = False
-        if not self.isGpsOnline:
-            print("GPS offline")
+            print("GPS offline - time with no contact too long")
 
     @staticmethod
     def isGpggaLine(line: str) -> bool:
