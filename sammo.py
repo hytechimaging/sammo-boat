@@ -4,16 +4,17 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
+
 from .src.gui.session_btn import SammoActionSession
 from .src.gui.on_off_effort_btn import SammoOnOffEffortBtn
 from .src.core.session import SammoSession
 from .src.gui.add_follower_btn import SammoAddFollowerBtn
 from .src.gui.add_observation_btn import SammoAddObservationBtn
 from .src.core.thread_simu_gps import ThreadSimuGps
-from qgis.PyQt.QtWidgets import QToolBar
-from qgis.core import QgsFeature
 from .src.gui.simu_gps_btn import SammoSimuGpsBtn
 from .src.core.sound_recording_controller import SammoSoundRecordingController
+from qgis.PyQt.QtWidgets import QToolBar
+from qgis.core import QgsFeature, QgsProject
 
 
 class Sammo:
@@ -27,6 +28,7 @@ class Sammo:
         self._addObservationBtn = self.createAddObservationBtn()
         self._simuGpsBtn, self._threadSimuGps = self.createSimuGps()
         self._soundRecordingController = self.createSoundRecordingController()
+        QgsProject.instance().readProject.connect(self.projectLoaded)
 
     def createSoundRecordingController(self) -> SammoSoundRecordingController:
         controller = SammoSoundRecordingController()
@@ -98,13 +100,13 @@ class Sammo:
         del self._toolBar
 
     def onCreateSession(self, workingDirectory: str):
-        self._session.onCreateSession(workingDirectory)
-        self._onOffEffortBtn.onCreateSession()
-        self._addFollowerBtn.onCreateSession()
-        self._addObservationBtn.onCreateSession()
-        self._soundRecordingController.onCreateSession(workingDirectory)
+        self._session.onNewSession(workingDirectory)
+        self._onOffEffortBtn.onNewSession()
+        self._addFollowerBtn.onNewSession()
+        self._addObservationBtn.onNewSession()
+        self._soundRecordingController.onNewSession(workingDirectory)
         if self._simuGpsBtn:
-            self._simuGpsBtn.onCreateSession()
+            self._simuGpsBtn.onNewSession()
 
     def onChangeEffortStatus(self, isChecked: bool):
         if isChecked:
@@ -138,3 +140,16 @@ class Sammo:
             self._threadSimuGps.start()
         else:
             self._threadSimuGps.stop()
+
+    def projectLoaded(self):
+        try:
+            workingDirectory = QgsProject.instance().readPath("./")
+            self._session.onLoadProject(workingDirectory)
+            self._onOffEffortBtn.onNewSession()
+            self._addFollowerBtn.onNewSession()
+            self._addObservationBtn.onNewSession()
+            self._soundRecordingController.onNewSession(workingDirectory)
+            if self._simuGpsBtn:
+                self._simuGpsBtn.onNewSession()
+        except IndexError:
+            pass

@@ -30,10 +30,10 @@ class SammoDataBase:
 
     @staticmethod
     def isDataBaseAvailableInThisDirectory(directory):
-        return os.path.isfile(SammoDataBase._pathToDataBase(directory))
+        return os.path.isfile(SammoDataBase.pathToDataBase(directory))
 
     def createEmptyDataBase(self, directory):
-        db = self._pathToDataBase(directory)
+        db = self.pathToDataBase(directory)
 
         self._addTableToDataBaseFile(
             db,
@@ -95,7 +95,7 @@ class SammoDataBase:
         )
 
     @staticmethod
-    def _pathToDataBase(directory: str) -> str:
+    def pathToDataBase(directory: str) -> str:
         return os.path.join(directory, SammoDataBase.DB_NAME)
 
     def _createFieldsForEnvironmentTable(self) -> QgsFields:
@@ -235,5 +235,5 @@ class SammoDataBase:
         return QgsField(fieldName, QVariant.String, len=50)
 
     def loadTable(self, directory, tableName) -> QgsVectorLayer:
-        db = self._pathToDataBase(directory) + "|layername=" + tableName
+        db = self.pathToDataBase(directory) + "|layername=" + tableName
         return QgsVectorLayer(db, tableName)

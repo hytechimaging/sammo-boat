@@ -14,6 +14,7 @@ from qgis.core import (
     QgsFeature,
     QgsGeometry,
     QgsPointXY,
+    QgsCoordinateReferenceSystem,
     QgsPoint,
 )
 
@@ -33,12 +34,36 @@ class SammoSession:
     def isDataBaseAvailable(directory):
         return SammoDataBase.isDataBaseAvailableInThisDirectory(directory)
 
-    def onCreateSession(self, directory):
+    def onLoadProject(self, directory):
         self.directoryPath = directory
+        self._loadTables()
+        self._configureAutoRefreshLayers()
+
+    def onNewSession(self, directory):
+        self.directoryPath = directory
+        isNewDataBase = False
         if not self.isDataBaseAvailable(directory):
             # No geopackage DB in this directory
             self.createEmptyDataBase(directory)
+            isNewDataBase = True
 
+        uri = (
+            "geopackage:"
+            + SammoDataBase.pathToDataBase(directory)
+            + "?projectName=project"
+        )
+        if isNewDataBase:
+            project = QgsProject()
+            gpsTable = self.loadTable(SammoDataBase.GPS_TABLE_NAME)
+            project.addMapLayer(gpsTable)
+            project.setCrs(QgsCoordinateReferenceSystem(4326))
+            project.write(uri)  # Save the QGIS projet into the database
+
+        QgsProject.instance().read(uri)
+        self._loadTables()
+        self._configureAutoRefreshLayers()
+
+    def _loadTables(self):
         self._environmentTable = self.loadTable(
             SammoDataBase.ENVIRONMENT_TABLE_NAME
         )
@@ -49,7 +74,11 @@ class SammoSession:
         self._followerTable = self.loadTable(SammoDataBase.FOLLOWER_TABLE_NAME)
         self._gpsTable = self.loadTable(SammoDataBase.GPS_TABLE_NAME)
 
-        QgsProject.instance().addMapLayer(self._gpsTable)
+    @staticmethod
+    def _configureAutoRefreshLayers():
+        layer = QgsProject.instance().mapLayersByName("gps")[0]
+        layer.setAutoRefreshInterval(1000)
+        layer.setAutoRefreshEnabled(True)
 
     def onStopSoundRecordingForObservation(
         self, soundFile: str, soundStart: str, soundEnd: str

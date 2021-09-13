@@ -59,7 +59,7 @@ class SammoSoundRecordingController(QObject):
             # on end observation
             self._threadSoundRecording.setAutomaticStopTimerSignal.emit(15)
 
-    def onCreateSession(self, workingDirectory: str):
+    def onNewSession(self, workingDirectory: str):
         self._workingDirectory = workingDirectory
 
     def changeSoundRecordingStatus(self, isAskForRecording: bool):

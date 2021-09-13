@@ -26,7 +26,7 @@ class SammoSimuGpsBtn(QObject):
         self.button.setCheckable(True)
         toolbar.addWidget(self.button)
 
-    def onCreateSession(self):
+    def onNewSession(self):
         self.button.setEnabled(True)
 
     def unload(self):
