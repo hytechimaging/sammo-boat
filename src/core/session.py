@@ -56,6 +56,12 @@ class SammoSession:
             project = QgsProject()
             gpsTable = self.loadTable(SammoDataBase.GPS_TABLE_NAME)
             project.addMapLayer(gpsTable)
+            layerWorldMap = QgsVectorLayer(
+                "/usr/share/qgis/resources/data"
+                "/world_map.gpkg|layername=countries"
+            )
+            layerWorldMap.setName("world_map")
+            project.addMapLayer(layerWorldMap)
             project.setCrs(QgsCoordinateReferenceSystem(4326))
             project.write(uri)  # Save the QGIS projet into the database
 
