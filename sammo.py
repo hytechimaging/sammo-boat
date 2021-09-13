@@ -67,15 +67,6 @@ class Sammo:
         )
         return [button, threadGps]
 
-    def createPermanentThreadsCloser(self) -> SammoPermanentsThreadsCloserBtn:
-        button = SammoPermanentsThreadsCloserBtn(
-            self.iface.mainWindow(), self._toolBar
-        )
-        button.onAskForCloserPermanentsThreadsSignal.connect(
-            self.onAskForCloserPermanentsThreads
-        )
-        return button
-
     def createGpsExtractor(self) -> ThreadGpsExtractor:
         threadGps = ThreadGpsExtractor(self._session)
         threadGps.addNewFeatureToGpsTableSignal.connect(
@@ -134,10 +125,6 @@ class Sammo:
         self._statusDock.unload()
         del self._statusDock
         del self._toolBar
-
-    def onAskForCloserPermanentsThreads(self):
-        self._threadGpsExtractor.stop()
-        pass
 
     def onCreateSession(self, workingDirectory: str):
         self._session.onNewSession(workingDirectory)
