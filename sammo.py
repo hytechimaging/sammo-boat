@@ -100,7 +100,7 @@ class Sammo:
         del self._toolBar
 
     def onCreateSession(self, workingDirectory: str):
-        self._session.onCreateSession(workingDirectory)
+        self._session.onNewSession(workingDirectory)
         self._onOffEffortBtn.onNewSession()
         self._addFollowerBtn.onNewSession()
         self._addObservationBtn.onNewSession()
