@@ -39,7 +39,7 @@ class SammoSession:
         self._loadTables()
         self._configureAutoRefreshLayers()
 
-    def onCreateSession(self, directory):
+    def onNewSession(self, directory):
         self.directoryPath = directory
         isNewDataBase = False
         if not self.isDataBaseAvailable(directory):
