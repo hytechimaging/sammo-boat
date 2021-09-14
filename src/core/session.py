@@ -73,14 +73,18 @@ class SammoSession:
     def _worldMapPath() -> str:
         path = QgsApplication.instance().prefixPath()
         if platform.system() == "Windows":
-            path = os.path.join(path, "resources", "data", "world_map.gpkg|layername=countries")
+            path = os.path.join(
+                path, "resources", "data", "world_map.gpkg|layername=countries"
+            )
         else:
-            path = os.path.join(path, "share",
-            "qgis",
-            "resources",
-            "data",
-            "world_map.gpkg|layername=countries"
-        )
+            path = os.path.join(
+                path,
+                "share",
+                "qgis",
+                "resources",
+                "data",
+                "world_map.gpkg|layername=countries",
+            )
         return path
 
     def _loadTables(self):
