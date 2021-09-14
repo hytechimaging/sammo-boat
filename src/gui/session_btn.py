@@ -30,7 +30,7 @@ class SammoActionSession(QObject):
 
     def run(self):
         workingDirectory = QFileDialog.getExistingDirectory(
-            None, "Select a working directory", QDir.currentPath()
+            None, "Select a working directory", QDir.currentPath(), QFileDialog.DontUseNativeDialog
         )
         if not workingDirectory:
             # no directory selected
