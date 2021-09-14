@@ -3,6 +3,7 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
+import glob
 import os.path
 import platform
 import sys
@@ -73,20 +74,9 @@ class SammoSession:
     @staticmethod
     def _worldMapPath():
         path = QgsApplication.instance().prefixPath()
-        if platform.system() == "Windows":
-            path = os.path.join(
-                os.path.dirname(sys.executable), "..", "apps"
-            )
-        else:
-            path = os.path.join(path, "share")
-        path = os.path.join(
-            path,
-            "qgis",
-            "resources",
-            "data",
-            "world_map.gpkg|layername=countries",
-        )
-        print(path)
+        result = glob.glob(os.path.join(path, "**/world_map.gpkg"), recursive=True)
+        path = result[0] + "|layername=countries"
+
         return path
 
     def _loadTables(self):
