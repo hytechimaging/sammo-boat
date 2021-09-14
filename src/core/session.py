@@ -3,7 +3,6 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-import glob
 import os.path
 from qgis.PyQt.QtWidgets import QMessageBox
 from .database import SammoDataBase
@@ -73,7 +72,7 @@ class SammoSession:
         self._configureAutoRefreshLayers()
 
     @staticmethod
-    def _worldMapPath() -> (bool, str) :
+    def _worldMapPath() -> (bool, str):
         path = QgsApplication.instance().prefixPath()
         filename = "world_map.gpkg"
         for root, dir, files in os.walk(path):
