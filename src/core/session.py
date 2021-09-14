@@ -3,6 +3,9 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
+import os.path
+import platform
+import sys
 from qgis.PyQt.QtWidgets import QMessageBox
 from .database import SammoDataBase
 from .logger import Logger
@@ -56,10 +59,7 @@ class SammoSession:
             project = QgsProject()
             gpsTable = self.loadTable(SammoDataBase.GPS_TABLE_NAME)
             project.addMapLayer(gpsTable)
-            layerWorldMap = QgsVectorLayer(
-                "/usr/share/qgis/resources/data"
-                "/world_map.gpkg|layername=countries"
-            )
+            layerWorldMap = QgsVectorLayer(self._worldMapPath())
             layerWorldMap.setName("world_map")
             project.addMapLayer(layerWorldMap)
             project.setCrs(QgsCoordinateReferenceSystem(4326))
@@ -68,6 +68,13 @@ class SammoSession:
         QgsProject.instance().read(uri)
         self._loadTables()
         self._configureAutoRefreshLayers()
+
+    @staticmethod
+    def _worldMapPath():
+        if platform.system() == "Windows":
+            return os.path.join(os.path.dirname(sys.executable),"..", "apps", "qgis", "resources", "data", "world_map.gpkg|layername=countries")
+        else:
+            return "/usr/share/qgis/resources/data/world_map.gpkg|layername=countries"
 
     def _loadTables(self):
         self._environmentTable = self.loadTable(
