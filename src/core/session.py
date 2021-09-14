@@ -72,9 +72,18 @@ class SammoSession:
     @staticmethod
     def _worldMapPath():
         if platform.system() == "Windows":
-            return os.path.join(os.path.dirname(sys.executable),"..", "apps", "qgis", "resources", "data", "world_map.gpkg|layername=countries")
+            mainPath = os.path.join(
+                os.path.dirname(sys.executable), "..", "apps"
+            )
         else:
-            return "/usr/share/qgis/resources/data/world_map.gpkg|layername=countries"
+            mainPath = "/usr/share"
+        return os.path.join(
+            mainPath,
+            "qgis",
+            "resources",
+            "data",
+            "world_map.gpkg|layername=countries",
+        )
 
     def _loadTables(self):
         self._environmentTable = self.loadTable(
