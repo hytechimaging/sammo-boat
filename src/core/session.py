@@ -5,8 +5,6 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import glob
 import os.path
-import platform
-import sys
 from qgis.PyQt.QtWidgets import QMessageBox
 from .database import SammoDataBase
 from .logger import Logger
@@ -61,10 +59,13 @@ class SammoSession:
             project = QgsProject()
             gpsTable = self.loadTable(SammoDataBase.GPS_TABLE_NAME)
             project.addMapLayer(gpsTable)
-            layerWorldMap = QgsVectorLayer(self._worldMapPath())
-            layerWorldMap.setName("world_map")
-            project.addMapLayer(layerWorldMap)
-            project.setCrs(QgsCoordinateReferenceSystem(4326))
+            (isExistWorldMap, pathToWorldMap) = self._worldMapPath()
+            if isExistWorldMap:
+                layerWorldMap = QgsVectorLayer(pathToWorldMap)
+                layerWorldMap.setName("world_map")
+                project.addMapLayer(layerWorldMap)
+            self._worldMapPath()
+            project.setCrs(QgsCoordinateReferenceSystem.fromEpsgId(4326))
             project.write(uri)  # Save the QGIS projet into the database
 
         QgsProject.instance().read(uri)
@@ -72,12 +73,16 @@ class SammoSession:
         self._configureAutoRefreshLayers()
 
     @staticmethod
-    def _worldMapPath():
+    def _worldMapPath() -> (bool, str) :
         path = QgsApplication.instance().prefixPath()
-        result = glob.glob(os.path.join(path, "**/world_map.gpkg"), recursive=True)
-        path = result[0] + "|layername=countries"
+        filename = "world_map.gpkg"
+        for root, dir, files in os.walk(path):
+            if filename in files:
+                path = os.path.join(root, filename) + "|layername=countries"
+                print("path = " + path)
+                return True, path
 
-        return path
+        return False, ""
 
     def _loadTables(self):
         self._environmentTable = self.loadTable(
