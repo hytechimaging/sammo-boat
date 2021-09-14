@@ -11,6 +11,7 @@ from .database import SammoDataBase
 from .logger import Logger
 from datetime import datetime
 from qgis.core import (
+    QgsApplication,
     QgsVectorLayerUtils,
     QgsProject,
     QgsVectorLayer,
@@ -71,19 +72,22 @@ class SammoSession:
 
     @staticmethod
     def _worldMapPath():
+        path = QgsApplication.instance().prefixPath()
         if platform.system() == "Windows":
-            mainPath = os.path.join(
+            path = os.path.join(
                 os.path.dirname(sys.executable), "..", "apps"
             )
         else:
-            mainPath = "/usr/share"
-        return os.path.join(
-            mainPath,
+            path = os.path.join(path, "share")
+        path = os.path.join(
+            path,
             "qgis",
             "resources",
             "data",
             "world_map.gpkg|layername=countries",
         )
+        print(path)
+        return path
 
     def _loadTables(self):
         self._environmentTable = self.loadTable(
