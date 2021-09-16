@@ -3,6 +3,20 @@
 QGIS Plugin.
 
 
+## Dependencies
+
+Some dependencies are necessary for the plugin to properly work and may be
+installed through the `Python Console` of QGIS Desktop:
+
+```` python
+>>> import pip
+>>> pip.main(['install', 'sounddevice'])
+>>> pip.main(['install', 'soundfile'])
+````
+
+QGIS Desktop needs to be restarted after installing these dependencies.
+
+
 ## Known issues
 
 #### Map canvas blinking
