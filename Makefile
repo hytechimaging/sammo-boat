@@ -14,6 +14,6 @@ clean-archive:
 
 archive: clean-archive
 	mkdir -p "$(TMPDIR)/sammo-boat"
-	rsync -vazC --exclude=".*" . "$(TMPDIR)/sammo-boat/"
-	cd "$(TMPDIR)/sammo-boat" && zip -x "Makefile" -r "$(TMPDIR)/sammo-boat.zip" "."
+	rsync -vazC --exclude="__pycache__" --exclude=".*" --exclude="Makefile" . "$(TMPDIR)/sammo-boat/"
+	cd "$(TMPDIR)/" && zip -r "$(TMPDIR)/sammo-boat.zip" "sammo-boat"
 	cp "$(TMPDIR)/sammo-boat.zip" .
