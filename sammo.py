@@ -13,7 +13,6 @@ from .src.core.thread_simu_gps import ThreadSimuGps
 from .src.gui.simu_gps_btn import SammoSimuGpsBtn
 from .src.core.sound_recording_controller import SammoSoundRecordingController
 from .src.gui.status_dock import StatusDock
-from .src.gui.widget import Widget
 from qgis.PyQt.QtWidgets import QToolBar
 from qgis.core import QgsFeature, QgsProject
 
@@ -30,7 +29,6 @@ class Sammo:
         self._simuGpsBtn, self._threadSimuGps = self.createSimuGps()
         self._soundRecordingController = self.createSoundRecordingController()
         self._statusDock = StatusDock(self.iface)
-        self._widget = Widget(self.iface)
         QgsProject.instance().readProject.connect(self.projectLoaded)
 
     def createSoundRecordingController(self) -> SammoSoundRecordingController:
