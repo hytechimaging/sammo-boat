@@ -31,7 +31,6 @@ class Sammo:
         self._soundRecordingController = self.createSoundRecordingController()
         self._threadGpsExtractor = self.createGpsExtractor()
         self._statusDock = StatusDock(self.iface)
-        self._permanentThreadsCloser = self.createPermanentThreadsCloser()
         QgsProject.instance().readProject.connect(self.projectLoaded)
 
     def createSoundRecordingController(self) -> SammoSoundRecordingController:
