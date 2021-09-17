@@ -4,7 +4,6 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
-
 from .src.gui.session_btn import SammoActionSession
 from .src.gui.on_off_effort_btn import SammoOnOffEffortBtn
 from .src.core.session import SammoSession
@@ -13,6 +12,7 @@ from .src.gui.add_observation_btn import SammoAddObservationBtn
 from .src.core.thread_simu_gps import ThreadSimuGps
 from .src.gui.simu_gps_btn import SammoSimuGpsBtn
 from .src.core.sound_recording_controller import SammoSoundRecordingController
+from .src.gui.status_dock import StatusDock
 from qgis.PyQt.QtWidgets import QToolBar
 from qgis.core import QgsFeature, QgsProject
 
@@ -28,12 +28,16 @@ class Sammo:
         self._addObservationBtn = self.createAddObservationBtn()
         self._simuGpsBtn, self._threadSimuGps = self.createSimuGps()
         self._soundRecordingController = self.createSoundRecordingController()
+        self._statusDock = StatusDock(self.iface)
         QgsProject.instance().readProject.connect(self.projectLoaded)
 
     def createSoundRecordingController(self) -> SammoSoundRecordingController:
         controller = SammoSoundRecordingController()
         controller.onStopSoundRecordingForObservationSignal.connect(
             self._session.onStopSoundRecordingForObservation
+        )
+        controller.onSoundRecordingStatusChanged.connect(
+            self.onSoundRecordingStatusChanged
         )
         return controller
 
@@ -47,7 +51,7 @@ class Sammo:
         )
         threadGps = ThreadSimuGps(self._session, testFilePath)
         threadGps.addNewFeatureToGpsTableSignal.connect(
-            self._session.addNewFeatureToGpsTable
+            self.addNewFeatureToGpsTableSignal
         )
         return [button, threadGps]
 
@@ -97,6 +101,8 @@ class Sammo:
         if self._simuGpsBtn is not None:
             self._simuGpsBtn.unload()
 
+        self._statusDock.unload()
+        del self._statusDock
         del self._toolBar
 
     def onCreateSession(self, workingDirectory: str):
@@ -117,6 +123,7 @@ class Sammo:
             self._onOffEffortBtn.openFeatureForm(self.iface, table, feat)
         else:
             self._session.onStopEffort()
+            self._statusDock.isEffortOn = False
 
     def onClickObservation(self):
         self._soundRecordingController.onChangeObservationStatus(True)
@@ -131,6 +138,7 @@ class Sammo:
 
     def onAddFeatureToEnvironmentTableSignal(self, feat: QgsFeature):
         self._session.onStartEffort(feat)
+        self._statusDock.isEffortOn = True
 
     def onAddFeatureToFollowerTableSignal(self, feat: QgsFeature):
         self._session.addNewFeatureToFollowerTable(feat)
@@ -140,6 +148,17 @@ class Sammo:
             self._threadSimuGps.start()
         else:
             self._threadSimuGps.stop()
+
+    def onSoundRecordingStatusChanged(self, isOn: bool):
+        self._statusDock.isSoundRecordingOn = isOn
+
+    def addNewFeatureToGpsTableSignal(
+        self, longitude: float, latitude: float, leg_heure: str, code_leg: int
+    ):
+        self._session.addNewFeatureToGpsTable(
+            longitude, latitude, leg_heure, code_leg
+        )
+        self._statusDock.updateGpsLocation(longitude, latitude)
 
     def projectLoaded(self):
         try:
