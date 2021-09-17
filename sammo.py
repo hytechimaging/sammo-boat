@@ -4,12 +4,6 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
-
-from .src.gui.permanents_threads_closer_btn import (
-    SammoPermanentsThreadsCloserBtn,
-)
-from .src.core.gps_extractor import GpsExtractor
-from .src.gui.permanents_threads_closer_btn import SammoPermanentsThreadsCloserBtn
 from .src.gui.session_btn import SammoActionSession
 from .src.gui.on_off_effort_btn import SammoOnOffEffortBtn
 from .src.core.session import SammoSession
@@ -17,11 +11,8 @@ from .src.gui.add_follower_btn import SammoAddFollowerBtn
 from .src.gui.add_observation_btn import SammoAddObservationBtn
 from .src.core.thread_simu_gps import ThreadSimuGps
 from .src.core.thread_gps_extractor import ThreadGpsExtractor
-from qgis.PyQt.QtWidgets import QToolBar
-from qgis.core import QgsFeature
 from .src.gui.simu_gps_btn import SammoSimuGpsBtn
 from .src.core.sound_recording_controller import SammoSoundRecordingController
-from PyQt5.QtCore import QTimer
 from qgis.PyQt.QtWidgets import QToolBar
 from qgis.core import QgsFeature, QgsProject
 
@@ -38,9 +29,7 @@ class Sammo:
         self._simuGpsBtn, self._threadSimuGps = self.createSimuGps()
         self._soundRecordingController = self.createSoundRecordingController()
         self._threadGpsExtractor = self.createGpsExtractor()
-        self._permanentThreadsCloser = self.createPermanentThreadsCloser()
         QgsProject.instance().readProject.connect(self.projectLoaded)
-        self.gpsExtractor = GpsExtractor()
 
     def createSoundRecordingController(self) -> SammoSoundRecordingController:
         controller = SammoSoundRecordingController()
