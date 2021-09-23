@@ -12,7 +12,7 @@ from qgis.PyQt.QtWidgets import QPushButton, QToolBar
 
 
 class SammoChangeEnvironmentBtn(QObject):
-    onChangeEffortStatusSignal = pyqtSignal(bool)
+    onChangeEnvironmentBtnStatus = pyqtSignal(bool)
     onAddFeatureToEnvironmentTableSignal = pyqtSignal(QgsFeature)
 
     def __init__(self, parent: QObject, toolbar: QToolBar):
@@ -29,17 +29,20 @@ class SammoChangeEnvironmentBtn(QObject):
         self.button.setCheckable(True)
         toolbar.addWidget(self.button)
 
+    def onChangeEffortStatus(self, effortStatus: bool):
+        self.button.setEnabled(effortStatus)
+
     def onNewSession(self):
-        self.button.setEnabled(True)
+        self.button.setEnabled(False)
 
     def unload(self):
         del self.button
 
     def onClick(self):
         if self.button.isChecked():
-            self.onChangeEffortStatusSignal.emit(True)
+            self.onChangeEnvironmentBtnStatus.emit(True)
         else:
-            self.onChangeEffortStatusSignal.emit(False)
+            self.onChangeEnvironmentBtnStatus.emit(False)
 
     def openFeatureForm(self, iface, table: QgsVectorLayer, feat: QgsFeature):
         if iface.openFeatureForm(table, feat):

@@ -78,14 +78,11 @@ class Sammo:
     def createOnOffEffortBtn(self) -> SammoOnOffEffortBtn:
         button = SammoOnOffEffortBtn(self.iface.mainWindow(), self._toolBar)
         button.onChangeEffortStatusSignal.connect(self.onChangeEffortStatus)
-        button.onAddFeatureToEnvironmentTableSignal.connect(
-            self.onAddFeatureToEnvironmentTableSignal
-        )
         return button
 
     def createChangeEnvironmentBtn(self) -> SammoChangeEnvironmentBtn:
         button = SammoChangeEnvironmentBtn(self.iface.mainWindow(), self._toolBar)
-        button.onChangeEffortStatusSignal.connect(self.onChangeEffortStatus)
+        button.onChangeEnvironmentBtnStatus.connect(self.onChangeEnvironmentBtnStatus)
         button.onAddFeatureToEnvironmentTableSignal.connect(
             self.onAddFeatureToEnvironmentTableSignal
         )
@@ -120,7 +117,6 @@ class Sammo:
     def onCreateSession(self, workingDirectory: str):
         self._session.onNewSession(workingDirectory)
         self._onOffEffortBtn.onNewSession()
-        self._changeEnvironmentBtn.onNewSession()
         self._addFollowerBtn.onNewSession()
         self._addObservationBtn.onNewSession()
         self._soundRecordingController.onNewSession(workingDirectory)
@@ -128,8 +124,9 @@ class Sammo:
             self._simuGpsBtn.onNewSession()
 
     def onChangeEffortStatus(self, isChecked: bool):
-        # self._changeEnvironmentBtn.onChangeEffortStatus(isChecked)
+        self._changeEnvironmentBtn.onChangeEffortStatus(isChecked)
 
+    def onChangeEnvironmentBtnStatus(self, isChecked: bool):
         if isChecked:
             (
                 feat,
