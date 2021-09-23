@@ -12,7 +12,7 @@ from qgis.PyQt.QtWidgets import QPushButton, QToolBar
 
 
 class SammoChangeEnvironmentBtn(QObject):
-    onClickChangeEnvironmentBtnSignal = pyqtSignal(bool)
+    onChangeEffortStatusSignal = pyqtSignal(bool)
     onAddFeatureToEnvironmentTableSignal = pyqtSignal(QgsFeature)
 
     def __init__(self, parent: QObject, toolbar: QToolBar):
@@ -26,16 +26,20 @@ class SammoChangeEnvironmentBtn(QObject):
         self.button.setText("Change environment")
         self.button.clicked.connect(self.onClick)
         self.button.setEnabled(False)
+        self.button.setCheckable(True)
         toolbar.addWidget(self.button)
 
-    def onChangeEffortStatus(self, effortStatus: bool):
-        self.button.setEnabled(effortStatus)
+    def onNewSession(self):
+        self.button.setEnabled(True)
 
     def unload(self):
         del self.button
 
     def onClick(self):
-        self.onClickChangeEnvironmentBtnSignal.emit(False)
+        if self.button.isChecked():
+            self.onChangeEffortStatusSignal.emit(True)
+        else:
+            self.onChangeEffortStatusSignal.emit(False)
 
     def openFeatureForm(self, iface, table: QgsVectorLayer, feat: QgsFeature):
         if iface.openFeatureForm(table, feat):
@@ -45,4 +49,38 @@ class SammoChangeEnvironmentBtn(QObject):
 
     def isChecked(self) -> bool:
         return self.button.isChecked()
+
+    # onClickChangeEnvironmentBtnSignal = pyqtSignal(bool)
+    # onAddFeatureToEnvironmentTableSignal = pyqtSignal(QgsFeature)
+
+    # def __init__(self, parent: QObject, toolbar: QToolBar):
+    #     super().__init__()
+    #     self.parent = parent
+    #     self.button: QIcon = None
+    #     self.initGui(parent, toolbar)
+    #
+    # def initGui(self, parent: QObject, toolbar: QToolBar):
+    #     self.button = QPushButton(parent)
+    #     self.button.setText("Change environment")
+    #     self.button.clicked.connect(self.onClick)
+    #     self.button.setEnabled(False)
+    #     toolbar.addWidget(self.button)
+    #
+    # def onChangeEffortStatus(self, effortStatus: bool):
+    #     self.button.setEnabled(effortStatus)
+    #
+    # def unload(self):
+    #     del self.button
+    #
+    # def onClick(self):
+    #     self.onClickChangeEnvironmentBtnSignal.emit(False)
+    #
+    # def openFeatureForm(self, iface, table: QgsVectorLayer, feat: QgsFeature):
+    #     if iface.openFeatureForm(table, feat):
+    #         self.onAddFeatureToEnvironmentTableSignal.emit(feat)
+    #     else:
+    #         self.button.setChecked(False)
+    #
+    # def isChecked(self) -> bool:
+    #     return self.button.isChecked()
 

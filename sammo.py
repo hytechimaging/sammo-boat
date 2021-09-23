@@ -85,7 +85,7 @@ class Sammo:
 
     def createChangeEnvironmentBtn(self) -> SammoChangeEnvironmentBtn:
         button = SammoChangeEnvironmentBtn(self.iface.mainWindow(), self._toolBar)
-        button.onClickChangeEnvironmentBtnSignal.connect(self.onClickChangeEnvironmentBtn)
+        button.onChangeEffortStatusSignal.connect(self.onChangeEffortStatus)
         button.onAddFeatureToEnvironmentTableSignal.connect(
             self.onAddFeatureToEnvironmentTableSignal
         )
@@ -120,6 +120,7 @@ class Sammo:
     def onCreateSession(self, workingDirectory: str):
         self._session.onNewSession(workingDirectory)
         self._onOffEffortBtn.onNewSession()
+        self._changeEnvironmentBtn.onNewSession()
         self._addFollowerBtn.onNewSession()
         self._addObservationBtn.onNewSession()
         self._soundRecordingController.onNewSession(workingDirectory)
@@ -127,14 +128,14 @@ class Sammo:
             self._simuGpsBtn.onNewSession()
 
     def onChangeEffortStatus(self, isChecked: bool):
-        self._changeEnvironmentBtn.onChangeEffortStatus(isChecked)
+        # self._changeEnvironmentBtn.onChangeEffortStatus(isChecked)
 
         if isChecked:
             (
                 feat,
                 table,
             ) = self._session.getReadyToAddNewFeatureToEnvironmentTable()
-            self._onOffEffortBtn.openFeatureForm(self.iface, table, feat)
+            self._changeEnvironmentBtn.openFeatureForm(self.iface, table, feat)
         else:
             self._session.onStopEffort()
             self._statusDock.isEffortOn = False
@@ -182,6 +183,7 @@ class Sammo:
             workingDirectory = QgsProject.instance().readPath("./")
             self._session.onLoadProject(workingDirectory)
             self._onOffEffortBtn.onNewSession()
+            self._changeEnvironmentBtn.onNewSession()
             self._addFollowerBtn.onNewSession()
             self._addObservationBtn.onNewSession()
             self._soundRecordingController.onNewSession(workingDirectory)
