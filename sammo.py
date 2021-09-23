@@ -4,7 +4,6 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
-
 from .src.gui.changeEnvironment_btn import SammoChangeEnvironmentBtn
 from .src.gui.session_btn import SammoActionSession
 from .src.gui.on_off_effort_btn import SammoOnOffEffortBtn
@@ -81,8 +80,12 @@ class Sammo:
         return button
 
     def createChangeEnvironmentBtn(self) -> SammoChangeEnvironmentBtn:
-        button = SammoChangeEnvironmentBtn(self.iface.mainWindow(), self._toolBar)
-        button.onChangeEnvironmentBtnStatus.connect(self.onChangeEnvironmentBtnStatus)
+        button = SammoChangeEnvironmentBtn(
+            self.iface.mainWindow(), self._toolBar
+        )
+        button.onClickChangeEnvironmentBtn.connect(
+            self.onClickChangeEnvironmentBtn
+        )
         button.onAddFeatureToEnvironmentTableSignal.connect(
             self.onAddFeatureToEnvironmentTableSignal
         )
@@ -125,20 +128,22 @@ class Sammo:
 
     def onChangeEffortStatus(self, isChecked: bool):
         self._changeEnvironmentBtn.onChangeEffortStatus(isChecked)
-
-    def onChangeEnvironmentBtnStatus(self, isChecked: bool):
-        if isChecked:
-            (
-                feat,
-                table,
-            ) = self._session.getReadyToAddNewFeatureToEnvironmentTable()
-            self._changeEnvironmentBtn.openFeatureForm(self.iface, table, feat)
-        else:
-            self._session.onStopEffort()
+        if not isChecked:
             self._statusDock.isEffortOn = False
+            self._session.onStopTransect()
+        else:
+            self.onStartNewTransect()
 
     def onClickChangeEnvironmentBtn(self):
-        pass
+        self._session.onStopTransect()
+        self.onStartNewTransect()
+
+    def onStartNewTransect(self):
+        (
+            feat,
+            table,
+        ) = self._session.getReadyToAddNewFeatureToEnvironmentTable()
+        self._changeEnvironmentBtn.openFeatureForm(self.iface, table, feat)
 
     def onClickObservation(self):
         self._soundRecordingController.onChangeObservationStatus(True)
@@ -152,7 +157,7 @@ class Sammo:
         self._addFollowerBtn.openFeatureForm(self.iface, table, feat)
 
     def onAddFeatureToEnvironmentTableSignal(self, feat: QgsFeature):
-        self._session.onStartEffort(feat)
+        self._session.addNewFeatureToEnvironmentTable(feat)
         self._statusDock.isEffortOn = True
 
     def onAddFeatureToFollowerTableSignal(self, feat: QgsFeature):

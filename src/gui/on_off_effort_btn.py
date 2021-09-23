@@ -7,7 +7,6 @@ import os
 
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import pyqtSignal, QObject
-from qgis.core import QgsVectorLayer, QgsFeature
 from qgis.PyQt.QtWidgets import QAction, QToolBar
 
 
@@ -37,13 +36,7 @@ class SammoOnOffEffortBtn(QObject):
         del self.button
 
     def onClick(self):
-        if self.button.isChecked():
-            self.onChangeEffortStatusSignal.emit(True)
-        else:
-            self.onChangeEffortStatusSignal.emit(False)
-
-    def isChecked(self) -> bool:
-        return self.button.isChecked()
+        self.onChangeEffortStatusSignal.emit(self.button.isChecked())
 
     @property
     def icon(self):
