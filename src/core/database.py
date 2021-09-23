@@ -129,6 +129,9 @@ class SammoDataBase:
             self._createFieldShortText(self.ENVIRONMENT_COMMENT_FIELD_NAME)
         )
         fields.append(self._createFieldShortText("Survey"))
+        fields.append(self._createFieldShortText("fichier_son"))
+        fields.append(self._createFieldShortText("sound_start"))
+        fields.append(self._createFieldShortText("sound_end"))
 
         return fields
 

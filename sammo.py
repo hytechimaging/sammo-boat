@@ -35,8 +35,8 @@ class Sammo:
 
     def createSoundRecordingController(self) -> SammoSoundRecordingController:
         controller = SammoSoundRecordingController()
-        controller.onStopSoundRecordingForObservationSignal.connect(
-            self._session.onStopSoundRecordingForObservation
+        controller.onStopSoundRecordingForEventSignal.connect(
+            self._session.onStopSoundRecordingForEvent
         )
         controller.onSoundRecordingStatusChanged.connect(
             self.onSoundRecordingStatusChanged
@@ -139,6 +139,7 @@ class Sammo:
         self.onStartNewTransect()
 
     def onStartNewTransect(self):
+        self._soundRecordingController.onStartEnvironment()
         (
             feat,
             table,
@@ -146,11 +147,11 @@ class Sammo:
         self._changeEnvironmentBtn.openFeatureForm(self.iface, table, feat)
 
     def onClickObservation(self):
-        self._soundRecordingController.onChangeObservationStatus(True)
+        self._soundRecordingController.onStartObservation()
         feat, table = self._session.getReadyToAddNewFeatureToObservationTable()
         if self.iface.openFeatureForm(table, feat):
             self._session.addNewFeatureToObservationTable(feat)
-            self._soundRecordingController.onChangeObservationStatus(False)
+            self._soundRecordingController.onStopEventWhichNeedSoundRecord()
 
     def onClickAddFollower(self):
         feat, table = self._session.getReadyToAddNewFeatureToFollowerTable()
@@ -159,6 +160,7 @@ class Sammo:
     def onAddFeatureToEnvironmentTableSignal(self, feat: QgsFeature):
         self._session.addNewFeatureToEnvironmentTable(feat)
         self._statusDock.isEffortOn = True
+        self._soundRecordingController.onStopEventWhichNeedSoundRecord()
 
     def onAddFeatureToFollowerTableSignal(self, feat: QgsFeature):
         self._session.addNewFeatureToFollowerTable(feat)

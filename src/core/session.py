@@ -80,10 +80,14 @@ class SammoSession:
         layer.setAutoRefreshInterval(1000)
         layer.setAutoRefreshEnabled(True)
 
-    def onStopSoundRecordingForObservation(
-        self, soundFile: str, soundStart: str, soundEnd: str
+    def onStopSoundRecordingForEvent(
+        self, isObservation: bool, soundFile: str, soundStart: str, soundEnd: str
     ):
-        table = self._observationTable
+        if isObservation:
+            table = self._observationTable
+        else:
+            table = self._environmentTable
+
         table.startEditing()
         idLastAddedFeature = self.db.getIdOfLastAddedFeature(table)
         field_idx = table.fields().indexOf("fichier_son")
