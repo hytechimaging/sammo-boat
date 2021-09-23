@@ -60,6 +60,8 @@ class OtherThread(QObject):
 
     def stop(self):
         self.worker.stop()
+        self.thread.quit()
+        self.thread.wait()
         self.isProceeding = False
 
     def log(self, msg: str):

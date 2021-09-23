@@ -4,6 +4,8 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
+
+from .src.gui.changeEnvironment_btn import SammoChangeEnvironmentBtn
 from .src.gui.session_btn import SammoActionSession
 from .src.gui.on_off_effort_btn import SammoOnOffEffortBtn
 from .src.core.session import SammoSession
@@ -24,6 +26,7 @@ class Sammo:
         self._session = SammoSession()
         self._sessionBtn = self.createSessionBtn()
         self._onOffEffortBtn = self.createOnOffEffortBtn()
+        self._changeEnvironmentBtn = self.createChangeEnvironmentBtn()
         self._addFollowerBtn = self.createAddFollowerBtn()
         self._addObservationBtn = self.createAddObservationBtn()
         self._simuGpsBtn, self._threadSimuGps = self.createSimuGps()
@@ -80,6 +83,14 @@ class Sammo:
         )
         return button
 
+    def createChangeEnvironmentBtn(self) -> SammoChangeEnvironmentBtn:
+        button = SammoChangeEnvironmentBtn(self.iface.mainWindow(), self._toolBar)
+        button.onClickChangeEnvironmentBtnSignal.connect(self.onClickChangeEnvironmentBtn)
+        button.onAddFeatureToEnvironmentTableSignal.connect(
+            self.onAddFeatureToEnvironmentTableSignal
+        )
+        return button
+
     def createSessionBtn(self) -> SammoActionSession:
         button = SammoActionSession(self.iface.mainWindow(), self._toolBar)
         button.createSignal.connect(self.onCreateSession)
@@ -97,6 +108,7 @@ class Sammo:
         self._soundRecordingController.unload()
         self._sessionBtn.unload()
         self._onOffEffortBtn.unload()
+        self._changeEnvironmentBtn.unload()
         self._addObservationBtn.unload()
         if self._simuGpsBtn is not None:
             self._simuGpsBtn.unload()
@@ -115,6 +127,8 @@ class Sammo:
             self._simuGpsBtn.onNewSession()
 
     def onChangeEffortStatus(self, isChecked: bool):
+        self._changeEnvironmentBtn.onChangeEffortStatus(isChecked)
+
         if isChecked:
             (
                 feat,
@@ -124,6 +138,9 @@ class Sammo:
         else:
             self._session.onStopEffort()
             self._statusDock.isEffortOn = False
+
+    def onClickChangeEnvironmentBtn(self):
+        pass
 
     def onClickObservation(self):
         self._soundRecordingController.onChangeObservationStatus(True)
