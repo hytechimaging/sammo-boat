@@ -104,6 +104,8 @@ class SammoSession:
         table.commitChanges()
 
     def onStopTransect(self):
+        if 0 == len(self._gpsLocationsDuringEffort):
+            return
         table = self._environmentTable
         table.startEditing()
         idLastAddedFeature = self.db.getIdOfLastAddedFeature(table)
@@ -146,6 +148,7 @@ class SammoSession:
         return feat, table
 
     def addNewFeatureToEnvironmentTable(self, feature: QgsFeature):
+        self._environmentTable.startEditing()
         self._addNewFeature(feature, self._environmentTable)
         self._lastEnvironmentFeature = self.copyEnvironmentFeature(feature)
         self._gpsLocationsDuringEffort = []

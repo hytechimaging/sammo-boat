@@ -128,7 +128,6 @@ class Sammo:
 
     def onChangeEffortStatus(self, isChecked: bool):
         if not isChecked:
-            self._session.onStopTransect()
             self.onStartNewTransect("E")
             self._statusDock.isEffortOn = False
         else:
@@ -142,7 +141,6 @@ class Sammo:
         self._changeEnvironmentBtn.onChangeEffortStatus(isChecked)
 
     def onClickChangeEnvironmentBtn(self):
-        self._session.onStopTransect()
         if not self.onStartNewTransect("A"):
             # the user pressed the CANCEL button of the form
             self._soundRecordingController.hardStopOfRecording()
@@ -170,6 +168,7 @@ class Sammo:
         self._addFollowerBtn.openFeatureForm(self.iface, table, feat)
 
     def onAddFeatureToEnvironmentTableSignal(self, feat: QgsFeature):
+        self._session.onStopTransect()  # stop the previous transect
         self._session.addNewFeatureToEnvironmentTable(feat)
         self._statusDock.isEffortOn = True
         self._soundRecordingController.onStopEventWhichNeedSoundRecord()
