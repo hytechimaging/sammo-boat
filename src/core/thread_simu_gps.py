@@ -35,14 +35,16 @@ class WorkerSimuGps(WorkerForOtherThread):
             coordinates = self._lines[i].strip().split(",")
             latitude_deg = coordinates[0]
             longitude_deg = coordinates[1]
-            formattedDateTime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            formattedDateTime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
             self.addNewFeatureToGpsTableSignal.emit(
                 float(longitude_deg), float(latitude_deg), formattedDateTime
             )
             self._log(
                 "GPS : longitude = {}°"
-                " - latitude = {}° - datetime = {}".format(longitude_deg, latitude_deg, formattedDateTime)
+                " - latitude = {}° - datetime = {}".format(
+                    longitude_deg, latitude_deg, formattedDateTime
+                )
             )
             self._indexOfNextGpsPoint = self._indexOfNextGpsPoint + 1
 
@@ -85,10 +87,7 @@ class ThreadSimuGps(OtherThread):
         super().stop()
 
     def addNewFeatureToGpsTable(
-        self,
-        longitude_deg: float,
-        latitude_deg: float,
-        formattedDateTime: str
+        self, longitude_deg: float, latitude_deg: float, formattedDateTime: str
     ):
         self.addNewFeatureToGpsTableSignal.emit(
             longitude_deg, latitude_deg, formattedDateTime

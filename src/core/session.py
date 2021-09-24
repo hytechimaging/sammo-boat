@@ -132,15 +132,17 @@ class SammoSession:
     def getReadyToAddNewFeatureToFollowerTable(self):
         return self._getReadyToAddNewFeature(self._followerTable)
 
-    def getReadyToAddNewFeatureToEnvironmentTable(self, status: str) -> (QgsFeature, QgsVectorLayer):
+    def getReadyToAddNewFeatureToEnvironmentTable(
+        self, status: str
+    ) -> (QgsFeature, QgsVectorLayer):
         (
             feat,
             table,
         ) = self._getReadyToAddNewFeature(self._environmentTable)
         if self._lastEnvironmentFeature:
-           feat = self.copyEnvironmentFeature(self._lastEnvironmentFeature)
-        feat['dateTime'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        feat['status'] = status
+            feat = self.copyEnvironmentFeature(self._lastEnvironmentFeature)
+        feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        feat["status"] = status
         return feat, table
 
     def addNewFeatureToEnvironmentTable(self, feature: QgsFeature):
@@ -148,7 +150,7 @@ class SammoSession:
         self._lastEnvironmentFeature = self.copyEnvironmentFeature(feature)
         self._gpsLocationsDuringEffort = []
 
-    def copyEnvironmentFeature(self, feat:QgsFeature) -> QgsFeature:
+    def copyEnvironmentFeature(self, feat: QgsFeature) -> QgsFeature:
         copyFeature = QgsVectorLayerUtils.createFeature(self._environmentTable)
         for field in feat.fields():
             copyFeature[field.name()] = feat[field.name()]
@@ -158,9 +160,14 @@ class SammoSession:
         self._addNewFeature(feature, self._followerTable)
 
     def getReadyToAddNewFeatureToObservationTable(
-        self
+        self,
     ) -> (QgsFeature, QgsVectorLayer):
-        return self._getReadyToAddNewFeature(self._observationTable)
+        (
+            feat,
+            table,
+        ) = self._getReadyToAddNewFeature(self._observationTable)
+        feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        return feat, table
 
     def addNewFeatureToObservationTable(self, feature: QgsFeature):
         self._addNewFeature(feature, self._observationTable)
