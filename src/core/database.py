@@ -205,14 +205,15 @@ class SammoDataBase:
 
     def _createFieldsForFollowerTable(self) -> QgsFields:
         fields = QgsFields()
-        fields.append(QgsField("code_leg", QVariant.Int))
-        fields.append(self._createFieldShortText("heure"))
-        fields.append(self._createFieldShortText("leg_heure"))
-        fields.append(self._createFieldShortText("peche"))
-        fields.append(self._createFieldShortText("code_esp"))
-        fields.append(QgsField("nombre", QVariant.Int))
+        fields.append(QgsField("nFollower", QVariant.Int))
+        fields.append(self._createFieldShortText("back"))
+        fields.append(self._createFieldShortText("dateTime"))
+        fields.append(self._createFieldShortText("fishActivity"))
+        fields.append(self._createFieldShortText("species"))
+        fields.append(QgsField("podSize", QVariant.Int))
         fields.append(self._createFieldShortText("age"))
-        fields.append(self._createFieldShortText("interaction"))
+        fields.append(self._createFieldShortText("unlucky"))
+        fields.append(QgsField("comment", QVariant.String, len=200))
 
         return fields
 
