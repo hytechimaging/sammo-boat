@@ -81,7 +81,11 @@ class SammoSession:
         layer.setAutoRefreshEnabled(True)
 
     def onStopSoundRecordingForEvent(
-        self, isObservation: bool, soundFile: str, soundStart: str, soundEnd: str
+        self,
+        isObservation: bool,
+        soundFile: str,
+        soundStart: str,
+        soundEnd: str,
     ):
         if isObservation:
             table = self._observationTable
