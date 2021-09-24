@@ -11,7 +11,7 @@ from datetime import datetime
 
 
 class WorkerSimuGps(WorkerForOtherThread):
-    addNewFeatureToGpsTableSignal = pyqtSignal(float, float, str, int)
+    addNewFeatureToGpsTableSignal = pyqtSignal(float, float, str)
 
     def __init__(
         self,
@@ -35,15 +35,14 @@ class WorkerSimuGps(WorkerForOtherThread):
             coordinates = self._lines[i].strip().split(",")
             latitude_deg = coordinates[0]
             longitude_deg = coordinates[1]
-            leg_heure = self._removeQuotes(coordinates[2])
-            code_leg = int(coordinates[3])
+            formattedDateTime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
             self.addNewFeatureToGpsTableSignal.emit(
-                float(longitude_deg), float(latitude_deg), leg_heure, code_leg
+                float(longitude_deg), float(latitude_deg), formattedDateTime
             )
             self._log(
                 "GPS : longitude = {}°"
-                " - latitude = {}°".format(longitude_deg, latitude_deg)
+                " - latitude = {}° - datetime = {}".format(longitude_deg, latitude_deg, formattedDateTime)
             )
             self._indexOfNextGpsPoint = self._indexOfNextGpsPoint + 1
 
@@ -63,7 +62,7 @@ class WorkerSimuGps(WorkerForOtherThread):
 
 
 class ThreadSimuGps(OtherThread):
-    addNewFeatureToGpsTableSignal = pyqtSignal(float, float, str, int)
+    addNewFeatureToGpsTableSignal = pyqtSignal(float, float, str)
 
     def __init__(self, session: SammoSession, testFilePath: str):
         super().__init__()
@@ -89,11 +88,10 @@ class ThreadSimuGps(OtherThread):
         self,
         longitude_deg: float,
         latitude_deg: float,
-        leg_heure: str,
-        code_leg: int,
+        formattedDateTime: str
     ):
         self.addNewFeatureToGpsTableSignal.emit(
-            longitude_deg, latitude_deg, leg_heure, code_leg
+            longitude_deg, latitude_deg, formattedDateTime
         )
 
     @staticmethod

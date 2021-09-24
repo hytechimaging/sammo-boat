@@ -175,10 +175,10 @@ class Sammo:
         self._statusDock.isSoundRecordingOn = isOn
 
     def addNewFeatureToGpsTableSignal(
-        self, longitude: float, latitude: float, leg_heure: str, code_leg: int
+        self, longitude: float, latitude: float, formattedDateTime: str
     ):
         self._session.addNewFeatureToGpsTable(
-            longitude, latitude, leg_heure, code_leg
+            longitude, latitude, formattedDateTime
         )
         self._statusDock.updateGpsLocation(longitude, latitude)
 
