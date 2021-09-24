@@ -29,6 +29,7 @@ class SammoSession:
         self._followerTable: QgsVectorLayer = None
         self._gpsTable: QgsVectorLayer = None
         self._gpsLocationsDuringEffort = []
+        self._lastEnvironmentFeature: QgsFeature = None
 
     @staticmethod
     def isDataBaseAvailable(directory):
@@ -106,27 +107,6 @@ class SammoSession:
         table = self._environmentTable
         table.startEditing()
         idLastAddedFeature = self.db.getIdOfLastAddedFeature(table)
-        field_idx = table.fields().indexOf(
-            SammoDataBase.ENVIRONMENT_COMMENT_FIELD_NAME
-        )
-        dateTimeObj = datetime.now()
-        timeOfStopEffort = (
-            "End of the Effort at : "
-            + "{:02d}".format(dateTimeObj.day)
-            + "/"
-            + "{:02d}".format(dateTimeObj.month)
-            + "/"
-            + str(dateTimeObj.year)
-            + " "
-            + "{:02d}".format(dateTimeObj.hour)
-            + ":"
-            + "{:02d}".format(dateTimeObj.minute)
-            + ":"
-            + "{:02d}".format(dateTimeObj.second)
-        )
-        table.changeAttributeValue(
-            idLastAddedFeature, field_idx, timeOfStopEffort
-        )
         table.changeGeometry(
             idLastAddedFeature,
             QgsGeometry.fromPolyline(self._gpsLocationsDuringEffort),
@@ -152,18 +132,33 @@ class SammoSession:
     def getReadyToAddNewFeatureToFollowerTable(self):
         return self._getReadyToAddNewFeature(self._followerTable)
 
-    def getReadyToAddNewFeatureToEnvironmentTable(self):
-        return self._getReadyToAddNewFeature(self._environmentTable)
+    def getReadyToAddNewFeatureToEnvironmentTable(self, status: str) -> (QgsFeature, QgsVectorLayer):
+        (
+            feat,
+            table,
+        ) = self._getReadyToAddNewFeature(self._environmentTable)
+        if self._lastEnvironmentFeature:
+           feat = self.copyEnvironmentFeature(self._lastEnvironmentFeature)
+        feat['dateTime'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        feat['status'] = status
+        return feat, table
 
     def addNewFeatureToEnvironmentTable(self, feature: QgsFeature):
         self._addNewFeature(feature, self._environmentTable)
+        self._lastEnvironmentFeature = self.copyEnvironmentFeature(feature)
         self._gpsLocationsDuringEffort = []
+
+    def copyEnvironmentFeature(self, feat:QgsFeature) -> QgsFeature:
+        copyFeature = QgsVectorLayerUtils.createFeature(self._environmentTable)
+        for field in feat.fields():
+            copyFeature[field.name()] = feat[field.name()]
+        return copyFeature
 
     def addNewFeatureToFollowerTable(self, feature: QgsFeature):
         self._addNewFeature(feature, self._followerTable)
 
     def getReadyToAddNewFeatureToObservationTable(
-        self,
+        self
     ) -> (QgsFeature, QgsVectorLayer):
         return self._getReadyToAddNewFeature(self._observationTable)
 

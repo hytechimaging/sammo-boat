@@ -31,6 +31,11 @@ class SammoSoundRecordingController(QObject):
     def onStartEnvironment(self):
         self._onStartEventWhichNeedSoundRecord(False)
 
+    def hardStopOfRecording(self):
+        self._threadSoundRecording.stop()
+        self._currentSoundFileName = None
+        self.onSoundRecordingStatusChanged.emit(False)
+
     def _onStartEventWhichNeedSoundRecord(self, isObservation: bool):
         if not self._threadSoundRecording.isProceeding:
             # on start observation when no sound recording is in progress
@@ -70,7 +75,7 @@ class SammoSoundRecordingController(QObject):
         )
 
     def onStopEventWhichNeedSoundRecord(self):
-        # on end observation
+        # on end observation or environment changes
         self._threadSoundRecording.setAutomaticStopTimerSignal.emit(15)
 
     def onNewSession(self, workingDirectory: str):

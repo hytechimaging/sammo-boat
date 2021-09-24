@@ -38,8 +38,9 @@ class SammoChangeEnvironmentBtn(QObject):
     def onClick(self):
         self.onClickChangeEnvironmentBtn.emit()
 
-    def openFeatureForm(self, iface, table: QgsVectorLayer, feat: QgsFeature):
+    def openFeatureForm(self, iface, table: QgsVectorLayer, feat: QgsFeature) -> bool:
         if iface.openFeatureForm(table, feat):
             self.onAddFeatureToEnvironmentTableSignal.emit(feat)
+            return True
         else:
-            self.button.setChecked(False)
+            return False

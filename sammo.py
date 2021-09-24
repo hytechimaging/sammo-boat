@@ -127,24 +127,34 @@ class Sammo:
             self._simuGpsBtn.onNewSession()
 
     def onChangeEffortStatus(self, isChecked: bool):
-        self._changeEnvironmentBtn.onChangeEffortStatus(isChecked)
         if not isChecked:
-            self._statusDock.isEffortOn = False
             self._session.onStopTransect()
+            self.onStartNewTransect('E')
+            self._statusDock.isEffortOn = False
         else:
-            self.onStartNewTransect()
+            if not self.onStartNewTransect('B'):
+                # the user pressed the CANCEL button of the form
+                self._soundRecordingController.hardStopOfRecording()
+                self._onOffEffortBtn.button.setChecked(False)
+                self._statusDock.isEffortOn = False
+                return
+
+        self._changeEnvironmentBtn.onChangeEffortStatus(isChecked)
 
     def onClickChangeEnvironmentBtn(self):
         self._session.onStopTransect()
-        self.onStartNewTransect()
+        if not self.onStartNewTransect('A'):
+            # the user pressed the CANCEL button of the form
+            self._soundRecordingController.hardStopOfRecording()
 
-    def onStartNewTransect(self):
+    def onStartNewTransect(self, status: str) -> bool:
         self._soundRecordingController.onStartEnvironment()
         (
             feat,
             table,
-        ) = self._session.getReadyToAddNewFeatureToEnvironmentTable()
-        self._changeEnvironmentBtn.openFeatureForm(self.iface, table, feat)
+        ) = self._session.getReadyToAddNewFeatureToEnvironmentTable(status)
+
+        return self._changeEnvironmentBtn.openFeatureForm(self.iface, table, feat)
 
     def onClickObservation(self):
         self._soundRecordingController.onStartObservation()

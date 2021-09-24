@@ -22,7 +22,6 @@ class SammoDataBase:
     DB_NAME = "sammo-boat.gpkg"
     LAYER_NAME = "session data"
     ENVIRONMENT_TABLE_NAME = "environment"
-    ENVIRONMENT_COMMENT_FIELD_NAME = "commentaire"
     SPECIES_TABLE_NAME = "species"
     OBSERVATION_TABLE_NAME = "observations"
     FOLLOWER_TABLE_NAME = "followers"
@@ -100,35 +99,29 @@ class SammoDataBase:
 
     def _createFieldsForEnvironmentTable(self) -> QgsFields:
         fields = QgsFields()
-        fields.append(QgsField("code_leg", QVariant.Int))
-        fields.append(self._createFieldShortText("heure"))
-        fields.append(self._createFieldShortText("leg_heure"))
-        fields.append(self._createFieldShortText("code_trans"))
-        fields.append(QgsField("jour", QVariant.Int))
-        fields.append(QgsField("mois", QVariant.Int))
-        fields.append(QgsField("an", QVariant.Int))
-        fields.append(self._createFieldShortText("activite"))
-        fields.append(self._createFieldShortText("plateforme"))
-        fields.append(QgsField("cap", QVariant.Double))
-        fields.append(QgsField("vitesse", QVariant.Double))
-        fields.append(QgsField("N observateurs", QVariant.Int))
-        fields.append(self._createFieldShortText("obs_babord"))
-        fields.append(self._createFieldShortText("obs_tribord"))
-        fields.append(QgsField("ebl_de", QVariant.Double))
-        fields.append(QgsField("ebl_a", QVariant.Double))
-        fields.append(self._createFieldShortText("ebl_intensite"))
-        fields.append(QgsField("vent_vrai_direction", QVariant.Double))
-        fields.append(QgsField("vent_vrai_force", QVariant.Int))
-        fields.append(QgsField("houle_direction", QVariant.Double))
-        fields.append(QgsField("houle_hauteur", QVariant.Double))
-        fields.append(QgsField("beaufort", QVariant.Int))
-        fields.append(QgsField("nebulosite", QVariant.Int))
-        fields.append(self._createFieldShortText("cond_generale"))
-        fields.append(QgsField("visibilité", QVariant.Double))
-        fields.append(
-            self._createFieldShortText(self.ENVIRONMENT_COMMENT_FIELD_NAME)
-        )
-        fields.append(self._createFieldShortText("Survey"))
+        fields.append(QgsField("dateTime", QVariant.DateTime))
+        fields.append(self._createFieldShortText("status"))
+        fields.append(self._createFieldShortText("plateform"))
+        fields.append(self._createFieldShortText("routeType"))
+        fields.append(QgsField("courseAverage", QVariant.Int))
+        fields.append(QgsField("seaState", QVariant.Int))
+        fields.append(QgsField("windDirection", QVariant.Int))
+        fields.append(QgsField("windForce", QVariant.Int))
+        fields.append(QgsField("swellDirection", QVariant.Int))
+        fields.append(QgsField("swellHeight", QVariant.Double))
+        fields.append(QgsField("glareFrom", QVariant.Int))
+        fields.append(QgsField("glareTo", QVariant.Int))
+        fields.append(self._createFieldShortText("glareSever"))
+        fields.append(QgsField("cloudCover", QVariant.Int))
+        fields.append(QgsField("visibility", QVariant.Int))
+        fields.append(QgsField("subjective", QVariant.String, len=1))
+        fields.append(QgsField("nObservers", QVariant.Int))
+        fields.append(self._createFieldShortText("camera"))
+        fields.append(QgsField("comment", QVariant.String, len=200))
+        fields.append(self._createFieldShortText("left"))
+        fields.append(self._createFieldShortText("right"))
+        fields.append(self._createFieldShortText("center"))
+
         fields.append(self._createFieldShortText("fichier_son"))
         fields.append(self._createFieldShortText("sound_start"))
         fields.append(self._createFieldShortText("sound_end"))
