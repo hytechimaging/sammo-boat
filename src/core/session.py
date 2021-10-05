@@ -50,6 +50,9 @@ class SammoSession:
             project.addMapLayer(worldLayer)
 
             gpsLayer = QgsVectorLayer(self.db.tableUri(GPS_TABLE), "GPS")
+            symbol = gpsLayer.renderer().symbol()
+            symbol.setColor(QColor(219,30,42))
+            symbol.setSize(2)
             gpsLayer.setAutoRefreshInterval(1000)
             gpsLayer.setAutoRefreshEnabled(True)
             project.addMapLayer(gpsLayer)
