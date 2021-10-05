@@ -37,9 +37,12 @@ class StatusDock:
         self._init(iface.mainWindow())
 
     def setEnabled(self, status):
-        self.dock.setVisible(False)
         if status:
             self.iface.addDockWidget(Qt.TopDockWidgetArea, self.dock)
+            self.dock.setVisible(True)
+        else:
+            self.iface.removeDockWidget(self.dock)
+            self.dock.setVisible(False)
 
     def onTimer_500msec(self):
         if not self._effortLabel:

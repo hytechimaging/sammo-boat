@@ -41,11 +41,18 @@ class Sammo:
         self.threadGpsExtractor = self.createGpsExtractor()
         self.statusDock = StatusDock(iface)
 
-        QgsProject.instance().readProject.connect(self.projectLoaded)
+        iface.projectRead.connect(self.onProjectLoaded)
+        iface.newProjectCreated.connect(self.onProjectLoaded)
 
     @property
     def mainWindow(self):
         return self.iface.mainWindow()
+
+    def setEnabled(self, status):
+        self.statusDock.setEnabled(status)
+        self.effortAction.setEnabled(status)
+        self.followerAction.setEnabled(status)
+        self.observationAction.setEnabled(status)
 
     def createSoundRecordingController(self) -> SammoSoundRecordingController:
         controller = SammoSoundRecordingController()
@@ -137,10 +144,7 @@ class Sammo:
         self.session.init(sessionDirectory)
         self.loading = False
 
-        # enable actions
-        self.effortAction.setEnabled(True)
-        self.followerAction.setEnabled(True)
-        self.observationAction.setEnabled(True)
+        self.setEnabled(True)
 
         self.soundRecordingController.onNewSession(sessionDirectory)
 
@@ -213,24 +217,17 @@ class Sammo:
         )
         self.statusDock.updateGpsLocation(longitude, latitude)
 
-    def projectLoaded(self) -> None:
+    def onProjectLoaded(self) -> None:
         if self.loading:
             return
 
-        self.statusDock.setEnabled(False)
-        if not SammoSession.isValidProject(QgsProject.instance()):
+        self.setEnabled(False)
+        sessionDir = SammoSession.sessionDirectory(QgsProject.instance())
+
+        if not sessionDir:
             return
 
-        self.session.onLoadProject(QgsProject.instance())
-
-        self.statusDock.setEnabled(True)
-        self.effortAction.setEnabled(True)
-        self.environmentAction.setEnabled(True)
-        self.followerAction.setEnabled (True)
-        self.observationAction.setEnabled(True)
-        self.soundRecordingController.onNewSession(workingDirectory)
-        if self.simuGpsAction:
-            self.simuGpsAction.onNewSession()
+        self.onCreateSession(sessionDir)
 
     @staticmethod
     def pluginFolder():

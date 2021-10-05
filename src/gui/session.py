@@ -19,22 +19,22 @@ class SammoSessionAction(QObject):
         self.initGui(parent, toolbar)
 
     @property
-    def icon(self):
+    def icon(self) -> QIcon:
         d = os.path.dirname(os.path.abspath(__file__))
         root = os.path.dirname(os.path.dirname(d))
         return QIcon(os.path.join(root, "images", "session.png"))
 
-    def initGui(self, parent: QObject, toolbar: QToolBar):
+    def initGui(self, parent: QObject, toolbar: QToolBar) -> None:
         self.action = QAction(parent)
         self.action.triggered.connect(self.run)
         self.action.setIcon(self.icon)
         self.action.setToolTip("Create/open session")
         toolbar.addAction(self.action)
 
-    def unload(self):
+    def unload(self) -> None:
         del self.action
 
-    def run(self):
+    def run(self) -> None:
         workingDirectory = QFileDialog.getExistingDirectory(
             None,
             "Select a working directory",

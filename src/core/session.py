@@ -34,9 +34,6 @@ class SammoSession:
         self._gpsLocationsDuringEffort = []
         self._lastEnvironmentFeature: QgsFeature = None
 
-    def onLoadProject(self, directory):
-        self.directory = directory
-
     def init(self, directory: str) -> None:
         new = self.db.init(directory)
         if new:
@@ -162,16 +159,16 @@ class SammoSession:
         self._gpsLocationsDuringEffort.append(QgsPoint(longitude, latitude))
 
     @staticmethod
-    def isValidProject(project: QgsProject) -> bool:
+    def sessionDirectory(project: QgsProject) -> str:
         for layer in project.mapLayers().values():
             if layer.type() != QgsMapLayer.VectorLayer:
                 continue
 
             uri = layer.dataProvider().dataSourceUri()
             if DB_NAME in uri:
-                return True
+                return uri.split("|")[0].replace(DB_NAME, "")
 
-        return False
+        return ""
 
     @staticmethod
     def _getReadyToAddNewFeature(
