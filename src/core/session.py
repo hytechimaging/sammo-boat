@@ -32,6 +32,7 @@ class SammoSession:
         self._followerTable: QgsVectorLayer = None
         self._gpsTable: QgsVectorLayer = None
         self._gpsLocationsDuringEffort = []
+        self._lastEnvironmentFeature: QgsFeature = None
 
     @staticmethod
     def isDataBaseAvailable(directory):
@@ -102,10 +103,18 @@ class SammoSession:
         layer.setAutoRefreshInterval(1000)
         layer.setAutoRefreshEnabled(True)
 
-    def onStopSoundRecordingForObservation(
-        self, soundFile: str, soundStart: str, soundEnd: str
+    def onStopSoundRecordingForEvent(
+        self,
+        isObservation: bool,
+        soundFile: str,
+        soundStart: str,
+        soundEnd: str,
     ):
-        table = self._observationTable
+        if isObservation:
+            table = self._observationTable
+        else:
+            table = self._environmentTable
+
         table.startEditing()
         idLastAddedFeature = self.db.getIdOfLastAddedFeature(table)
         field_idx = table.fields().indexOf("fichier_son")
@@ -116,31 +125,12 @@ class SammoSession:
         table.changeAttributeValue(idLastAddedFeature, field_idx, soundEnd)
         table.commitChanges()
 
-    def onStopEffort(self):
+    def onStopTransect(self):
+        if 0 == len(self._gpsLocationsDuringEffort):
+            return
         table = self._environmentTable
         table.startEditing()
         idLastAddedFeature = self.db.getIdOfLastAddedFeature(table)
-        field_idx = table.fields().indexOf(
-            SammoDataBase.ENVIRONMENT_COMMENT_FIELD_NAME
-        )
-        dateTimeObj = datetime.now()
-        timeOfStopEffort = (
-            "End of the Effort at : "
-            + "{:02d}".format(dateTimeObj.day)
-            + "/"
-            + "{:02d}".format(dateTimeObj.month)
-            + "/"
-            + str(dateTimeObj.year)
-            + " "
-            + "{:02d}".format(dateTimeObj.hour)
-            + ":"
-            + "{:02d}".format(dateTimeObj.minute)
-            + ":"
-            + "{:02d}".format(dateTimeObj.second)
-        )
-        table.changeAttributeValue(
-            idLastAddedFeature, field_idx, timeOfStopEffort
-        )
         table.changeGeometry(
             idLastAddedFeature,
             QgsGeometry.fromPolyline(self._gpsLocationsDuringEffort),
@@ -166,12 +156,30 @@ class SammoSession:
     def getReadyToAddNewFeatureToFollowerTable(self):
         return self._getReadyToAddNewFeature(self._followerTable)
 
-    def getReadyToAddNewFeatureToEnvironmentTable(self):
-        return self._getReadyToAddNewFeature(self._environmentTable)
+    def getReadyToAddNewFeatureToEnvironmentTable(
+        self, status: str
+    ) -> (QgsFeature, QgsVectorLayer):
+        (
+            feat,
+            table,
+        ) = self._getReadyToAddNewFeature(self._environmentTable)
+        if self._lastEnvironmentFeature:
+            feat = self.copyEnvironmentFeature(self._lastEnvironmentFeature)
+        feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        feat["status"] = status
+        return feat, table
 
-    def onStartEffort(self, feature: QgsFeature):
+    def addNewFeatureToEnvironmentTable(self, feature: QgsFeature):
+        self._environmentTable.startEditing()
         self._addNewFeature(feature, self._environmentTable)
+        self._lastEnvironmentFeature = self.copyEnvironmentFeature(feature)
         self._gpsLocationsDuringEffort = []
+
+    def copyEnvironmentFeature(self, feat: QgsFeature) -> QgsFeature:
+        copyFeature = QgsVectorLayerUtils.createFeature(self._environmentTable)
+        for field in feat.fields():
+            copyFeature[field.name()] = feat[field.name()]
+        return copyFeature
 
     def addNewFeatureToFollowerTable(self, feature: QgsFeature):
         self._addNewFeature(feature, self._followerTable)
@@ -179,13 +187,18 @@ class SammoSession:
     def getReadyToAddNewFeatureToObservationTable(
         self,
     ) -> (QgsFeature, QgsVectorLayer):
-        return self._getReadyToAddNewFeature(self._observationTable)
+        (
+            feat,
+            table,
+        ) = self._getReadyToAddNewFeature(self._observationTable)
+        feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        return feat, table
 
     def addNewFeatureToObservationTable(self, feature: QgsFeature):
         self._addNewFeature(feature, self._observationTable)
 
     def addNewFeatureToGpsTable(
-        self, longitude: float, latitude: float, leg_heure: str, code_leg: int
+        self, longitude: float, latitude: float, formattedDateTime: str
     ):
         if not self._gpsTable:
             return
@@ -193,8 +206,7 @@ class SammoSession:
         feature = QgsFeature(QgsVectorLayerUtils.createFeature(self._gpsTable))
         layerPoint = QgsPointXY(longitude, latitude)
         feature.setGeometry(QgsGeometry.fromPointXY(layerPoint))
-        feature.setAttribute("leg_heure", leg_heure)
-        feature.setAttribute("code_leg", code_leg)
+        feature.setAttribute("dateTime", formattedDateTime)
 
         self._addNewFeature(feature, self._gpsTable)
         self._gpsLocationsDuringEffort.append(QgsPoint(longitude, latitude))

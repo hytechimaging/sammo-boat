@@ -4,6 +4,7 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
+from .src.gui.changeEnvironment_btn import SammoChangeEnvironmentBtn
 from .src.gui.session_btn import SammoActionSession
 from .src.gui.on_off_effort_btn import SammoOnOffEffortBtn
 from .src.core.session import SammoSession
@@ -25,6 +26,7 @@ class Sammo:
         self._session = SammoSession()
         self._sessionBtn = self.createSessionBtn()
         self._onOffEffortBtn = self.createOnOffEffortBtn()
+        self._changeEnvironmentBtn = self.createChangeEnvironmentBtn()
         self._addFollowerBtn = self.createAddFollowerBtn()
         self._addObservationBtn = self.createAddObservationBtn()
         self._simuGpsBtn, self._threadSimuGps = self.createSimuGps()
@@ -35,8 +37,8 @@ class Sammo:
 
     def createSoundRecordingController(self) -> SammoSoundRecordingController:
         controller = SammoSoundRecordingController()
-        controller.onStopSoundRecordingForObservationSignal.connect(
-            self._session.onStopSoundRecordingForObservation
+        controller.onStopSoundRecordingForEventSignal.connect(
+            self._session.onStopSoundRecordingForEvent
         )
         controller.onSoundRecordingStatusChanged.connect(
             self.onSoundRecordingStatusChanged
@@ -85,6 +87,15 @@ class Sammo:
     def createOnOffEffortBtn(self) -> SammoOnOffEffortBtn:
         button = SammoOnOffEffortBtn(self.iface.mainWindow(), self._toolBar)
         button.onChangeEffortStatusSignal.connect(self.onChangeEffortStatus)
+        return button
+
+    def createChangeEnvironmentBtn(self) -> SammoChangeEnvironmentBtn:
+        button = SammoChangeEnvironmentBtn(
+            self.iface.mainWindow(), self._toolBar
+        )
+        button.onClickChangeEnvironmentBtn.connect(
+            self.onClickChangeEnvironmentBtn
+        )
         button.onAddFeatureToEnvironmentTableSignal.connect(
             self.onAddFeatureToEnvironmentTableSignal
         )
@@ -108,6 +119,7 @@ class Sammo:
         self._soundRecordingController.unload()
         self._sessionBtn.unload()
         self._onOffEffortBtn.unload()
+        self._changeEnvironmentBtn.unload()
         self._addObservationBtn.unload()
         if self._simuGpsBtn is not None:
             self._simuGpsBtn.unload()
@@ -126,30 +138,51 @@ class Sammo:
             self._simuGpsBtn.onNewSession()
 
     def onChangeEffortStatus(self, isChecked: bool):
-        if isChecked:
-            (
-                feat,
-                table,
-            ) = self._session.getReadyToAddNewFeatureToEnvironmentTable()
-            self._onOffEffortBtn.openFeatureForm(self.iface, table, feat)
-        else:
-            self._session.onStopEffort()
+        if not isChecked:
+            self.onStartNewTransect("E")
             self._statusDock.isEffortOn = False
+        else:
+            if not self.onStartNewTransect("B"):
+                # the user pressed the CANCEL button of the form
+                self._soundRecordingController.hardStopOfRecording()
+                self._onOffEffortBtn.button.setChecked(False)
+                self._statusDock.isEffortOn = False
+                return
+
+        self._changeEnvironmentBtn.onChangeEffortStatus(isChecked)
+
+    def onClickChangeEnvironmentBtn(self):
+        if not self.onStartNewTransect("A"):
+            # the user pressed the CANCEL button of the form
+            self._soundRecordingController.hardStopOfRecording()
+
+    def onStartNewTransect(self, status: str) -> bool:
+        self._soundRecordingController.onStartEnvironment()
+        (
+            feat,
+            table,
+        ) = self._session.getReadyToAddNewFeatureToEnvironmentTable(status)
+
+        return self._changeEnvironmentBtn.openFeatureForm(
+            self.iface, table, feat
+        )
 
     def onClickObservation(self):
-        self._soundRecordingController.onChangeObservationStatus(True)
+        self._soundRecordingController.onStartObservation()
         feat, table = self._session.getReadyToAddNewFeatureToObservationTable()
         if self.iface.openFeatureForm(table, feat):
             self._session.addNewFeatureToObservationTable(feat)
-            self._soundRecordingController.onChangeObservationStatus(False)
+            self._soundRecordingController.onStopEventWhichNeedSoundRecord()
 
     def onClickAddFollower(self):
         feat, table = self._session.getReadyToAddNewFeatureToFollowerTable()
         self._addFollowerBtn.openFeatureForm(self.iface, table, feat)
 
     def onAddFeatureToEnvironmentTableSignal(self, feat: QgsFeature):
-        self._session.onStartEffort(feat)
+        self._session.onStopTransect()  # stop the previous transect
+        self._session.addNewFeatureToEnvironmentTable(feat)
         self._statusDock.isEffortOn = True
+        self._soundRecordingController.onStopEventWhichNeedSoundRecord()
 
     def onAddFeatureToFollowerTableSignal(self, feat: QgsFeature):
         self._session.addNewFeatureToFollowerTable(feat)
@@ -164,10 +197,10 @@ class Sammo:
         self._statusDock.isSoundRecordingOn = isOn
 
     def addNewFeatureToGpsTableSignal(
-        self, longitude: float, latitude: float, leg_heure: str, code_leg: int
+        self, longitude: float, latitude: float, formattedDateTime: str
     ):
         self._session.addNewFeatureToGpsTable(
-            longitude, latitude, leg_heure, code_leg
+            longitude, latitude, formattedDateTime
         )
         self._statusDock.updateGpsLocation(longitude, latitude)
 
@@ -176,6 +209,7 @@ class Sammo:
             workingDirectory = QgsProject.instance().readPath("./")
             self._session.onLoadProject(workingDirectory)
             self._onOffEffortBtn.onNewSession()
+            self._changeEnvironmentBtn.onNewSession()
             self._addFollowerBtn.onNewSession()
             self._addObservationBtn.onNewSession()
             self._soundRecordingController.onNewSession(workingDirectory)
