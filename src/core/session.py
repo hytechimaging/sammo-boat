@@ -5,27 +5,29 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
 import platform
-from qgis.PyQt.QtWidgets import QMessageBox
-from .database import SammoDataBase
-from .logger import Logger
 from datetime import datetime
+
+from qgis.PyQt.QtWidgets import QMessageBox
 from qgis.core import (
-    QgsApplication,
-    QgsVectorLayerUtils,
-    QgsProject,
-    QgsVectorLayer,
-    QgsFeature,
-    QgsGeometry,
-    QgsPointXY,
-    QgsCoordinateReferenceSystem,
     QgsPoint,
+    QgsFeature,
+    QgsPointXY,
+    QgsProject,
+    QgsGeometry,
+    QgsApplication,
+    QgsVectorLayer,
+    QgsVectorLayerUtils,
+    QgsCoordinateReferenceSystem,
 )
+
+from .logger import Logger
+from .database import SammoDataBase
 
 
 class SammoSession:
     def __init__(self):
         self.db = SammoDataBase()
-        self.directoryPath: str = None
+        self.directory: str = ""
         self._environmentTable: QgsVectorLayer = None
         self._speciesTable: QgsVectorLayer = None
         self._observationTable: QgsVectorLayer = None
@@ -35,28 +37,26 @@ class SammoSession:
         self._lastEnvironmentFeature: QgsFeature = None
 
     @staticmethod
-    def isDataBaseAvailable(directory):
-        return SammoDataBase.isDataBaseAvailableInThisDirectory(directory)
+    def exist(directory: str) -> bool:
+        return SammoDataBase.exist(directory)
 
     def onLoadProject(self, directory):
-        self.directoryPath = directory
+        self.directory = directory
         self._loadTables()
         self._configureAutoRefreshLayers()
 
-    def onNewSession(self, directory):
-        self.directoryPath = directory
-        isNewDataBase = False
-        if not self.isDataBaseAvailable(directory):
-            # No geopackage DB in this directory
-            self.createEmptyDataBase(directory)
-            isNewDataBase = True
-
+    def init(self, directory):
+        self.directory = directory
         uri = (
             "geopackage:"
             + SammoDataBase.pathToDataBase(directory)
             + "?projectName=project"
         )
-        if isNewDataBase:
+
+        if not self.exist(directory):
+            # No geopackage DB in this directory
+            self.create(directory)
+
             project = QgsProject()
             gpsTable = self.loadTable(SammoDataBase.GPS_TABLE_NAME)
             project.addMapLayer(gpsTable)
@@ -137,14 +137,14 @@ class SammoSession:
         )
         table.commitChanges()
 
-    def createEmptyDataBase(self, directory: str):
-        self.db.createEmptyDataBase(directory)
+    def create(self, directory: str) -> None:
+        self.db.create(directory)
 
         speciesTable = self.loadTable(SammoDataBase.SPECIES_TABLE_NAME)
         SammoDataBase.initializeSpeciesTable(speciesTable)
 
     def loadTable(self, tableName: str) -> QgsVectorLayer:
-        layer = self.db.loadTable(self.directoryPath, tableName)
+        layer = self.db.loadTable(self.directory, tableName)
         if not layer.isValid():
             QMessageBox.critical(
                 None,

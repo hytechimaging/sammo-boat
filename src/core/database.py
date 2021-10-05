@@ -4,17 +4,19 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
+
 from qgis.PyQt.QtCore import QVariant
 from qgis.core import (
-    QgsWkbTypes,
+    QgsField,
     QgsFields,
+    QgsWkbTypes,
+    QgsFeatureSink,
+    QgsVectorLayer,
     QgsVectorFileWriter,
     QgsCoordinateReferenceSystem,
     QgsCoordinateTransformContext,
-    QgsFeatureSink,
-    QgsVectorLayer,
-    QgsField,
 )
+
 from .import_species_from_csv import ImportSpeciesFromCsv
 
 
@@ -28,10 +30,10 @@ class SammoDataBase:
     GPS_TABLE_NAME = "gps"
 
     @staticmethod
-    def isDataBaseAvailableInThisDirectory(directory):
+    def exist(directory: str) -> bool:
         return os.path.isfile(SammoDataBase.pathToDataBase(directory))
 
-    def createEmptyDataBase(self, directory):
+    def create(self, directory):
         db = self.pathToDataBase(directory)
 
         self._addTableToDataBaseFile(

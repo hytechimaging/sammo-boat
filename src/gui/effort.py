@@ -10,34 +10,36 @@ from qgis.PyQt.QtCore import pyqtSignal, QObject
 from qgis.PyQt.QtWidgets import QAction, QToolBar
 
 
-class SammoAddObservationBtn(QObject):
-    onClickObservationSignal = pyqtSignal()
+class SammoEffortAction(QObject):
+    onChangeEffortStatusSignal = pyqtSignal(bool)
 
     def __init__(self, parent: QObject, toolbar: QToolBar):
         super().__init__()
         self.parent = parent
-        self.button: QAction = None
+        self.button: QIcon = None
         self.initGui(parent, toolbar)
-
-    def initGui(self, parent: QObject, toolbar: QToolBar):
-        self.button = QAction(parent)
-        self.button.setIcon(self.icon)
-        self.button.setToolTip("New observation")
-        self.button.triggered.connect(self.onClick)
-        self.button.setEnabled(False)
-        toolbar.addAction(self.button)
-
-    def onNewSession(self):
-        self.button.setEnabled(True)
-
-    def unload(self):
-        del self.button
-
-    def onClick(self):
-        self.onClickObservationSignal.emit()
 
     @property
     def icon(self):
         d = os.path.dirname(os.path.abspath(__file__))
         root = os.path.dirname(os.path.dirname(d))
-        return QIcon(os.path.join(root, "images", "observation.png"))
+        return QIcon(os.path.join(root, "images", "effort.png"))
+
+    def setEnabled(self, status):
+        self.button.setEnabled(status)
+        self.button.setChecked(False)
+
+    def initGui(self, parent: QObject, toolbar: QToolBar):
+        self.button = QAction(parent)
+        self.button.setIcon(self.icon)
+        self.button.setToolTip("Start/stop effort")
+        self.button.triggered.connect(self.onClick)
+        self.button.setEnabled(False)
+        self.button.setCheckable(True)
+        toolbar.addAction(self.button)
+
+    def unload(self):
+        del self.button
+
+    def onClick(self):
+        self.onChangeEffortStatusSignal.emit(self.button.isChecked())

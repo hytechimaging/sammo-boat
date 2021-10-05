@@ -10,13 +10,19 @@ from qgis.PyQt.QtCore import QDir, pyqtSignal, QObject
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QToolBar
 
 
-class SammoActionSession(QObject):
-    createSignal = pyqtSignal(str)
+class SammoSessionAction(QObject):
+    create = pyqtSignal(str)
 
     def __init__(self, parent: QObject, toolbar: QToolBar):
         super().__init__()
         self.action: QAction = None
         self.initGui(parent, toolbar)
+
+    @property
+    def icon(self):
+        d = os.path.dirname(os.path.abspath(__file__))
+        root = os.path.dirname(os.path.dirname(d))
+        return QIcon(os.path.join(root, "images", "session.png"))
 
     def initGui(self, parent: QObject, toolbar: QToolBar):
         self.action = QAction(parent)
@@ -39,10 +45,4 @@ class SammoActionSession(QObject):
             # no directory selected
             return
 
-        self.createSignal.emit(workingDirectory)
-
-    @property
-    def icon(self):
-        d = os.path.dirname(os.path.abspath(__file__))
-        root = os.path.dirname(os.path.dirname(d))
-        return QIcon(os.path.join(root, "images", "session.png"))
+        self.create.emit(workingDirectory)

@@ -11,7 +11,7 @@ from qgis.core import QgsVectorLayer, QgsFeature
 from qgis.PyQt.QtWidgets import QAction, QToolBar
 
 
-class SammoAddFollowerBtn(QObject):
+class SammoFollowerAction(QObject):
     onClickAddFollowerSignal = pyqtSignal()
     onAddFeatureToFollowerTableSignal = pyqtSignal(QgsFeature)
 
@@ -21,6 +21,15 @@ class SammoAddFollowerBtn(QObject):
         self.button: QAction = None
         self.initGui(parent, toolbar)
 
+    @property
+    def icon(self):
+        d = os.path.dirname(os.path.abspath(__file__))
+        root = os.path.dirname(os.path.dirname(d))
+        return QIcon(os.path.join(root, "images", "seabird.png"))
+
+    def setEnabled(self, status):
+        self.button.setEnabled(status)
+
     def initGui(self, parent: QObject, toolbar: QToolBar):
         self.button = QAction(parent)
         self.button.setIcon(self.icon)
@@ -28,10 +37,6 @@ class SammoAddFollowerBtn(QObject):
         self.button.triggered.connect(self.onClick)
         self.button.setEnabled(False)
         toolbar.addAction(self.button)
-
-    def onNewSession(self):
-        # effortStatus = True means that an effort is in progress
-        self.button.setEnabled(True)
 
     def unload(self):
         del self.button
@@ -42,9 +47,3 @@ class SammoAddFollowerBtn(QObject):
     def openFeatureForm(self, iface, table: QgsVectorLayer, feat: QgsFeature):
         if iface.openFeatureForm(table, feat):
             self.onAddFeatureToFollowerTableSignal.emit(feat)
-
-    @property
-    def icon(self):
-        d = os.path.dirname(os.path.abspath(__file__))
-        root = os.path.dirname(os.path.dirname(d))
-        return QIcon(os.path.join(root, "images", "seabird.png"))

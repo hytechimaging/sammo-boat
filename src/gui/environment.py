@@ -9,7 +9,7 @@ from qgis.core import QgsVectorLayer, QgsFeature
 from qgis.PyQt.QtWidgets import QPushButton, QToolBar
 
 
-class SammoChangeEnvironmentBtn(QObject):
+class SammoEnvironmentAction(QObject):
     onClickChangeEnvironmentBtn = pyqtSignal()
     onAddFeatureToEnvironmentTableSignal = pyqtSignal(QgsFeature)
 
