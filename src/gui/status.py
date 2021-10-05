@@ -4,15 +4,19 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import sys
+
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt import QtGui
 from qgis.PyQt.QtWidgets import (
-    QDockWidget,
+    QLabel,
     QWidget,
     QGridLayout,
     QVBoxLayout,
-    QLabel,
+    QDockWidget,
 )
+
+from qgis.core import QgsSettings
+
 from ..core.thread_widget import ThreadWidget
 
 
@@ -38,8 +42,14 @@ class StatusDock:
 
     def setEnabled(self, status):
         if status:
-            self.iface.addDockWidget(Qt.TopDockWidgetArea, self.dock)
+            location = int(
+                QgsSettings().value(
+                    "Sammo/StatusDock/Location/",
+                    Qt.LeftDockWidgetArea,
+                )
+            )
             self.dock.setVisible(True)
+            self.iface.addDockWidget(location, self.dock)
         else:
             self.iface.removeDockWidget(self.dock)
             self.dock.setVisible(False)
@@ -108,17 +118,20 @@ class StatusDock:
     def _init(self, parent):
         self.dock = QDockWidget(StatusDock.widgetName, parent)
         self.dock.setVisible(False)
+        self.dock.dockLocationChanged.connect(self._saveLastLocation)
 
         self.internalWidget = QWidget(self.dock)
         self.dock.setWidget(self.internalWidget)
-        self.internalWidget.setLayout(QGridLayout())
+        self.internalWidget.setLayout(QVBoxLayout())
 
         self._createGpsWidget()
         self._effortLabel = self._createEffortLabel()
         self._soundRecordingLabel = self._createSoundRecordingLabel()
-        self.internalWidget.layout().addWidget(self._gpsWidget, 0, 0)
-        self.internalWidget.layout().addWidget(self._effortLabel, 0, 1)
-        self.internalWidget.layout().addWidget(self._soundRecordingLabel, 0, 2)
+        self.internalWidget.layout().addWidget(self._gpsWidget)
+        self.internalWidget.layout().addWidget(self._effortLabel)
+        self.internalWidget.layout().addWidget(self._soundRecordingLabel)
+
+        self.internalWidget.layout().setMargin(0)
 
     def _createEffortLabel(self) -> QLabel:
         label = QLabel("")
@@ -161,3 +174,8 @@ class StatusDock:
         self._gpsWidget.layout().addWidget(self._latitudeLabel)
 
         self.updateGpsLocation(sys.float_info.max, sys.float_info.max)
+
+    def _saveLastLocation(self, location):
+        QgsSettings().setValue(
+            "Sammo/StatusDock/Location/", int(location)
+        )
