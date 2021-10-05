@@ -55,7 +55,7 @@ class Sammo:
     def createSimuGps(self) -> [SammoSimuGpsAction, ThreadSimuGps]:
         if not os.environ.get("SAMMO_DEBUG"):
             return [None, None]
-        button = SammoSimuGpsBtn(self.mainWindow, self.toolbar)
+        button = SammoSimuGpsAction(self.mainWindow, self.toolbar)
         button.onChangeSimuGpsStatusSignal.connect(self.onChangeSimuGpsStatus)
         testFilePath = os.path.join(
             self.pluginFolder(), "src", "core", "trace_simu_gps.csv"
@@ -93,9 +93,7 @@ class Sammo:
         return button
 
     def createEnvironmentAction(self) -> SammoEnvironmentAction:
-        button = SammoEnvironmentAction(
-            self.mainWindow, self.toolbar
-        )
+        button = SammoEnvironmentAction(self.mainWindow, self.toolbar)
         button.onClickChangeEnvironmentBtn.connect(
             self.onClickChangeEnvironmentBtn
         )
@@ -114,10 +112,7 @@ class Sammo:
 
     def unload(self):
         self.threadGpsExtractor.stop()
-        if (
-            self.threadSimuGps is not None
-            and self.threadSimuGps.isProceeding
-        ):
+        if self.threadSimuGps is not None and self.threadSimuGps.isProceeding:
             self.threadSimuGps.stop()
         self.soundRecordingController.unload()
         self.sessionAction.unload()
@@ -172,9 +167,7 @@ class Sammo:
             table,
         ) = self.session.getReadyToAddNewFeatureToEnvironmentTable(status)
 
-        return self.environmentAction.openFeatureForm(
-            self.iface, table, feat
-        )
+        return self.environmentAction.openFeatureForm(self.iface, table, feat)
 
     def onClickObservation(self):
         self.soundRecordingController.onStartObservation()

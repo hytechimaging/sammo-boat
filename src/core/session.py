@@ -53,7 +53,6 @@ class SammoSession:
             + "?projectName=project"
         )
 
-        isNewDataBase = False
         if not self.exist(directory):
             # No geopackage DB in this directory
             self.create(directory)
