@@ -21,6 +21,7 @@ from qgis.core import (
     QgsApplication,
     QgsVectorLayer,
     QgsVectorLayerUtils,
+    QgsReferencedRectangle,
     QgsCoordinateReferenceSystem,
 )
 
@@ -42,12 +43,15 @@ class SammoSession:
         # create database if necessary
         if new:
             project = QgsProject()
+            crs = QgsCoordinateReferenceSystem.fromEpsgId(4326)
 
             worldLayer = QgsVectorLayer(SammoSession._worldMapPath(), "World")
-            extent = worldLayer.extent()
             symbol = worldLayer.renderer().symbol()
             symbol.setColor(QColor(178, 223, 138))
             project.addMapLayer(worldLayer)
+
+            extent = QgsReferencedRectangle(worldLayer.extent(), crs)
+            project.viewSettings().setDefaultViewExtent(extent)
 
             gpsLayer = QgsVectorLayer(self.db.tableUri(GPS_TABLE), "GPS")
             symbol = gpsLayer.renderer().symbol()
@@ -57,16 +61,12 @@ class SammoSession:
             gpsLayer.setAutoRefreshEnabled(True)
             project.addMapLayer(gpsLayer)
 
-            project.setCrs(QgsCoordinateReferenceSystem.fromEpsgId(4326))
+            project.setCrs(crs)
             project.setBackgroundColor(QColor(166, 206, 227))
             self.db.writeProject(project)
 
         # read project
         QgsProject.instance().read(self.db.projectUri)
-
-        # update extent
-        self.mapCanvas.setExtent(extent)
-        self.mapCanvas.refresh()
 
     def onStopSoundRecordingForEvent(
         self,
