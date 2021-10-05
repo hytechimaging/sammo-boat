@@ -130,12 +130,18 @@ class Sammo:
         del self.statusDock
         del self.toolbar
 
-    def onCreateSession(self, workingDirectory: str):
-        self.session.onNewSession(workingDirectory)
+    def onCreateSession(self, sessionDirectory: str) -> None:
+        # init session
+        self.session.init(sessionDirectory)
+
+        # enable actions
         self.effortAction.enable = True
         self.followerAction.enable = True
         self.observationAction.enable = True
-        self.soundRecordingController.onNewSession(workingDirectory)
+
+        self.soundRecordingController.onNewSession(sessionDirectory)
+
+        # init simu
         if self.simuGpsAction:
             self.simuGpsAction.onNewSession()
 
