@@ -71,7 +71,7 @@ class SammoSession:
 
     @staticmethod
     def _worldMapPath() -> str:
-        path = QgsApplication.instance().prefixPath()
+        path = QgsApplication.instance().pkgDataPath()
         if platform.system() == "Windows":
             path = os.path.join(
                 path, "resources", "data", "world_map.gpkg|layername=countries"
@@ -79,8 +79,6 @@ class SammoSession:
         else:
             path = os.path.join(
                 path,
-                "share",
-                "qgis",
                 "resources",
                 "data",
                 "world_map.gpkg|layername=countries",
