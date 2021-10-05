@@ -9,6 +9,7 @@ from typing import Optional
 from datetime import datetime
 
 from qgis.PyQt.QtWidgets import QMessageBox
+from qgis.gui import QgsMapCanvas
 from qgis.core import (
     QgsPoint,
     QgsFeature,
@@ -23,35 +24,40 @@ from qgis.core import (
 )
 
 from .logger import Logger
-from .database import SammoDataBase
+from .database import SammoDataBase, GPS_TABLE, DB_NAME
 
 
 class SammoSession:
-    def __init__(self):
+    def __init__(self, mapCanvas: QgsMapCanvas):
+        self.mapCanvas: QgsMapCanvas = mapCanvas
         self.db = SammoDataBase()
         self._gpsLocationsDuringEffort = []
         self._lastEnvironmentFeature: QgsFeature = None
 
     def onLoadProject(self, directory):
         self.directory = directory
-        self._loadTables()
-        self._configureAutoRefreshLayers()
 
     def init(self, directory: str) -> None:
         new = self.db.init(directory)
-        # if new:
-        #     project = QgsProject()
-        #     gpsTable = self.loadTable(SammoDataBase.GPS_TABLE_NAME)
-        #     project.addMapLayer(gpsTable)
-        #     layerWorldMap = QgsVectorLayer(self._worldMapPath())
-        #     layerWorldMap.setName("world_map")
-        #     project.addMapLayer(layerWorldMap)
-        #     project.setCrs(QgsCoordinateReferenceSystem.fromEpsgId(4326))
-        #     project.write(uri)  # Save the QGIS projet into the database
+        if new:
+            project = QgsProject()
 
-        # QgsProject.instance().read(uri)
-        # self._loadTables()
-        # self._configureAutoRefreshLayers()
+            gpsLayer = QgsVectorLayer(self.db.tableUri(GPS_TABLE), "GPS")
+            gpsLayer.setAutoRefreshInterval(1000)
+            gpsLayer.setAutoRefreshEnabled(True)
+            project.addMapLayer(gpsLayer)
+
+            worldLayer = QgsVectorLayer(SammoSession._worldMapPath(), "World")
+            project.addMapLayer(worldLayer)
+
+            project.setCrs(QgsCoordinateReferenceSystem.fromEpsgId(4326))
+            self.db.writeProject(project)
+
+        QgsProject.instance().read(self.db.projectUri)
+
+        if new:
+            self.mapCanvas.setExtent(worldLayer.extent())
+            self.mapCanvas.refresh()
 
     def onStopSoundRecordingForEvent(
         self,
@@ -162,21 +168,10 @@ class SammoSession:
                 continue
 
             uri = layer.dataProvider().dataSourceUri()
-            if SammoDataBase.DB_NAME in uri:
+            if DB_NAME in uri:
                 return True
 
         return False
-
-    def _loadTables(self):
-        self._environmentTable = self.loadTable(
-            SammoDataBase.ENVIRONMENT_TABLE_NAME
-        )
-        self._speciesTable = self.loadTable(SammoDataBase.SPECIES_TABLE_NAME)
-        self._observationTable = self.loadTable(
-            SammoDataBase.OBSERVATION_TABLE_NAME
-        )
-        self._followerTable = self.loadTable(SammoDataBase.FOLLOWER_TABLE_NAME)
-        self._gpsTable = self.loadTable(SammoDataBase.GPS_TABLE_NAME)
 
     @staticmethod
     def _getReadyToAddNewFeature(
@@ -208,10 +203,3 @@ class SammoSession:
                 "world_map.gpkg|layername=countries",
             )
         return path
-
-    @staticmethod
-    def _configureAutoRefreshLayers():
-        layer = QgsProject.instance().mapLayersByName("gps")[0]
-        layer.setAutoRefreshInterval(1000)
-        layer.setAutoRefreshEnabled(True)
-

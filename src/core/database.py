@@ -9,6 +9,7 @@ from qgis.PyQt.QtCore import QVariant
 from qgis.core import (
     QgsField,
     QgsFields,
+    QgsProject,
     QgsWkbTypes,
     QgsFeatureSink,
     QgsVectorLayer,
@@ -18,12 +19,12 @@ from qgis.core import (
 )
 
 DB_NAME = "sammo-boat.gpkg"
-LAYER_NAME = "session data"
-ENVIRONMENT_TABLE_NAME = "environment"
-SPECIES_TABLE_NAME = "species"
-OBSERVATION_TABLE_NAME = "observations"
-FOLLOWER_TABLE_NAME = "followers"
-GPS_TABLE_NAME = "gps"
+
+GPS_TABLE = "gps"
+SPECIES_TABLE = "species"
+FOLLOWER_TABLE = "followers"
+ENVIRONMENT_TABLE = "environment"
+OBSERVATION_TABLE = "observations"
 
 
 class SammoDataBase:
@@ -34,11 +35,15 @@ class SammoDataBase:
     def path(self) -> str:
         return os.path.join(self.directory, DB_NAME)
 
-    def projectUri(self, project: str) -> str:
-        return f"geopackage:{self.path}?projectName={project}"
+    @property
+    def projectUri(self) -> str:
+        return f"geopackage:{self.path}?projectName=Project"
 
     def tableUri(self, table: str) -> str:
         return f"{self.path}|layername={table}"
+
+    def writeProject(self, project: QgsProject) -> None:
+        project.write(self.projectUri)
 
     def init(self, directory: str) -> bool:
         if SammoDataBase.exist(directory):
@@ -48,22 +53,22 @@ class SammoDataBase:
 
         self._createTable(
             self._createFieldsForEnvironmentTable(),
-            ENVIRONMENT_TABLE_NAME,
+            ENVIRONMENT_TABLE,
             QgsWkbTypes.LineString,
         )
         self._createTable(
-            self._createFieldsForSpeciesTable(), SPECIES_TABLE_NAME
+            self._createFieldsForSpeciesTable(), SPECIES_TABLE
         )
         self._createTable(
             self._createFieldsForObservationTable(),
-            OBSERVATION_TABLE_NAME,
+            OBSERVATION_TABLE,
         )
         self._createTable(
-            self._createFieldsForFollowerTable(), FOLLOWER_TABLE_NAME
+            self._createFieldsForFollowerTable(), FOLLOWER_TABLE
         )
         self._createTable(
             self._createFieldsForGpsTable(),
-            GPS_TABLE_NAME,
+            GPS_TABLE,
             QgsWkbTypes.Point,
         )
 
@@ -72,6 +77,15 @@ class SammoDataBase:
     @staticmethod
     def exist(directory: str) -> bool:
         return os.path.isfile(os.path.join(directory, DB_NAME))
+
+    @staticmethod
+    def getIdOfLastAddedFeature(layer: QgsVectorLayer) -> int:
+        maxId = -1
+        for feature in layer.getFeatures():
+            if feature.id() > maxId:
+                maxId = feature.id()
+
+        return maxId
 
     def _createFieldsForEnvironmentTable(self) -> QgsFields:
         fields = QgsFields()
@@ -103,15 +117,6 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("sound_end"))
 
         return fields
-
-    @staticmethod
-    def getIdOfLastAddedFeature(layer: QgsVectorLayer) -> int:
-        maxId = -1
-        for feature in layer.getFeatures():
-            if feature.id() > maxId:
-                maxId = feature.id()
-
-        return maxId
 
     def _createFieldsForSpeciesTable(self) -> QgsFields:
         fields = QgsFields()

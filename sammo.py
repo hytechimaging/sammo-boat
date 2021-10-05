@@ -27,7 +27,8 @@ class Sammo:
         self.iface = iface
         self.toolbar: QToolBar = self.iface.addToolBar("Sammo ToolBar")
 
-        self.session = SammoSession()
+        self.loading = False
+        self.session = SammoSession(iface.mapCanvas())
 
         self.sessionAction = self.createSessionAction()
         self.effortAction = self.createEffortAction()
@@ -132,7 +133,9 @@ class Sammo:
 
     def onCreateSession(self, sessionDirectory: str) -> None:
         # init session
+        self.loading = True
         self.session.init(sessionDirectory)
+        self.loading = False
 
         # enable actions
         self.effortAction.setEnabled(True)
@@ -211,6 +214,9 @@ class Sammo:
         self.statusDock.updateGpsLocation(longitude, latitude)
 
     def projectLoaded(self) -> None:
+        if self.loading:
+            return
+
         self.statusDock.setEnabled(False)
         if not SammoSession.isValidProject(QgsProject.instance()):
             return
