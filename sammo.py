@@ -146,8 +146,8 @@ class Sammo:
         else:
             if not self.onStartNewTransect("B"):
                 # the user pressed the CANCEL button of the form
-                self._soundRecordingController.hardStopOfRecording()
-                self._onOffEffortBtn.button.setChecked(False)
+                self.soundRecordingController.hardStopOfRecording()
+                self.effortAction.button.setChecked(False)
                 self.statusDock.isEffortOn = False
                 return
 
@@ -159,13 +159,13 @@ class Sammo:
             self.soundRecordingController.hardStopOfRecording()
 
     def onStartNewTransect(self, status: str) -> bool:
-        self._soundRecordingController.onStartEnvironment()
+        self.soundRecordingController.onStartEnvironment()
         (
             feat,
             table,
         ) = self.session.getReadyToAddNewFeatureToEnvironmentTable(status)
 
-        return self._changeEnvironmentBtn.openFeatureForm(
+        return self.environmentAction.openFeatureForm(
             self.iface, table, feat
         )
 
