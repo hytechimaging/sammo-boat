@@ -18,6 +18,12 @@ class SammoSessionAction(QObject):
         self.action: QAction = None
         self.initGui(parent, toolbar)
 
+    @property
+    def icon(self):
+        d = os.path.dirname(os.path.abspath(__file__))
+        root = os.path.dirname(os.path.dirname(d))
+        return QIcon(os.path.join(root, "images", "session.png"))
+
     def initGui(self, parent: QObject, toolbar: QToolBar):
         self.action = QAction(parent)
         self.action.triggered.connect(self.run)
@@ -40,9 +46,3 @@ class SammoSessionAction(QObject):
             return
 
         self.create.emit(workingDirectory)
-
-    @property
-    def icon(self):
-        d = os.path.dirname(os.path.abspath(__file__))
-        root = os.path.dirname(os.path.dirname(d))
-        return QIcon(os.path.join(root, "images", "session.png"))

@@ -132,9 +132,9 @@ class Sammo:
 
     def onCreateSession(self, workingDirectory: str):
         self.session.onNewSession(workingDirectory)
-        self.effortAction.onNewSession()
-        self.followerAction.onNewSession()
-        self.observationAction.onNewSession()
+        self.effortAction.enable = True
+        self.followerAction.enable = True
+        self.observationAction.enable = True
         self.soundRecordingController.onNewSession(workingDirectory)
         if self.simuGpsAction:
             self.simuGpsAction.onNewSession()
@@ -210,10 +210,10 @@ class Sammo:
         try:
             workingDirectory = QgsProject.instance().readPath("./")
             self.session.onLoadProject(workingDirectory)
-            self.effortAction.onNewSession()
-            self.environmentAction.onNewSession()
-            self.followerAction.onNewSession()
-            self.observationAction.onNewSession()
+            self.effortAction.enable = True
+            self.environmentAction.enable = True
+            self.followerAction.enable = True
+            self.observationAction.enable = True
             self.soundRecordingController.onNewSession(workingDirectory)
             if self.simuGpsAction:
                 self.simuGpsAction.onNewSession()
