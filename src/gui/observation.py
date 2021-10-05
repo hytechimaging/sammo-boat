@@ -27,8 +27,8 @@ class SammoObservationAction(QObject):
         self.button.setEnabled(False)
         toolbar.addAction(self.button)
 
-    def onNewSession(self):
-        self.button.setEnabled(True)
+    def setEnabled(self, status):
+        self.button.setEnabled(status)
 
     def unload(self):
         del self.button

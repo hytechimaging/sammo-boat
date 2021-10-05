@@ -25,12 +25,7 @@ class SammoEffortAction(QObject):
         root = os.path.dirname(os.path.dirname(d))
         return QIcon(os.path.join(root, "images", "effort.png"))
 
-    @property
-    def enable(self):
-        return self.button.isEnabled()
-
-    @enable.setter
-    def enable(self, status):
+    def setEnabled(self, status):
         self.button.setEnabled(status)
         self.button.setChecked(False)
 

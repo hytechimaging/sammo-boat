@@ -39,6 +39,7 @@ class Sammo:
         self.soundRecordingController = self.createSoundRecordingController()
         self.threadGpsExtractor = self.createGpsExtractor()
         self.statusDock = StatusDock(self.iface)
+
         QgsProject.instance().readProject.connect(self.projectLoaded)
 
     def createSoundRecordingController(self) -> SammoSoundRecordingController:
@@ -135,9 +136,9 @@ class Sammo:
         self.session.init(sessionDirectory)
 
         # enable actions
-        self.effortAction.enable = True
-        self.followerAction.enable = True
-        self.observationAction.enable = True
+        self.effortAction.setEnabled(True)
+        self.followerAction.setEnabled(True)
+        self.observationAction.setEnabled(True)
 
         self.soundRecordingController.onNewSession(sessionDirectory)
 

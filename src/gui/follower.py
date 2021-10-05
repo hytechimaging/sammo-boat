@@ -22,18 +22,13 @@ class SammoFollowerAction(QObject):
         self.initGui(parent, toolbar)
 
     @property
-    def enable(self):
-        return self.button.isEnabled()
-
-    @enable.setter
-    def enable(self, status):
-        self.button.setEnabled(status)
-
-    @property
     def icon(self):
         d = os.path.dirname(os.path.abspath(__file__))
         root = os.path.dirname(os.path.dirname(d))
         return QIcon(os.path.join(root, "images", "seabird.png"))
+
+    def setEnabled(self, status):
+        self.button.setEnabled(status)
 
     def initGui(self, parent: QObject, toolbar: QToolBar):
         self.button = QAction(parent)
