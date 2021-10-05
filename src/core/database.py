@@ -17,87 +17,61 @@ from qgis.core import (
     QgsCoordinateTransformContext,
 )
 
-from .import_species_from_csv import ImportSpeciesFromCsv
+DB_NAME = "sammo-boat.gpkg"
+LAYER_NAME = "session data"
+ENVIRONMENT_TABLE_NAME = "environment"
+SPECIES_TABLE_NAME = "species"
+OBSERVATION_TABLE_NAME = "observations"
+FOLLOWER_TABLE_NAME = "followers"
+GPS_TABLE_NAME = "gps"
 
 
 class SammoDataBase:
-    DB_NAME = "sammo-boat.gpkg"
-    LAYER_NAME = "session data"
-    ENVIRONMENT_TABLE_NAME = "environment"
-    SPECIES_TABLE_NAME = "species"
-    OBSERVATION_TABLE_NAME = "observations"
-    FOLLOWER_TABLE_NAME = "followers"
-    GPS_TABLE_NAME = "gps"
+    def __init__(self):
+        self.directory: str = ""
 
-    @staticmethod
-    def exist(directory: str) -> bool:
-        return os.path.isfile(SammoDataBase.pathToDataBase(directory))
+    @property
+    def path(self) -> str:
+        return os.path.join(self.directory, DB_NAME)
 
-    def create(self, directory):
-        db = self.pathToDataBase(directory)
+    def projectUri(self, project: str) -> str:
+        return f"geopackage:{self.path}?projectName={project}"
 
-        self._addTableToDataBaseFile(
-            db,
+    def tableUri(self, table: str) -> str:
+        return f"{self.path}|layername={table}"
+
+    def init(self, directory: str) -> bool:
+        if SammoDataBase.exist(directory):
+            return False
+
+        self.directory = directory
+
+        self._createTable(
             self._createFieldsForEnvironmentTable(),
-            self.ENVIRONMENT_TABLE_NAME,
+            ENVIRONMENT_TABLE_NAME,
             QgsWkbTypes.LineString,
         )
-        self._addTableToDataBaseFile(
-            db, self._createFieldsForSpeciesTable(), self.SPECIES_TABLE_NAME
+        self._createTable(
+            self._createFieldsForSpeciesTable(), SPECIES_TABLE_NAME
         )
-        self._addTableToDataBaseFile(
-            db,
+        self._createTable(
             self._createFieldsForObservationTable(),
-            self.OBSERVATION_TABLE_NAME,
+            OBSERVATION_TABLE_NAME,
         )
-        self._addTableToDataBaseFile(
-            db, self._createFieldsForFollowerTable(), self.FOLLOWER_TABLE_NAME
+        self._createTable(
+            self._createFieldsForFollowerTable(), FOLLOWER_TABLE_NAME
         )
-        self._addTableToDataBaseFile(
-            db,
+        self._createTable(
             self._createFieldsForGpsTable(),
-            self.GPS_TABLE_NAME,
+            GPS_TABLE_NAME,
             QgsWkbTypes.Point,
         )
 
-    @staticmethod
-    def _addTableToDataBaseFile(
-        db: str, fields: QgsFields, tableName: str, geom=QgsWkbTypes.NoGeometry
-    ):
-        """
-        Create the database and save it as gpkg file
-
-        :param db: path to gpkg file to append to or create
-        :param fields: the fields of the table
-        :param tableName: the name of the table
-        """
-        opts = QgsVectorFileWriter.SaveVectorOptions()
-        opts.driverName = "GPKG"
-        opts.layerName = tableName
-        if not os.path.isfile(db):
-            opts.actionOnExistingFile = (
-                QgsVectorFileWriter.CreateOrOverwriteFile
-            )
-        else:
-            opts.actionOnExistingFile = (
-                QgsVectorFileWriter.CreateOrOverwriteLayer
-            )
-        crs = QgsCoordinateReferenceSystem.fromEpsgId(4326)
-        QgsVectorFileWriter.create(
-            db,
-            fields,
-            geom,
-            crs,
-            QgsCoordinateTransformContext(),
-            opts,
-            QgsFeatureSink.SinkFlags(),
-            None,
-            tableName,
-        )
+        return True
 
     @staticmethod
-    def pathToDataBase(directory: str) -> str:
-        return os.path.join(directory, SammoDataBase.DB_NAME)
+    def exist(directory: str) -> bool:
+        return os.path.isfile(os.path.join(directory, DB_NAME))
 
     def _createFieldsForEnvironmentTable(self) -> QgsFields:
         fields = QgsFields()
@@ -176,10 +150,6 @@ class SammoDataBase:
 
         return fields
 
-    @staticmethod
-    def initializeSpeciesTable(speciesTable: QgsVectorLayer):
-        ImportSpeciesFromCsv.importInto(speciesTable)
-
     def _createFieldsForObservationTable(self) -> QgsFields:
         fields = QgsFields()
         fields.append(QgsField("dateTime", QVariant.DateTime))
@@ -227,10 +197,39 @@ class SammoDataBase:
 
         return fields
 
+    def _createTable(self,
+        fields: QgsFields, tableName: str, geom=QgsWkbTypes.NoGeometry
+    ) -> None:
+        """
+        Create the database and save it as gpkg file
+
+        :param fields: the fields of the table
+        :param tableName: the name of the table
+        """
+        opts = QgsVectorFileWriter.SaveVectorOptions()
+        opts.driverName = "GPKG"
+        opts.layerName = tableName
+        if not os.path.isfile(self.path):
+            opts.actionOnExistingFile = (
+                QgsVectorFileWriter.CreateOrOverwriteFile
+            )
+        else:
+            opts.actionOnExistingFile = (
+                QgsVectorFileWriter.CreateOrOverwriteLayer
+            )
+        crs = QgsCoordinateReferenceSystem.fromEpsgId(4326)
+        QgsVectorFileWriter.create(
+            self.path,
+            fields,
+            geom,
+            crs,
+            QgsCoordinateTransformContext(),
+            opts,
+            QgsFeatureSink.SinkFlags(),
+            None,
+            tableName,
+        )
+
     @staticmethod
     def _createFieldShortText(fieldName) -> QgsField:
         return QgsField(fieldName, QVariant.String, len=50)
-
-    def loadTable(self, directory, tableName) -> QgsVectorLayer:
-        db = self.pathToDataBase(directory) + "|layername=" + tableName
-        return QgsVectorLayer(db, tableName)

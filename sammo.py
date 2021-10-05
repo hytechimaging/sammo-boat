@@ -38,9 +38,13 @@ class Sammo:
 
         self.soundRecordingController = self.createSoundRecordingController()
         self.threadGpsExtractor = self.createGpsExtractor()
-        self.statusDock = StatusDock(self.iface)
+        self.statusDock = StatusDock(iface)
 
         QgsProject.instance().readProject.connect(self.projectLoaded)
+
+    @property
+    def mainWindow(self):
+        return self.iface.mainWindow()
 
     def createSoundRecordingController(self) -> SammoSoundRecordingController:
         controller = SammoSoundRecordingController()
@@ -206,23 +210,21 @@ class Sammo:
         )
         self.statusDock.updateGpsLocation(longitude, latitude)
 
-    def projectLoaded(self):
-        try:
-            workingDirectory = QgsProject.instance().readPath("./")
-            self.session.onLoadProject(workingDirectory)
-            self.effortAction.enable = True
-            self.environmentAction.enable = True
-            self.followerAction.enable = True
-            self.observationAction.enable = True
-            self.soundRecordingController.onNewSession(workingDirectory)
-            if self.simuGpsAction:
-                self.simuGpsAction.onNewSession()
-        except IndexError:
-            pass
+    def projectLoaded(self) -> None:
+        self.statusDock.setEnabled(False)
+        if not SammoSession.isValidProject(QgsProject.instance()):
+            return
 
-    @property
-    def mainWindow(self):
-        return self.iface.mainWindow()
+        self.session.onLoadProject(QgsProject.instance())
+
+        self.statusDock.setEnabled(True)
+        self.effortAction.setEnabled(True)
+        self.environmentAction.setEnabled(True)
+        self.followerAction.setEnabled (True)
+        self.observationAction.setEnabled(True)
+        self.soundRecordingController.onNewSession(workingDirectory)
+        if self.simuGpsAction:
+            self.simuGpsAction.onNewSession()
 
     @staticmethod
     def pluginFolder():
