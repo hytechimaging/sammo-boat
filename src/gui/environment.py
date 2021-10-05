@@ -29,8 +29,8 @@ class SammoEnvironmentAction(QObject):
     def onChangeEffortStatus(self, effortStatus: bool):
         self.button.setEnabled(effortStatus)
 
-    def onNewSession(self):
-        self.button.setEnabled(False)
+    def setEnabled(self, status: bool) -> None:
+        self.button.setEnabled(status)
 
     def unload(self):
         del self.button

@@ -8,12 +8,14 @@ import platform
 from datetime import datetime
 
 from qgis.PyQt.QtWidgets import QMessageBox
+from qgis.gui import QgsMapCanvas
 from qgis.core import (
     QgsPoint,
     QgsFeature,
     QgsPointXY,
     QgsProject,
     QgsGeometry,
+    QgsMapLayer,
     QgsApplication,
     QgsVectorLayer,
     QgsVectorLayerUtils,
@@ -21,87 +23,37 @@ from qgis.core import (
 )
 
 from .logger import Logger
-from .database import SammoDataBase
+from .database import SammoDataBase, GPS_TABLE, DB_NAME
 
 
 class SammoSession:
-    def __init__(self):
+    def __init__(self, mapCanvas: QgsMapCanvas):
+        self.mapCanvas: QgsMapCanvas = mapCanvas
         self.db = SammoDataBase()
-        self.directory: str = ""
-        self._environmentTable: QgsVectorLayer = None
-        self._speciesTable: QgsVectorLayer = None
-        self._observationTable: QgsVectorLayer = None
-        self._followerTable: QgsVectorLayer = None
-        self._gpsTable: QgsVectorLayer = None
         self._gpsLocationsDuringEffort = []
         self._lastEnvironmentFeature: QgsFeature = None
 
-    @staticmethod
-    def exist(directory: str) -> bool:
-        return SammoDataBase.exist(directory)
-
-    def onLoadProject(self, directory):
-        self.directory = directory
-        self._loadTables()
-        self._configureAutoRefreshLayers()
-
-    def init(self, directory):
-        self.directory = directory
-        uri = (
-            "geopackage:"
-            + SammoDataBase.pathToDataBase(directory)
-            + "?projectName=project"
-        )
-
-        if not self.exist(directory):
-            # No geopackage DB in this directory
-            self.create(directory)
-
+    def init(self, directory: str) -> None:
+        new = self.db.init(directory)
+        if new:
             project = QgsProject()
-            gpsTable = self.loadTable(SammoDataBase.GPS_TABLE_NAME)
-            project.addMapLayer(gpsTable)
-            layerWorldMap = QgsVectorLayer(self._worldMapPath())
-            layerWorldMap.setName("world_map")
-            project.addMapLayer(layerWorldMap)
+
+            gpsLayer = QgsVectorLayer(self.db.tableUri(GPS_TABLE), "GPS")
+            gpsLayer.setAutoRefreshInterval(1000)
+            gpsLayer.setAutoRefreshEnabled(True)
+            project.addMapLayer(gpsLayer)
+
+            worldLayer = QgsVectorLayer(SammoSession._worldMapPath(), "World")
+            project.addMapLayer(worldLayer)
+
             project.setCrs(QgsCoordinateReferenceSystem.fromEpsgId(4326))
-            project.write(uri)  # Save the QGIS projet into the database
+            self.db.writeProject(project)
 
-        QgsProject.instance().read(uri)
-        self._loadTables()
-        self._configureAutoRefreshLayers()
+        QgsProject.instance().read(self.db.projectUri)
 
-    @staticmethod
-    def _worldMapPath() -> str:
-        path = QgsApplication.instance().pkgDataPath()
-        if platform.system() == "Windows":
-            path = os.path.join(
-                path, "resources", "data", "world_map.gpkg|layername=countries"
-            )
-        else:
-            path = os.path.join(
-                path,
-                "resources",
-                "data",
-                "world_map.gpkg|layername=countries",
-            )
-        return path
-
-    def _loadTables(self):
-        self._environmentTable = self.loadTable(
-            SammoDataBase.ENVIRONMENT_TABLE_NAME
-        )
-        self._speciesTable = self.loadTable(SammoDataBase.SPECIES_TABLE_NAME)
-        self._observationTable = self.loadTable(
-            SammoDataBase.OBSERVATION_TABLE_NAME
-        )
-        self._followerTable = self.loadTable(SammoDataBase.FOLLOWER_TABLE_NAME)
-        self._gpsTable = self.loadTable(SammoDataBase.GPS_TABLE_NAME)
-
-    @staticmethod
-    def _configureAutoRefreshLayers():
-        layer = QgsProject.instance().mapLayersByName("gps")[0]
-        layer.setAutoRefreshInterval(1000)
-        layer.setAutoRefreshEnabled(True)
+        if new:
+            self.mapCanvas.setExtent(worldLayer.extent())
+            self.mapCanvas.refresh()
 
     def onStopSoundRecordingForEvent(
         self,
@@ -136,12 +88,6 @@ class SammoSession:
             QgsGeometry.fromPolyline(self._gpsLocationsDuringEffort),
         )
         table.commitChanges()
-
-    def create(self, directory: str) -> None:
-        self.db.create(directory)
-
-        speciesTable = self.loadTable(SammoDataBase.SPECIES_TABLE_NAME)
-        SammoDataBase.initializeSpeciesTable(speciesTable)
 
     def loadTable(self, tableName: str) -> QgsVectorLayer:
         layer = self.db.loadTable(self.directory, tableName)
@@ -212,6 +158,18 @@ class SammoSession:
         self._gpsLocationsDuringEffort.append(QgsPoint(longitude, latitude))
 
     @staticmethod
+    def sessionDirectory(project: QgsProject) -> str:
+        for layer in project.mapLayers().values():
+            if layer.type() != QgsMapLayer.VectorLayer:
+                continue
+
+            uri = layer.dataProvider().dataSourceUri()
+            if DB_NAME in uri:
+                return uri.split("|")[0].replace(DB_NAME, "")
+
+        return ""
+
+    @staticmethod
     def _getReadyToAddNewFeature(
         table: QgsVectorLayer,
     ) -> (QgsFeature, QgsVectorLayer):
@@ -225,3 +183,19 @@ class SammoSession:
             Logger.error("addFeature : échec ")
         if not table.commitChanges():
             Logger.error("_addNewFeatureThreadSafe : échec ")
+
+    @staticmethod
+    def _worldMapPath() -> str:
+        path = QgsApplication.instance().pkgDataPath()
+        if platform.system() == "Windows":
+            path = os.path.join(
+                path, "resources", "data", "world_map.gpkg|layername=countries"
+            )
+        else:
+            path = os.path.join(
+                path,
+                "resources",
+                "data",
+                "world_map.gpkg|layername=countries",
+            )
+        return path

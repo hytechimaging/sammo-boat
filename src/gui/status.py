@@ -33,8 +33,16 @@ class StatusDock:
         self._thread = ThreadWidget(self.onTimer_500msec)
         self._startThread()
         self._counter500msWithoutGpsInfo = 0
-        # if not self._isDockWidgetExists():
-        self._createDockWidget()
+
+        self._init(iface.mainWindow())
+
+    def setEnabled(self, status):
+        if status:
+            self.iface.addDockWidget(Qt.TopDockWidgetArea, self.dock)
+            self.dock.setVisible(True)
+        else:
+            self.iface.removeDockWidget(self.dock)
+            self.dock.setVisible(False)
 
     def onTimer_500msec(self):
         if not self._effortLabel:
@@ -97,9 +105,9 @@ class StatusDock:
         if self._thread and self._thread.isProceeding:
             self._thread.stop()
 
-    def _createDockWidget(self):
-        self.dock = QDockWidget(StatusDock.widgetName, self.iface.mainWindow())
-        self.iface.addDockWidget(Qt.TopDockWidgetArea, self.dock)
+    def _init(self, parent):
+        self.dock = QDockWidget(StatusDock.widgetName, parent)
+        self.dock.setVisible(False)
 
         self.internalWidget = QWidget(self.dock)
         self.dock.setWidget(self.internalWidget)
@@ -153,9 +161,3 @@ class StatusDock:
         self._gpsWidget.layout().addWidget(self._latitudeLabel)
 
         self.updateGpsLocation(sys.float_info.max, sys.float_info.max)
-
-    def _isDockWidgetExists(self) -> bool:
-        for dockWidget in self.iface.mainWindow().findChildren(QDockWidget):
-            if dockWidget.windowTitle() == StatusDock.widgetName:
-                return True
-        return False
