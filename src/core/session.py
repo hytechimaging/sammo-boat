@@ -7,7 +7,9 @@ import os.path
 import platform
 from datetime import datetime
 
+from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtWidgets import QMessageBox
+
 from qgis.gui import QgsMapCanvas
 from qgis.core import (
     QgsPoint,
@@ -34,26 +36,37 @@ class SammoSession:
         self._lastEnvironmentFeature: QgsFeature = None
 
     def init(self, directory: str) -> None:
+        extent = self.mapCanvas.projectExtent()
         new = self.db.init(directory)
+
+        # create database if necessary
         if new:
             project = QgsProject()
 
+            worldLayer = QgsVectorLayer(SammoSession._worldMapPath(), "World")
+            extent = worldLayer.extent()
+            symbol = worldLayer.renderer().symbol()
+            symbol.setColor(QColor(178, 223, 138))
+            project.addMapLayer(worldLayer)
+
             gpsLayer = QgsVectorLayer(self.db.tableUri(GPS_TABLE), "GPS")
+            symbol = gpsLayer.renderer().symbol()
+            symbol.setColor(QColor(219, 30, 42))
+            symbol.setSize(2)
             gpsLayer.setAutoRefreshInterval(1000)
             gpsLayer.setAutoRefreshEnabled(True)
             project.addMapLayer(gpsLayer)
 
-            worldLayer = QgsVectorLayer(SammoSession._worldMapPath(), "World")
-            project.addMapLayer(worldLayer)
-
             project.setCrs(QgsCoordinateReferenceSystem.fromEpsgId(4326))
+            project.setBackgroundColor(QColor(166, 206, 227))
             self.db.writeProject(project)
 
+        # read project
         QgsProject.instance().read(self.db.projectUri)
 
-        if new:
-            self.mapCanvas.setExtent(worldLayer.extent())
-            self.mapCanvas.refresh()
+        # update extent
+        self.mapCanvas.setExtent(extent)
+        self.mapCanvas.refresh()
 
     def onStopSoundRecordingForEvent(
         self,

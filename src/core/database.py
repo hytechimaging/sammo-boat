@@ -37,7 +37,7 @@ class SammoDataBase:
 
     @property
     def projectUri(self) -> str:
-        return f"geopackage:{self.path}?projectName=Project"
+        return f"geopackage:{self.path}?projectName=project"
 
     def tableUri(self, table: str) -> str:
         return f"{self.path}|layername={table}"
