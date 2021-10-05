@@ -56,16 +56,12 @@ class SammoDataBase:
             ENVIRONMENT_TABLE,
             QgsWkbTypes.LineString,
         )
-        self._createTable(
-            self._createFieldsForSpeciesTable(), SPECIES_TABLE
-        )
+        self._createTable(self._createFieldsForSpeciesTable(), SPECIES_TABLE)
         self._createTable(
             self._createFieldsForObservationTable(),
             OBSERVATION_TABLE,
         )
-        self._createTable(
-            self._createFieldsForFollowerTable(), FOLLOWER_TABLE
-        )
+        self._createTable(self._createFieldsForFollowerTable(), FOLLOWER_TABLE)
         self._createTable(
             self._createFieldsForGpsTable(),
             GPS_TABLE,
@@ -202,8 +198,8 @@ class SammoDataBase:
 
         return fields
 
-    def _createTable(self,
-        fields: QgsFields, tableName: str, geom=QgsWkbTypes.NoGeometry
+    def _createTable(
+        self, fields: QgsFields, tableName: str, geom=QgsWkbTypes.NoGeometry
     ) -> None:
         """
         Create the database and save it as gpkg file

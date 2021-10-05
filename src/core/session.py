@@ -5,7 +5,6 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
 import platform
-from typing import Optional
 from datetime import datetime
 
 from qgis.PyQt.QtWidgets import QMessageBox
