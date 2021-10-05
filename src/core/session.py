@@ -165,6 +165,8 @@ class SammoSession:
     def addNewFeatureToGpsTable(
         self, longitude: float, latitude: float, leg_heure: str, code_leg: int
     ):
+        if not self._gpsTable:
+            return
         self._gpsTable.startEditing()
         feature = QgsFeature(QgsVectorLayerUtils.createFeature(self._gpsTable))
         layerPoint = QgsPointXY(longitude, latitude)
