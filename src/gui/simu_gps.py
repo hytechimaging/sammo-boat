@@ -8,7 +8,7 @@ from qgis.PyQt.QtCore import pyqtSignal, QObject
 from qgis.core import QgsVectorLayer, QgsFeature
 
 
-class SammoSimuGpsBtn(QObject):
+class SammoSimuGpsAction(QObject):
     # the parameter value is true if GPS simulation is ON
     onChangeSimuGpsStatusSignal = pyqtSignal(bool)
 

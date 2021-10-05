@@ -10,8 +10,8 @@ from qgis.PyQt.QtCore import QDir, pyqtSignal, QObject
 from qgis.PyQt.QtWidgets import QAction, QFileDialog, QToolBar
 
 
-class SammoActionSession(QObject):
-    createSignal = pyqtSignal(str)
+class SammoSessionAction(QObject):
+    create = pyqtSignal(str)
 
     def __init__(self, parent: QObject, toolbar: QToolBar):
         super().__init__()
@@ -39,7 +39,7 @@ class SammoActionSession(QObject):
             # no directory selected
             return
 
-        self.createSignal.emit(workingDirectory)
+        self.create.emit(workingDirectory)
 
     @property
     def icon(self):

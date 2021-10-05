@@ -11,7 +11,7 @@ from qgis.core import QgsVectorLayer, QgsFeature
 from qgis.PyQt.QtWidgets import QAction, QToolBar
 
 
-class SammoAddFollowerBtn(QObject):
+class SammoFollowerAction(QObject):
     onClickAddFollowerSignal = pyqtSignal()
     onAddFeatureToFollowerTableSignal = pyqtSignal(QgsFeature)
 
