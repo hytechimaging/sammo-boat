@@ -4,19 +4,22 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
-from .src.gui.changeEnvironment_btn import SammoChangeEnvironmentBtn
-from .src.gui.session_btn import SammoActionSession
-from .src.gui.on_off_effort_btn import SammoOnOffEffortBtn
-from .src.core.session import SammoSession
-from .src.gui.add_follower_btn import SammoAddFollowerBtn
-from .src.gui.add_observation_btn import SammoAddObservationBtn
-from .src.core.thread_simu_gps import ThreadSimuGps
-from .src.core.thread_gps_extractor import ThreadGpsExtractor
-from .src.gui.simu_gps_btn import SammoSimuGpsBtn
-from .src.core.sound_recording_controller import SammoSoundRecordingController
-from .src.gui.status_dock import StatusDock
+
 from qgis.PyQt.QtWidgets import QToolBar
 from qgis.core import QgsFeature, QgsProject
+
+from .src.core.session import SammoSession
+from .src.core.thread_simu_gps import ThreadSimuGps
+from .src.core.thread_gps_extractor import ThreadGpsExtractor
+from .src.core.sound_recording_controller import SammoSoundRecordingController
+
+from .src.gui.status_dock import StatusDock
+from .src.gui.simu_gps_btn import SammoSimuGpsBtn
+from .src.gui.session_btn import SammoActionSession
+from .src.gui.add_follower_btn import SammoAddFollowerBtn
+from .src.gui.on_off_effort_btn import SammoOnOffEffortBtn
+from .src.gui.add_observation_btn import SammoAddObservationBtn
+from .src.gui.changeEnvironment_btn import SammoChangeEnvironmentBtn
 
 
 class Sammo:
