@@ -57,6 +57,17 @@ class StatusWidget(QFrame, FORM_CLASS):
         px = pixmap(icon, QSize(64,64))
         self.effort.setPixmap(px)
 
+    def setGps(self, status):
+        self.gps.setStyleSheet(self._styleSheet(status))
+        self.gps.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+
+        icon = "gps_ko.png"
+        if status:
+            icon = "gps_ok.png"
+
+        px = pixmap(icon, QSize(64,64))
+        self.gps.setPixmap(px)
+
     def init(self):
         self.record.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
         self.setRecording(False)
@@ -80,7 +91,7 @@ class StatusDock(QDockWidget):
         self.isEffortOn: bool = False
         self.isSoundRecordingOn: bool = False
         self._isGpsOffline = True
-        self._thread = ThreadWidget(self.onTimer_500msec)
+        self._thread = ThreadWidget(self.refresh)
         self._startThread()
         self._counter500msWithoutGpsInfo = 0
 
@@ -100,7 +111,7 @@ class StatusDock(QDockWidget):
             self.iface.removeDockWidget(self)
             self.setVisible(False)
 
-    def onTimer_500msec(self):
+    def refresh(self):
         if not self._widget:
             return
 
@@ -108,6 +119,7 @@ class StatusDock(QDockWidget):
         if self._counter500msWithoutGpsInfo > 4:
             self._onGpsOffline()
 
+        self._widget.setGps(self.isEffortOn)
         self._widget.setEffort(self.isEffortOn)
         self._widget.setRecording(self.isSoundRecordingOn)
 
