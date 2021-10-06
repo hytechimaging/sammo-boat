@@ -40,6 +40,10 @@ class SammoSession:
     def environmentLayer(self) -> QgsVectorLayer:
         return self._layer(ENVIRONMENT_TABLE)
 
+    @property
+    def gpsLayer(self) -> QgsVectorLayer:
+        return self._layer(GPS_TABLE)
+
     def init(self, directory: str) -> None:
         extent = self.mapCanvas.projectExtent()
         new = self.db.init(directory)
@@ -163,15 +167,15 @@ class SammoSession:
     def addGps(
         self, longitude: float, latitude: float, formattedDateTime: str
     ):
-        if not self._gpsTable:
-            return
-        self._gpsTable.startEditing()
-        feature = QgsFeature(QgsVectorLayerUtils.createFeature(self._gpsTable))
-        layerPoint = QgsPointXY(longitude, latitude)
-        feature.setGeometry(QgsGeometry.fromPointXY(layerPoint))
+        vlayer = self.gpsLayer
+        vlayer.startEditing()
+
+        feature = QgsFeature(QgsVectorLayerUtils.createFeature(vlayer))
+        point = QgsPointXY(longitude, latitude)
+        feature.setGeometry(QgsGeometry.fromPointXY(point))
         feature.setAttribute("dateTime", formattedDateTime)
 
-        self._addFeature(feature, self._gpsTable)
+        self._addFeature(feature, vlayer)
         self._gpsLocationsDuringEffort.append(QgsPoint(longitude, latitude))
 
     def _layer(self, name: str) -> QgsVectorLayer:

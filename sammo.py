@@ -8,9 +8,9 @@ import os.path
 from qgis.PyQt.QtWidgets import QToolBar
 from qgis.core import QgsFeature, QgsProject
 
+from .src.core.gps import SammoGpsReader
 from .src.core.session import SammoSession
 from .src.core.thread_simu_gps import ThreadSimuGps
-from .src.core.thread_gps_extractor import ThreadGpsExtractor
 from .src.core.sound_recording_controller import SammoSoundRecordingController
 
 from .src.gui.status import StatusDock
@@ -38,7 +38,7 @@ class Sammo:
         self.simuGpsAction, self.threadSimuGps = self.createSimuGps()
 
         self.soundRecordingController = self.createSoundRecordingController()
-        self.threadGpsExtractor = self.createGpsExtractor()
+        self.gpsReader = self.createGpsReader()
         self.statusDock = StatusDock(iface)
 
         iface.projectRead.connect(self.onProjectLoaded)
@@ -78,11 +78,11 @@ class Sammo:
         )
         return [button, threadGps]
 
-    def createGpsExtractor(self) -> ThreadGpsExtractor:
-        threadGps = ThreadGpsExtractor(self.session)
-        threadGps.addNewFeatureToGpsTableSignal.connect(self.session.addGps)
-        threadGps.start()
-        return threadGps
+    def createGpsReader(self) -> SammoGpsReader:
+        gps = SammoGpsReader()
+        gps.frame.connect(self.onGpsFrame)
+        gps.start()
+        return gps
 
     def createFollowerAction(self):
         button = SammoFollowerAction(self.mainWindow, self.toolbar)
@@ -104,7 +104,7 @@ class Sammo:
 
     def createEnvironmentAction(self) -> SammoEnvironmentAction:
         button = SammoEnvironmentAction(self.mainWindow, self.toolbar)
-        button.triggered.connect(self.onEnvironmentTriggered)
+        button.triggered.connect(self.onEnvironmentAction)
         button.add.connect(self.onEnvironmentAdd)
         return button
 
@@ -117,7 +117,8 @@ class Sammo:
         pass
 
     def unload(self):
-        self.threadGpsExtractor.stop()
+        self.gpsReader.stop()
+
         if self.threadSimuGps is not None and self.threadSimuGps.isProceeding:
             self.threadSimuGps.stop()
         self.soundRecordingController.unload()
@@ -132,12 +133,17 @@ class Sammo:
         del self.statusDock
         del self.toolbar
 
+    def onGpsFrame(self, longitude, latitude, hour, code):
+        self.session.addGps(longitude, latitude, hour)
+        self.statusDock.updateGpsInfo(longitude, latitude)
+
     def onCreateSession(self, sessionDirectory: str) -> None:
         # init session
         self.loading = True
         self.session.init(sessionDirectory)
         self.loading = False
 
+        self.gpsReader.active = True
         self.setEnabled(True)
 
         self.soundRecordingController.onNewSession(sessionDirectory)
@@ -160,11 +166,6 @@ class Sammo:
 
         self.environmentAction.onChangeEffortStatus(isChecked)
 
-    def onEnvironmentTriggered(self):
-        if not self.onStartNewTransect("A"):
-            # the user pressed the CANCEL button of the form
-            self.soundRecordingController.hardStopOfRecording()
-
     def onStartNewTransect(self, status: str) -> bool:
         self.soundRecordingController.onStartEnvironment()
         (
@@ -185,6 +186,11 @@ class Sammo:
         feat, table = self.session.getReadyToAddNewFeatureToFollowerTable()
         self.followerAction.openFeatureForm(self.iface, table, feat)
 
+    def onEnvironmentAction(self):
+        if not self.onStartNewTransect("A"):
+            # the user pressed the CANCEL button of the form
+            self.soundRecordingController.hardStopOfRecording()
+
     def onEnvironmentAdd(self, feat: QgsFeature) -> None:
         self.session.onStopTransect()  # stop the previous transect
         self.session.addEnvironment(feat)
@@ -203,16 +209,11 @@ class Sammo:
     def onSoundRecordingStatusChanged(self, isOn: bool):
         self.statusDock.isSoundRecordingOn = isOn
 
-    def addNewFeatureToGpsTableSignal(
-        self, longitude: float, latitude: float, formattedDateTime: str
-    ):
-        self.session.addGps(longitude, latitude, formattedDateTime)
-        self.statusDock.updateGpsLocation(longitude, latitude)
-
     def onProjectLoaded(self) -> None:
         if self.loading:
             return
 
+        self.gpsReader.active = False
         self.setEnabled(False)
         sessionDir = SammoSession.sessionDirectory(QgsProject.instance())
 
