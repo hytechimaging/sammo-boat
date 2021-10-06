@@ -200,9 +200,16 @@ class SammoSession:
         layer.setAutoRefreshInterval(1000)
         layer.setAutoRefreshEnabled(True)
 
+        # fid
         idx = layer.fields().indexFromName("fid")
         setup = QgsEditorWidgetSetup("Hidden", {})
         layer.setEditorWidgetSetup(idx, setup)
+
+        # status
+        idx = layer.fields().indexFromName("status")
+        form_config = layer.editFormConfig()
+        form_config.setReadOnly(idx, True)
+        layer.setEditFormConfig(form_config)
 
         # platform
         idx = layer.fields().indexFromName("plateform")
@@ -404,6 +411,24 @@ class SammoSession:
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'ON'"))
+
+        # sound_file
+        idx = layer.fields().indexFromName("sound_file")
+        form_config = layer.editFormConfig()
+        form_config.setReadOnly(idx, True)
+        layer.setEditFormConfig(form_config)
+
+        # sound_start
+        idx = layer.fields().indexFromName("sound_start")
+        form_config = layer.editFormConfig()
+        form_config.setReadOnly(idx, True)
+        layer.setEditFormConfig(form_config)
+
+        # sound_end
+        idx = layer.fields().indexFromName("sound_end")
+        form_config = layer.editFormConfig()
+        form_config.setReadOnly(idx, True)
+        layer.setEditFormConfig(form_config)
 
         return layer
 
