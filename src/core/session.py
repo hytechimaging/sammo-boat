@@ -101,14 +101,14 @@ class SammoSession:
     def onStopTransect(self):
         if 0 == len(self._gpsLocationsDuringEffort):
             return
-        table = self._environmentTable
-        table.startEditing()
-        idLastAddedFeature = self.db.getIdOfLastAddedFeature(table)
-        table.changeGeometry(
+        vlayer = self.environmentLayer
+        vlayer.startEditing()
+        idLastAddedFeature = self.db.getIdOfLastAddedFeature(vlayer)
+        vlayer.changeGeometry(
             idLastAddedFeature,
             QgsGeometry.fromPolyline(self._gpsLocationsDuringEffort),
         )
-        table.commitChanges()
+        vlayer.commitChanges()
 
     def loadTable(self, tableName: str) -> QgsVectorLayer:
         layer = self.db.loadTable(self.directory, tableName)
