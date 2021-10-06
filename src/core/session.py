@@ -21,12 +21,15 @@ from qgis.core import (
     QgsApplication,
     QgsVectorLayer,
     QgsVectorLayerUtils,
+    QgsEditorWidgetSetup,
     QgsReferencedRectangle,
     QgsCoordinateReferenceSystem,
 )
 
 from .logger import Logger
 from .database import SammoDataBase, GPS_TABLE, DB_NAME, ENVIRONMENT_TABLE
+
+ENVIRONMENT_LAYER_NAME = "Effort"
 
 
 class SammoSession:
@@ -38,7 +41,7 @@ class SammoSession:
 
     @property
     def environmentLayer(self) -> QgsVectorLayer:
-        return self._layer(ENVIRONMENT_TABLE)
+        return self._layer(ENVIRONMENT_TABLE, ENVIRONMENT_LAYER_NAME)
 
     @property
     def gpsLayer(self) -> QgsVectorLayer:
@@ -179,20 +182,28 @@ class SammoSession:
         self._addFeature(feature, vlayer)
         self._gpsLocationsDuringEffort.append(QgsPoint(longitude, latitude))
 
-    def _layer(self, name: str) -> QgsVectorLayer:
-        return QgsVectorLayer(self.db.tableUri(name))
+    def _layer(self, table: str, name: str = "") -> QgsVectorLayer:
+        # return the project layer in priority
+        if name and QgsProject.instance().mapLayersByName(name):
+            return QgsProject.instance().mapLayersByName(name)[0]
+
+        return QgsVectorLayer(self.db.tableUri(table))
 
     def _initEffortLayer(self) -> QgsVectorLayer:
-        envLayer = self.environmentLayer
-        envLayer.setName("Effort")
+        layer = self.environmentLayer
+        layer.setName(ENVIRONMENT_LAYER_NAME)
 
-        symbol = envLayer.renderer().symbol()
+        symbol = layer.renderer().symbol()
         symbol.setColor(QColor(219, 30, 42))
 
-        envLayer.setAutoRefreshInterval(1000)
-        envLayer.setAutoRefreshEnabled(True)
+        layer.setAutoRefreshInterval(1000)
+        layer.setAutoRefreshEnabled(True)
 
-        return envLayer
+        idx = layer.fields().indexFromName('fid')
+        setup = QgsEditorWidgetSetup('Hidden', {})
+        layer.setEditorWidgetSetup(idx, setup)
+
+        return layer
 
     def _initGpsLayer(self) -> QgsVectorLayer:
         gpsLayer = self.gpsLayer
