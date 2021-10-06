@@ -61,13 +61,22 @@ class SammoSession:
             extent = QgsReferencedRectangle(worldLayer.extent(), crs)
             project.viewSettings().setDefaultViewExtent(extent)
 
-            gpsLayer = QgsVectorLayer(self.db.tableUri(GPS_TABLE), "GPS")
+            gpsLayer = self.gpsLayer
+            gpsLayer.setName("GPS")
             symbol = gpsLayer.renderer().symbol()
             symbol.setColor(QColor(219, 30, 42))
             symbol.setSize(2)
             gpsLayer.setAutoRefreshInterval(1000)
             gpsLayer.setAutoRefreshEnabled(True)
             project.addMapLayer(gpsLayer)
+
+            envLayer = self.environmentLayer
+            envLayer.setName("Effort")
+            symbol = envLayer.renderer().symbol()
+            symbol.setColor(QColor(219, 30, 42))
+            envLayer.setAutoRefreshInterval(1000)
+            envLayer.setAutoRefreshEnabled(True)
+            project.addMapLayer(envLayer)
 
             project.setCrs(crs)
             project.setBackgroundColor(QColor(166, 206, 227))
