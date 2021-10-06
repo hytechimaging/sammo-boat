@@ -161,7 +161,7 @@ class Sammo:
                 # the user pressed the CANCEL button of the form
                 self.soundRecordingController.hardStopOfRecording()
                 self.session.environmentLayer.rollBack()
-                self.effortAction.button.setChecked(False)
+                self.effortAction.action.setChecked(False)
                 self.statusDock.isEffortOn = False
                 return
 
