@@ -22,6 +22,7 @@ DB_NAME = "sammo-boat.gpkg"
 
 GPS_TABLE = "gps"
 SPECIES_TABLE = "species"
+OBSERVER_TABLE = "observer"
 FOLLOWER_TABLE = "followers"
 ENVIRONMENT_TABLE = "environment"
 OBSERVATION_TABLE = "observations"
@@ -67,6 +68,8 @@ class SammoDataBase:
             GPS_TABLE,
             QgsWkbTypes.Point,
         )
+
+        self._createTable(self._fieldsObserver(), OBSERVER_TABLE)
 
         return True
 
@@ -197,6 +200,16 @@ class SammoDataBase:
 
         return fields
 
+    def _fieldsObserver(self) -> QgsFields:
+        fields = QgsFields()
+        fields.append(self._createFieldShortText("observer", 4))
+        fields.append(self._createFieldShortText("firstName"))
+        fields.append(self._createFieldShortText("lastName"))
+        fields.append(self._createFieldShortText("organization"))
+        fields.append(self._createFieldShortText("contact"))
+
+        return fields
+
     def _createTable(
         self, fields: QgsFields, tableName: str, geom=QgsWkbTypes.NoGeometry
     ) -> None:
@@ -231,5 +244,5 @@ class SammoDataBase:
         )
 
     @staticmethod
-    def _createFieldShortText(fieldName) -> QgsField:
-        return QgsField(fieldName, QVariant.String, len=50)
+    def _createFieldShortText(fieldName, len=50) -> QgsField:
+        return QgsField(fieldName, QVariant.String, len=len)

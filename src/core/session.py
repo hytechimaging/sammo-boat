@@ -28,8 +28,15 @@ from qgis.core import (
 )
 
 from .logger import Logger
-from .database import SammoDataBase, GPS_TABLE, DB_NAME, ENVIRONMENT_TABLE
+from .database import (
+    SammoDataBase,
+    GPS_TABLE,
+    DB_NAME,
+    ENVIRONMENT_TABLE,
+    OBSERVER_TABLE,
+)
 
+OBSERVERS_LAYER_NAME = "Observers"
 ENVIRONMENT_LAYER_NAME = "Effort"
 
 
@@ -48,6 +55,10 @@ class SammoSession:
     def gpsLayer(self) -> QgsVectorLayer:
         return self._layer(GPS_TABLE)
 
+    @property
+    def observerLayer(self) -> QgsVectorLayer:
+        return self._layer(OBSERVER_TABLE)
+
     def init(self, directory: str) -> None:
         extent = self.mapCanvas.projectExtent()
         new = self.db.init(directory)
@@ -62,6 +73,9 @@ class SammoSession:
 
             gpsLayer = self._initGpsLayer()
             project.addMapLayer(gpsLayer)
+
+            observerLayer = self._initObserverLayer()
+            project.addMapLayer(observerLayer, False)
 
             effortLayer = self._initEffortLayer()
             project.addMapLayer(effortLayer)
@@ -430,6 +444,27 @@ class SammoSession:
         form_config.setReadOnly(idx, True)
         layer.setEditFormConfig(form_config)
 
+        # left/right/center
+        for field in ["left", "right", "center"]:
+            idx = layer.fields().indexFromName(field)
+            cfg = {
+                "AllowMulti": False,
+                "AllowNull": False,
+                "Description": '"observer"',
+                "FilterExpression": "",
+                "Key": "observer",
+                "Layer": self.observerLayer.id(),
+                "LayerName": OBSERVERS_LAYER_NAME,
+                "LayerProviderName": "ogr",
+                "LayerSource": self.db.tableUri(OBSERVER_TABLE),
+                "NofColumns": 1,
+                "OrderByValue": False,
+                "UseCompleter": False,
+                "Value": "observer",
+            }
+            setup = QgsEditorWidgetSetup("ValueRelation", cfg)
+            layer.setEditorWidgetSetup(idx, setup)
+
         return layer
 
     def _initGpsLayer(self) -> QgsVectorLayer:
@@ -444,6 +479,11 @@ class SammoSession:
         gpsLayer.setAutoRefreshEnabled(True)
 
         return gpsLayer
+
+    def _initObserverLayer(self) -> QgsVectorLayer:
+        layer = self.observerLayer
+        layer.setName(OBSERVERS_LAYER_NAME)
+        return layer
 
     @staticmethod
     def sessionDirectory(project: QgsProject) -> str:
