@@ -58,7 +58,8 @@ class StatusWidget(QFrame, FORM_CLASS):
         self.effort.setPixmap(px)
 
     def setGps(self, status):
-        self.gps.setStyleSheet(self._styleSheet(status))
+        self.gps.setStyleSheet(self._styleSheet(status, True))
+        self.gpsFrame.setStyleSheet(self._styleSheet(status, True))
         self.gps.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
 
         icon = "gps_ko.png"
@@ -69,15 +70,20 @@ class StatusWidget(QFrame, FORM_CLASS):
         self.gps.setPixmap(px)
 
     def init(self):
-        self.record.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
         self.setRecording(False)
         self.setEffort(False)
+        self.setGps(False)
 
-    def _styleSheet(self, status):
+    def _styleSheet(self, status, frame=False):
         color = KO_COLOR
         if status:
             color = OK_COLOR
-        return f"QLabel {{ background-color : {color}; color : red; }}"
+
+        widget = "QLabel"
+        if frame:
+            widget = "QFrame"
+
+        return f"{widget} {{ background-color : {color}; color : white; }}"
 
 
 class StatusDock(QDockWidget):
@@ -95,6 +101,7 @@ class StatusDock(QDockWidget):
         self._startThread()
         self._counter500msWithoutGpsInfo = 0
 
+        self._widget = None
         self._init(iface.mainWindow())
 
     def setEnabled(self, status):
@@ -119,7 +126,7 @@ class StatusDock(QDockWidget):
         if self._counter500msWithoutGpsInfo > 4:
             self._onGpsOffline()
 
-        self._widget.setGps(self.isEffortOn)
+        self._widget.setGps(not self._isGpsOffline)
         self._widget.setEffort(self.isEffortOn)
         self._widget.setRecording(self.isSoundRecordingOn)
 
