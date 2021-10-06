@@ -51,35 +51,27 @@ class SammoSession:
         # create database if necessary
         if new:
             project = QgsProject()
-            crs = QgsCoordinateReferenceSystem.fromEpsgId(4326)
 
-            worldLayer = QgsVectorLayer(SammoSession._worldMapPath(), "World")
-            symbol = worldLayer.renderer().symbol()
-            symbol.setColor(QColor(178, 223, 138))
+            # add layers
+            worldLayer = SammoSession._initWorldLayer()
             project.addMapLayer(worldLayer)
+
+            gpsLayer = self._initGpsLayer()
+            project.addMapLayer(gpsLayer)
+
+            effortLayer = self._initEffortLayer()
+            project.addMapLayer(effortLayer)
+
+            # configure project
+            crs = QgsCoordinateReferenceSystem.fromEpsgId(4326)
+            project.setCrs(crs)
 
             extent = QgsReferencedRectangle(worldLayer.extent(), crs)
             project.viewSettings().setDefaultViewExtent(extent)
 
-            gpsLayer = self.gpsLayer
-            gpsLayer.setName("GPS")
-            symbol = gpsLayer.renderer().symbol()
-            symbol.setColor(QColor(219, 30, 42))
-            symbol.setSize(2)
-            gpsLayer.setAutoRefreshInterval(1000)
-            gpsLayer.setAutoRefreshEnabled(True)
-            project.addMapLayer(gpsLayer)
-
-            envLayer = self.environmentLayer
-            envLayer.setName("Effort")
-            symbol = envLayer.renderer().symbol()
-            symbol.setColor(QColor(219, 30, 42))
-            envLayer.setAutoRefreshInterval(1000)
-            envLayer.setAutoRefreshEnabled(True)
-            project.addMapLayer(envLayer)
-
-            project.setCrs(crs)
             project.setBackgroundColor(QColor(166, 206, 227))
+
+            # save project
             self.db.writeProject(project)
 
         # read project
@@ -190,6 +182,31 @@ class SammoSession:
     def _layer(self, name: str) -> QgsVectorLayer:
         return QgsVectorLayer(self.db.tableUri(name))
 
+    def _initEffortLayer(self) -> QgsVectorLayer:
+        envLayer = self.environmentLayer
+        envLayer.setName("Effort")
+
+        symbol = envLayer.renderer().symbol()
+        symbol.setColor(QColor(219, 30, 42))
+
+        envLayer.setAutoRefreshInterval(1000)
+        envLayer.setAutoRefreshEnabled(True)
+
+        return envLayer
+
+    def _initGpsLayer(self) -> QgsVectorLayer:
+        gpsLayer = self.gpsLayer
+        gpsLayer.setName("GPS")
+
+        symbol = gpsLayer.renderer().symbol()
+        symbol.setColor(QColor(219, 30, 42))
+        symbol.setSize(2)
+
+        gpsLayer.setAutoRefreshInterval(1000)
+        gpsLayer.setAutoRefreshEnabled(True)
+
+        return gpsLayer
+
     @staticmethod
     def sessionDirectory(project: QgsProject) -> str:
         for layer in project.mapLayers().values():
@@ -232,3 +249,10 @@ class SammoSession:
                 "world_map.gpkg|layername=countries",
             )
         return path
+
+    @staticmethod
+    def _initWorldLayer() -> QgsVectorLayer:
+        worldLayer = QgsVectorLayer(SammoSession._worldMapPath(), "World")
+        symbol = worldLayer.renderer().symbol()
+        symbol.setColor(QColor(178, 223, 138))
+        return worldLayer
