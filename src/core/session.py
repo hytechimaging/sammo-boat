@@ -20,6 +20,7 @@ from qgis.core import (
     QgsMapLayer,
     QgsApplication,
     QgsVectorLayer,
+    QgsDefaultValue,
     QgsVectorLayerUtils,
     QgsEditorWidgetSetup,
     QgsReferencedRectangle,
@@ -199,9 +200,21 @@ class SammoSession:
         layer.setAutoRefreshInterval(1000)
         layer.setAutoRefreshEnabled(True)
 
-        idx = layer.fields().indexFromName('fid')
-        setup = QgsEditorWidgetSetup('Hidden', {})
+        idx = layer.fields().indexFromName("fid")
+        setup = QgsEditorWidgetSetup("Hidden", {})
         layer.setEditorWidgetSetup(idx, setup)
+
+        # route type
+        idx = layer.fields().indexFromName("routeType")
+        cfg = {}
+        cfg["map"] = [
+            {"prospection": "prospection"},
+            {"trawling": "trawling"},
+            {"other": "other"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'prospection'"))
 
         return layer
 
