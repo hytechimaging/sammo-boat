@@ -6,13 +6,11 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 import os
 import sys
 
+from qgis.PyQt import uic
 from qgis.PyQt.QtCore import Qt, QSize
-from qgis.PyQt import QtGui, uic
 from qgis.PyQt.QtWidgets import (
     QFrame,
     QLabel,
-    QWidget,
-    QVBoxLayout,
     QDockWidget,
 )
 
@@ -87,7 +85,12 @@ class StatusWidget(QFrame, FORM_CLASS):
         if frame:
             widget = "QFrame"
 
-        return f"{widget} {{ background-color : {color}; color : rgb(136,136,136); }}"
+        return f"""
+        {widget} {{
+            background-color : {color};
+            color : rgb(136,136,136);
+        }}
+        """
 
 
 class StatusDock(QDockWidget):

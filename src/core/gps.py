@@ -11,7 +11,6 @@ from serial import SerialException
 
 from qgis.PyQt.QtCore import pyqtSignal
 
-from .session import SammoSession
 from .other_thread import WorkerForOtherThread, OtherThread
 
 
@@ -44,7 +43,7 @@ class WorkerGpsExtractor(WorkerForOtherThread):
                     self._gps = serial.Serial(port, baudrate=4800, timeout=0.5)
                     print("Port GPS ouvert sur " + port)
                     break
-                except (SerialException, OSError) as e:
+                except (SerialException, OSError):
                     continue
 
         if not self._gps:
