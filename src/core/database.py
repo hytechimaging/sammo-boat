@@ -22,6 +22,7 @@ DB_NAME = "sammo-boat.gpkg"
 
 GPS_TABLE = "gps"
 SPECIES_TABLE = "species"
+OBSERVER_TABLE = "observer"
 FOLLOWER_TABLE = "followers"
 ENVIRONMENT_TABLE = "environment"
 OBSERVATION_TABLE = "observations"
@@ -68,6 +69,8 @@ class SammoDataBase:
             QgsWkbTypes.Point,
         )
 
+        self._createTable(self._fieldsObserver(), OBSERVER_TABLE)
+
         return True
 
     @staticmethod
@@ -89,7 +92,6 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("status"))
         fields.append(self._createFieldShortText("plateform"))
         fields.append(self._createFieldShortText("routeType"))
-        fields.append(QgsField("courseAverage", QVariant.Int))
         fields.append(QgsField("seaState", QVariant.Int))
         fields.append(QgsField("windDirection", QVariant.Int))
         fields.append(QgsField("windForce", QVariant.Int))
@@ -108,7 +110,7 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("right"))
         fields.append(self._createFieldShortText("center"))
 
-        fields.append(self._createFieldShortText("fichier_son"))
+        fields.append(self._createFieldShortText("sound_file"))
         fields.append(self._createFieldShortText("sound_start"))
         fields.append(self._createFieldShortText("sound_end"))
 
@@ -170,7 +172,7 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("behavBird"))
         fields.append(self._createFieldShortText("behavShip"))
         fields.append(QgsField("comment", QVariant.String, len=200))
-        fields.append(self._createFieldShortText("fichier_son"))
+        fields.append(self._createFieldShortText("sound_file"))
         fields.append(self._createFieldShortText("sound_start"))
         fields.append(self._createFieldShortText("sound_end"))
 
@@ -195,6 +197,16 @@ class SammoDataBase:
         fields.append(QgsField("dateTime", QVariant.DateTime))
         fields.append(QgsField("speed", QVariant.Double))
         fields.append(QgsField("course", QVariant.Int))
+
+        return fields
+
+    def _fieldsObserver(self) -> QgsFields:
+        fields = QgsFields()
+        fields.append(self._createFieldShortText("observer", 4))
+        fields.append(self._createFieldShortText("firstName"))
+        fields.append(self._createFieldShortText("lastName"))
+        fields.append(self._createFieldShortText("organization"))
+        fields.append(self._createFieldShortText("contact"))
 
         return fields
 
@@ -232,5 +244,5 @@ class SammoDataBase:
         )
 
     @staticmethod
-    def _createFieldShortText(fieldName) -> QgsField:
-        return QgsField(fieldName, QVariant.String, len=50)
+    def _createFieldShortText(fieldName, len=50) -> QgsField:
+        return QgsField(fieldName, QVariant.String, len=len)

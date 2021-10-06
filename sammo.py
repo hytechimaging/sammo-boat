@@ -160,6 +160,7 @@ class Sammo:
             if not self.onStartNewTransect("B"):
                 # the user pressed the CANCEL button of the form
                 self.soundRecordingController.hardStopOfRecording()
+                self.session.environmentLayer.rollBack()
                 self.effortAction.button.setChecked(False)
                 self.statusDock.isEffortOn = False
                 return
@@ -190,6 +191,8 @@ class Sammo:
         if not self.onStartNewTransect("A"):
             # the user pressed the CANCEL button of the form
             self.soundRecordingController.hardStopOfRecording()
+
+            self.session.environmentLayer.rollBack()
 
     def onEnvironmentAdd(self, feat: QgsFeature) -> None:
         self.session.onStopTransect()  # stop the previous transect

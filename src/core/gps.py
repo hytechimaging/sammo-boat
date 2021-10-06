@@ -63,11 +63,6 @@ class WorkerGpsExtractor(WorkerForOtherThread):
                 self.timeOfLastContact = time.time()
                 latitude_deg = position[1]
                 leg_heure = self.getLegHeureData(line)
-                print(
-                    "GPS position : longitude = {} - latitude = {}".format(
-                        longitude_deg, latitude_deg
-                    )
-                )
                 self.addNewFeatureToGpsTableSignal.emit(
                     float(longitude_deg),
                     float(latitude_deg),
@@ -150,6 +145,5 @@ class SammoGpsReader(OtherThread):
         leg_heure: str,
         code_leg: int,
     ) -> None:
-        print("NEW FRAME")
         if self.active:
             self.frame.emit(longitude, latitude, leg_heure, code_leg)

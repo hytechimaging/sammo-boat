@@ -20,13 +20,24 @@ from qgis.core import (
     QgsMapLayer,
     QgsApplication,
     QgsVectorLayer,
+    QgsDefaultValue,
     QgsVectorLayerUtils,
+    QgsEditorWidgetSetup,
     QgsReferencedRectangle,
     QgsCoordinateReferenceSystem,
 )
 
 from .logger import Logger
-from .database import SammoDataBase, GPS_TABLE, DB_NAME, ENVIRONMENT_TABLE
+from .database import (
+    SammoDataBase,
+    GPS_TABLE,
+    DB_NAME,
+    ENVIRONMENT_TABLE,
+    OBSERVER_TABLE,
+)
+
+OBSERVERS_LAYER_NAME = "Observers"
+ENVIRONMENT_LAYER_NAME = "Effort"
 
 
 class SammoSession:
@@ -38,11 +49,15 @@ class SammoSession:
 
     @property
     def environmentLayer(self) -> QgsVectorLayer:
-        return self._layer(ENVIRONMENT_TABLE)
+        return self._layer(ENVIRONMENT_TABLE, ENVIRONMENT_LAYER_NAME)
 
     @property
     def gpsLayer(self) -> QgsVectorLayer:
         return self._layer(GPS_TABLE)
+
+    @property
+    def observerLayer(self) -> QgsVectorLayer:
+        return self._layer(OBSERVER_TABLE)
 
     def init(self, directory: str) -> None:
         extent = self.mapCanvas.projectExtent()
@@ -51,26 +66,30 @@ class SammoSession:
         # create database if necessary
         if new:
             project = QgsProject()
-            crs = QgsCoordinateReferenceSystem.fromEpsgId(4326)
 
-            worldLayer = QgsVectorLayer(SammoSession._worldMapPath(), "World")
-            symbol = worldLayer.renderer().symbol()
-            symbol.setColor(QColor(178, 223, 138))
+            # add layers
+            worldLayer = SammoSession._initWorldLayer()
             project.addMapLayer(worldLayer)
+
+            gpsLayer = self._initGpsLayer()
+            project.addMapLayer(gpsLayer)
+
+            observerLayer = self._initObserverLayer()
+            project.addMapLayer(observerLayer, False)
+
+            effortLayer = self._initEffortLayer()
+            project.addMapLayer(effortLayer)
+
+            # configure project
+            crs = QgsCoordinateReferenceSystem.fromEpsgId(4326)
+            project.setCrs(crs)
 
             extent = QgsReferencedRectangle(worldLayer.extent(), crs)
             project.viewSettings().setDefaultViewExtent(extent)
 
-            gpsLayer = QgsVectorLayer(self.db.tableUri(GPS_TABLE), "GPS")
-            symbol = gpsLayer.renderer().symbol()
-            symbol.setColor(QColor(219, 30, 42))
-            symbol.setSize(2)
-            gpsLayer.setAutoRefreshInterval(1000)
-            gpsLayer.setAutoRefreshEnabled(True)
-            project.addMapLayer(gpsLayer)
-
-            project.setCrs(crs)
             project.setBackgroundColor(QColor(166, 206, 227))
+
+            # save project
             self.db.writeProject(project)
 
         # read project
@@ -90,7 +109,7 @@ class SammoSession:
 
         table.startEditing()
         idLastAddedFeature = self.db.getIdOfLastAddedFeature(table)
-        field_idx = table.fields().indexOf("fichier_son")
+        field_idx = table.fields().indexOf("sound_file")
         table.changeAttributeValue(idLastAddedFeature, field_idx, soundFile)
         field_idx = table.fields().indexOf("sound_start")
         table.changeAttributeValue(idLastAddedFeature, field_idx, soundStart)
@@ -101,14 +120,14 @@ class SammoSession:
     def onStopTransect(self):
         if 0 == len(self._gpsLocationsDuringEffort):
             return
-        table = self._environmentTable
-        table.startEditing()
-        idLastAddedFeature = self.db.getIdOfLastAddedFeature(table)
-        table.changeGeometry(
+        vlayer = self.environmentLayer
+        vlayer.startEditing()
+        idLastAddedFeature = self.db.getIdOfLastAddedFeature(vlayer)
+        vlayer.changeGeometry(
             idLastAddedFeature,
             QgsGeometry.fromPolyline(self._gpsLocationsDuringEffort),
         )
-        table.commitChanges()
+        vlayer.commitChanges()
 
     def loadTable(self, tableName: str) -> QgsVectorLayer:
         layer = self.db.loadTable(self.directory, tableName)
@@ -178,8 +197,293 @@ class SammoSession:
         self._addFeature(feature, vlayer)
         self._gpsLocationsDuringEffort.append(QgsPoint(longitude, latitude))
 
-    def _layer(self, name: str) -> QgsVectorLayer:
-        return QgsVectorLayer(self.db.tableUri(name))
+    def _layer(self, table: str, name: str = "") -> QgsVectorLayer:
+        # return the project layer in priority
+        if name and QgsProject.instance().mapLayersByName(name):
+            return QgsProject.instance().mapLayersByName(name)[0]
+
+        return QgsVectorLayer(self.db.tableUri(table))
+
+    def _initEffortLayer(self) -> QgsVectorLayer:
+        layer = self.environmentLayer
+        layer.setName(ENVIRONMENT_LAYER_NAME)
+
+        symbol = layer.renderer().symbol()
+        symbol.setColor(QColor(219, 30, 42))
+
+        layer.setAutoRefreshInterval(1000)
+        layer.setAutoRefreshEnabled(True)
+
+        # fid
+        idx = layer.fields().indexFromName("fid")
+        setup = QgsEditorWidgetSetup("Hidden", {})
+        layer.setEditorWidgetSetup(idx, setup)
+
+        # status
+        idx = layer.fields().indexFromName("status")
+        form_config = layer.editFormConfig()
+        form_config.setReadOnly(idx, True)
+        layer.setEditFormConfig(form_config)
+
+        # platform
+        idx = layer.fields().indexFromName("plateform")
+        cfg = {}
+        cfg["map"] = [
+            {"passerelle": "passerelle"},
+            {"pont_sup": "pont_sup"},
+            {"pont_inf": "pont_inf"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'pont_sup'"))
+
+        # route type
+        idx = layer.fields().indexFromName("routeType")
+        cfg = {}
+        cfg["map"] = [
+            {"prospection": "prospection"},
+            {"trawling": "trawling"},
+            {"other": "other"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'prospection'"))
+
+        # sea state
+        idx = layer.fields().indexFromName("seaState")
+        cfg = {
+            "AllowNull": False,
+            "Max": 13,
+            "Min": 0,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("2"))
+
+        # wind direction
+        idx = layer.fields().indexFromName("windDirection")
+        cfg = {
+            "AllowNull": False,
+            "Max": 361,
+            "Min": 0,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("71"))
+
+        # wind force
+        idx = layer.fields().indexFromName("windForce")
+        cfg = {
+            "AllowNull": False,
+            "Max": 1000,
+            "Min": 0,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("71"))
+
+        # swell direction
+        idx = layer.fields().indexFromName("swellDirection")
+        cfg = {
+            "AllowNull": False,
+            "Max": 361,
+            "Min": 0,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("165"))
+
+        # swell height
+        idx = layer.fields().indexFromName("swellHeight")
+        cfg = {
+            "AllowNull": False,
+            "Max": 20,
+            "Min": 0,
+            "Precision": 1,
+            "Step": 0.5,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("0.5"))
+
+        # glare from
+        idx = layer.fields().indexFromName("glareFrom")
+        cfg = {
+            "AllowNull": False,
+            "Max": 361,
+            "Min": 0,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("0"))
+
+        # glare to
+        idx = layer.fields().indexFromName("glareTo")
+        cfg = {
+            "AllowNull": False,
+            "Max": 361,
+            "Min": 0,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("0"))
+
+        # glare severity
+        idx = layer.fields().indexFromName("glareSever")
+        cfg = {}
+        cfg["map"] = [
+            {"aucun": "aucun"},
+            {"faible": "faible"},
+            {"moyen": "moyen"},
+            {"fort": "fort"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'aucun'"))
+
+        # cloud cover
+        idx = layer.fields().indexFromName("cloudCover")
+        cfg = {
+            "AllowNull": False,
+            "Max": 8,
+            "Min": 0,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("8"))
+
+        # visibility
+        idx = layer.fields().indexFromName("visibility")
+        cfg = {}
+        cfg["map"] = [
+            {"0.5": "0.5"},
+            {"1": "1"},
+            {"2": "2"},
+            {"5": "5"},
+            {"10": "10"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("0.5"))
+
+        # subjective
+        idx = layer.fields().indexFromName("subjective")
+        cfg = {}
+        cfg["map"] = [
+            {"E": "E"},
+            {"G": "G"},
+            {"M": "M"},
+            {"P": "P"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'G'"))
+
+        # n observers
+        idx = layer.fields().indexFromName("nObservers")
+        cfg = {
+            "AllowNull": False,
+            "Max": 4,
+            "Min": 1,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("2"))
+
+        # camera
+        idx = layer.fields().indexFromName("camera")
+        cfg = {}
+        cfg["map"] = [
+            {"ON": "ON"},
+            {"OFF": "OFF"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'ON'"))
+
+        # sound_file
+        idx = layer.fields().indexFromName("sound_file")
+        form_config = layer.editFormConfig()
+        form_config.setReadOnly(idx, True)
+        layer.setEditFormConfig(form_config)
+
+        # sound_start
+        idx = layer.fields().indexFromName("sound_start")
+        form_config = layer.editFormConfig()
+        form_config.setReadOnly(idx, True)
+        layer.setEditFormConfig(form_config)
+
+        # sound_end
+        idx = layer.fields().indexFromName("sound_end")
+        form_config = layer.editFormConfig()
+        form_config.setReadOnly(idx, True)
+        layer.setEditFormConfig(form_config)
+
+        # left/right/center
+        for field in ["left", "right", "center"]:
+            idx = layer.fields().indexFromName(field)
+            cfg = {
+                "AllowMulti": False,
+                "AllowNull": False,
+                "Description": '"observer"',
+                "FilterExpression": "",
+                "Key": "observer",
+                "Layer": self.observerLayer.id(),
+                "LayerName": OBSERVERS_LAYER_NAME,
+                "LayerProviderName": "ogr",
+                "LayerSource": self.db.tableUri(OBSERVER_TABLE),
+                "NofColumns": 1,
+                "OrderByValue": False,
+                "UseCompleter": False,
+                "Value": "observer",
+            }
+            setup = QgsEditorWidgetSetup("ValueRelation", cfg)
+            layer.setEditorWidgetSetup(idx, setup)
+
+        return layer
+
+    def _initGpsLayer(self) -> QgsVectorLayer:
+        gpsLayer = self.gpsLayer
+        gpsLayer.setName("GPS")
+
+        symbol = gpsLayer.renderer().symbol()
+        symbol.setColor(QColor(219, 30, 42))
+        symbol.setSize(2)
+
+        gpsLayer.setAutoRefreshInterval(1000)
+        gpsLayer.setAutoRefreshEnabled(True)
+
+        return gpsLayer
+
+    def _initObserverLayer(self) -> QgsVectorLayer:
+        layer = self.observerLayer
+        layer.setName(OBSERVERS_LAYER_NAME)
+        return layer
 
     @staticmethod
     def sessionDirectory(project: QgsProject) -> str:
@@ -223,3 +527,10 @@ class SammoSession:
                 "world_map.gpkg|layername=countries",
             )
         return path
+
+    @staticmethod
+    def _initWorldLayer() -> QgsVectorLayer:
+        worldLayer = QgsVectorLayer(SammoSession._worldMapPath(), "World")
+        symbol = worldLayer.renderer().symbol()
+        symbol.setColor(QColor(178, 223, 138))
+        return worldLayer
