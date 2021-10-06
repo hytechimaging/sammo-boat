@@ -36,9 +36,8 @@ class StatusWidget(QFrame, FORM_CLASS):
         self.init()
 
     def setRecording(self, status):
-        print("setRecording")
-        print(status)
         self.record.setStyleSheet(self._styleSheet(status))
+        self.record.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
 
         icon = "record_ko.png"
         if status:
@@ -47,9 +46,21 @@ class StatusWidget(QFrame, FORM_CLASS):
         px = pixmap(icon, QSize(64,64))
         self.record.setPixmap(px)
 
+    def setEffort(self, status):
+        self.effort.setStyleSheet(self._styleSheet(status))
+        self.effort.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+
+        icon = "effort_ko.png"
+        if status:
+            icon = "effort_ok.png"
+
+        px = pixmap(icon, QSize(64,64))
+        self.effort.setPixmap(px)
+
     def init(self):
         self.record.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
         self.setRecording(False)
+        self.setEffort(False)
 
     def _styleSheet(self, status):
         color = KO_COLOR
@@ -63,12 +74,9 @@ class StatusDock(QDockWidget):
         super().__init__(iface.mainWindow())
 
         self.iface = iface
-        self._effortLabel: QLabel = None
-        self._soundRecordingLabel: QLabel = None
         self._gpsTitleLabel: QLabel = None
         self._longitudeLabel: QLabel = None
         self._latitudeLabel: QLabel = None
-        self._isClignotantOn: bool = False
         self.isEffortOn: bool = False
         self.isSoundRecordingOn: bool = False
         self._isGpsOffline = True
@@ -100,11 +108,7 @@ class StatusDock(QDockWidget):
         if self._counter500msWithoutGpsInfo > 4:
             self._onGpsOffline()
 
-        # if self._isClignotantOn and self.isEffortOn:
-        #     self._effortLabel.setText("Effort ON")
-        # else:
-        #     self._effortLabel.setText("")
-
+        self._widget.setEffort(self.isEffortOn)
         self._widget.setRecording(self.isSoundRecordingOn)
 
     def updateGpsLocation(self, longitude: float, latitude: float):
@@ -152,16 +156,6 @@ class StatusDock(QDockWidget):
         self.setVisible(False)
         self.dockLocationChanged.connect(self._saveLastLocation)
         self.setWidget(self._widget)
-
-    def _createEffortLabel(self) -> QLabel:
-        label = QLabel("")
-        label.setStyleSheet(self._styleSheet(False))
-        label.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-        myFont = QtGui.QFont("Arial", 24)
-        myFont.setBold(True)
-        label.setFont(myFont)
-
-        return label
 
     def _createGpsWidget(self) -> QWidget:
         self._gpsWidget = QWidget(self.dock)
