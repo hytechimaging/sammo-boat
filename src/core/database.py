@@ -108,7 +108,7 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("right"))
         fields.append(self._createFieldShortText("center"))
 
-        fields.append(self._createFieldShortText("fichier_son"))
+        fields.append(self._createFieldShortText("sound_file"))
         fields.append(self._createFieldShortText("sound_start"))
         fields.append(self._createFieldShortText("sound_end"))
 
@@ -170,7 +170,7 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("behavBird"))
         fields.append(self._createFieldShortText("behavShip"))
         fields.append(QgsField("comment", QVariant.String, len=200))
-        fields.append(self._createFieldShortText("fichier_son"))
+        fields.append(self._createFieldShortText("sound_file"))
         fields.append(self._createFieldShortText("sound_start"))
         fields.append(self._createFieldShortText("sound_end"))
 

@@ -94,7 +94,7 @@ class SammoSession:
 
         table.startEditing()
         idLastAddedFeature = self.db.getIdOfLastAddedFeature(table)
-        field_idx = table.fields().indexOf("fichier_son")
+        field_idx = table.fields().indexOf("sound_file")
         table.changeAttributeValue(idLastAddedFeature, field_idx, soundFile)
         field_idx = table.fields().indexOf("sound_start")
         table.changeAttributeValue(idLastAddedFeature, field_idx, soundStart)
