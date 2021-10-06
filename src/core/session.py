@@ -216,6 +216,41 @@ class SammoSession:
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'prospection'"))
 
+        # sea state
+        idx = layer.fields().indexFromName("seaState")
+        cfg = {'AllowNull': False, 'Max': 13, 'Min': 0, 'Precision': 0, 'Step': 1, 'Style': 'SpinBox'}
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("2"))
+
+        # wind direction
+        idx = layer.fields().indexFromName("windDirection")
+        cfg = {'AllowNull': False, 'Max': 361, 'Min': 0, 'Precision': 0, 'Step': 1, 'Style': 'SpinBox'}
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("71"))
+
+        # wind force
+        idx = layer.fields().indexFromName("windForce")
+        cfg = {'AllowNull': False, 'Max': 1000, 'Min': 0, 'Precision': 0, 'Step': 1, 'Style': 'SpinBox'}
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("71"))
+
+        # swell direction
+        idx = layer.fields().indexFromName("swellDirection")
+        cfg = {'AllowNull': False, 'Max': 361, 'Min': 0, 'Precision': 0, 'Step': 1, 'Style': 'SpinBox'}
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("165"))
+
+        # swell height
+        idx = layer.fields().indexFromName("swellHeight")
+        cfg = {'AllowNull': False, 'Max': 20, 'Min': 0, 'Precision': 1, 'Step': 0.5, 'Style': 'SpinBox'}
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("0.5"))
+
         return layer
 
     def _initGpsLayer(self) -> QgsVectorLayer:
