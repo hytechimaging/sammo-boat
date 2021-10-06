@@ -87,7 +87,7 @@ class StatusWidget(QFrame, FORM_CLASS):
         if frame:
             widget = "QFrame"
 
-        return f"{widget} {{ background-color : {color}; color : white; }}"
+        return f"{widget} {{ background-color : {color}; color : rgb(136,136,136); }}"
 
 
 class StatusDock(QDockWidget):
