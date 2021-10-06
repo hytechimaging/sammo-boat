@@ -80,9 +80,7 @@ class Sammo:
 
     def createGpsExtractor(self) -> ThreadGpsExtractor:
         threadGps = ThreadGpsExtractor(self.session)
-        threadGps.addNewFeatureToGpsTableSignal.connect(
-            self.session.addNewFeatureToGpsTable
-        )
+        threadGps.addNewFeatureToGpsTableSignal.connect(self.session.addGps)
         threadGps.start()
         return threadGps
 
@@ -106,12 +104,8 @@ class Sammo:
 
     def createEnvironmentAction(self) -> SammoEnvironmentAction:
         button = SammoEnvironmentAction(self.mainWindow, self.toolbar)
-        button.onClickChangeEnvironmentBtn.connect(
-            self.onClickChangeEnvironmentBtn
-        )
-        button.onAddFeatureToEnvironmentTableSignal.connect(
-            self.onAddFeatureToEnvironmentTableSignal
-        )
+        button.triggered.connect(self.onEnvironmentTriggered)
+        button.add.connect(self.onEnvironmentAdd)
         return button
 
     def createSessionAction(self) -> SammoSessionAction:
@@ -166,7 +160,7 @@ class Sammo:
 
         self.environmentAction.onChangeEffortStatus(isChecked)
 
-    def onClickChangeEnvironmentBtn(self):
+    def onEnvironmentTriggered(self):
         if not self.onStartNewTransect("A"):
             # the user pressed the CANCEL button of the form
             self.soundRecordingController.hardStopOfRecording()
@@ -184,21 +178,21 @@ class Sammo:
         self.soundRecordingController.onStartObservation()
         feat, table = self.session.getReadyToAddNewFeatureToObservationTable()
         if self.iface.openFeatureForm(table, feat):
-            self.session.addNewFeatureToObservationTable(feat)
+            self.session.addObservation(feat)
             self.soundRecordingController.onStopEventWhichNeedSoundRecord()
 
     def onClickAddFollower(self):
         feat, table = self.session.getReadyToAddNewFeatureToFollowerTable()
         self.followerAction.openFeatureForm(self.iface, table, feat)
 
-    def onAddFeatureToEnvironmentTableSignal(self, feat: QgsFeature):
+    def onEnvironmentAdd(self, feat: QgsFeature) -> None:
         self.session.onStopTransect()  # stop the previous transect
-        self.session.addNewFeatureToEnvironmentTable(feat)
+        self.session.addEnvironment(feat)
         self.statusDock.isEffortOn = True
         self.soundRecordingController.onStopEventWhichNeedSoundRecord()
 
     def onAddFeatureToFollowerTableSignal(self, feat: QgsFeature):
-        self.session.addNewFeatureToFollowerTable(feat)
+        self.session.addFollower(feat)
 
     def onChangeSimuGpsStatus(self, isOn: bool):
         if isOn:
@@ -212,9 +206,7 @@ class Sammo:
     def addNewFeatureToGpsTableSignal(
         self, longitude: float, latitude: float, formattedDateTime: str
     ):
-        self.session.addNewFeatureToGpsTable(
-            longitude, latitude, formattedDateTime
-        )
+        self.session.addGps(longitude, latitude, formattedDateTime)
         self.statusDock.updateGpsLocation(longitude, latitude)
 
     def onProjectLoaded(self) -> None:

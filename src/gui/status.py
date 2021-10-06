@@ -10,7 +10,6 @@ from qgis.PyQt import QtGui
 from qgis.PyQt.QtWidgets import (
     QLabel,
     QWidget,
-    QGridLayout,
     QVBoxLayout,
     QDockWidget,
 )
@@ -176,6 +175,4 @@ class StatusDock:
         self.updateGpsLocation(sys.float_info.max, sys.float_info.max)
 
     def _saveLastLocation(self, location):
-        QgsSettings().setValue(
-            "Sammo/StatusDock/Location/", int(location)
-        )
+        QgsSettings().setValue("Sammo/StatusDock/Location/", int(location))

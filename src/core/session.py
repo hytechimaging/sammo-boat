@@ -26,7 +26,7 @@ from qgis.core import (
 )
 
 from .logger import Logger
-from .database import SammoDataBase, GPS_TABLE, DB_NAME
+from .database import SammoDataBase, GPS_TABLE, DB_NAME, ENVIRONMENT_TABLE
 
 
 class SammoSession:
@@ -35,6 +35,10 @@ class SammoSession:
         self.db = SammoDataBase()
         self._gpsLocationsDuringEffort = []
         self._lastEnvironmentFeature: QgsFeature = None
+
+    @property
+    def environmentLayer(self) -> QgsVectorLayer:
+        return self._layer(ENVIRONMENT_TABLE)
 
     def init(self, directory: str) -> None:
         extent = self.mapCanvas.projectExtent()
@@ -76,9 +80,9 @@ class SammoSession:
         soundEnd: str,
     ):
         if isObservation:
-            table = self._observationTable
+            table = self.observationLayer
         else:
-            table = self._environmentTable
+            table = self.environmentLayer
 
         table.startEditing()
         idLastAddedFeature = self.db.getIdOfLastAddedFeature(table)
@@ -118,21 +122,21 @@ class SammoSession:
     def getReadyToAddNewFeatureToEnvironmentTable(
         self, status: str
     ) -> (QgsFeature, QgsVectorLayer):
-        (
-            feat,
-            table,
-        ) = self._getReadyToAddNewFeature(self._environmentTable)
+        layer = self.environmentLayer
+        feat = self._getReadyToAddNewFeature(layer)
+
         if self._lastEnvironmentFeature:
             feat = self.copyEnvironmentFeature(self._lastEnvironmentFeature)
         feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         feat["status"] = status
-        return feat, table
+        return feat, layer
 
-    def addNewFeatureToEnvironmentTable(self, feature: QgsFeature):
-        self._environmentTable.startEditing()
-        self._addNewFeature(feature, self._environmentTable)
-        self._lastEnvironmentFeature = self.copyEnvironmentFeature(feature)
-        self._gpsLocationsDuringEffort = []
+    def addEnvironment(self, feature: QgsFeature) -> None:
+        vlayer = self.environmentLayer
+        vlayer.startEditing()
+        self._addFeature(feature, vlayer)
+        # self._lastEnvironmentFeature = self.copyEnvironmentFeature(feature)
+        # self._gpsLocationsDuringEffort = []
 
     def copyEnvironmentFeature(self, feat: QgsFeature) -> QgsFeature:
         copyFeature = QgsVectorLayerUtils.createFeature(self._environmentTable)
@@ -140,8 +144,8 @@ class SammoSession:
             copyFeature[field.name()] = feat[field.name()]
         return copyFeature
 
-    def addNewFeatureToFollowerTable(self, feature: QgsFeature):
-        self._addNewFeature(feature, self._followerTable)
+    def addFollower(self, feature: QgsFeature):
+        self._addFeature(feature, self._followerTable)
 
     def getReadyToAddNewFeatureToObservationTable(
         self,
@@ -153,10 +157,10 @@ class SammoSession:
         feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         return feat, table
 
-    def addNewFeatureToObservationTable(self, feature: QgsFeature):
-        self._addNewFeature(feature, self._observationTable)
+    def addObservation(self, feature: QgsFeature):
+        self._addFeature(feature, self._observationTable)
 
-    def addNewFeatureToGpsTable(
+    def addGps(
         self, longitude: float, latitude: float, formattedDateTime: str
     ):
         if not self._gpsTable:
@@ -167,8 +171,11 @@ class SammoSession:
         feature.setGeometry(QgsGeometry.fromPointXY(layerPoint))
         feature.setAttribute("dateTime", formattedDateTime)
 
-        self._addNewFeature(feature, self._gpsTable)
+        self._addFeature(feature, self._gpsTable)
         self._gpsLocationsDuringEffort.append(QgsPoint(longitude, latitude))
+
+    def _layer(self, name: str) -> QgsVectorLayer:
+        return QgsVectorLayer(self.db.tableUri(name))
 
     @staticmethod
     def sessionDirectory(project: QgsProject) -> str:
@@ -184,18 +191,18 @@ class SammoSession:
 
     @staticmethod
     def _getReadyToAddNewFeature(
-        table: QgsVectorLayer,
+        layer: QgsVectorLayer,
     ) -> (QgsFeature, QgsVectorLayer):
-        feat = QgsVectorLayerUtils.createFeature(table)
-        table.startEditing()
-        return feat, table
+        feat = QgsVectorLayerUtils.createFeature(layer)
+        layer.startEditing()
+        return feat
 
     @staticmethod
-    def _addNewFeature(feature: QgsFeature, table: QgsVectorLayer):
-        if not table.addFeature(feature):
+    def _addFeature(feature: QgsFeature, vlayer: QgsVectorLayer) -> None:
+        if not vlayer.addFeature(feature):
             Logger.error("addFeature : échec ")
-        if not table.commitChanges():
-            Logger.error("_addNewFeatureThreadSafe : échec ")
+        if not vlayer.commitChanges():
+            Logger.error("_addFeatureThreadSafe : échec ")
 
     @staticmethod
     def _worldMapPath() -> str:
