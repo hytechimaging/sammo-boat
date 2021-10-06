@@ -46,10 +46,10 @@ class SammoDataBase:
         project.write(self.projectUri)
 
     def init(self, directory: str) -> bool:
+        self.directory = directory
+
         if SammoDataBase.exist(directory):
             return False
-
-        self.directory = directory
 
         self._createTable(
             self._createFieldsForEnvironmentTable(),

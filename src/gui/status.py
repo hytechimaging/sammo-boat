@@ -3,94 +3,159 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
+import os
 import sys
-from qgis.PyQt.QtCore import Qt
-from qgis.PyQt import QtGui
+
+from qgis.PyQt import uic
+from qgis.PyQt.QtCore import Qt, QSize
 from qgis.PyQt.QtWidgets import (
-    QDockWidget,
-    QWidget,
-    QGridLayout,
-    QVBoxLayout,
+    QFrame,
     QLabel,
+    QDockWidget,
 )
+
+from qgis.core import QgsSettings
+
+from ..core import pixmap
 from ..core.thread_widget import ThreadWidget
 
+FORM_CLASS, _ = uic.loadUiType(
+    os.path.join(os.path.dirname(__file__), "ui/status.ui")
+)
 
-class StatusDock:
-    widgetName = "Sammo Status"
+OK_COLOR = "rgb(210, 241, 197)"
+KO_COLOR = "rgb(242, 186, 195)"
 
+
+class StatusWidget(QFrame, FORM_CLASS):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.setupUi(self)
+        self.init()
+
+    def updateRecording(self, status):
+        self.record.setStyleSheet(self._styleSheet(status))
+        self.record.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+
+        icon = "record_ko.png"
+        if status:
+            icon = "record_ok.png"
+
+        px = pixmap(icon, QSize(64, 64))
+        self.record.setPixmap(px)
+
+    def updateEffort(self, status):
+        self.effort.setStyleSheet(self._styleSheet(status))
+        self.effort.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+
+        icon = "effort_ko.png"
+        if status:
+            icon = "effort_ok.png"
+
+        px = pixmap(icon, QSize(64, 64))
+        self.effort.setPixmap(px)
+
+    def updateGps(self, status, latitude="", longitude=""):
+        self.gps.setStyleSheet(self._styleSheet(status, True))
+        self.gpsFrame.setStyleSheet(self._styleSheet(status, True))
+        self.gps.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+
+        icon = "gps_ko.png"
+        if status:
+            icon = "gps_ok.png"
+
+        px = pixmap(icon, QSize(64, 64))
+        self.gps.setPixmap(px)
+
+        if latitude and longitude:
+            self.latitude.setText(f"{latitude:.4f}")
+            self.longitude.setText(f"{longitude:.4f}")
+
+    def init(self):
+        self.updateRecording(False)
+        self.updateEffort(False)
+        self.updateGps(False)
+
+    def _styleSheet(self, status, frame=False):
+        color = KO_COLOR
+        if status:
+            color = OK_COLOR
+
+        widget = "QLabel"
+        if frame:
+            widget = "QFrame"
+
+        return f"""
+        {widget} {{
+            background-color : {color};
+            color : rgb(136,136,136);
+        }}
+        """
+
+
+class StatusDock(QDockWidget):
     def __init__(self, iface):
+        super().__init__(iface.mainWindow())
+
         self.iface = iface
-        self._effortLabel: QLabel = None
-        self._soundRecordingLabel: QLabel = None
         self._gpsTitleLabel: QLabel = None
         self._longitudeLabel: QLabel = None
         self._latitudeLabel: QLabel = None
-        self._isClignotantOn: bool = False
         self.isEffortOn: bool = False
         self.isSoundRecordingOn: bool = False
         self._isGpsOffline = True
-        self._thread = ThreadWidget(self.onTimer_500msec)
+        self._thread = ThreadWidget(self.refresh)
         self._startThread()
         self._counter500msWithoutGpsInfo = 0
 
+        self._widget = None
         self._init(iface.mainWindow())
 
     def setEnabled(self, status):
         if status:
-            self.iface.addDockWidget(Qt.TopDockWidgetArea, self.dock)
-            self.dock.setVisible(True)
+            location = int(
+                QgsSettings().value(
+                    "Sammo/StatusDock/Location/",
+                    Qt.LeftDockWidgetArea,
+                )
+            )
+            self.setVisible(True)
+            self.iface.addDockWidget(location, self)
         else:
-            self.iface.removeDockWidget(self.dock)
-            self.dock.setVisible(False)
+            self.iface.removeDockWidget(self)
+            self.setVisible(False)
 
-    def onTimer_500msec(self):
-        if not self._effortLabel:
+    def refresh(self):
+        if not self._widget:
             return
 
         self._counter500msWithoutGpsInfo = self._counter500msWithoutGpsInfo + 1
         if self._counter500msWithoutGpsInfo > 4:
             self._onGpsOffline()
 
-        self._isClignotantOn = ~self._isClignotantOn
+        self._widget.updateGps(not self._isGpsOffline)
+        self._widget.updateEffort(self.isEffortOn)
+        self._widget.updateRecording(self.isSoundRecordingOn)
 
-        if self._isClignotantOn and self.isEffortOn:
-            self._effortLabel.setText("Effort ON")
-        else:
-            self._effortLabel.setText("")
-
-        if self._isClignotantOn and self.isSoundRecordingOn:
-            self._soundRecordingLabel.setText("RECORDING")
-        else:
-            self._soundRecordingLabel.setText("")
-
-    def updateGpsLocation(self, longitude: float, latitude: float):
+    def updateGpsInfo(self, longitude: float, latitude: float):
         self._counter500msWithoutGpsInfo = 0
 
         if longitude == sys.float_info.max:
             self._onGpsOffline()
         else:
             self._isGpsOffline = False
-            self._gpsTitleLabel.setText("GPS online")
-            self._latitudeLabel.setText("Latitude : {}°".format(latitude))
-            self._longitudeLabel.setText("Longitude : {}°".format(longitude))
-            self._updateGpsWidgetColor()
+            self._widget.updateGps(True, latitude, longitude)
 
     def unload(self):
         self._endThread()
 
     def _onGpsOffline(self):
         self._isGpsOffline = True
-        self._gpsTitleLabel.setText("GPS offline")
-        self._latitudeLabel.setText("Latitude : ---")
-        self._longitudeLabel.setText("Longitude : ---")
-        self._updateGpsWidgetColor()
+        self._widget.updateGps(False)
 
     def _updateGpsWidgetColor(self):
         if self._isGpsOffline:
-            self._gpsWidget.setStyleSheet(
-                "QWidget { background-color : rgb(100,0,0); " "color : red; }"
-            )
+            self._gpsWidget.setStyleSheet(self._styleSheet(False))
         else:
             self._gpsWidget.setStyleSheet(
                 "QWidget { background-color : rgb(100,0,0); "
@@ -106,58 +171,11 @@ class StatusDock:
             self._thread.stop()
 
     def _init(self, parent):
-        self.dock = QDockWidget(StatusDock.widgetName, parent)
-        self.dock.setVisible(False)
+        self._widget = StatusWidget(self)
 
-        self.internalWidget = QWidget(self.dock)
-        self.dock.setWidget(self.internalWidget)
-        self.internalWidget.setLayout(QGridLayout())
+        self.setVisible(False)
+        self.dockLocationChanged.connect(self._saveLastLocation)
+        self.setWidget(self._widget)
 
-        self._createGpsWidget()
-        self._effortLabel = self._createEffortLabel()
-        self._soundRecordingLabel = self._createSoundRecordingLabel()
-        self.internalWidget.layout().addWidget(self._gpsWidget, 0, 0)
-        self.internalWidget.layout().addWidget(self._effortLabel, 0, 1)
-        self.internalWidget.layout().addWidget(self._soundRecordingLabel, 0, 2)
-
-    def _createEffortLabel(self) -> QLabel:
-        label = QLabel("")
-        label.setStyleSheet(
-            "QLabel { background-color : rgb(150,150,150); color : blue; }"
-        )
-        label.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-        myFont = QtGui.QFont("Arial", 24)
-        myFont.setBold(True)
-        label.setFont(myFont)
-
-        return label
-
-    def _createSoundRecordingLabel(self) -> QLabel:
-        label = QLabel("")
-        label.setStyleSheet(
-            "QLabel { background-color : rgb(200,255,200); color : red; }"
-        )
-        label.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
-        myFont = QtGui.QFont("Arial", 24)
-        myFont.setBold(True)
-        label.setFont(myFont)
-
-        return label
-
-    def _createGpsWidget(self) -> QWidget:
-        self._gpsWidget = QWidget(self.dock)
-        self._gpsWidget.setLayout(QVBoxLayout())
-        self._updateGpsWidgetColor()
-        self._gpsTitleLabel = QLabel()
-        self._gpsTitleLabel.setAlignment(Qt.AlignCenter)
-        myFont = QtGui.QFont()
-        myFont.setBold(True)
-        self._gpsTitleLabel.setFont(myFont)
-
-        self._latitudeLabel = QLabel()
-        self._longitudeLabel = QLabel()
-        self._gpsWidget.layout().addWidget(self._gpsTitleLabel)
-        self._gpsWidget.layout().addWidget(self._longitudeLabel)
-        self._gpsWidget.layout().addWidget(self._latitudeLabel)
-
-        self.updateGpsLocation(sys.float_info.max, sys.float_info.max)
+    def _saveLastLocation(self, location):
+        QgsSettings().setValue("Sammo/StatusDock/Location/", int(location))

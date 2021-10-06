@@ -10,8 +10,8 @@ from qgis.PyQt.QtWidgets import QPushButton, QToolBar
 
 
 class SammoEnvironmentAction(QObject):
-    onClickChangeEnvironmentBtn = pyqtSignal()
-    onAddFeatureToEnvironmentTableSignal = pyqtSignal(QgsFeature)
+    triggered = pyqtSignal()
+    add = pyqtSignal(QgsFeature)
 
     def __init__(self, parent: QObject, toolbar: QToolBar):
         super().__init__()
@@ -36,13 +36,13 @@ class SammoEnvironmentAction(QObject):
         del self.button
 
     def onClick(self):
-        self.onClickChangeEnvironmentBtn.emit()
+        self.triggered.emit()
 
     def openFeatureForm(
         self, iface, table: QgsVectorLayer, feat: QgsFeature
     ) -> bool:
         if iface.openFeatureForm(table, feat):
-            self.onAddFeatureToEnvironmentTableSignal.emit(feat)
+            self.add.emit(feat)
             return True
         else:
             return False

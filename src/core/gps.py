@@ -3,14 +3,15 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-import serial
 import sys
 import time
+import serial
 import platform
 from serial import SerialException
-from .other_thread import WorkerForOtherThread, OtherThread
+
 from qgis.PyQt.QtCore import pyqtSignal
-from .session import SammoSession
+
+from .other_thread import WorkerForOtherThread, OtherThread
 
 
 class WorkerGpsExtractor(WorkerForOtherThread):
@@ -42,7 +43,7 @@ class WorkerGpsExtractor(WorkerForOtherThread):
                     self._gps = serial.Serial(port, baudrate=4800, timeout=0.5)
                     print("Port GPS ouvert sur " + port)
                     break
-                except SerialException:
+                except (SerialException, OSError):
                     continue
 
         if not self._gps:
@@ -130,33 +131,25 @@ class WorkerGpsExtractor(WorkerForOtherThread):
         return longitude, latitude
 
 
-class ThreadGpsExtractor(OtherThread):
-    addNewFeatureToGpsTableSignal = pyqtSignal(float, float, str, int)
+class SammoGpsReader(OtherThread):
+    frame = pyqtSignal(float, float, str, int)
 
-    def __init__(self, session: SammoSession):
+    def __init__(self):
         super().__init__()
-        self._session: SammoSession = session
+        self.active = False
 
     def start(self):
         self.worker = WorkerGpsExtractor()
-        self.worker.addNewFeatureToGpsTableSignal.connect(
-            self.addNewFeatureToGpsTable
-        )
+        self.worker.addNewFeatureToGpsTableSignal.connect(self.newFrame)
         super()._start(self.worker)
 
-    def addNewFeatureToGpsTable(
+    def newFrame(
         self,
-        longitude_deg: float,
-        latitude_deg: float,
+        longitude: float,
+        latitude: float,
         leg_heure: str,
         code_leg: int,
-    ):
-        print(
-            "addNewFeatureToGpsTable : longitude_deg="
-            + str(longitude_deg)
-            + " - latitude_deg="
-            + str(latitude_deg)
-        )
-        self.addNewFeatureToGpsTableSignal.emit(
-            longitude_deg, latitude_deg, leg_heure, code_leg
-        )
+    ) -> None:
+        print("NEW FRAME")
+        if self.active:
+            self.frame.emit(longitude, latitude, leg_heure, code_leg)
