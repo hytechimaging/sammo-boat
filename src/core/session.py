@@ -204,6 +204,18 @@ class SammoSession:
         setup = QgsEditorWidgetSetup("Hidden", {})
         layer.setEditorWidgetSetup(idx, setup)
 
+        # platform
+        idx = layer.fields().indexFromName("plateform")
+        cfg = {}
+        cfg["map"] = [
+            {"passerelle": "passerelle"},
+            {"pont_sup": "pont_sup"},
+            {"pont_inf": "pont_inf"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'pont_sup'"))
+
         # route type
         idx = layer.fields().indexFromName("routeType")
         cfg = {}
@@ -218,38 +230,180 @@ class SammoSession:
 
         # sea state
         idx = layer.fields().indexFromName("seaState")
-        cfg = {'AllowNull': False, 'Max': 13, 'Min': 0, 'Precision': 0, 'Step': 1, 'Style': 'SpinBox'}
+        cfg = {
+            "AllowNull": False,
+            "Max": 13,
+            "Min": 0,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("2"))
 
         # wind direction
         idx = layer.fields().indexFromName("windDirection")
-        cfg = {'AllowNull': False, 'Max': 361, 'Min': 0, 'Precision': 0, 'Step': 1, 'Style': 'SpinBox'}
+        cfg = {
+            "AllowNull": False,
+            "Max": 361,
+            "Min": 0,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("71"))
 
         # wind force
         idx = layer.fields().indexFromName("windForce")
-        cfg = {'AllowNull': False, 'Max': 1000, 'Min': 0, 'Precision': 0, 'Step': 1, 'Style': 'SpinBox'}
+        cfg = {
+            "AllowNull": False,
+            "Max": 1000,
+            "Min": 0,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("71"))
 
         # swell direction
         idx = layer.fields().indexFromName("swellDirection")
-        cfg = {'AllowNull': False, 'Max': 361, 'Min': 0, 'Precision': 0, 'Step': 1, 'Style': 'SpinBox'}
+        cfg = {
+            "AllowNull": False,
+            "Max": 361,
+            "Min": 0,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("165"))
 
         # swell height
         idx = layer.fields().indexFromName("swellHeight")
-        cfg = {'AllowNull': False, 'Max': 20, 'Min': 0, 'Precision': 1, 'Step': 0.5, 'Style': 'SpinBox'}
+        cfg = {
+            "AllowNull": False,
+            "Max": 20,
+            "Min": 0,
+            "Precision": 1,
+            "Step": 0.5,
+            "Style": "SpinBox",
+        }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("0.5"))
+
+        # glare from
+        idx = layer.fields().indexFromName("glareFrom")
+        cfg = {
+            "AllowNull": False,
+            "Max": 361,
+            "Min": 0,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("0"))
+
+        # glare to
+        idx = layer.fields().indexFromName("glareTo")
+        cfg = {
+            "AllowNull": False,
+            "Max": 361,
+            "Min": 0,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("0"))
+
+        # glare severity
+        idx = layer.fields().indexFromName("glareSever")
+        cfg = {}
+        cfg["map"] = [
+            {"aucun": "aucun"},
+            {"faible": "faible"},
+            {"moyen": "moyen"},
+            {"fort": "fort"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'aucun'"))
+
+        # cloud cover
+        idx = layer.fields().indexFromName("cloudCover")
+        cfg = {
+            "AllowNull": False,
+            "Max": 8,
+            "Min": 0,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("8"))
+
+        # visibility
+        idx = layer.fields().indexFromName("visibility")
+        cfg = {}
+        cfg["map"] = [
+            {"0.5": "0.5"},
+            {"1": "1"},
+            {"2": "2"},
+            {"5": "5"},
+            {"10": "10"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("0.5"))
+
+        # subjective
+        idx = layer.fields().indexFromName("subjective")
+        cfg = {}
+        cfg["map"] = [
+            {"E": "E"},
+            {"G": "G"},
+            {"M": "M"},
+            {"P": "P"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'G'"))
+
+        # n observers
+        idx = layer.fields().indexFromName("nObservers")
+        cfg = {
+            "AllowNull": False,
+            "Max": 4,
+            "Min": 1,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("2"))
+
+        # camera
+        idx = layer.fields().indexFromName("camera")
+        cfg = {}
+        cfg["map"] = [
+            {"ON": "ON"},
+            {"OFF": "OFF"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'ON'"))
 
         return layer
 
