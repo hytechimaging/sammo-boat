@@ -92,7 +92,7 @@ class Sammo:
 
     def createObservationAction(self) -> SammoObservationAction:
         button = SammoObservationAction(self.mainWindow, self.toolbar)
-        button.onClickObservationSignal.connect(self.onClickObservation)
+        button.triggered.connect(self.onObservationAction)
         return button
 
     def createEffortAction(self) -> SammoEffortAction:
@@ -176,12 +176,14 @@ class Sammo:
 
         return self.environmentAction.openFeatureForm(self.iface, table, feat)
 
-    def onClickObservation(self):
+    def onObservationAction(self):
         self.soundRecordingController.onStartObservation()
         feat, table = self.session.getReadyToAddNewFeatureToObservationTable()
         if self.iface.openFeatureForm(table, feat):
             self.session.addObservation(feat)
             self.soundRecordingController.onStopEventWhichNeedSoundRecord()
+        else:
+            self.session.sightingsLayer.rollBack()
 
     def onFollowerAction(self):
         feat, layer = self.session.getReadyToAddNewFeatureToFollowerTable()

@@ -9,9 +9,11 @@ from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import pyqtSignal, QObject
 from qgis.PyQt.QtWidgets import QAction, QToolBar
 
+from ..core import icon
+
 
 class SammoObservationAction(QObject):
-    onClickObservationSignal = pyqtSignal()
+    triggered = pyqtSignal()
 
     def __init__(self, parent: QObject, toolbar: QToolBar):
         super().__init__()
@@ -21,7 +23,7 @@ class SammoObservationAction(QObject):
 
     def initGui(self, parent: QObject, toolbar: QToolBar):
         self.button = QAction(parent)
-        self.button.setIcon(self.icon)
+        self.button.setIcon(icon("observation.png"))
         self.button.setToolTip("New observation")
         self.button.triggered.connect(self.onClick)
         self.button.setEnabled(False)
@@ -34,10 +36,4 @@ class SammoObservationAction(QObject):
         del self.button
 
     def onClick(self):
-        self.onClickObservationSignal.emit()
-
-    @property
-    def icon(self):
-        d = os.path.dirname(os.path.abspath(__file__))
-        root = os.path.dirname(os.path.dirname(d))
-        return QIcon(os.path.join(root, "images", "observation.png"))
+        self.triggered.emit()
