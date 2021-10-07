@@ -95,7 +95,8 @@ class StatusWidget(QFrame, FORM_CLASS):
 
 class StatusDock(QDockWidget):
     def __init__(self, iface):
-        super().__init__(iface.mainWindow())
+        super().__init__("Sammo Status", iface.mainWindow())
+        self.setObjectName("Sammo Status")
 
         self.iface = iface
         self._gpsTitleLabel: QLabel = None

@@ -26,6 +26,7 @@ class Sammo:
     def __init__(self, iface):
         self.iface = iface
         self.toolbar: QToolBar = self.iface.addToolBar("Sammo ToolBar")
+        self.toolbar.setObjectName("Sammo ToolBar")
 
         self.loading = False
         self.session = SammoSession(iface.mapCanvas())
