@@ -24,8 +24,8 @@ GPS_TABLE = "gps"
 SPECIES_TABLE = "species"
 OBSERVER_TABLE = "observer"
 FOLLOWER_TABLE = "followers"
+SIGHTINGS_TABLE = "sightings"
 ENVIRONMENT_TABLE = "environment"
-OBSERVATION_TABLE = "observations"
 
 
 class SammoDataBase:
@@ -59,8 +59,8 @@ class SammoDataBase:
         )
         self._createTable(self._createFieldsForSpeciesTable(), SPECIES_TABLE)
         self._createTable(
-            self._createFieldsForObservationTable(),
-            OBSERVATION_TABLE,
+            self._fieldsSightings(),
+            SIGHTINGS_TABLE,
         )
         self._createTable(self._createFieldsForFollowerTable(), FOLLOWER_TABLE)
         self._createTable(
@@ -126,7 +126,7 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("taxon"))
         return fields
 
-    def _createFieldsForObservationTable(self) -> QgsFields:
+    def _fieldsSightings(self) -> QgsFields:
         fields = QgsFields()
         fields.append(QgsField("dateTime", QVariant.DateTime))
         fields.append(QgsField("sightNum", QVariant.Int))

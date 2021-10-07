@@ -35,13 +35,15 @@ from .database import (
     SPECIES_TABLE,
     FOLLOWER_TABLE,
     OBSERVER_TABLE,
+    SIGHTINGS_TABLE,
     ENVIRONMENT_TABLE,
 )
 
 SPECIES_LAYER_NAME = "Species"
+ENVIRONMENT_LAYER_NAME = "Effort"
 FOLLOWERS_LAYER_NAME = "Followers"
 OBSERVERS_LAYER_NAME = "Observers"
-ENVIRONMENT_LAYER_NAME = "Effort"
+SIGHTINGS_LAYER_NAME = "Sightings"
 
 
 class SammoSession:
@@ -71,6 +73,10 @@ class SammoSession:
     def speciesLayer(self) -> QgsVectorLayer:
         return self._layer(SPECIES_TABLE, SPECIES_LAYER_NAME)
 
+    @property
+    def sightingsLayer(self) -> QgsVectorLayer:
+        return self._layer(SIGHTINGS_TABLE, SIGHTINGS_LAYER_NAME)
+
     def init(self, directory: str) -> None:
         extent = self.mapCanvas.projectExtent()
         new = self.db.init(directory)
@@ -97,6 +103,9 @@ class SammoSession:
 
             speciesLayer = self._initSpeciesLayer()
             project.addMapLayer(speciesLayer)
+
+            sightingsLayer = self._initSightingsLayer()
+            project.addMapLayer(sightingsLayer)
 
             # configure project
             crs = QgsCoordinateReferenceSystem.fromEpsgId(4326)
@@ -224,6 +233,17 @@ class SammoSession:
             return QgsProject.instance().mapLayersByName(name)[0]
 
         return QgsVectorLayer(self.db.tableUri(table))
+
+    def _initSightingsLayer(self) -> QgsVectorLayer:
+        layer = self.speciesLayer
+        layer.setName(SIGHTINGS_LAYER_NAME)
+
+        # fid
+        idx = layer.fields().indexFromName("fid")
+        setup = QgsEditorWidgetSetup("Hidden", {})
+        layer.setEditorWidgetSetup(idx, setup)
+
+        return layer
 
     def _initSpeciesLayer(self) -> QgsVectorLayer:
         layer = self.speciesLayer
