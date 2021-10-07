@@ -136,12 +136,13 @@ class SammoSession:
 
         table.startEditing()
         idLastAddedFeature = self.db.getIdOfLastAddedFeature(table)
-        field_idx = table.fields().indexOf("soundFile")
-        table.changeAttributeValue(idLastAddedFeature, field_idx, soundFile)
-        field_idx = table.fields().indexOf("soundStart")
-        table.changeAttributeValue(idLastAddedFeature, field_idx, soundStart)
-        field_idx = table.fields().indexOf("soundEnd")
-        table.changeAttributeValue(idLastAddedFeature, field_idx, soundEnd)
+        if idLastAddedFeature != -1:
+            field_idx = table.fields().indexOf("soundFile")
+            table.changeAttributeValue(idLastAddedFeature, field_idx, soundFile)
+            field_idx = table.fields().indexOf("soundStart")
+            table.changeAttributeValue(idLastAddedFeature, field_idx, soundStart)
+            field_idx = table.fields().indexOf("soundEnd")
+            table.changeAttributeValue(idLastAddedFeature, field_idx, soundEnd)
         table.commitChanges()
 
     def loadTable(self, tableName: str) -> QgsVectorLayer:
