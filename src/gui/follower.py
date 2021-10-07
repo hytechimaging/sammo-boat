@@ -12,7 +12,6 @@ from ..core import icon
 
 class SammoFollowerAction(QObject):
     triggered = pyqtSignal()
-    add = pyqtSignal(QgsFeature)
 
     def __init__(self, parent: QObject, toolbar: QToolBar):
         super().__init__()
@@ -36,7 +35,3 @@ class SammoFollowerAction(QObject):
 
     def onClick(self):
         self.triggered.emit()
-
-    def openFeatureForm(self, iface, table: QgsVectorLayer, feat: QgsFeature):
-        if iface.openFeatureForm(table, feat):
-            self.add.emit(feat)

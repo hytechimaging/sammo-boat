@@ -4,9 +4,10 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
+from datetime import datetime
 
 from qgis.PyQt.QtWidgets import QToolBar
-from qgis.core import QgsFeature, QgsProject
+from qgis.core import QgsFeature, QgsProject, QgsVectorLayerUtils
 
 from .src.core.gps import SammoGpsReader
 from .src.core.session import SammoSession
@@ -88,7 +89,6 @@ class Sammo:
     def createFollowerAction(self):
         button = SammoFollowerAction(self.mainWindow, self.toolbar)
         button.triggered.connect(self.onFollowerAction)
-        button.add.connect(self.onFollowerAdd)
         return button
 
     def createObservationAction(self) -> SammoObservationAction:
@@ -187,9 +187,16 @@ class Sammo:
             self.session.sightingsLayer.rollBack()
 
     def onFollowerAction(self):
-        feat, layer = self.session.getReadyToAddNewFeatureToFollowerTable()
-        if not self.followerAction.openFeatureForm(self.iface, layer, feat):
-            self.session.followerLayer.rollBack()
+        layer = self.session.followerLayer
+        feat = QgsVectorLayerUtils.createFeature(layer)
+        feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        layer.startEditing()
+        if self.iface.openFeatureForm(layer, feat):
+            layer.addFeature(feat)
+            layer.commitChanges()
+        else:
+            layer.rollBack()
 
     def onEnvironmentAction(self):
         if not self.updateEffort("A"):
@@ -201,9 +208,6 @@ class Sammo:
         self.session.addEnvironment(feat)
         self.statusDock.isEffortOn = True
         self.soundRecordingController.onStopEventWhichNeedSoundRecord()
-
-    def onFollowerAdd(self, feat: QgsFeature):
-        self.session.addFollower(feat)
 
     def onChangeSimuGpsStatus(self, isOn: bool):
         if isOn:

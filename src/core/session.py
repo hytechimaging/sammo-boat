@@ -78,7 +78,6 @@ class SammoSession:
         return self._layer(SIGHTINGS_TABLE, SIGHTINGS_LAYER_NAME)
 
     def init(self, directory: str) -> None:
-        extent = self.mapCanvas.projectExtent()
         new = self.db.init(directory)
 
         # create database if necessary
@@ -158,12 +157,6 @@ class SammoSession:
                 "Impossible to read the table " + tableName,
             )
         return layer
-
-    def getReadyToAddNewFeatureToFollowerTable(self):
-        layer = self.followerLayer
-        feat = self._getReadyToAddNewFeature(layer)
-        feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        return feat, layer
 
     def getReadyToAddNewFeatureToEnvironmentTable(
         self, status: str
