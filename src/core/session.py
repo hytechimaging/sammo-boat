@@ -30,12 +30,16 @@ from qgis.core import (
 from .logger import Logger
 from .database import (
     SammoDataBase,
-    GPS_TABLE,
     DB_NAME,
-    ENVIRONMENT_TABLE,
+    GPS_TABLE,
+    SPECIES_TABLE,
+    FOLLOWER_TABLE,
     OBSERVER_TABLE,
+    ENVIRONMENT_TABLE,
 )
 
+SPECIES_LAYER_NAME = "Species"
+FOLLOWERS_LAYER_NAME = "Followers"
 OBSERVERS_LAYER_NAME = "Observers"
 ENVIRONMENT_LAYER_NAME = "Effort"
 
@@ -56,8 +60,16 @@ class SammoSession:
         return self._layer(GPS_TABLE)
 
     @property
+    def followerLayer(self) -> QgsVectorLayer:
+        return self._layer(FOLLOWER_TABLE, FOLLOWERS_LAYER_NAME)
+
+    @property
     def observerLayer(self) -> QgsVectorLayer:
         return self._layer(OBSERVER_TABLE)
+
+    @property
+    def speciesLayer(self) -> QgsVectorLayer:
+        return self._layer(SPECIES_TABLE, SPECIES_LAYER_NAME)
 
     def init(self, directory: str) -> None:
         extent = self.mapCanvas.projectExtent()
@@ -79,6 +91,12 @@ class SammoSession:
 
             effortLayer = self._initEffortLayer()
             project.addMapLayer(effortLayer)
+
+            followerLayer = self._initFollowerLayer()
+            project.addMapLayer(followerLayer)
+
+            speciesLayer = self._initSpeciesLayer()
+            project.addMapLayer(speciesLayer)
 
             # configure project
             crs = QgsCoordinateReferenceSystem.fromEpsgId(4326)
@@ -140,7 +158,10 @@ class SammoSession:
         return layer
 
     def getReadyToAddNewFeatureToFollowerTable(self):
-        return self._getReadyToAddNewFeature(self._followerTable)
+        layer = self.followerLayer
+        feat = self._getReadyToAddNewFeature(layer)
+        feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        return feat, layer
 
     def getReadyToAddNewFeatureToEnvironmentTable(
         self, status: str
@@ -168,7 +189,7 @@ class SammoSession:
         return copyFeature
 
     def addFollower(self, feature: QgsFeature):
-        self._addFeature(feature, self._followerTable)
+        self._addFeature(feature, self.followerLayer)
 
     def getReadyToAddNewFeatureToObservationTable(
         self,
@@ -203,6 +224,157 @@ class SammoSession:
             return QgsProject.instance().mapLayersByName(name)[0]
 
         return QgsVectorLayer(self.db.tableUri(table))
+
+    def _initSpeciesLayer(self) -> QgsVectorLayer:
+        layer = self.speciesLayer
+        layer.setName(SPECIES_LAYER_NAME)
+
+        # fid
+        idx = layer.fields().indexFromName("fid")
+        setup = QgsEditorWidgetSetup("Hidden", {})
+        layer.setEditorWidgetSetup(idx, setup)
+
+        return layer
+
+    def _initFollowerLayer(self) -> QgsVectorLayer:
+        layer = self.followerLayer
+        layer.setName(FOLLOWERS_LAYER_NAME)
+
+        # fid
+        idx = layer.fields().indexFromName("fid")
+        setup = QgsEditorWidgetSetup("Hidden", {})
+        layer.setEditorWidgetSetup(idx, setup)
+
+        # side
+        idx = layer.fields().indexFromName("side")
+        cfg = {}
+        cfg["map"] = [
+            {"L": "L"},
+            {"R": "R"},
+            {"B": "B"},
+            {"C": "C"},
+            {"O": "O"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'R'"))
+
+        # nFollower
+        idx = layer.fields().indexFromName("nFollower")
+        cfg = {
+            "AllowNull": False,
+            "Max": 1000,
+            "Min": 0,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("0"))
+
+        # podSize
+        idx = layer.fields().indexFromName("podSize")
+        cfg = {
+            "AllowNull": False,
+            "Max": 1000,
+            "Min": 1,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("10"))
+
+        # back
+        idx = layer.fields().indexFromName("back")
+        cfg = {
+            "AllowMulti": False,
+            "AllowNull": False,
+            "Description": '"observer"',
+            "FilterExpression": "",
+            "Key": "observer",
+            "Layer": self.observerLayer.id(),
+            "LayerName": OBSERVERS_LAYER_NAME,
+            "LayerProviderName": "ogr",
+            "LayerSource": self.db.tableUri(OBSERVER_TABLE),
+            "NofColumns": 1,
+            "OrderByValue": False,
+            "UseCompleter": False,
+            "Value": "observer",
+        }
+        setup = QgsEditorWidgetSetup("ValueRelation", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+
+        # fishActivity
+        idx = layer.fields().indexFromName("fishActivity")
+        cfg = {}
+        cfg["map"] = [
+            {"FILAGE": "FILAGE"},
+            {"VIRAGE": "VIRAGE"},
+            {"REJETS": "REJETS"},
+            {"EN_PECHE": "EN_PECHE"},
+            {"NON_ACTIVE": "NON_ACTIVE"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'VIRAGE'"))
+
+        # species
+        idx = layer.fields().indexFromName("species")
+        cfg = {
+            "AllowMulti": False,
+            "AllowNull": False,
+            "Description": '"species"',
+            "FilterExpression": "",
+            "Key": "species",
+            "Layer": self.speciesLayer.id(),
+            "LayerName": SPECIES_LAYER_NAME,
+            "LayerProviderName": "ogr",
+            "LayerSource": self.db.tableUri(SPECIES_TABLE),
+            "NofColumns": 1,
+            "OrderByValue": False,
+            "UseCompleter": False,
+            "Value": "species",
+        }
+        setup = QgsEditorWidgetSetup("ValueRelation", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+
+        # age
+        idx = layer.fields().indexFromName("age")
+        cfg = {}
+        cfg["map"] = [
+            {"A": "A"},
+            {"I": "I"},
+            {"J": "J"},
+            {"M": "M"},
+            {"I1": "I1"},
+            {"I2": "I2"},
+            {"I3": "I3"},
+            {"I4": "I4"},
+            {"NA": "NA"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'A'"))
+
+        # unlucky
+        idx = layer.fields().indexFromName("unlucky")
+        cfg = {}
+        cfg["map"] = [
+            {"MALADE/BLESSE": "MALADE/BLESSE"},
+            {"MAZOUTE": "MAZOUTE"},
+            {"PRIS_ENGIN_PECHE": "PRIS_ENGIN_PECHE"},
+            {"HAMECON": "HAMECON"},
+            {"FIL_PECHE": "FIL_PECHE"},
+            {"TAG": "TAG"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'TAG'"))
+
+        return layer
 
     def _initEffortLayer(self) -> QgsVectorLayer:
         layer = self.environmentLayer
