@@ -212,7 +212,7 @@ class SammoSession:
         self._addFeature(feature, self.sightingsLayer)
 
     def addGps(
-            self, longitude: float, latitude: float, hour: int, minu: int, sec: int
+        self, longitude: float, latitude: float, hour: int, minu: int, sec: int
     ):
         vlayer = self.gpsLayer
         vlayer.startEditing()
@@ -225,7 +225,9 @@ class SammoSession:
         feature.setAttribute("dateTime", now.strftime("%Y-%m-%d %H:%M:%S"))
 
         gpsNow = datetime(now.year, now.month, now.day, hour, minu, sec)
-        feature.setAttribute("gpsDateTime", gpsNow.strftime("%Y-%m-%d %H:%M:%S"))
+        feature.setAttribute(
+            "gpsDateTime", gpsNow.strftime("%Y-%m-%d %H:%M:%S")
+        )
 
         self._addFeature(feature, vlayer)
         self._gpsLocationsDuringEffort.append(QgsPoint(longitude, latitude))

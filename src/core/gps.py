@@ -63,9 +63,7 @@ class WorkerGpsExtractor(WorkerForOtherThread):
                 latitude_deg = position[1]
                 h, m, s = self.getDatetime(line)
                 self.addNewFeatureToGpsTableSignal.emit(
-                    float(longitude_deg),
-                    float(latitude_deg),
-                    h, m, s
+                    float(longitude_deg), float(latitude_deg), h, m, s
                 )
                 self.isGpsOnline = True
             else:
@@ -140,7 +138,7 @@ class SammoGpsReader(OtherThread):
         latitude: float,
         hour: int,
         minute: int,
-        sec: int
+        sec: int,
     ) -> None:
         if self.active:
             self.frame.emit(longitude, latitude, hour, minute, sec)
