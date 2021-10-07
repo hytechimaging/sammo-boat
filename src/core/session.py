@@ -37,6 +37,7 @@ from .database import (
     ENVIRONMENT_TABLE,
 )
 
+FOLLOWERS_LAYER_NAME = "Followers"
 OBSERVERS_LAYER_NAME = "Observers"
 ENVIRONMENT_LAYER_NAME = "Effort"
 
@@ -58,7 +59,7 @@ class SammoSession:
 
     @property
     def followerLayer(self) -> QgsVectorLayer:
-        return self._layer(FOLLOWER_TABLE)
+        return self._layer(FOLLOWER_TABLE, FOLLOWERS_LAYER_NAME)
 
     @property
     def observerLayer(self) -> QgsVectorLayer:
@@ -84,6 +85,9 @@ class SammoSession:
 
             effortLayer = self._initEffortLayer()
             project.addMapLayer(effortLayer)
+
+            followerLayer = self._initFollowerLayer()
+            project.addMapLayer(followerLayer, False)
 
             # configure project
             crs = QgsCoordinateReferenceSystem.fromEpsgId(4326)
@@ -209,6 +213,17 @@ class SammoSession:
             return QgsProject.instance().mapLayersByName(name)[0]
 
         return QgsVectorLayer(self.db.tableUri(table))
+
+    def _initFollowerLayer(self) -> QgsVectorLayer:
+        layer = self.followerLayer
+        layer.setName(FOLLOWERS_LAYER_NAME)
+
+        # fid
+        idx = layer.fields().indexFromName("fid")
+        setup = QgsEditorWidgetSetup("Hidden", {})
+        layer.setEditorWidgetSetup(idx, setup)
+
+        return layer
 
     def _initEffortLayer(self) -> QgsVectorLayer:
         layer = self.environmentLayer
