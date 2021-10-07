@@ -241,6 +241,214 @@ class SammoSession:
         setup = QgsEditorWidgetSetup("Hidden", {})
         layer.setEditorWidgetSetup(idx, setup)
 
+        # side
+        idx = layer.fields().indexFromName("side")
+        cfg = {}
+        cfg["map"] = [
+            {"L": "L"},
+            {"R": "R"},
+            {"B": "B"},
+            {"C": "C"},
+            {"O": "O"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'R'"))
+
+        # species
+        idx = layer.fields().indexFromName("species")
+        cfg = {
+            "AllowMulti": False,
+            "AllowNull": False,
+            "Description": '"species"',
+            "FilterExpression": "",
+            "Key": "species",
+            "Layer": self.speciesLayer.id(),
+            "LayerName": SPECIES_LAYER_NAME,
+            "LayerProviderName": "ogr",
+            "LayerSource": self.db.tableUri(SPECIES_TABLE),
+            "NofColumns": 1,
+            "OrderByValue": False,
+            "UseCompleter": False,
+            "Value": "species",
+        }
+        setup = QgsEditorWidgetSetup("ValueRelation", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+
+        # podSize
+        idx = layer.fields().indexFromName("podSize")
+        cfg = {
+            "AllowNull": False,
+            "Max": 1000,
+            "Min": 1,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("10"))
+
+        # podSizeMin
+        idx = layer.fields().indexFromName("podSizeMin")
+        cfg = {
+            "AllowNull": False,
+            "Max": 1000,
+            "Min": 1,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("5"))
+
+        # podSizeMax
+        idx = layer.fields().indexFromName("podSizeMax")
+        cfg = {
+            "AllowNull": False,
+            "Max": 1000,
+            "Min": 1,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("15"))
+
+        # age
+        idx = layer.fields().indexFromName("age")
+        cfg = {}
+        cfg["map"] = [
+            {"A": "A"},
+            {"I": "I"},
+            {"J": "J"},
+            {"M": "M"},
+            {"I1": "I1"},
+            {"I2": "I2"},
+            {"I3": "I3"},
+            {"I4": "I4"},
+            {"NA": "NA"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'A'"))
+
+        # distance
+        idx = layer.fields().indexFromName("distance")
+        cfg = {
+            "AllowNull": False,
+            "Max": 20000,
+            "Min": 2,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("100"))
+
+        # angle
+        idx = layer.fields().indexFromName("angle")
+        cfg = {
+            "AllowNull": False,
+            "Max": 360,
+            "Min": 1,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("100"))
+
+        # direction
+        idx = layer.fields().indexFromName("direction")
+        cfg = {
+            "AllowNull": False,
+            "Max": 360,
+            "Min": 1,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("100"))
+
+        # behaviour
+        idx = layer.fields().indexFromName("behaviour")
+        cfg = {}
+        cfg["map"] = [
+            {"ATTRACTION": "ATTRACTION"},
+            {"DEPLACEMENT": "DEPLACEMENT"},
+            {"FORAGING": "FORAGING"},
+            {"FUITE": "FUITE"},
+            {"STATIONNAIRE": "STATIONNAIRE"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'FORAGING'"))
+
+        # behavGroup
+        idx = layer.fields().indexFromName("behavGroup")
+        cfg = {}
+        cfg["map"] = [
+            {"CHASSE": "CHASSE"},
+            {"GROUPE_COMPACT": "GROUPE_COMPACT"},
+            {"GROUPE_DISPERSE": "GROUPE_DISPERSE"},
+            {"MFSA": "MFA"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'MFSA'"))
+
+        # behavMam
+        idx = layer.fields().indexFromName("behavMam")
+        cfg = {}
+        cfg["map"] = [
+            {"ETRAVE": "ETRAVE"},
+            {"MILLING": "MILLING"},
+            {"NAGE_LENTE": "NAGE_LENTE"},
+            {"NAGE_RAPIDE": "NAGE_RAPIDE"},
+            {"PLONGE": "PLONGE"},
+            {"SAUTE": "SAUTE"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'PLONGE'"))
+
+        # behavBird
+        idx = layer.fields().indexFromName("behavBird")
+        cfg = {}
+        cfg["map"] = [
+            {"ATTAQUE": "ATTAQUE"},
+            {"AVEC_PROIE": "AVEC_PROIE"},
+            {"CHAROGNARD": "CHAROGNARD"},
+            {"KLEPTO": "KLEPTO"},
+            {"PLONGE": "PLONGE"},
+            {"SCAVEN_BATEAU": "SCAVEN_BATEAU"},
+            {"2_VOL_ALEATOIRE": "2_VOL_ALEATOIRE"},
+            {"3_VOL_CIRCULAIRE": "3_VOL_CIRCULAIRE"},
+            {"1_VOL_DIRECT": "1_VOL_DIRECT"},
+            {"NAGE": "NAGE"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'1_VOL_DIRECT'"))
+
+        # behavShip
+        idx = layer.fields().indexFromName("behavShip")
+        cfg = {}
+        cfg["map"] = [
+            {"PECHE": "PECHE"},
+            {"ROUTE": "ROUTE"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'ROUTE'"))
+
         return layer
 
     def _initSpeciesLayer(self) -> QgsVectorLayer:
@@ -262,20 +470,6 @@ class SammoSession:
         idx = layer.fields().indexFromName("fid")
         setup = QgsEditorWidgetSetup("Hidden", {})
         layer.setEditorWidgetSetup(idx, setup)
-
-        # side
-        idx = layer.fields().indexFromName("side")
-        cfg = {}
-        cfg["map"] = [
-            {"L": "L"},
-            {"R": "R"},
-            {"B": "B"},
-            {"C": "C"},
-            {"O": "O"},
-        ]
-        setup = QgsEditorWidgetSetup("ValueMap", cfg)
-        layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'R'"))
 
         # nFollower
         idx = layer.fields().indexFromName("nFollower")

@@ -129,7 +129,7 @@ class SammoDataBase:
     def _fieldsSightings(self) -> QgsFields:
         fields = QgsFields()
         fields.append(QgsField("dateTime", QVariant.DateTime))
-        fields.append(QgsField("sightNum", QVariant.Int))
+        # fields.append(QgsField("sightNum", QVariant.Int))  # fid
         fields.append(self._createFieldShortText("side"))
         fields.append(self._createFieldShortText("species"))
         fields.append(QgsField("podSize", QVariant.Int))
