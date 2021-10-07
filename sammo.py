@@ -185,7 +185,8 @@ class Sammo:
 
     def onFollowerAction(self):
         feat, layer = self.session.getReadyToAddNewFeatureToFollowerTable()
-        self.followerAction.openFeatureForm(self.iface, layer, feat)
+        if not self.followerAction.openFeatureForm(self.iface, layer, feat):
+            self.session.followerLayer.rollBack()
 
     def onEnvironmentAction(self):
         if not self.updateEffort("A"):
