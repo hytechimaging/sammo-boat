@@ -130,7 +130,7 @@ class SammoSession:
         soundEnd: str,
     ):
         if isObservation:
-            table = self.observationLayer
+            table = self.sightingsLayer
         else:
             table = self.environmentLayer
 
@@ -203,15 +203,13 @@ class SammoSession:
     def getReadyToAddNewFeatureToObservationTable(
         self,
     ) -> (QgsFeature, QgsVectorLayer):
-        (
-            feat,
-            table,
-        ) = self._getReadyToAddNewFeature(self._observationTable)
+        layer = self.sightingsLayer
+        feat = self._getReadyToAddNewFeature(layer)
         feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        return feat, table
+        return feat, layer
 
     def addObservation(self, feature: QgsFeature):
-        self._addFeature(feature, self._observationTable)
+        self._addFeature(feature, self.sightingsLayer)
 
     def addGps(
         self, longitude: float, latitude: float, formattedDateTime: str
@@ -235,7 +233,7 @@ class SammoSession:
         return QgsVectorLayer(self.db.tableUri(table))
 
     def _initSightingsLayer(self) -> QgsVectorLayer:
-        layer = self.speciesLayer
+        layer = self.sightingsLayer
         layer.setName(SIGHTINGS_LAYER_NAME)
 
         # fid
