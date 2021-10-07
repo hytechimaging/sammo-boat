@@ -223,6 +223,115 @@ class SammoSession:
         setup = QgsEditorWidgetSetup("Hidden", {})
         layer.setEditorWidgetSetup(idx, setup)
 
+        # side
+        idx = layer.fields().indexFromName("side")
+        cfg = {}
+        cfg["map"] = [
+            {"L": "L"},
+            {"R": "R"},
+            {"B": "B"},
+            {"C": "C"},
+            {"O": "O"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'R'"))
+
+        # nFollower
+        idx = layer.fields().indexFromName("nFollower")
+        cfg = {
+            "AllowNull": False,
+            "Max": 1000,
+            "Min": 0,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("0"))
+
+        # podSize
+        idx = layer.fields().indexFromName("podSize")
+        cfg = {
+            "AllowNull": False,
+            "Max": 1000,
+            "Min": 1,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("10"))
+
+        # back
+        idx = layer.fields().indexFromName("back")
+        cfg = {
+            "AllowMulti": False,
+            "AllowNull": False,
+            "Description": '"observer"',
+            "FilterExpression": "",
+            "Key": "observer",
+            "Layer": self.observerLayer.id(),
+            "LayerName": OBSERVERS_LAYER_NAME,
+            "LayerProviderName": "ogr",
+            "LayerSource": self.db.tableUri(OBSERVER_TABLE),
+            "NofColumns": 1,
+            "OrderByValue": False,
+            "UseCompleter": False,
+            "Value": "observer",
+        }
+        setup = QgsEditorWidgetSetup("ValueRelation", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+
+        # fishActivity
+        idx = layer.fields().indexFromName("fishActivity")
+        cfg = {}
+        cfg["map"] = [
+            {"FILAGE": "FILAGE"},
+            {"VIRAGE": "VIRAGE"},
+            {"REJETS": "REJETS"},
+            {"EN_PECHE": "EN_PECHE"},
+            {"NON_ACTIVE": "NON_ACTIVE"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'VIRAGE'"))
+
+        # age
+        idx = layer.fields().indexFromName("age")
+        cfg = {}
+        cfg["map"] = [
+            {"A": "A"},
+            {"I": "I"},
+            {"J": "J"},
+            {"M": "M"},
+            {"I1": "I1"},
+            {"I2": "I2"},
+            {"I3": "I3"},
+            {"I4": "I4"},
+            {"NA": "NA"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'A'"))
+
+        # unlucky
+        idx = layer.fields().indexFromName("unlucky")
+        cfg = {}
+        cfg["map"] = [
+            {"MALADE/BLESSE": "MALADE/BLESSE"},
+            {"MAZOUTE": "MAZOUTE"},
+            {"PRIS_ENGIN_PECHE": "PRIS_ENGIN_PECHE"},
+            {"HAMECON": "HAMECON"},
+            {"FIL_PECHE": "FIL_PECHE"},
+            {"TAG": "TAG"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'TAG'"))
+
         return layer
 
     def _initEffortLayer(self) -> QgsVectorLayer:
