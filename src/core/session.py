@@ -458,7 +458,7 @@ class SammoSession:
 
         # comment
         idx = layer.fields().indexFromName("comment")
-        cfg = {'IsMultiline': True, 'UseHtml': False}
+        cfg = {"IsMultiline": True, "UseHtml": False}
         setup = QgsEditorWidgetSetup("TextEdit", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
@@ -608,7 +608,7 @@ class SammoSession:
 
         # comment
         idx = layer.fields().indexFromName("comment")
-        cfg = {'IsMultiline': True, 'UseHtml': False}
+        cfg = {"IsMultiline": True, "UseHtml": False}
         setup = QgsEditorWidgetSetup("TextEdit", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
@@ -846,7 +846,7 @@ class SammoSession:
 
         # comment
         idx = layer.fields().indexFromName("comment")
-        cfg = {'IsMultiline': True, 'UseHtml': False}
+        cfg = {"IsMultiline": True, "UseHtml": False}
         setup = QgsEditorWidgetSetup("TextEdit", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
