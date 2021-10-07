@@ -168,6 +168,7 @@ class SammoDataBase:
     def _createFieldsForGpsTable(self) -> QgsFields:
         fields = QgsFields()
         fields.append(QgsField("dateTime", QVariant.DateTime))
+        fields.append(QgsField("gpsDateTime", QVariant.DateTime))
         fields.append(QgsField("speed", QVariant.Double))
         fields.append(QgsField("course", QVariant.Int))
 

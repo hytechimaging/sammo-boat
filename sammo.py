@@ -131,8 +131,8 @@ class Sammo:
         del self.statusDock
         del self.toolbar
 
-    def onGpsFrame(self, longitude, latitude, hour, code):
-        self.session.addGps(longitude, latitude, hour)
+    def onGpsFrame(self, longitude, latitude, h, m, s):
+        self.session.addGps(longitude, latitude, h, m, s)
         self.statusDock.updateGpsInfo(longitude, latitude)
 
     def onCreateSession(self, sessionDirectory: str) -> None:

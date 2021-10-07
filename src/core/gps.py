@@ -15,8 +15,7 @@ from .other_thread import WorkerForOtherThread, OtherThread
 
 
 class WorkerGpsExtractor(WorkerForOtherThread):
-    addNewFeatureToGpsTableSignal = pyqtSignal(float, float, str, int)
-    code_leg = 23034
+    addNewFeatureToGpsTableSignal = pyqtSignal(float, float, int, int, int)
 
     def __init__(self):
         super().__init__()
@@ -62,12 +61,9 @@ class WorkerGpsExtractor(WorkerForOtherThread):
             if longitude_deg != sys.float_info.max:
                 self.timeOfLastContact = time.time()
                 latitude_deg = position[1]
-                leg_heure = self.getLegHeureData(line)
+                h, m, s = self.getDatetime(line)
                 self.addNewFeatureToGpsTableSignal.emit(
-                    float(longitude_deg),
-                    float(latitude_deg),
-                    leg_heure,
-                    self.code_leg,
+                    float(longitude_deg), float(latitude_deg), h, m, s
                 )
                 self.isGpsOnline = True
             else:
@@ -91,16 +87,14 @@ class WorkerGpsExtractor(WorkerForOtherThread):
         return typeOfLine == "$GPGGA"
 
     @staticmethod
-    def getLegHeureData(line: str) -> (float, float):
-        # "23034_14_25_00"
+    def getDatetime(line: str) -> (int, int, int):
+        # "14_25_00"
         components = line.split(",")
         time = components[1]
-        hour = time[0:2]
-        minutes = time[2:4]
-        secondes = time[4:]
-        return "{}_{}_{}_{}".format(
-            WorkerGpsExtractor.code_leg, hour, minutes, secondes
-        )
+        hour = int(time[0:2])
+        minutes = int(time[2:4])
+        secondes = int(time[4:])
+        return hour, minutes, secondes
 
     @staticmethod
     def getPositionData(line: str) -> (float, float):
@@ -127,7 +121,7 @@ class WorkerGpsExtractor(WorkerForOtherThread):
 
 
 class SammoGpsReader(OtherThread):
-    frame = pyqtSignal(float, float, str, int)
+    frame = pyqtSignal(float, float, int, int, int)
 
     def __init__(self):
         super().__init__()
@@ -142,8 +136,9 @@ class SammoGpsReader(OtherThread):
         self,
         longitude: float,
         latitude: float,
-        leg_heure: str,
-        code_leg: int,
+        hour: int,
+        minute: int,
+        sec: int,
     ) -> None:
         if self.active:
-            self.frame.emit(longitude, latitude, leg_heure, code_leg)
+            self.frame.emit(longitude, latitude, hour, minute, sec)
