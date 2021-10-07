@@ -10,40 +10,36 @@ from qgis.PyQt.QtCore import pyqtSignal, QObject
 from qgis.core import QgsVectorLayer, QgsFeature
 from qgis.PyQt.QtWidgets import QAction, QToolBar
 
+from ..core import icon
+
 
 class SammoFollowerAction(QObject):
-    onClickAddFollowerSignal = pyqtSignal()
-    onAddFeatureToFollowerTableSignal = pyqtSignal(QgsFeature)
+    triggered = pyqtSignal()
+    add = pyqtSignal(QgsFeature)
 
     def __init__(self, parent: QObject, toolbar: QToolBar):
         super().__init__()
         self.parent = parent
-        self.button: QAction = None
+        self.action: QAction = None
         self.initGui(parent, toolbar)
 
-    @property
-    def icon(self):
-        d = os.path.dirname(os.path.abspath(__file__))
-        root = os.path.dirname(os.path.dirname(d))
-        return QIcon(os.path.join(root, "images", "seabird.png"))
-
     def setEnabled(self, status):
-        self.button.setEnabled(status)
+        self.action.setEnabled(status)
 
     def initGui(self, parent: QObject, toolbar: QToolBar):
-        self.button = QAction(parent)
-        self.button.setIcon(self.icon)
-        self.button.setToolTip("New follower")
-        self.button.triggered.connect(self.onClick)
-        self.button.setEnabled(False)
-        toolbar.addAction(self.button)
+        self.action = QAction(parent)
+        self.action.setIcon(icon("seabird.png"))
+        self.action.setToolTip("New follower")
+        self.action.triggered.connect(self.onClick)
+        self.action.setEnabled(False)
+        toolbar.addAction(self.action)
 
     def unload(self):
-        del self.button
+        del self.action
 
     def onClick(self):
-        self.onClickAddFollowerSignal.emit()
+        self.triggered.emit()
 
     def openFeatureForm(self, iface, table: QgsVectorLayer, feat: QgsFeature):
         if iface.openFeatureForm(table, feat):
-            self.onAddFeatureToFollowerTableSignal.emit(feat)
+            self.add.emit(feat)

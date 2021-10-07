@@ -30,10 +30,11 @@ from qgis.core import (
 from .logger import Logger
 from .database import (
     SammoDataBase,
-    GPS_TABLE,
     DB_NAME,
-    ENVIRONMENT_TABLE,
+    GPS_TABLE,
+    FOLLOWER_TABLE,
     OBSERVER_TABLE,
+    ENVIRONMENT_TABLE,
 )
 
 OBSERVERS_LAYER_NAME = "Observers"
@@ -54,6 +55,10 @@ class SammoSession:
     @property
     def gpsLayer(self) -> QgsVectorLayer:
         return self._layer(GPS_TABLE)
+
+    @property
+    def followerLayer(self) -> QgsVectorLayer:
+        return self._layer(FOLLOWER_TABLE)
 
     @property
     def observerLayer(self) -> QgsVectorLayer:
@@ -140,7 +145,8 @@ class SammoSession:
         return layer
 
     def getReadyToAddNewFeatureToFollowerTable(self):
-        return self._getReadyToAddNewFeature(self._followerTable)
+        layer = self.followerLayer
+        return self._getReadyToAddNewFeature(layer), layer
 
     def getReadyToAddNewFeatureToEnvironmentTable(
         self, status: str
@@ -168,7 +174,7 @@ class SammoSession:
         return copyFeature
 
     def addFollower(self, feature: QgsFeature):
-        self._addFeature(feature, self._followerTable)
+        self._addFeature(feature, self.followerLayer)
 
     def getReadyToAddNewFeatureToObservationTable(
         self,

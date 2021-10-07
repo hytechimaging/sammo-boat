@@ -86,10 +86,8 @@ class Sammo:
 
     def createFollowerAction(self):
         button = SammoFollowerAction(self.mainWindow, self.toolbar)
-        button.onClickAddFollowerSignal.connect(self.onClickAddFollower)
-        button.onAddFeatureToFollowerTableSignal.connect(
-            self.onAddFeatureToFollowerTableSignal
-        )
+        button.triggered.connect(self.onFollowerAction)
+        button.add.connect(self.onFollowerAdd)
         return button
 
     def createObservationAction(self) -> SammoObservationAction:
@@ -185,9 +183,9 @@ class Sammo:
             self.session.addObservation(feat)
             self.soundRecordingController.onStopEventWhichNeedSoundRecord()
 
-    def onClickAddFollower(self):
-        feat, table = self.session.getReadyToAddNewFeatureToFollowerTable()
-        self.followerAction.openFeatureForm(self.iface, table, feat)
+    def onFollowerAction(self):
+        feat, layer = self.session.getReadyToAddNewFeatureToFollowerTable()
+        self.followerAction.openFeatureForm(self.iface, layer, feat)
 
     def onEnvironmentAction(self):
         if not self.updateEffort("A"):
@@ -201,7 +199,7 @@ class Sammo:
         self.statusDock.isEffortOn = True
         self.soundRecordingController.onStopEventWhichNeedSoundRecord()
 
-    def onAddFeatureToFollowerTableSignal(self, feat: QgsFeature):
+    def onFollowerAdd(self, feat: QgsFeature):
         self.session.addFollower(feat)
 
     def onChangeSimuGpsStatus(self, isOn: bool):
