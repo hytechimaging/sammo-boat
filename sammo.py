@@ -179,12 +179,18 @@ class Sammo:
 
     def onObservationAction(self):
         self.soundRecordingController.onStartObservation()
-        feat, table = self.session.getReadyToAddNewFeatureToObservationTable()
-        if self.iface.openFeatureForm(table, feat):
-            self.session.addObservation(feat)
+
+        layer = self.session.sightingsLayer
+        feat = QgsVectorLayerUtils.createFeature(layer)
+        feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        layer.startEditing()
+        if self.iface.openFeatureForm(layer, feat):
+            layer.addFeature(feat)
+            layer.commitChanges()
             self.soundRecordingController.onStopEventWhichNeedSoundRecord()
         else:
-            self.session.sightingsLayer.rollBack()
+            layer.rollBack()
 
     def onFollowerAction(self):
         layer = self.session.followerLayer

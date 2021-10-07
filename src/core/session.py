@@ -181,20 +181,6 @@ class SammoSession:
             copyFeature[field.name()] = feat[field.name()]
         return copyFeature
 
-    def addFollower(self, feature: QgsFeature):
-        self._addFeature(feature, self.followerLayer)
-
-    def getReadyToAddNewFeatureToObservationTable(
-        self,
-    ) -> (QgsFeature, QgsVectorLayer):
-        layer = self.sightingsLayer
-        feat = self._getReadyToAddNewFeature(layer)
-        feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        return feat, layer
-
-    def addObservation(self, feature: QgsFeature):
-        self._addFeature(feature, self.sightingsLayer)
-
     def addGps(
         self, longitude: float, latitude: float, hour: int, minu: int, sec: int
     ):

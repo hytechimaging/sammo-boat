@@ -15,7 +15,6 @@ class SammoFollowerAction(QObject):
 
     def __init__(self, parent: QObject, toolbar: QToolBar):
         super().__init__()
-        self.parent = parent
         self.action: QAction = None
         self.initGui(parent, toolbar)
 
