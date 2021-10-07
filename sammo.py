@@ -99,7 +99,7 @@ class Sammo:
 
     def createEffortAction(self) -> SammoEffortAction:
         button = SammoEffortAction(self.mainWindow, self.toolbar)
-        button.onChangeEffortStatusSignal.connect(self.onChangeEffortStatus)
+        button.onChangeEffortStatusSignal.connect(self.onEffortAction)
         return button
 
     def createEnvironmentAction(self) -> SammoEnvironmentAction:
@@ -152,22 +152,24 @@ class Sammo:
         if self.simuGpsAction:
             self.simuGpsAction.onNewSession()
 
-    def onChangeEffortStatus(self, isChecked: bool):
+    def onEffortAction(self, isChecked: bool):
         if not isChecked:
-            self.onStartNewTransect("E")
-            self.statusDock.isEffortOn = False
-        else:
-            if not self.onStartNewTransect("B"):
-                # the user pressed the CANCEL button of the form
-                self.soundRecordingController.hardStopOfRecording()
-                self.session.environmentLayer.rollBack()
-                self.effortAction.action.setChecked(False)
+            if self.updateEffort("E"):  # cancel
                 self.statusDock.isEffortOn = False
-                return
+            else:
+                self.effortAction.action.setChecked(True)
+                self.session.environmentLayer.rollBack()
+        elif not self.updateEffort("B"):
+            # the user pressed the CANCEL button of the form
+            self.soundRecordingController.hardStopOfRecording()
+            self.session.environmentLayer.rollBack()
+            self.effortAction.action.setChecked(False)
+            self.statusDock.isEffortOn = False
+            return
 
         self.environmentAction.onChangeEffortStatus(isChecked)
 
-    def onStartNewTransect(self, status: str) -> bool:
+    def updateEffort(self, status: str) -> bool:
         self.soundRecordingController.onStartEnvironment()
         (
             feat,
@@ -188,10 +190,9 @@ class Sammo:
         self.followerAction.openFeatureForm(self.iface, table, feat)
 
     def onEnvironmentAction(self):
-        if not self.onStartNewTransect("A"):
+        if not self.updateEffort("A"):
             # the user pressed the CANCEL button of the form
             self.soundRecordingController.hardStopOfRecording()
-
             self.session.environmentLayer.rollBack()
 
     def onEnvironmentAdd(self, feat: QgsFeature) -> None:
