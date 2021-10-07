@@ -35,13 +35,15 @@ from .database import (
     SPECIES_TABLE,
     FOLLOWER_TABLE,
     OBSERVER_TABLE,
+    SIGHTINGS_TABLE,
     ENVIRONMENT_TABLE,
 )
 
 SPECIES_LAYER_NAME = "Species"
+ENVIRONMENT_LAYER_NAME = "Effort"
 FOLLOWERS_LAYER_NAME = "Followers"
 OBSERVERS_LAYER_NAME = "Observers"
-ENVIRONMENT_LAYER_NAME = "Effort"
+SIGHTINGS_LAYER_NAME = "Sightings"
 
 
 class SammoSession:
@@ -71,6 +73,10 @@ class SammoSession:
     def speciesLayer(self) -> QgsVectorLayer:
         return self._layer(SPECIES_TABLE, SPECIES_LAYER_NAME)
 
+    @property
+    def sightingsLayer(self) -> QgsVectorLayer:
+        return self._layer(SIGHTINGS_TABLE, SIGHTINGS_LAYER_NAME)
+
     def init(self, directory: str) -> None:
         extent = self.mapCanvas.projectExtent()
         new = self.db.init(directory)
@@ -98,6 +104,9 @@ class SammoSession:
             speciesLayer = self._initSpeciesLayer()
             project.addMapLayer(speciesLayer)
 
+            sightingsLayer = self._initSightingsLayer()
+            project.addMapLayer(sightingsLayer)
+
             # configure project
             crs = QgsCoordinateReferenceSystem.fromEpsgId(4326)
             project.setCrs(crs)
@@ -121,17 +130,17 @@ class SammoSession:
         soundEnd: str,
     ):
         if isObservation:
-            table = self.observationLayer
+            table = self.sightingsLayer
         else:
             table = self.environmentLayer
 
         table.startEditing()
         idLastAddedFeature = self.db.getIdOfLastAddedFeature(table)
-        field_idx = table.fields().indexOf("sound_file")
+        field_idx = table.fields().indexOf("soundFile")
         table.changeAttributeValue(idLastAddedFeature, field_idx, soundFile)
-        field_idx = table.fields().indexOf("sound_start")
+        field_idx = table.fields().indexOf("soundStart")
         table.changeAttributeValue(idLastAddedFeature, field_idx, soundStart)
-        field_idx = table.fields().indexOf("sound_end")
+        field_idx = table.fields().indexOf("soundEnd")
         table.changeAttributeValue(idLastAddedFeature, field_idx, soundEnd)
         table.commitChanges()
 
@@ -194,15 +203,13 @@ class SammoSession:
     def getReadyToAddNewFeatureToObservationTable(
         self,
     ) -> (QgsFeature, QgsVectorLayer):
-        (
-            feat,
-            table,
-        ) = self._getReadyToAddNewFeature(self._observationTable)
+        layer = self.sightingsLayer
+        feat = self._getReadyToAddNewFeature(layer)
         feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        return feat, table
+        return feat, layer
 
     def addObservation(self, feature: QgsFeature):
-        self._addFeature(feature, self._observationTable)
+        self._addFeature(feature, self.sightingsLayer)
 
     def addGps(
         self, longitude: float, latitude: float, formattedDateTime: str
@@ -225,20 +232,9 @@ class SammoSession:
 
         return QgsVectorLayer(self.db.tableUri(table))
 
-    def _initSpeciesLayer(self) -> QgsVectorLayer:
-        layer = self.speciesLayer
-        layer.setName(SPECIES_LAYER_NAME)
-
-        # fid
-        idx = layer.fields().indexFromName("fid")
-        setup = QgsEditorWidgetSetup("Hidden", {})
-        layer.setEditorWidgetSetup(idx, setup)
-
-        return layer
-
-    def _initFollowerLayer(self) -> QgsVectorLayer:
-        layer = self.followerLayer
-        layer.setName(FOLLOWERS_LAYER_NAME)
+    def _initSightingsLayer(self) -> QgsVectorLayer:
+        layer = self.sightingsLayer
+        layer.setName(SIGHTINGS_LAYER_NAME)
 
         # fid
         idx = layer.fields().indexFromName("fid")
@@ -258,6 +254,236 @@ class SammoSession:
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'R'"))
+
+        # species
+        idx = layer.fields().indexFromName("species")
+        cfg = {
+            "AllowMulti": False,
+            "AllowNull": False,
+            "Description": '"species"',
+            "FilterExpression": "",
+            "Key": "species",
+            "Layer": self.speciesLayer.id(),
+            "LayerName": SPECIES_LAYER_NAME,
+            "LayerProviderName": "ogr",
+            "LayerSource": self.db.tableUri(SPECIES_TABLE),
+            "NofColumns": 1,
+            "OrderByValue": False,
+            "UseCompleter": False,
+            "Value": "species",
+        }
+        setup = QgsEditorWidgetSetup("ValueRelation", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+
+        # podSize
+        idx = layer.fields().indexFromName("podSize")
+        cfg = {
+            "AllowNull": False,
+            "Max": 1000,
+            "Min": 1,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("10"))
+
+        # podSizeMin
+        idx = layer.fields().indexFromName("podSizeMin")
+        cfg = {
+            "AllowNull": False,
+            "Max": 1000,
+            "Min": 1,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("5"))
+
+        # podSizeMax
+        idx = layer.fields().indexFromName("podSizeMax")
+        cfg = {
+            "AllowNull": False,
+            "Max": 1000,
+            "Min": 1,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("15"))
+
+        # age
+        idx = layer.fields().indexFromName("age")
+        cfg = {}
+        cfg["map"] = [
+            {"A": "A"},
+            {"I": "I"},
+            {"J": "J"},
+            {"M": "M"},
+            {"I1": "I1"},
+            {"I2": "I2"},
+            {"I3": "I3"},
+            {"I4": "I4"},
+            {"NA": "NA"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'A'"))
+
+        # distance
+        idx = layer.fields().indexFromName("distance")
+        cfg = {
+            "AllowNull": False,
+            "Max": 20000,
+            "Min": 2,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("100"))
+
+        # angle
+        idx = layer.fields().indexFromName("angle")
+        cfg = {
+            "AllowNull": False,
+            "Max": 360,
+            "Min": 1,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("100"))
+
+        # direction
+        idx = layer.fields().indexFromName("direction")
+        cfg = {
+            "AllowNull": False,
+            "Max": 360,
+            "Min": 1,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("100"))
+
+        # behaviour
+        idx = layer.fields().indexFromName("behaviour")
+        cfg = {}
+        cfg["map"] = [
+            {"ATTRACTION": "ATTRACTION"},
+            {"DEPLACEMENT": "DEPLACEMENT"},
+            {"FORAGING": "FORAGING"},
+            {"FUITE": "FUITE"},
+            {"STATIONNAIRE": "STATIONNAIRE"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'FORAGING'"))
+
+        # behavGroup
+        idx = layer.fields().indexFromName("behavGroup")
+        cfg = {}
+        cfg["map"] = [
+            {"CHASSE": "CHASSE"},
+            {"GROUPE_COMPACT": "GROUPE_COMPACT"},
+            {"GROUPE_DISPERSE": "GROUPE_DISPERSE"},
+            {"MFSA": "MFSA"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'MFSA'"))
+
+        # behavMam
+        idx = layer.fields().indexFromName("behavMam")
+        cfg = {}
+        cfg["map"] = [
+            {"ETRAVE": "ETRAVE"},
+            {"MILLING": "MILLING"},
+            {"NAGE_LENTE": "NAGE_LENTE"},
+            {"NAGE_RAPIDE": "NAGE_RAPIDE"},
+            {"PLONGE": "PLONGE"},
+            {"SAUTE": "SAUTE"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'PLONGE'"))
+
+        # behavBird
+        idx = layer.fields().indexFromName("behavBird")
+        cfg = {}
+        cfg["map"] = [
+            {"ATTAQUE": "ATTAQUE"},
+            {"AVEC_PROIE": "AVEC_PROIE"},
+            {"CHAROGNARD": "CHAROGNARD"},
+            {"KLEPTO": "KLEPTO"},
+            {"PLONGE": "PLONGE"},
+            {"SCAVEN_BATEAU": "SCAVEN_BATEAU"},
+            {"2_VOL_ALEATOIRE": "2_VOL_ALEATOIRE"},
+            {"3_VOL_CIRCULAIRE": "3_VOL_CIRCULAIRE"},
+            {"1_VOL_DIRECT": "1_VOL_DIRECT"},
+            {"NAGE": "NAGE"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'1_VOL_DIRECT'"))
+
+        # behavShip
+        idx = layer.fields().indexFromName("behavShip")
+        cfg = {}
+        cfg["map"] = [
+            {"PECHE": "PECHE"},
+            {"ROUTE": "ROUTE"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'ROUTE'"))
+
+        # soundFile, soundStart, soundEnd, dateTime
+        for field in ["soundFile", "soundStart", "soundEnd", "dateTime"]:
+            idx = layer.fields().indexFromName(field)
+            form_config = layer.editFormConfig()
+            form_config.setReadOnly(idx, True)
+            layer.setEditFormConfig(form_config)
+
+        # comment
+        idx = layer.fields().indexFromName("comment")
+        cfg = {"IsMultiline": True, "UseHtml": False}
+        setup = QgsEditorWidgetSetup("TextEdit", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
+
+        return layer
+
+    def _initSpeciesLayer(self) -> QgsVectorLayer:
+        layer = self.speciesLayer
+        layer.setName(SPECIES_LAYER_NAME)
+
+        # fid
+        idx = layer.fields().indexFromName("fid")
+        setup = QgsEditorWidgetSetup("Hidden", {})
+        layer.setEditorWidgetSetup(idx, setup)
+
+        return layer
+
+    def _initFollowerLayer(self) -> QgsVectorLayer:
+        layer = self.followerLayer
+        layer.setName(FOLLOWERS_LAYER_NAME)
+
+        # fid
+        idx = layer.fields().indexFromName("fid")
+        setup = QgsEditorWidgetSetup("Hidden", {})
+        layer.setEditorWidgetSetup(idx, setup)
 
         # nFollower
         idx = layer.fields().indexFromName("nFollower")
@@ -373,6 +599,19 @@ class SammoSession:
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'TAG'"))
+
+        # dateTime
+        idx = layer.fields().indexFromName("dateTime")
+        form_config = layer.editFormConfig()
+        form_config.setReadOnly(idx, True)
+        layer.setEditFormConfig(form_config)
+
+        # comment
+        idx = layer.fields().indexFromName("comment")
+        cfg = {"IsMultiline": True, "UseHtml": False}
+        setup = QgsEditorWidgetSetup("TextEdit", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
 
         return layer
 
@@ -598,23 +837,19 @@ class SammoSession:
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'ON'"))
 
-        # sound_file
-        idx = layer.fields().indexFromName("sound_file")
-        form_config = layer.editFormConfig()
-        form_config.setReadOnly(idx, True)
-        layer.setEditFormConfig(form_config)
+        # soundFile, soundStart, soundEnd, dateTime
+        for field in ["soundFile", "soundStart", "soundEnd", "dateTime"]:
+            idx = layer.fields().indexFromName(field)
+            form_config = layer.editFormConfig()
+            form_config.setReadOnly(idx, True)
+            layer.setEditFormConfig(form_config)
 
-        # sound_start
-        idx = layer.fields().indexFromName("sound_start")
-        form_config = layer.editFormConfig()
-        form_config.setReadOnly(idx, True)
-        layer.setEditFormConfig(form_config)
-
-        # sound_end
-        idx = layer.fields().indexFromName("sound_end")
-        form_config = layer.editFormConfig()
-        form_config.setReadOnly(idx, True)
-        layer.setEditFormConfig(form_config)
+        # comment
+        idx = layer.fields().indexFromName("comment")
+        cfg = {"IsMultiline": True, "UseHtml": False}
+        setup = QgsEditorWidgetSetup("TextEdit", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
 
         # left/right/center
         for field in ["left", "right", "center"]:

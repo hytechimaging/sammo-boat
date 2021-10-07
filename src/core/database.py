@@ -24,8 +24,8 @@ GPS_TABLE = "gps"
 SPECIES_TABLE = "species"
 OBSERVER_TABLE = "observer"
 FOLLOWER_TABLE = "followers"
+SIGHTINGS_TABLE = "sightings"
 ENVIRONMENT_TABLE = "environment"
-OBSERVATION_TABLE = "observations"
 
 
 class SammoDataBase:
@@ -59,8 +59,8 @@ class SammoDataBase:
         )
         self._createTable(self._createFieldsForSpeciesTable(), SPECIES_TABLE)
         self._createTable(
-            self._createFieldsForObservationTable(),
-            OBSERVATION_TABLE,
+            self._fieldsSightings(),
+            SIGHTINGS_TABLE,
         )
         self._createTable(self._createFieldsForFollowerTable(), FOLLOWER_TABLE)
         self._createTable(
@@ -110,9 +110,9 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("right"))
         fields.append(self._createFieldShortText("center"))
 
-        fields.append(self._createFieldShortText("sound_file"))
-        fields.append(self._createFieldShortText("sound_start"))
-        fields.append(self._createFieldShortText("sound_end"))
+        fields.append(self._createFieldShortText("soundFile"))
+        fields.append(self._createFieldShortText("soundStart"))
+        fields.append(self._createFieldShortText("soundEnd"))
 
         return fields
 
@@ -126,10 +126,10 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("taxon"))
         return fields
 
-    def _createFieldsForObservationTable(self) -> QgsFields:
+    def _fieldsSightings(self) -> QgsFields:
         fields = QgsFields()
         fields.append(QgsField("dateTime", QVariant.DateTime))
-        fields.append(QgsField("sightNum", QVariant.Int))
+        # fields.append(QgsField("sightNum", QVariant.Int))  # fid
         fields.append(self._createFieldShortText("side"))
         fields.append(self._createFieldShortText("species"))
         fields.append(QgsField("podSize", QVariant.Int))
@@ -145,17 +145,17 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("behavBird"))
         fields.append(self._createFieldShortText("behavShip"))
         fields.append(QgsField("comment", QVariant.String, len=200))
-        fields.append(self._createFieldShortText("sound_file"))
-        fields.append(self._createFieldShortText("sound_start"))
-        fields.append(self._createFieldShortText("sound_end"))
+        fields.append(self._createFieldShortText("soundFile"))
+        fields.append(self._createFieldShortText("soundStart"))
+        fields.append(self._createFieldShortText("soundEnd"))
 
         return fields
 
     def _createFieldsForFollowerTable(self) -> QgsFields:
         fields = QgsFields()
+        fields.append(QgsField("dateTime", QVariant.DateTime))
         fields.append(QgsField("nFollower", QVariant.Int))
         fields.append(self._createFieldShortText("back"))
-        fields.append(self._createFieldShortText("dateTime"))
         fields.append(self._createFieldShortText("fishActivity"))
         fields.append(self._createFieldShortText("species"))
         fields.append(QgsField("podSize", QVariant.Int))
