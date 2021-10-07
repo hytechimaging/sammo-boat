@@ -144,18 +144,6 @@ class SammoSession:
         table.changeAttributeValue(idLastAddedFeature, field_idx, soundEnd)
         table.commitChanges()
 
-    def onStopTransect(self):
-        if 0 == len(self._gpsLocationsDuringEffort):
-            return
-        vlayer = self.environmentLayer
-        vlayer.startEditing()
-        idLastAddedFeature = self.db.getIdOfLastAddedFeature(vlayer)
-        vlayer.changeGeometry(
-            idLastAddedFeature,
-            QgsGeometry.fromPolyline(self._gpsLocationsDuringEffort),
-        )
-        vlayer.commitChanges()
-
     def loadTable(self, tableName: str) -> QgsVectorLayer:
         layer = self.db.loadTable(self.directory, tableName)
         if not layer.isValid():
@@ -188,8 +176,6 @@ class SammoSession:
         vlayer = self.environmentLayer
         vlayer.startEditing()
         self._addFeature(feature, vlayer)
-        # self._lastEnvironmentFeature = self.copyEnvironmentFeature(feature)
-        # self._gpsLocationsDuringEffort = []
 
     def copyEnvironmentFeature(self, feat: QgsFeature) -> QgsFeature:
         copyFeature = QgsVectorLayerUtils.createFeature(self._environmentTable)
@@ -625,12 +611,6 @@ class SammoSession:
     def _initEffortLayer(self) -> QgsVectorLayer:
         layer = self.environmentLayer
         layer.setName(ENVIRONMENT_LAYER_NAME)
-
-        symbol = layer.renderer().symbol()
-        symbol.setColor(QColor(219, 30, 42))
-
-        layer.setAutoRefreshInterval(1000)
-        layer.setAutoRefreshEnabled(True)
 
         # fid
         idx = layer.fields().indexFromName("fid")
