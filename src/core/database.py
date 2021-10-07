@@ -153,9 +153,9 @@ class SammoDataBase:
 
     def _createFieldsForFollowerTable(self) -> QgsFields:
         fields = QgsFields()
+        fields.append(QgsField("dateTime", QVariant.DateTime))
         fields.append(QgsField("nFollower", QVariant.Int))
         fields.append(self._createFieldShortText("back"))
-        fields.append(self._createFieldShortText("dateTime"))
         fields.append(self._createFieldShortText("fishActivity"))
         fields.append(self._createFieldShortText("species"))
         fields.append(QgsField("podSize", QVariant.Int))
