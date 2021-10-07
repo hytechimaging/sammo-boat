@@ -32,11 +32,13 @@ from .database import (
     SammoDataBase,
     DB_NAME,
     GPS_TABLE,
+    SPECIES_TABLE,
     FOLLOWER_TABLE,
     OBSERVER_TABLE,
     ENVIRONMENT_TABLE,
 )
 
+SPECIES_LAYER_NAME = "Species"
 FOLLOWERS_LAYER_NAME = "Followers"
 OBSERVERS_LAYER_NAME = "Observers"
 ENVIRONMENT_LAYER_NAME = "Effort"
@@ -65,6 +67,10 @@ class SammoSession:
     def observerLayer(self) -> QgsVectorLayer:
         return self._layer(OBSERVER_TABLE)
 
+    @property
+    def speciesLayer(self) -> QgsVectorLayer:
+        return self._layer(SPECIES_TABLE, SPECIES_LAYER_NAME)
+
     def init(self, directory: str) -> None:
         extent = self.mapCanvas.projectExtent()
         new = self.db.init(directory)
@@ -87,7 +93,10 @@ class SammoSession:
             project.addMapLayer(effortLayer)
 
             followerLayer = self._initFollowerLayer()
-            project.addMapLayer(followerLayer, False)
+            project.addMapLayer(followerLayer)
+
+            speciesLayer = self._initSpeciesLayer()
+            project.addMapLayer(speciesLayer)
 
             # configure project
             crs = QgsCoordinateReferenceSystem.fromEpsgId(4326)
@@ -216,6 +225,17 @@ class SammoSession:
 
         return QgsVectorLayer(self.db.tableUri(table))
 
+    def _initSpeciesLayer(self) -> QgsVectorLayer:
+        layer = self.speciesLayer
+        layer.setName(SPECIES_LAYER_NAME)
+
+        # fid
+        idx = layer.fields().indexFromName("fid")
+        setup = QgsEditorWidgetSetup("Hidden", {})
+        layer.setEditorWidgetSetup(idx, setup)
+
+        return layer
+
     def _initFollowerLayer(self) -> QgsVectorLayer:
         layer = self.followerLayer
         layer.setName(FOLLOWERS_LAYER_NAME)
@@ -300,6 +320,26 @@ class SammoSession:
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'VIRAGE'"))
+
+        # species
+        idx = layer.fields().indexFromName("species")
+        cfg = {
+            "AllowMulti": False,
+            "AllowNull": False,
+            "Description": '"species"',
+            "FilterExpression": "",
+            "Key": "species",
+            "Layer": self.speciesLayer.id(),
+            "LayerName": SPECIES_LAYER_NAME,
+            "LayerProviderName": "ogr",
+            "LayerSource": self.db.tableUri(SPECIES_TABLE),
+            "NofColumns": 1,
+            "OrderByValue": False,
+            "UseCompleter": False,
+            "Value": "species",
+        }
+        setup = QgsEditorWidgetSetup("ValueRelation", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
 
         # age
         idx = layer.fields().indexFromName("age")
