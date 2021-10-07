@@ -136,11 +136,11 @@ class SammoSession:
 
         table.startEditing()
         idLastAddedFeature = self.db.getIdOfLastAddedFeature(table)
-        field_idx = table.fields().indexOf("sound_file")
+        field_idx = table.fields().indexOf("soundFile")
         table.changeAttributeValue(idLastAddedFeature, field_idx, soundFile)
-        field_idx = table.fields().indexOf("sound_start")
+        field_idx = table.fields().indexOf("soundStart")
         table.changeAttributeValue(idLastAddedFeature, field_idx, soundStart)
-        field_idx = table.fields().indexOf("sound_end")
+        field_idx = table.fields().indexOf("soundEnd")
         table.changeAttributeValue(idLastAddedFeature, field_idx, soundEnd)
         table.commitChanges()
 
@@ -398,7 +398,7 @@ class SammoSession:
             {"CHASSE": "CHASSE"},
             {"GROUPE_COMPACT": "GROUPE_COMPACT"},
             {"GROUPE_DISPERSE": "GROUPE_DISPERSE"},
-            {"MFSA": "MFA"},
+            {"MFSA": "MFSA"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
@@ -448,6 +448,20 @@ class SammoSession:
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'ROUTE'"))
+
+        # soundFile, soundStart, soundEnd, dateTime
+        for field in ["soundFile", "soundStart", "soundEnd", "dateTime"]:
+            idx = layer.fields().indexFromName(field)
+            form_config = layer.editFormConfig()
+            form_config.setReadOnly(idx, True)
+            layer.setEditFormConfig(form_config)
+
+        # comment
+        idx = layer.fields().indexFromName("comment")
+        cfg = {'IsMultiline': True, 'UseHtml': False}
+        setup = QgsEditorWidgetSetup("TextEdit", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
 
         return layer
 
@@ -585,6 +599,19 @@ class SammoSession:
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'TAG'"))
+
+        # dateTime
+        idx = layer.fields().indexFromName("dateTime")
+        form_config = layer.editFormConfig()
+        form_config.setReadOnly(idx, True)
+        layer.setEditFormConfig(form_config)
+
+        # comment
+        idx = layer.fields().indexFromName("comment")
+        cfg = {'IsMultiline': True, 'UseHtml': False}
+        setup = QgsEditorWidgetSetup("TextEdit", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
 
         return layer
 
@@ -810,23 +837,19 @@ class SammoSession:
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'ON'"))
 
-        # sound_file
-        idx = layer.fields().indexFromName("sound_file")
-        form_config = layer.editFormConfig()
-        form_config.setReadOnly(idx, True)
-        layer.setEditFormConfig(form_config)
+        # soundFile, soundStart, soundEnd, dateTime
+        for field in ["soundFile", "soundStart", "soundEnd", "dateTime"]:
+            idx = layer.fields().indexFromName(field)
+            form_config = layer.editFormConfig()
+            form_config.setReadOnly(idx, True)
+            layer.setEditFormConfig(form_config)
 
-        # sound_start
-        idx = layer.fields().indexFromName("sound_start")
-        form_config = layer.editFormConfig()
-        form_config.setReadOnly(idx, True)
-        layer.setEditFormConfig(form_config)
-
-        # sound_end
-        idx = layer.fields().indexFromName("sound_end")
-        form_config = layer.editFormConfig()
-        form_config.setReadOnly(idx, True)
-        layer.setEditFormConfig(form_config)
+        # comment
+        idx = layer.fields().indexFromName("comment")
+        cfg = {'IsMultiline': True, 'UseHtml': False}
+        setup = QgsEditorWidgetSetup("TextEdit", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
 
         # left/right/center
         for field in ["left", "right", "center"]:
