@@ -150,7 +150,9 @@ class SammoSession:
 
     def getReadyToAddNewFeatureToFollowerTable(self):
         layer = self.followerLayer
-        return self._getReadyToAddNewFeature(layer), layer
+        feat = self._getReadyToAddNewFeature(layer)
+        feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        return feat, layer
 
     def getReadyToAddNewFeatureToEnvironmentTable(
         self, status: str
