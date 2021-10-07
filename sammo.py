@@ -197,7 +197,6 @@ class Sammo:
             self.session.environmentLayer.rollBack()
 
     def onEnvironmentAdd(self, feat: QgsFeature) -> None:
-        self.session.onStopTransect()  # stop the previous transect
         self.session.addEnvironment(feat)
         self.statusDock.isEffortOn = True
         self.soundRecordingController.onStopEventWhichNeedSoundRecord()
