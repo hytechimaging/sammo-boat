@@ -47,11 +47,8 @@ SIGHTINGS_LAYER_NAME = "Sightings"
 
 
 class SammoSession:
-    def __init__(self, mapCanvas: QgsMapCanvas):
-        self.mapCanvas: QgsMapCanvas = mapCanvas
+    def __init__(self):
         self.db = SammoDataBase()
-        self._gpsLocationsDuringEffort = []
-        self._lastEnvironmentFeature: QgsFeature = None
 
     @property
     def environmentLayer(self) -> QgsVectorLayer:
@@ -158,29 +155,6 @@ class SammoSession:
             )
         return layer
 
-    def getReadyToAddNewFeatureToEnvironmentTable(
-        self, status: str
-    ) -> (QgsFeature, QgsVectorLayer):
-        layer = self.environmentLayer
-        feat = self._getReadyToAddNewFeature(layer)
-
-        if self._lastEnvironmentFeature:
-            feat = self.copyEnvironmentFeature(self._lastEnvironmentFeature)
-        feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        feat["status"] = status
-        return feat, layer
-
-    def addEnvironment(self, feature: QgsFeature) -> None:
-        vlayer = self.environmentLayer
-        vlayer.startEditing()
-        self._addFeature(feature, vlayer)
-
-    def copyEnvironmentFeature(self, feat: QgsFeature) -> QgsFeature:
-        copyFeature = QgsVectorLayerUtils.createFeature(self._environmentTable)
-        for field in feat.fields():
-            copyFeature[field.name()] = feat[field.name()]
-        return copyFeature
-
     def addGps(
         self, longitude: float, latitude: float, hour: int, minu: int, sec: int
     ):
@@ -200,7 +174,6 @@ class SammoSession:
         )
 
         self._addFeature(feature, vlayer)
-        self._gpsLocationsDuringEffort.append(QgsPoint(longitude, latitude))
 
     def _layer(self, table: str, name: str = "") -> QgsVectorLayer:
         # return the project layer in priority
@@ -874,14 +847,6 @@ class SammoSession:
                 return uri.split("|")[0].replace(DB_NAME, "")
 
         return ""
-
-    @staticmethod
-    def _getReadyToAddNewFeature(
-        layer: QgsVectorLayer,
-    ) -> (QgsFeature, QgsVectorLayer):
-        feat = QgsVectorLayerUtils.createFeature(layer)
-        layer.startEditing()
-        return feat
 
     @staticmethod
     def _addFeature(feature: QgsFeature, vlayer: QgsVectorLayer) -> None:

@@ -30,7 +30,7 @@ class Sammo:
         self.toolbar.setObjectName("Sammo ToolBar")
 
         self.loading = False
-        self.session = SammoSession(iface.mapCanvas())
+        self.session = SammoSession()
 
         self.sessionAction = self.createSessionAction()
         self.effortAction = self.createEffortAction()
@@ -98,13 +98,12 @@ class Sammo:
 
     def createEffortAction(self) -> SammoEffortAction:
         button = SammoEffortAction(self.mainWindow, self.toolbar)
-        button.onChangeEffortStatusSignal.connect(self.onEffortAction)
+        button.updateEffort.connect(self.onEffortAction)
         return button
 
     def createEnvironmentAction(self) -> SammoEnvironmentAction:
         button = SammoEnvironmentAction(self.mainWindow, self.toolbar)
         button.triggered.connect(self.onEnvironmentAction)
-        button.add.connect(self.onEnvironmentAdd)
         return button
 
     def createSessionAction(self) -> SammoSessionAction:
@@ -151,31 +150,38 @@ class Sammo:
         if self.simuGpsAction:
             self.simuGpsAction.onNewSession()
 
-    def onEffortAction(self, isChecked: bool):
-        if not isChecked:
+    def onEffortAction(self, onEffort: bool):
+        if not onEffort:
             if self.updateEffort("E"):  # cancel
                 self.statusDock.isEffortOn = False
             else:
                 self.effortAction.action.setChecked(True)
-                self.session.environmentLayer.rollBack()
         elif not self.updateEffort("B"):
             # the user pressed the CANCEL button of the form
-            self.soundRecordingController.hardStopOfRecording()
-            self.session.environmentLayer.rollBack()
             self.effortAction.action.setChecked(False)
             self.statusDock.isEffortOn = False
             return
 
-        self.environmentAction.onChangeEffortStatus(isChecked)
+        self.environmentAction.onChangeEffortStatus(onEffort)
 
-    def updateEffort(self, status: str) -> bool:
+    def updateEffort(self, status: str = "A") -> bool:
         self.soundRecordingController.onStartEnvironment()
-        (
-            feat,
-            table,
-        ) = self.session.getReadyToAddNewFeatureToEnvironmentTable(status)
 
-        return self.environmentAction.openFeatureForm(self.iface, table, feat)
+        layer = self.session.environmentLayer
+        feat = QgsVectorLayerUtils.createFeature(layer)
+        feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        feat["status"] = status
+
+        layer.startEditing()
+        if self.iface.openFeatureForm(layer, feat):
+            layer.addFeature(feat)
+            layer.commitChanges()
+            self.soundRecordingController.onStopEventWhichNeedSoundRecord()
+            return True
+        else:
+            self.soundRecordingController.hardStopOfRecording()
+            layer.rollBack()
+            return False
 
     def onObservationAction(self):
         self.soundRecordingController.onStartObservation()
@@ -190,6 +196,7 @@ class Sammo:
             layer.commitChanges()
             self.soundRecordingController.onStopEventWhichNeedSoundRecord()
         else:
+            self.soundRecordingController.hardStopOfRecording()
             layer.rollBack()
 
     def onFollowerAction(self):
@@ -204,16 +211,10 @@ class Sammo:
         else:
             layer.rollBack()
 
-    def onEnvironmentAction(self):
-        if not self.updateEffort("A"):
-            # the user pressed the CANCEL button of the form
-            self.soundRecordingController.hardStopOfRecording()
-            self.session.environmentLayer.rollBack()
-
-    def onEnvironmentAdd(self, feat: QgsFeature) -> None:
-        self.session.addEnvironment(feat)
-        self.statusDock.isEffortOn = True
-        self.soundRecordingController.onStopEventWhichNeedSoundRecord()
+    def onEnvironmentAction(self) -> None:
+        if self.updateEffort():
+            self.statusDock.isEffortOn = True
+            self.soundRecordingController.onStopEventWhichNeedSoundRecord()
 
     def onChangeSimuGpsStatus(self, isOn: bool):
         if isOn:
