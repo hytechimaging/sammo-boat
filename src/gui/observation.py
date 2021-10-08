@@ -14,7 +14,6 @@ class SammoObservationAction(QObject):
 
     def __init__(self, parent: QObject, toolbar: QToolBar):
         super().__init__()
-        self.parent = parent
         self.button: QAction = None
         self.initGui(parent, toolbar)
 

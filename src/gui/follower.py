@@ -4,7 +4,6 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 from qgis.PyQt.QtCore import pyqtSignal, QObject
-from qgis.core import QgsVectorLayer, QgsFeature
 from qgis.PyQt.QtWidgets import QAction, QToolBar
 
 from ..core import icon
@@ -12,11 +11,9 @@ from ..core import icon
 
 class SammoFollowerAction(QObject):
     triggered = pyqtSignal()
-    add = pyqtSignal(QgsFeature)
 
     def __init__(self, parent: QObject, toolbar: QToolBar):
         super().__init__()
-        self.parent = parent
         self.action: QAction = None
         self.initGui(parent, toolbar)
 
@@ -36,7 +33,3 @@ class SammoFollowerAction(QObject):
 
     def onClick(self):
         self.triggered.emit()
-
-    def openFeatureForm(self, iface, table: QgsVectorLayer, feat: QgsFeature):
-        if iface.openFeatureForm(table, feat):
-            self.add.emit(feat)

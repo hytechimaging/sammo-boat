@@ -12,6 +12,7 @@ installed through the `Python Console` of QGIS Desktop:
 >>> import pip
 >>> pip.main(['install', 'sounddevice'])
 >>> pip.main(['install', 'soundfile'])
+>>> pip.main(['install', 'pyserial'])
 ````
 
 QGIS Desktop needs to be restarted after installing these dependencies.

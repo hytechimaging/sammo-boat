@@ -4,9 +4,10 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
+from datetime import datetime
 
 from qgis.PyQt.QtWidgets import QToolBar
-from qgis.core import QgsFeature, QgsProject
+from qgis.core import QgsProject, QgsVectorLayerUtils
 
 from .src.core.gps import SammoGpsReader
 from .src.core.session import SammoSession
@@ -29,7 +30,7 @@ class Sammo:
         self.toolbar.setObjectName("Sammo ToolBar")
 
         self.loading = False
-        self.session = SammoSession(iface.mapCanvas())
+        self.session = SammoSession()
 
         self.sessionAction = self.createSessionAction()
         self.effortAction = self.createEffortAction()
@@ -88,7 +89,6 @@ class Sammo:
     def createFollowerAction(self):
         button = SammoFollowerAction(self.mainWindow, self.toolbar)
         button.triggered.connect(self.onFollowerAction)
-        button.add.connect(self.onFollowerAdd)
         return button
 
     def createObservationAction(self) -> SammoObservationAction:
@@ -98,13 +98,12 @@ class Sammo:
 
     def createEffortAction(self) -> SammoEffortAction:
         button = SammoEffortAction(self.mainWindow, self.toolbar)
-        button.onChangeEffortStatusSignal.connect(self.onEffortAction)
+        button.updateEffort.connect(self.onEffortAction)
         return button
 
     def createEnvironmentAction(self) -> SammoEnvironmentAction:
         button = SammoEnvironmentAction(self.mainWindow, self.toolbar)
         button.triggered.connect(self.onEnvironmentAction)
-        button.add.connect(self.onEnvironmentAdd)
         return button
 
     def createSessionAction(self) -> SammoSessionAction:
@@ -151,59 +150,71 @@ class Sammo:
         if self.simuGpsAction:
             self.simuGpsAction.onNewSession()
 
-    def onEffortAction(self, isChecked: bool):
-        if not isChecked:
+    def onEffortAction(self, onEffort: bool):
+        if not onEffort:
             if self.updateEffort("E"):  # cancel
                 self.statusDock.isEffortOn = False
             else:
                 self.effortAction.action.setChecked(True)
-                self.session.environmentLayer.rollBack()
         elif not self.updateEffort("B"):
             # the user pressed the CANCEL button of the form
-            self.soundRecordingController.hardStopOfRecording()
-            self.session.environmentLayer.rollBack()
             self.effortAction.action.setChecked(False)
             self.statusDock.isEffortOn = False
             return
 
-        self.environmentAction.onChangeEffortStatus(isChecked)
+        self.environmentAction.onChangeEffortStatus(onEffort)
 
-    def updateEffort(self, status: str) -> bool:
+    def updateEffort(self, status: str = "A") -> bool:
         self.soundRecordingController.onStartEnvironment()
-        (
-            feat,
-            table,
-        ) = self.session.getReadyToAddNewFeatureToEnvironmentTable(status)
 
-        return self.environmentAction.openFeatureForm(self.iface, table, feat)
+        layer = self.session.environmentLayer
+        feat = QgsVectorLayerUtils.createFeature(layer)
+        feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        feat["status"] = status
+
+        layer.startEditing()
+        if self.iface.openFeatureForm(layer, feat):
+            layer.addFeature(feat)
+            layer.commitChanges()
+            self.soundRecordingController.onStopEventWhichNeedSoundRecord()
+            return True
+        else:
+            self.soundRecordingController.hardStopOfRecording()
+            layer.rollBack()
+            return False
 
     def onObservationAction(self):
         self.soundRecordingController.onStartObservation()
-        feat, table = self.session.getReadyToAddNewFeatureToObservationTable()
-        if self.iface.openFeatureForm(table, feat):
-            self.session.addObservation(feat)
+
+        layer = self.session.sightingsLayer
+        feat = QgsVectorLayerUtils.createFeature(layer)
+        feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        layer.startEditing()
+        if self.iface.openFeatureForm(layer, feat):
+            layer.addFeature(feat)
+            layer.commitChanges()
             self.soundRecordingController.onStopEventWhichNeedSoundRecord()
         else:
-            self.session.sightingsLayer.rollBack()
+            self.soundRecordingController.hardStopOfRecording()
+            layer.rollBack()
 
     def onFollowerAction(self):
-        feat, layer = self.session.getReadyToAddNewFeatureToFollowerTable()
-        if not self.followerAction.openFeatureForm(self.iface, layer, feat):
-            self.session.followerLayer.rollBack()
+        layer = self.session.followerLayer
+        feat = QgsVectorLayerUtils.createFeature(layer)
+        feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    def onEnvironmentAction(self):
-        if not self.updateEffort("A"):
-            # the user pressed the CANCEL button of the form
-            self.soundRecordingController.hardStopOfRecording()
-            self.session.environmentLayer.rollBack()
+        layer.startEditing()
+        if self.iface.openFeatureForm(layer, feat):
+            layer.addFeature(feat)
+            layer.commitChanges()
+        else:
+            layer.rollBack()
 
-    def onEnvironmentAdd(self, feat: QgsFeature) -> None:
-        self.session.addEnvironment(feat)
-        self.statusDock.isEffortOn = True
-        self.soundRecordingController.onStopEventWhichNeedSoundRecord()
-
-    def onFollowerAdd(self, feat: QgsFeature):
-        self.session.addFollower(feat)
+    def onEnvironmentAction(self) -> None:
+        if self.updateEffort():
+            self.statusDock.isEffortOn = True
+            self.soundRecordingController.onStopEventWhichNeedSoundRecord()
 
     def onChangeSimuGpsStatus(self, isOn: bool):
         if isOn:
