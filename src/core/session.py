@@ -87,7 +87,7 @@ class SammoSession:
             project.addMapLayer(gpsLayer)
 
             observerLayer = self._initObserverLayer()
-            project.addMapLayer(observerLayer, False)
+            project.addMapLayer(observerLayer)
 
             effortLayer = self._initEffortLayer()
             project.addMapLayer(effortLayer)
@@ -832,6 +832,12 @@ class SammoSession:
     def _initObserverLayer(self) -> QgsVectorLayer:
         layer = self.observerLayer
         layer.setName(OBSERVERS_LAYER_NAME)
+
+        # fid
+        idx = layer.fields().indexFromName("fid")
+        setup = QgsEditorWidgetSetup("Hidden", {})
+        layer.setEditorWidgetSetup(idx, setup)
+
         return layer
 
     @staticmethod
