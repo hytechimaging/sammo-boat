@@ -9,10 +9,14 @@ from qgis.PyQt.QtCore import QSize
 from qgis.PyQt.QtGui import QIcon, QPixmap
 
 
-def icon(name: str) -> QIcon:
+def path(name: str) -> str:
     d = os.path.dirname(os.path.abspath(__file__))
     root = os.path.dirname(os.path.dirname(d))
-    return QIcon(os.path.join(root, "images", name))
+    return os.path.join(root, "images", name)
+
+
+def icon(name: str) -> QIcon:
+    return QIcon(path(name))
 
 
 def pixmap(name: str, size: QSize) -> QPixmap:

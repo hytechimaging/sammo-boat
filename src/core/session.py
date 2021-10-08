@@ -22,9 +22,11 @@ from qgis.core import (
     QgsVectorLayerUtils,
     QgsEditorWidgetSetup,
     QgsReferencedRectangle,
+    QgsSvgMarkerSymbolLayer,
     QgsCoordinateReferenceSystem,
 )
 
+from .icon import path
 from .logger import Logger
 from .database import (
     SammoDataBase,
@@ -47,6 +49,7 @@ SIGHTINGS_LAYER_NAME = "Sightings"
 class SammoSession:
     def __init__(self):
         self.db = SammoDataBase()
+        self.lastGpsGeom: QgsGeometry = None
 
     @property
     def environmentLayer(self) -> QgsVectorLayer:
@@ -86,20 +89,20 @@ class SammoSession:
             gpsLayer = self._initGpsLayer()
             project.addMapLayer(gpsLayer)
 
+            sightingsLayer = self._initSightingsLayer()
+            project.addMapLayer(sightingsLayer)
+
+            followerLayer = self._initFollowerLayer()
+            project.addMapLayer(followerLayer)
+
             observerLayer = self._initObserverLayer()
             project.addMapLayer(observerLayer)
 
             effortLayer = self._initEffortLayer()
             project.addMapLayer(effortLayer)
 
-            followerLayer = self._initFollowerLayer()
-            project.addMapLayer(followerLayer)
-
             speciesLayer = self._initSpeciesLayer()
             project.addMapLayer(speciesLayer)
-
-            sightingsLayer = self._initSightingsLayer()
-            project.addMapLayer(sightingsLayer)
 
             # configure project
             crs = QgsCoordinateReferenceSystem.fromEpsgId(4326)
@@ -160,8 +163,10 @@ class SammoSession:
         vlayer.startEditing()
 
         feature = QgsFeature(QgsVectorLayerUtils.createFeature(vlayer))
-        point = QgsPointXY(longitude, latitude)
-        feature.setGeometry(QgsGeometry.fromPointXY(point))
+        self.lastGpsGeom = QgsGeometry.fromPointXY(
+            QgsPointXY(longitude, latitude)
+        )
+        feature.setGeometry(self.lastGpsGeom)
 
         now = datetime.now()
         feature.setAttribute("dateTime", now.strftime("%Y-%m-%d %H:%M:%S"))
@@ -183,6 +188,13 @@ class SammoSession:
     def _initSightingsLayer(self) -> QgsVectorLayer:
         layer = self.sightingsLayer
         layer.setName(SIGHTINGS_LAYER_NAME)
+
+        # symbology
+        symbol = QgsSvgMarkerSymbolLayer(path("observation_symbol.svg"))
+        symbol.setSize(6)
+        symbol.setFillColor(QColor("#a76dad"))
+        symbol.setStrokeWidth(0)
+        layer.renderer().symbol().changeSymbolLayer(0, symbol)
 
         # fid
         idx = layer.fields().indexFromName("fid")
@@ -427,6 +439,13 @@ class SammoSession:
     def _initFollowerLayer(self) -> QgsVectorLayer:
         layer = self.followerLayer
         layer.setName(FOLLOWERS_LAYER_NAME)
+
+        # symbology
+        symbol = QgsSvgMarkerSymbolLayer(path("seabird_symbol.svg"))
+        symbol.setSize(6)
+        symbol.setFillColor(QColor("#e89d34"))
+        symbol.setStrokeWidth(0)
+        layer.renderer().symbol().changeSymbolLayer(0, symbol)
 
         # fid
         idx = layer.fields().indexFromName("fid")

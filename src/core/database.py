@@ -57,10 +57,13 @@ class SammoDataBase:
         )
         self._createTable(self._createFieldsForSpeciesTable(), SPECIES_TABLE)
         self._createTable(
-            self._fieldsSightings(),
-            SIGHTINGS_TABLE,
+            self._fieldsSightings(), SIGHTINGS_TABLE, QgsWkbTypes.Point
         )
-        self._createTable(self._createFieldsForFollowerTable(), FOLLOWER_TABLE)
+        self._createTable(
+            self._createFieldsForFollowerTable(),
+            FOLLOWER_TABLE,
+            QgsWkbTypes.Point,
+        )
         self._createTable(
             self._createFieldsForGpsTable(),
             GPS_TABLE,
