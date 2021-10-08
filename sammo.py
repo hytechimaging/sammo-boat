@@ -156,11 +156,13 @@ class Sammo:
                 self.statusDock.isEffortOn = False
             else:
                 self.effortAction.action.setChecked(True)
-        elif not self.updateEffort("B"):
-            # the user pressed the CANCEL button of the form
-            self.effortAction.action.setChecked(False)
-            self.statusDock.isEffortOn = False
-            return
+        else:
+            if not self.updateEffort("B"):
+                # the user pressed the CANCEL button of the form
+                self.effortAction.action.setChecked(False)
+                self.statusDock.isEffortOn = False
+            else:
+                self.statusDock.isEffortOn = True
 
         self.environmentAction.onChangeEffortStatus(onEffort)
 
