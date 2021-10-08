@@ -163,7 +163,9 @@ class SammoSession:
         vlayer.startEditing()
 
         feature = QgsFeature(QgsVectorLayerUtils.createFeature(vlayer))
-        self.lastGpsGeom = QgsGeometry.fromPointXY(QgsPointXY(longitude, latitude))
+        self.lastGpsGeom = QgsGeometry.fromPointXY(
+            QgsPointXY(longitude, latitude)
+        )
         feature.setGeometry(self.lastGpsGeom)
 
         now = datetime.now()
@@ -190,9 +192,9 @@ class SammoSession:
         # symbology
         symbol = QgsSvgMarkerSymbolLayer(path("observation_symbol.svg"))
         symbol.setSize(6)
-        symbol.setFillColor(QColor('#a76dad'))
+        symbol.setFillColor(QColor("#a76dad"))
         symbol.setStrokeWidth(0)
-        layer.renderer().symbol().changeSymbolLayer(0, symbol )
+        layer.renderer().symbol().changeSymbolLayer(0, symbol)
 
         # fid
         idx = layer.fields().indexFromName("fid")
@@ -441,9 +443,9 @@ class SammoSession:
         # symbology
         symbol = QgsSvgMarkerSymbolLayer(path("seabird_symbol.svg"))
         symbol.setSize(6)
-        symbol.setFillColor(QColor('#e89d34'))
+        symbol.setFillColor(QColor("#e89d34"))
         symbol.setStrokeWidth(0)
-        layer.renderer().symbol().changeSymbolLayer(0, symbol )
+        layer.renderer().symbol().changeSymbolLayer(0, symbol)
 
         # fid
         idx = layer.fields().indexFromName("fid")

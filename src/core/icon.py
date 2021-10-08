@@ -14,8 +14,10 @@ def path(name: str) -> str:
     root = os.path.dirname(os.path.dirname(d))
     return os.path.join(root, "images", name)
 
+
 def icon(name: str) -> QIcon:
     return QIcon(path(name))
+
 
 def pixmap(name: str, size: QSize) -> QPixmap:
     d = os.path.dirname(os.path.abspath(__file__))
