@@ -22,9 +22,11 @@ from qgis.core import (
     QgsVectorLayerUtils,
     QgsEditorWidgetSetup,
     QgsReferencedRectangle,
+    QgsSvgMarkerSymbolLayer,
     QgsCoordinateReferenceSystem,
 )
 
+from .icon import path
 from .logger import Logger
 from .database import (
     SammoDataBase,
@@ -184,6 +186,14 @@ class SammoSession:
     def _initSightingsLayer(self) -> QgsVectorLayer:
         layer = self.sightingsLayer
         layer.setName(SIGHTINGS_LAYER_NAME)
+
+        # symbology
+        symbol = QgsSvgMarkerSymbolLayer(path("observation_symbol.svg"))
+        symbol.setSize(6)
+        symbol.setFillColor(QColor('#0000ff'))
+        symbol.setStrokeColor(QColor('#ff0000'))
+        symbol.setStrokeWidth(1)
+        layer.renderer().symbol().changeSymbolLayer(0, symbol )
 
         # fid
         idx = layer.fields().indexFromName("fid")
