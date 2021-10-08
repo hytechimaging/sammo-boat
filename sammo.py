@@ -204,6 +204,9 @@ class Sammo:
     def onFollowerAction(self):
         layer = self.session.followerLayer
         feat = QgsVectorLayerUtils.createFeature(layer)
+
+        if self.session.lastGpsGeom:
+            feat.setGeometry(self.session.lastGpsGeom)
         feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         layer.startEditing()
