@@ -10,9 +10,7 @@ from datetime import datetime
 from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtWidgets import QMessageBox
 
-from qgis.gui import QgsMapCanvas
 from qgis.core import (
-    QgsPoint,
     QgsFeature,
     QgsPointXY,
     QgsProject,

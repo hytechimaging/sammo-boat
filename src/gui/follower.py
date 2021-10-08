@@ -4,7 +4,6 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 from qgis.PyQt.QtCore import pyqtSignal, QObject
-from qgis.core import QgsVectorLayer, QgsFeature
 from qgis.PyQt.QtWidgets import QAction, QToolBar
 
 from ..core import icon
