@@ -190,9 +190,8 @@ class SammoSession:
         # symbology
         symbol = QgsSvgMarkerSymbolLayer(path("observation_symbol.svg"))
         symbol.setSize(6)
-        symbol.setFillColor(QColor('#0000ff'))
-        symbol.setStrokeColor(QColor('#ff0000'))
-        symbol.setStrokeWidth(1)
+        symbol.setFillColor(QColor('#a76dad'))
+        symbol.setStrokeWidth(0)
         layer.renderer().symbol().changeSymbolLayer(0, symbol )
 
         # fid
@@ -438,6 +437,13 @@ class SammoSession:
     def _initFollowerLayer(self) -> QgsVectorLayer:
         layer = self.followerLayer
         layer.setName(FOLLOWERS_LAYER_NAME)
+
+        # symbology
+        symbol = QgsSvgMarkerSymbolLayer(path("seabird_symbol.svg"))
+        symbol.setSize(6)
+        symbol.setFillColor(QColor('#e89d34'))
+        symbol.setStrokeWidth(0)
+        layer.renderer().symbol().changeSymbolLayer(0, symbol )
 
         # fid
         idx = layer.fields().indexFromName("fid")
