@@ -164,7 +164,7 @@ class Sammo:
             else:
                 self.statusDock.isEffortOn = True
 
-        self.environmentAction.onChangeEffortStatus(onEffort)
+        self.environmentAction.onChangeEffortStatus(self.statusDock.isEffortOn)
 
     def updateEffort(self, status: str = "A") -> bool:
         self.soundRecordingController.onStartEnvironment()
