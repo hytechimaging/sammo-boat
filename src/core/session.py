@@ -401,10 +401,7 @@ class SammoSession:
         # behavShip
         idx = layer.fields().indexFromName("behavShip")
         cfg = {}
-        cfg["map"] = [
-            {"PECHE": "PECHE"},
-            {"ROUTE": "ROUTE"},
-        ]
+        cfg["map"] = [{"PECHE": "PECHE"}, {"ROUTE": "ROUTE"}]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'ROUTE'"))
@@ -763,12 +760,7 @@ class SammoSession:
         # subjective
         idx = layer.fields().indexFromName("subjective")
         cfg = {}
-        cfg["map"] = [
-            {"E": "E"},
-            {"G": "G"},
-            {"M": "M"},
-            {"P": "P"},
-        ]
+        cfg["map"] = [{"E": "E"}, {"G": "G"}, {"M": "M"}, {"P": "P"}]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'G'"))
@@ -790,10 +782,7 @@ class SammoSession:
         # camera
         idx = layer.fields().indexFromName("camera")
         cfg = {}
-        cfg["map"] = [
-            {"ON": "ON"},
-            {"OFF": "OFF"},
-        ]
+        cfg["map"] = [{"ON": "ON"}, {"OFF": "OFF"}]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'ON'"))
@@ -887,10 +876,7 @@ class SammoSession:
             )
         else:
             path = os.path.join(
-                path,
-                "resources",
-                "data",
-                "world_map.gpkg|layername=countries",
+                path, "resources", "data", "world_map.gpkg|layername=countries"
             )
         return path
 
