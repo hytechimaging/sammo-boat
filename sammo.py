@@ -75,9 +75,7 @@ class Sammo:
             self.pluginFolder(), "src", "core", "trace_simu_gps.csv"
         )
         threadGps = ThreadSimuGps(self.session, testFilePath)
-        threadGps.addNewFeatureToGpsTableSignal.connect(
-            self.addNewFeatureToGpsTableSignal
-        )
+        threadGps.frame.connect(self.onGpsFrame)
         return [button, threadGps]
 
     def createGpsReader(self) -> SammoGpsReader:
