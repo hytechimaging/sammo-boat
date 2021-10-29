@@ -207,9 +207,7 @@ class SammoSession:
         cfg["map"] = [
             {"L": "L"},
             {"R": "R"},
-            {"B": "B"},
             {"C": "C"},
-            {"O": "O"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
