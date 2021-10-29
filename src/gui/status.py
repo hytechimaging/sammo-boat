@@ -8,11 +8,7 @@ import sys
 
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import Qt, QSize
-from qgis.PyQt.QtWidgets import (
-    QFrame,
-    QLabel,
-    QDockWidget,
-)
+from qgis.PyQt.QtWidgets import QFrame, QLabel, QDockWidget
 
 from qgis.core import QgsSettings
 
@@ -116,8 +112,7 @@ class StatusDock(QDockWidget):
         if status:
             location = int(
                 QgsSettings().value(
-                    "Sammo/StatusDock/Location/",
-                    Qt.LeftDockWidgetArea,
+                    "Sammo/StatusDock/Location/", Qt.LeftDockWidgetArea
                 )
             )
             self.setVisible(True)
