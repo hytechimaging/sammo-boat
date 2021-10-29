@@ -634,7 +634,7 @@ class SammoSession:
         idx = layer.fields().indexFromName("windDirection")
         cfg = {
             "AllowNull": False,
-            "Max": 361,
+            "Max": 360,
             "Min": 0,
             "Precision": 0,
             "Step": 1,
@@ -662,7 +662,7 @@ class SammoSession:
         idx = layer.fields().indexFromName("swellDirection")
         cfg = {
             "AllowNull": False,
-            "Max": 361,
+            "Max": 360,
             "Min": 0,
             "Precision": 0,
             "Step": 1,
@@ -690,7 +690,7 @@ class SammoSession:
         idx = layer.fields().indexFromName("glareFrom")
         cfg = {
             "AllowNull": False,
-            "Max": 361,
+            "Max": 360,
             "Min": 0,
             "Precision": 0,
             "Step": 1,
@@ -704,7 +704,7 @@ class SammoSession:
         idx = layer.fields().indexFromName("glareTo")
         cfg = {
             "AllowNull": False,
-            "Max": 361,
+            "Max": 360,
             "Min": 0,
             "Precision": 0,
             "Step": 1,
