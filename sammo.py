@@ -7,7 +7,7 @@ import os.path
 from datetime import datetime
 
 from qgis.PyQt.QtWidgets import QToolBar
-from qgis.core import QgsProject, QgsVectorLayerUtils
+from qgis.core import QgsProject, QgsVectorLayerUtils, QgsPointXY
 
 from .src.core.gps import SammoGpsReader
 from .src.core.session import SammoSession
@@ -131,6 +131,7 @@ class Sammo:
 
     def onGpsFrame(self, longitude, latitude, h, m, s):
         self.session.addGps(longitude, latitude, h, m, s)
+        self.iface.mapCanvas().setCenter(QgsPointXY(longitude, latitude))
         self.statusDock.updateGpsInfo(longitude, latitude)
 
     def onCreateSession(self, sessionDirectory: str) -> None:
