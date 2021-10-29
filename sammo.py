@@ -6,7 +6,8 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 import os.path
 from datetime import datetime
 
-from qgis.PyQt.QtWidgets import QToolBar
+from qgis.PyQt.QtWidgets import QToolBar, QDockWidget, QAction, QWidget
+from qgis.PyQt.QtCore import Qt
 from qgis.core import QgsProject, QgsVectorLayerUtils, QgsPointXY
 
 from .src.core.gps import SammoGpsReader
@@ -42,6 +43,7 @@ class Sammo:
         self.soundRecordingController = self.createSoundRecordingController()
         self.gpsReader = self.createGpsReader()
         self.statusDock = StatusDock(iface)
+        self.tableDockWidget = QDockWidget()
 
         iface.projectRead.connect(self.onProjectLoaded)
         iface.newProjectCreated.connect(self.onProjectLoaded)
@@ -178,10 +180,37 @@ class Sammo:
             layer.addFeature(feat)
             layer.commitChanges()
             self.soundRecordingController.onStopEventWhichNeedSoundRecord()
+            self.tableDockWidget.setWidget(
+                self.iface.showAttributeTable(
+                    self.session.sightingsLayer,
+                    """
+                    array_contains(
+                    array_reverse(
+                        array_slice(
+                            aggregate(
+                                @layer,
+                                'array_agg',
+                                "fid",
+                                order_by:="fid"
+                            ),
+                            -5,
+                            -1
+                        )
+                    ),
+                    "fid"
+                    )
+                    """,
+                )
+            )
+            self.iface.addDockWidget(
+                Qt.BottomDockWidgetArea, self.tableDockWidget
+            )
             return True
         else:
             self.soundRecordingController.hardStopOfRecording()
             layer.rollBack()
+            self.tableDockWidget.setWidget(None)
+            self.iface.removeDockWidget(self.tableDockWidget)
             return False
 
     def onObservationAction(self):
@@ -198,6 +227,9 @@ class Sammo:
             layer.addFeature(feat)
             layer.commitChanges()
             self.soundRecordingController.onStopEventWhichNeedSoundRecord()
+            self.tableDockWidget.widget().findChild(
+                QWidget, "mFeatureFilterWidget"
+            ).findChild(QAction, "mActionApplyFilter").trigger()
         else:
             self.soundRecordingController.hardStopOfRecording()
             layer.rollBack()

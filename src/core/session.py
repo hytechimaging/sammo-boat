@@ -204,11 +204,7 @@ class SammoSession:
         # side
         idx = layer.fields().indexFromName("side")
         cfg = {}
-        cfg["map"] = [
-            {"L": "L"},
-            {"R": "R"},
-            {"C": "C"},
-        ]
+        cfg["map"] = [{"L": "L"}, {"R": "R"}, {"C": "C"}]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'R'"))
