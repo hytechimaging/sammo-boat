@@ -358,7 +358,7 @@ class SammoSession:
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'FORAGING'"))
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'foraging'"))
 
         # behavGroup
         idx = layer.fields().indexFromName("behavGroup")
