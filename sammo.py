@@ -177,11 +177,6 @@ class Sammo:
 
         layer = self.session.environmentLayer
         feat = QgsVectorLayerUtils.createFeature(layer)
-        reuseAllLastValues = (
-            QgsSettingsRegistryCore()
-            .settingsEntry("/qgis/digitizing/reuseLastValues")
-            .value()
-        )
         for idx, field in enumerate(feat.fields()):
             if field.name() == "dateTime":
                 feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -189,7 +184,7 @@ class Sammo:
                 feat["status"] = status
             elif (
                 (
-                    reuseAllLastValues
+                    self.reuseAllLastValues()
                     or layer.editFormConfig().reuseLastValue(idx)
                 )
                 and (layer.id() in self.session.cacheAttr)
@@ -249,34 +244,72 @@ class Sammo:
         feat = QgsVectorLayerUtils.createFeature(layer)
         if self.session.lastGpsGeom:
             feat.setGeometry(self.session.lastGpsGeom)
-        feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
+        for idx, field in enumerate(feat.fields()):
+            if field.name() == "dateTime":
+                feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            elif (
+                (
+                    self.reuseAllLastValues()
+                    or layer.editFormConfig().reuseLastValue(idx)
+                )
+                and (layer.id() in self.session.cacheAttr)
+                and (idx in self.session.cacheAttr[layer.id()])
+            ):
+                feat[field.name()] = self.session.cacheAttr[layer.id()][idx]
         layer.startEditing()
         if self.iface.openFeatureForm(layer, feat):
             layer.addFeature(feat)
-            layer.commitChanges()
+            if not layer.commitChanges():
+                self.soundRecordingController.hardStopOfRecording()
+                layer.rollBack()
+                return False
+
+            self.session.cacheAttr[layer.id()] = {
+                i: attr for i, attr in enumerate(feat.attributes())
+            }
             self.soundRecordingController.onStopEventWhichNeedSoundRecord()
             self.tableDockWidget.widget().findChild(
                 QWidget, "mFeatureFilterWidget"
             ).findChild(QAction, "mActionApplyFilter").trigger()
+            return True
         else:
             self.soundRecordingController.hardStopOfRecording()
             layer.rollBack()
+            return False
 
-    def onFollowerAction(self):
+    def onFollowerAction(self) -> bool:
         layer = self.session.followerLayer
         feat = QgsVectorLayerUtils.createFeature(layer)
 
         if self.session.lastGpsGeom:
             feat.setGeometry(self.session.lastGpsGeom)
-        feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        for idx, field in enumerate(feat.fields()):
+            if field.name() == "dateTime":
+                feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            elif (
+                (
+                    self.reuseAllLastValues()
+                    or layer.editFormConfig().reuseLastValue(idx)
+                )
+                and (layer.id() in self.session.cacheAttr)
+                and (idx in self.session.cacheAttr[layer.id()])
+            ):
+                feat[field.name()] = self.session.cacheAttr[layer.id()][idx]
 
         layer.startEditing()
         if self.iface.openFeatureForm(layer, feat):
             layer.addFeature(feat)
-            layer.commitChanges()
+            if not layer.commitChanges():
+                layer.rollBack()
+                return False
+
+            self.session.cacheAttr[layer.id()] = {
+                i: attr for i, attr in enumerate(feat.attributes())
+            }
+            return True
         else:
             layer.rollBack()
+            return False
 
     def onEnvironmentAction(self) -> None:
         if self.updateEffort():
@@ -308,3 +341,11 @@ class Sammo:
     @staticmethod
     def pluginFolder():
         return os.path.abspath(os.path.dirname(__file__))
+
+    @staticmethod
+    def reuseAllLastValues():
+        return (
+            QgsSettingsRegistryCore()
+            .settingsEntry("/qgis/digitizing/reuseLastValues")
+            .value()
+        )
