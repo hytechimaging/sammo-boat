@@ -6,8 +6,8 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 import os.path
 from datetime import datetime
 
-from qgis.PyQt.QtWidgets import QToolBar, QDockWidget, QAction, QWidget
 from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtWidgets import QToolBar, QDockWidget, QAction, QWidget
 from qgis.core import (
     QgsProject,
     QgsPointXY,
