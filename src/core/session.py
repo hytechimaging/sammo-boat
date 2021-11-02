@@ -213,7 +213,11 @@ class SammoSession:
         # side
         idx = layer.fields().indexFromName("side")
         cfg = {}
-        cfg["map"] = [{"L": "L"}, {"R": "R"}, {"C": "C"}]
+        cfg["map"] = [
+            {"L (portside)": "L (portside)"},
+            {"R (starboard)": "R (starboard)"},
+            {"C (center)": "C (center)"},
+        ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'R'"))
@@ -344,11 +348,11 @@ class SammoSession:
         idx = layer.fields().indexFromName("behaviour")
         cfg = {}
         cfg["map"] = [
-            {"ATTRACTION": "ATTRACTION"},
-            {"DEPLACEMENT": "DEPLACEMENT"},
-            {"FORAGING": "FORAGING"},
-            {"FUITE": "FUITE"},
-            {"STATIONNAIRE": "STATIONNAIRE"},
+            {"attracting": "attracting"},
+            {"moving": "moving"},
+            {"foraging": "foraging"},
+            {"escape": "escape"},
+            {"stationary": "stationary"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
@@ -358,10 +362,10 @@ class SammoSession:
         idx = layer.fields().indexFromName("behavGroup")
         cfg = {}
         cfg["map"] = [
-            {"CHASSE": "CHASSE"},
-            {"GROUPE_COMPACT": "GROUPE_COMPACT"},
-            {"GROUPE_DISPERSE": "GROUPE_DISPERSE"},
+            {"feeding_agregation": "feeding_agregation"},
             {"MFSA": "MFSA"},
+            {"compact_group": "compact_group"},
+            {"scattered_group": "scattered_group"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
@@ -371,43 +375,45 @@ class SammoSession:
         idx = layer.fields().indexFromName("behavMam")
         cfg = {}
         cfg["map"] = [
-            {"ETRAVE": "ETRAVE"},
-            {"MILLING": "MILLING"},
-            {"NAGE_LENTE": "NAGE_LENTE"},
-            {"NAGE_RAPIDE": "NAGE_RAPIDE"},
-            {"PLONGE": "PLONGE"},
-            {"SAUTE": "SAUTE"},
+            {"bow": "bow"},
+            {"milling": "milling"},
+            {"fast_swimming": "fast_swimming"},
+            {"slow_swimming": "slow_swimming"},
+            {"diving": "diving"},
+            {"breaching": "breaching"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'PLONGE'"))
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'diving'"))
 
         # behavBird
         idx = layer.fields().indexFromName("behavBird")
         cfg = {}
         cfg["map"] = [
-            {"ATTAQUE": "ATTAQUE"},
-            {"AVEC_PROIE": "AVEC_PROIE"},
-            {"CHAROGNARD": "CHAROGNARD"},
-            {"KLEPTO": "KLEPTO"},
-            {"PLONGE": "PLONGE"},
-            {"SCAVEN_BATEAU": "SCAVEN_BATEAU"},
-            {"2_VOL_ALEATOIRE": "2_VOL_ALEATOIRE"},
-            {"3_VOL_CIRCULAIRE": "3_VOL_CIRCULAIRE"},
-            {"1_VOL_DIRECT": "1_VOL_DIRECT"},
-            {"NAGE": "NAGE"},
+            {"attaking": "attaking"},
+            {"with_prey": "with_prey"},
+            {"scavenger": "scavenger"},
+            {"klepto": "klepto"},
+            {"diving": "diving"},
+            {"follow_boat": "follow_boat"},
+            {"random_flight": "random_flight"},
+            {"circular_flight": "circulat_flight"},
+            {"direct_flight": "direct_flight"},
+            {"swimming": "swimming"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'1_VOL_DIRECT'"))
+        layer.setDefaultValueDefinition(
+            idx, QgsDefaultValue("'direct_flight'")
+        )
 
         # behavShip
         idx = layer.fields().indexFromName("behavShip")
         cfg = {}
-        cfg["map"] = [{"PECHE": "PECHE"}, {"ROUTE": "ROUTE"}]
+        cfg["map"] = [{"fishing": "fishing"}, {"go_ahead": "go_ahead"}]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'ROUTE'"))
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'go_ahead'"))
 
         # soundFile, soundStart, soundEnd, dateTime
         for field in ["soundFile", "soundStart", "soundEnd", "dateTime"]:
@@ -506,15 +512,15 @@ class SammoSession:
         idx = layer.fields().indexFromName("fishActivity")
         cfg = {}
         cfg["map"] = [
-            {"FILAGE": "FILAGE"},
-            {"VIRAGE": "VIRAGE"},
-            {"REJETS": "REJETS"},
-            {"EN_PECHE": "EN_PECHE"},
+            {"up_net": "up_net"},
+            {"net_down": "net_down"},
+            {"discard": "discard"},
+            {"hauling": "hauling"},
             {"NON_ACTIVE": "NON_ACTIVE"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'VIRAGE'"))
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'net_down'"))
 
         # species
         idx = layer.fields().indexFromName("species")
@@ -558,16 +564,16 @@ class SammoSession:
         idx = layer.fields().indexFromName("unlucky")
         cfg = {}
         cfg["map"] = [
-            {"MALADE/BLESSE": "MALADE/BLESSE"},
-            {"MAZOUTE": "MAZOUTE"},
-            {"PRIS_ENGIN_PECHE": "PRIS_ENGIN_PECHE"},
-            {"HAMECON": "HAMECON"},
-            {"FIL_PECHE": "FIL_PECHE"},
-            {"TAG": "TAG"},
+            {"wounded": "wounded"},
+            {"oiled": "oiled"},
+            {"stuck_fishing_device": "stuck_fishing_device"},
+            {"hook": "hook"},
+            {"fish_string": "fish_string"},
+            {"tag": "tag"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'TAG'"))
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'tag'"))
 
         # dateTime
         idx = layer.fields().indexFromName("dateTime")
@@ -605,13 +611,13 @@ class SammoSession:
         idx = layer.fields().indexFromName("plateform")
         cfg = {}
         cfg["map"] = [
-            {"passerelle": "passerelle"},
-            {"pont_sup": "pont_sup"},
-            {"pont_inf": "pont_inf"},
+            {"bridge": "bridge"},
+            {"upper_deck": "upper_deck"},
+            {"deck": "deck"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'pont_sup'"))
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'upper_deck'"))
 
         # route type
         idx = layer.fields().indexFromName("routeType")
@@ -727,14 +733,14 @@ class SammoSession:
         idx = layer.fields().indexFromName("glareSever")
         cfg = {}
         cfg["map"] = [
-            {"aucun": "aucun"},
-            {"faible": "faible"},
-            {"moyen": "moyen"},
-            {"fort": "fort"},
+            {"none": "none"},
+            {"slight": "slight"},
+            {"moderate": "moderate"},
+            {"strong": "strong"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'aucun'"))
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'none'"))
 
         # cloud cover
         idx = layer.fields().indexFromName("cloudCover")
