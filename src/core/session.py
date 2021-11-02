@@ -412,7 +412,7 @@ class SammoSession:
             form_config = layer.editFormConfig()
             form_config.setReadOnly(idx, True)
             if field != "dateTime":
-                QgsEditorWidgetSetup("Hidden", {})
+                setup = QgsEditorWidgetSetup("Hidden", {})
                 layer.setEditorWidgetSetup(idx, setup)
             layer.setEditFormConfig(form_config)
 
@@ -795,6 +795,9 @@ class SammoSession:
             idx = layer.fields().indexFromName(field)
             form_config = layer.editFormConfig()
             form_config.setReadOnly(idx, True)
+            if field != "dateTime":
+                setup = QgsEditorWidgetSetup("Hidden", {})
+                layer.setEditorWidgetSetup(idx, setup)
             layer.setEditFormConfig(form_config)
 
         # comment
