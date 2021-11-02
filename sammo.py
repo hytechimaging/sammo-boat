@@ -6,8 +6,8 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 import os.path
 from datetime import datetime
 
-from qgis.PyQt.QtWidgets import QToolBar, QDockWidget, QAction, QWidget
 from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtWidgets import QToolBar, QDockWidget, QAction, QWidget
 from qgis.core import (
     QgsProject,
     QgsPointXY,
@@ -48,7 +48,7 @@ class Sammo:
         self.soundRecordingController = self.createSoundRecordingController()
         self.gpsReader = self.createGpsReader()
         self.statusDock = StatusDock(iface)
-        self.tableDockWidget = QDockWidget()
+        self.tableDocksWidget = dict()
 
         iface.projectRead.connect(self.onProjectLoaded)
         iface.newProjectCreated.connect(self.onProjectLoaded)
@@ -204,37 +204,48 @@ class Sammo:
                 i: attr for i, attr in enumerate(feat.attributes())
             }
             self.soundRecordingController.onStopEventWhichNeedSoundRecord()
-            self.tableDockWidget.setWidget(
-                self.iface.showAttributeTable(
+            if not self.tableDocksWidget:
+                for layer in [
                     self.session.sightingsLayer,
-                    """
-                    array_contains(
-                    array_reverse(
-                        array_slice(
-                            aggregate(
-                                @layer,
-                                'array_agg',
-                                "fid",
-                                order_by:="fid"
+                    self.session.followerLayer,
+                    self.session.environmentLayer,
+                ]:
+                    dockWidget = QDockWidget(layer.name())
+                    dockWidget.setObjectName(layer.name())
+                    dockWidget.setWidget(
+                        self.iface.showAttributeTable(
+                            layer,
+                            """
+                            array_contains(
+                            array_reverse(
+                                array_slice(
+                                    aggregate(
+                                        @layer,
+                                        'array_agg',
+                                        "fid",
+                                        order_by:="fid"
+                                    ),
+                                    -5,
+                                    -1
+                                )
                             ),
-                            -5,
-                            -1
+                            "fid"
+                            )
+                            """,
                         )
-                    ),
-                    "fid"
                     )
-                    """,
-                )
-            )
-            self.iface.addDockWidget(
-                Qt.BottomDockWidgetArea, self.tableDockWidget
-            )
+                    self.tableDocksWidget[layer.id()] = dockWidget
+                    self.iface.addTabifiedDockWidget(
+                        Qt.BottomDockWidgetArea, dockWidget
+                    )
             return True
         else:
             self.soundRecordingController.hardStopOfRecording()
             layer.rollBack()
-            self.tableDockWidget.setWidget(None)
-            self.iface.removeDockWidget(self.tableDockWidget)
+            self.tableDocksWidget.setWidget(None)
+            for dockWidget in self.tableDocksWidget.values():
+                self.iface.removeDockWidget(dockWidget)
+            self.tableDocksWidget = dict()
             return False
 
     def onObservationAction(self):
@@ -268,7 +279,7 @@ class Sammo:
                 i: attr for i, attr in enumerate(feat.attributes())
             }
             self.soundRecordingController.onStopEventWhichNeedSoundRecord()
-            self.tableDockWidget.widget().findChild(
+            self.tableDocksWidget[layer.id()].widget().findChild(
                 QWidget, "mFeatureFilterWidget"
             ).findChild(QAction, "mActionApplyFilter").trigger()
             return True
