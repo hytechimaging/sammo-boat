@@ -213,9 +213,11 @@ class SammoSession:
         # side
         idx = layer.fields().indexFromName("side")
         cfg = {}
-        cfg["map"] = [{"L (portside)": "L (portside)"},
-                      {"R (starboard)": "R (starboard)"},
-                      {"C (center)": "C (center)"}]
+        cfg["map"] = [
+            {"L (portside)": "L (portside)"},
+            {"R (starboard)": "R (starboard)"},
+            {"C (center)": "C (center)"},
+        ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'R'"))
@@ -401,7 +403,9 @@ class SammoSession:
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'direct_flight'"))
+        layer.setDefaultValueDefinition(
+            idx, QgsDefaultValue("'direct_flight'")
+        )
 
         # behavShip
         idx = layer.fields().indexFromName("behavShip")
