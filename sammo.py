@@ -10,8 +10,8 @@ from qgis.PyQt.QtWidgets import QToolBar, QDockWidget, QAction, QWidget
 from qgis.PyQt.QtCore import Qt
 from qgis.core import (
     QgsProject,
-    QgsVectorLayerUtils,
     QgsPointXY,
+    QgsVectorLayerUtils,
     QgsSettingsRegistryCore,
 )
 

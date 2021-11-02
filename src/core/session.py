@@ -16,6 +16,7 @@ from qgis.core import (
     QgsProject,
     QgsGeometry,
     QgsMapLayer,
+    QgsSettings,
     QgsApplication,
     QgsVectorLayer,
     QgsDefaultValue,
@@ -127,6 +128,7 @@ class SammoSession:
 
         # read project
         QgsProject.instance().read(self.db.projectUri)
+        QgsSettings().setValue("qgis/enableMacros", "SessionOnly")
 
     def onStopSoundRecordingForEvent(
         self,
@@ -836,6 +838,33 @@ class SammoSession:
             layer.setEditorWidgetSetup(idx, setup)
 
         layer = self.reuseLastValues(layer)
+
+        form_config = layer.editFormConfig()
+        form_config.setInitCode(
+            """
+from qgis.PyQt.QtWidgets import QSpinBox, QComboBox
+
+def my_form_open(dialog, layer, feature):
+    glareFrom = dialog.findChild(QSpinBox, "glareFrom")
+    glareTo = dialog.findChild(QSpinBox, "glareTo")
+    def updateGlareDir(idx):
+        if idx:
+            glareFrom.setEnabled(True)
+            glareTo.setEnabled(True)
+            return
+        glareFrom.setValue(0)
+        glareTo.setValue(0)
+        glareFrom.setEnabled(False)
+        glareTo.setEnabled(False)
+
+    glareSever = dialog.findChild(QComboBox, "glareSever")
+    updateGlareDir(glareSever.currentIndex())
+    glareSever.currentIndexChanged.connect(updateGlareDir)
+            """
+        )
+        form_config.setInitFunction("my_form_open")
+        form_config.setInitCodeSource(2)
+        layer.setEditFormConfig(form_config)
 
         return layer
 
