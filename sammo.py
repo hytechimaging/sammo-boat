@@ -8,7 +8,12 @@ from datetime import datetime
 
 from qgis.PyQt.QtWidgets import QToolBar, QDockWidget, QAction, QWidget
 from qgis.PyQt.QtCore import Qt
-from qgis.core import QgsProject, QgsVectorLayerUtils, QgsPointXY
+from qgis.core import (
+    QgsProject,
+    QgsVectorLayerUtils,
+    QgsPointXY,
+    QgsSettingsRegistryCore,
+)
 
 from .src.core.gps import SammoGpsReader
 from .src.core.session import SammoSession
@@ -172,13 +177,37 @@ class Sammo:
 
         layer = self.session.environmentLayer
         feat = QgsVectorLayerUtils.createFeature(layer)
-        feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        feat["status"] = status
+        reuseAllLastValues = (
+            QgsSettingsRegistryCore()
+            .settingsEntry("/qgis/digitizing/reuseLastValues")
+            .value()
+        )
+        for idx, field in enumerate(feat.fields()):
+            if field.name() == "dateTime":
+                feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            elif field.name() == "status":
+                feat["status"] = status
+            elif (
+                (
+                    reuseAllLastValues
+                    or layer.editFormConfig().reuseLastValue(idx)
+                )
+                and (layer.id() in self.session.cacheAttr)
+                and (idx in self.session.cacheAttr[layer.id()])
+            ):
+                feat[field.name()] = self.session.cacheAttr[layer.id()][idx]
 
         layer.startEditing()
         if self.iface.openFeatureForm(layer, feat):
             layer.addFeature(feat)
-            layer.commitChanges()
+            if not layer.commitChanges():
+                self.soundRecordingController.hardStopOfRecording()
+                layer.rollBack()
+                return False
+
+            self.session.cacheAttr[layer.id()] = {
+                i: attr for i, attr in enumerate(feat.attributes())
+            }
             self.soundRecordingController.onStopEventWhichNeedSoundRecord()
             self.tableDockWidget.setWidget(
                 self.iface.showAttributeTable(

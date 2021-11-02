@@ -50,6 +50,15 @@ class SammoSession:
     def __init__(self):
         self.db = SammoDataBase()
         self.lastGpsGeom: QgsGeometry = None
+        self._cacheAttr = dict()
+
+    @property
+    def cacheAttr(self) -> dict:
+        return self._cacheAttr
+
+    @cacheAttr.setter
+    def cacheAttr(self, key, value):
+        self._cacheAttr[key] = value
 
     @property
     def environmentLayer(self) -> QgsVectorLayer:
@@ -414,6 +423,8 @@ class SammoSession:
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
 
+        layer = self.reuseLastValues(layer)
+
         return layer
 
     def _initSpeciesLayer(self) -> QgsVectorLayer:
@@ -570,6 +581,8 @@ class SammoSession:
         setup = QgsEditorWidgetSetup("TextEdit", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
+
+        layer = self.reuseLastValues(layer)
 
         return layer
 
@@ -816,6 +829,8 @@ class SammoSession:
             setup = QgsEditorWidgetSetup("ValueRelation", cfg)
             layer.setEditorWidgetSetup(idx, setup)
 
+        layer = self.reuseLastValues(layer)
+
         return layer
 
     def _initGpsLayer(self) -> QgsVectorLayer:
@@ -853,6 +868,18 @@ class SammoSession:
                 return uri.split("|")[0].replace(DB_NAME, "")
 
         return ""
+
+    @staticmethod
+    def reuseLastValues(layer: QgsVectorLayer) -> QgsVectorLayer:
+        for idx, field in enumerate(layer.fields()):
+            form_config = layer.editFormConfig()
+            if field.name() in ["fid", "dateTime"] or form_config.readOnly(
+                idx
+            ):
+                continue
+            form_config.setReuseLastValue(idx, True)
+            layer.setEditFormConfig(form_config)
+        return layer
 
     @staticmethod
     def _addFeature(feature: QgsFeature, vlayer: QgsVectorLayer) -> None:
