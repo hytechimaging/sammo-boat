@@ -222,7 +222,9 @@ class SammoSession:
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'R'"))
+        layer.setDefaultValueDefinition(
+            idx, QgsDefaultValue("'R (starboard)'")
+        )
 
         # species
         idx = layer.fields().indexFromName("species")
