@@ -6,8 +6,14 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 import os.path
 from datetime import datetime
 
-from qgis.PyQt.QtWidgets import QToolBar
-from qgis.core import QgsProject, QgsVectorLayerUtils, QgsPointXY
+from qgis.PyQt.QtWidgets import QToolBar, QDockWidget, QAction, QWidget
+from qgis.PyQt.QtCore import Qt
+from qgis.core import (
+    QgsProject,
+    QgsPointXY,
+    QgsVectorLayerUtils,
+    QgsSettingsRegistryCore,
+)
 
 from .src.core.gps import SammoGpsReader
 from .src.core.session import SammoSession
