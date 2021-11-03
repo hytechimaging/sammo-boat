@@ -49,6 +49,7 @@ class Sammo:
         self.gpsReader = self.createGpsReader()
         self.statusDock = StatusDock(iface)
         self.tableDocksWidget = dict()
+        self.routeEffortOn = dict()
 
         iface.projectRead.connect(self.onProjectLoaded)
         iface.newProjectCreated.connect(self.onProjectLoaded)
@@ -156,23 +157,18 @@ class Sammo:
         if self.simuGpsAction:
             self.simuGpsAction.onNewSession()
 
-    def onEffortAction(self, onEffort: bool):
-        if not onEffort:
-            if self.updateEffort("E"):  # cancel
-                self.statusDock.isEffortOn = False
-            else:
-                self.effortAction.action.setChecked(True)
-        else:
-            if not self.updateEffort("B"):
-                # the user pressed the CANCEL button of the form
-                self.effortAction.action.setChecked(False)
-                self.statusDock.isEffortOn = False
-            else:
-                self.statusDock.isEffortOn = True
+    def onEffortAction(self):
+        if self.updateEffort():
+            self.statusDock.isEffortOn = any(
+                [on for on in self.routeEffortOn.values()]
+            )
+            self.effortAction.action.setChecked(
+                any([on for on in self.routeEffortOn.values()])
+            )
 
         self.environmentAction.onChangeEffortStatus(self.statusDock.isEffortOn)
 
-    def updateEffort(self, status: str = "A") -> bool:
+    def updateEffort(self) -> bool:
         self.soundRecordingController.onStartEnvironment()
 
         layer = self.session.environmentLayer
@@ -180,8 +176,6 @@ class Sammo:
         for idx, field in enumerate(feat.fields()):
             if field.name() == "dateTime":
                 feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            elif field.name() == "status":
-                feat["status"] = status
             elif (
                 (
                     self.reuseAllLastValues()
@@ -199,7 +193,9 @@ class Sammo:
                 self.soundRecordingController.hardStopOfRecording()
                 layer.rollBack()
                 return False
-
+            self.routeEffortOn[feat["routeType"]] = bool(
+                feat["status"] in ["B", "A"]
+            )
             self.session.cacheAttr[layer.id()] = {
                 i: attr for i, attr in enumerate(feat.attributes())
             }
@@ -238,11 +234,14 @@ class Sammo:
                     self.iface.addTabifiedDockWidget(
                         Qt.BottomDockWidgetArea, dockWidget
                     )
+            elif layer.id() in self.tableDocksWidget:
+                self.tableDocksWidget[layer.id()].widget().findChild(
+                    QWidget, "mFeatureFilterWidget"
+                ).findChild(QAction, "mActionApplyFilter").trigger()
             return True
         else:
             self.soundRecordingController.hardStopOfRecording()
             layer.rollBack()
-            self.tableDocksWidget.setWidget(None)
             for dockWidget in self.tableDocksWidget.values():
                 self.iface.removeDockWidget(dockWidget)
             self.tableDocksWidget = dict()

@@ -21,6 +21,7 @@ from qgis.core import (
     QgsVectorLayer,
     QgsDefaultValue,
     QgsVectorLayerUtils,
+    QgsFieldConstraints,
     QgsEditorWidgetSetup,
     QgsReferencedRectangle,
     QgsSvgMarkerSymbolLayer,
@@ -251,6 +252,11 @@ class SammoSession:
             )
             """,
         )
+        layer.setFieldConstraint(
+            idx,
+            QgsFieldConstraints.ConstraintExpression,
+            QgsFieldConstraints.ConstraintStrengthSoft,
+        )
 
         # podSize
         idx = layer.fields().indexFromName("podSize")
@@ -274,6 +280,11 @@ class SammoSession:
                 True
             )
             """,
+        )
+        layer.setFieldConstraint(
+            idx,
+            QgsFieldConstraints.ConstraintExpression,
+            QgsFieldConstraints.ConstraintStrengthSoft,
         )
 
         # podSizeMin
@@ -299,6 +310,11 @@ class SammoSession:
             )
             """,
         )
+        layer.setFieldConstraint(
+            idx,
+            QgsFieldConstraints.ConstraintExpression,
+            QgsFieldConstraints.ConstraintStrengthSoft,
+        )
 
         # podSizeMax
         idx = layer.fields().indexFromName("podSizeMax")
@@ -322,6 +338,11 @@ class SammoSession:
                 "podSizeMax" is NULL and "podSizeMin" is NULL
             )
             """,
+        )
+        layer.setFieldConstraint(
+            idx,
+            QgsFieldConstraints.ConstraintExpression,
+            QgsFieldConstraints.ConstraintStrengthSoft,
         )
 
         # age
@@ -419,6 +440,11 @@ class SammoSession:
             )
             """,
         )
+        layer.setFieldConstraint(
+            idx,
+            QgsFieldConstraints.ConstraintExpression,
+            QgsFieldConstraints.ConstraintStrengthSoft,
+        )
 
         # behavGroup
         idx = layer.fields().indexFromName("behavGroup")
@@ -466,6 +492,11 @@ class SammoSession:
             )
             """,
         )
+        layer.setFieldConstraint(
+            idx,
+            QgsFieldConstraints.ConstraintExpression,
+            QgsFieldConstraints.ConstraintStrengthSoft,
+        )
 
         # behavBird
         idx = layer.fields().indexFromName("behavBird")
@@ -505,6 +536,11 @@ class SammoSession:
             )
             """,
         )
+        layer.setFieldConstraint(
+            idx,
+            QgsFieldConstraints.ConstraintExpression,
+            QgsFieldConstraints.ConstraintStrengthSoft,
+        )
 
         # behavShip
         idx = layer.fields().indexFromName("behavShip")
@@ -533,6 +569,11 @@ class SammoSession:
                 True
             )
             """,
+        )
+        layer.setFieldConstraint(
+            idx,
+            QgsFieldConstraints.ConstraintExpression,
+            QgsFieldConstraints.ConstraintStrengthSoft,
         )
 
         # soundFile, soundStart, soundEnd, dateTime
@@ -691,6 +732,11 @@ def my_form_open(dialog, layer, feature):
             )
             """,
         )
+        layer.setFieldConstraint(
+            idx,
+            QgsFieldConstraints.ConstraintExpression,
+            QgsFieldConstraints.ConstraintStrengthSoft,
+        )
 
         # age
         idx = layer.fields().indexFromName("age")
@@ -758,12 +804,20 @@ def my_form_open(dialog, layer, feature):
         idx = layer.fields().indexFromName("fid")
         setup = QgsEditorWidgetSetup("Hidden", {})
         layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(
+            idx,
+            QgsDefaultValue(
+                """to_int(if(maximum("fid") is null, 1,maximum("fid")+1))"""
+            ),
+        )
 
         # status
         idx = layer.fields().indexFromName("status")
-        form_config = layer.editFormConfig()
-        form_config.setReadOnly(idx, True)
-        layer.setEditFormConfig(form_config)
+        cfg = {}
+        cfg["map"] = [{"B": "B"}, {"A": "A"}, {"E": "E"}]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'B'"))
 
         # platform
         idx = layer.fields().indexFromName("plateform")

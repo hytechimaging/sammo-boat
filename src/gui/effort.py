@@ -11,7 +11,7 @@ from ..core import icon
 
 
 class SammoEffortAction(QObject):
-    updateEffort = pyqtSignal(bool)
+    updateEffort = pyqtSignal()
 
     def __init__(self, parent: QObject, toolbar: QToolBar):
         super().__init__()
@@ -36,4 +36,4 @@ class SammoEffortAction(QObject):
         del self.action
 
     def onClick(self):
-        self.updateEffort.emit(self.action.isChecked())
+        self.updateEffort.emit()
