@@ -174,9 +174,7 @@ class Sammo:
         layer = self.session.environmentLayer
         feat = QgsVectorLayerUtils.createFeature(layer)
         for idx, field in enumerate(feat.fields()):
-            if field.name() == "fid":
-                continue
-            elif field.name() == "dateTime":
+            if field.name() == "dateTime":
                 feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             elif (
                 (
