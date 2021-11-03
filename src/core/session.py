@@ -758,12 +758,20 @@ def my_form_open(dialog, layer, feature):
         idx = layer.fields().indexFromName("fid")
         setup = QgsEditorWidgetSetup("Hidden", {})
         layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(
+            idx,
+            QgsDefaultValue(
+                """to_int(if(maximum("fid") is null, 1,maximum("fid")+1))"""
+            ),
+        )
 
         # status
         idx = layer.fields().indexFromName("status")
-        form_config = layer.editFormConfig()
-        form_config.setReadOnly(idx, True)
-        layer.setEditFormConfig(form_config)
+        cfg = {}
+        cfg["map"] = [{"B": "B"}, {"A": "A"}, {"E": "E"}]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'B'"))
 
         # platform
         idx = layer.fields().indexFromName("plateform")
