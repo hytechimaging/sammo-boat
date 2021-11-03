@@ -64,7 +64,7 @@ class WorkerSimuGps(WorkerForOtherThread):
 
 
 class ThreadSimuGps(OtherThread):
-    frame = pyqtSignal(float, float, int, int, int)
+    addNewFeatureToGpsTableSignal = pyqtSignal(float, float, str)
 
     def __init__(self, session: SammoSession, testFilePath: str):
         super().__init__()
@@ -77,28 +77,20 @@ class ThreadSimuGps(OtherThread):
         self.worker = WorkerSimuGps(
             self._testFilePath, self._session, self.indexOfNextGpsPoint
         )
-        self.worker.addNewFeatureToGpsTableSignal.connect(self.newFrame)
+        self.worker.addNewFeatureToGpsTableSignal.connect(
+            self.addNewFeatureToGpsTable
+        )
         super()._start(self.worker)
 
     def stop(self):
         self.indexOfNextGpsPoint = self.worker._indexOfNextGpsPoint
         super().stop()
 
-    @staticmethod
-    def getDatetime(line: str) -> (int, int, int):
-        # "2021-10-28 15:32:10"
-        components = line.split(" ")
-        time = components[1].split(":")
-        hour = int(time[0])
-        minutes = int(time[1])
-        secondes = int(time[2])
-        return hour, minutes, secondes
-
-    def newFrame(
+    def addNewFeatureToGpsTable(
         self, longitude_deg: float, latitude_deg: float, formattedDateTime: str
     ):
-        self.frame.emit(
-            longitude_deg, latitude_deg, *self.getDatetime(formattedDateTime)
+        self.addNewFeatureToGpsTableSignal.emit(
+            longitude_deg, latitude_deg, formattedDateTime
         )
 
     @staticmethod

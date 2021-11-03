@@ -65,7 +65,9 @@ class SammoDataBase:
             QgsWkbTypes.Point,
         )
         self._createTable(
-            self._createFieldsForGpsTable(), GPS_TABLE, QgsWkbTypes.Point
+            self._createFieldsForGpsTable(),
+            GPS_TABLE,
+            QgsWkbTypes.Point,
         )
 
         self._createTable(self._fieldsObserver(), OBSERVER_TABLE)
