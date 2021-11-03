@@ -204,6 +204,7 @@ class Sammo:
                 for layer in [
                     self.session.sightingsLayer,
                     self.session.followerLayer,
+                    self.session.followerSiteLayer,
                     self.session.environmentLayer,
                 ]:
                     dockWidget = QDockWidget(layer.name())
@@ -291,7 +292,7 @@ class Sammo:
     def onFollowerAction(self) -> bool:
         self.soundRecordingController.onStartFollowers()
 
-        layer = self.session.followerLayer
+        layer = self.session.followerSiteLayer
         feat = QgsVectorLayerUtils.createFeature(layer)
 
         if self.session.lastGpsGeom:
@@ -310,11 +311,16 @@ class Sammo:
                 feat[field.name()] = self.session.cacheAttr[layer.id()][idx]
 
         layer.startEditing()
+        self.session.followerLayer.startEditing()
+        child = QgsVectorLayerUtils.createFeature(self.session.followerLayer)
+        child["site_id"] = feat["fid"]
+        self.session.followerLayer.addFeature(child)
         if self.iface.openFeatureForm(layer, feat):
             layer.addFeature(feat)
             if not layer.commitChanges():
                 self.soundRecordingController.hardStopOfRecording()
                 layer.rollBack()
+                self.session.followerLayer.rollBack()
                 return False
 
             self.session.cacheAttr[layer.id()] = {
@@ -325,10 +331,19 @@ class Sammo:
                 self.tableDocksWidget[layer.id()].widget().findChild(
                     QWidget, "mFeatureFilterWidget"
                 ).findChild(QAction, "mActionApplyFilter").trigger()
+            if self.session.followerLayer.id() in self.tableDocksWidget:
+                self.tableDocksWidget[
+                    self.session.followerLayer.id()
+                ].widget().findChild(
+                    QWidget, "mFeatureFilterWidget"
+                ).findChild(
+                    QAction, "mActionApplyFilter"
+                ).trigger()
             return True
         else:
-            self.soundRecordingController.hardStopOfRecording()
             layer.rollBack()
+            self.session.followerLayer.rollBack()
+            self.soundRecordingController.hardStopOfRecording()
             return False
 
     def onEnvironmentAction(self) -> None:

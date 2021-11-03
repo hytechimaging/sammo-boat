@@ -17,6 +17,7 @@ from qgis.core import (
     QgsGeometry,
     QgsMapLayer,
     QgsSettings,
+    QgsRelation,
     QgsApplication,
     QgsVectorLayer,
     QgsDefaultValue,
@@ -39,12 +40,14 @@ from .database import (
     OBSERVER_TABLE,
     SIGHTINGS_TABLE,
     ENVIRONMENT_TABLE,
+    FOLLOWER_SITE_TABLE,
 )
 from .sound_recording_controller import RecordType
 
 SPECIES_LAYER_NAME = "Species"
 ENVIRONMENT_LAYER_NAME = "Effort"
 FOLLOWERS_LAYER_NAME = "Followers"
+FOLLOWERS_SITE_LAYER_NAME = "Followers_Site"
 OBSERVERS_LAYER_NAME = "Observers"
 SIGHTINGS_LAYER_NAME = "Sightings"
 
@@ -74,6 +77,10 @@ class SammoSession:
     @property
     def followerLayer(self) -> QgsVectorLayer:
         return self._layer(FOLLOWER_TABLE, FOLLOWERS_LAYER_NAME)
+
+    @property
+    def followerSiteLayer(self) -> QgsVectorLayer:
+        return self._layer(FOLLOWER_SITE_TABLE, FOLLOWERS_SITE_LAYER_NAME)
 
     @property
     def observerLayer(self) -> QgsVectorLayer:
@@ -110,6 +117,9 @@ class SammoSession:
             followerLayer = self._initFollowerLayer()
             project.addMapLayer(followerLayer)
 
+            followerSiteLayer = self._initFollowerSiteLayer()
+            project.addMapLayer(followerSiteLayer)
+
             observerLayer = self._initObserverLayer()
             project.addMapLayer(observerLayer)
 
@@ -124,12 +134,24 @@ class SammoSession:
             project.viewSettings().setDefaultViewExtent(extent)
 
             project.setBackgroundColor(QColor(166, 206, 227))
-
             # save project
             self.db.writeProject(project)
 
         # read project
         QgsProject.instance().read(self.db.projectUri)
+        rel = QgsRelation()
+        rel.setId("followers_site_relation")
+        rel.setName("followers_site_relation")
+        rel.setReferencingLayer(
+            str(QgsProject.instance().mapLayersByName("Followers")[0].id())
+        )
+        rel.setReferencedLayer(
+            str(
+                QgsProject.instance().mapLayersByName("Followers_Site")[0].id()
+            )
+        )
+        rel.addFieldPair("site_id", "fid")
+        QgsProject.instance().relationManager().addRelation(rel)
         QgsSettings().setValue("qgis/enableMacros", "SessionOnly")
 
     def onStopSoundRecordingForEvent(
@@ -144,7 +166,7 @@ class SammoSession:
         elif recordType == RecordType.ENVIRONMENT:
             table = self.environmentLayer
         elif recordType == RecordType.FOLLOWERS:
-            table = self.followerLayer
+            table = self.followerSiteLayer
 
         table.startEditing()
         idLastAddedFeature = self.db.getIdOfLastAddedFeature(table)
@@ -636,16 +658,31 @@ def my_form_open(dialog, layer, feature):
         layer = self.followerLayer
         layer.setName(FOLLOWERS_LAYER_NAME)
 
-        # symbology
-        symbol = QgsSvgMarkerSymbolLayer(path("seabird_symbol.svg"))
-        symbol.setSize(6)
-        symbol.setFillColor(QColor("#e89d34"))
-        symbol.setStrokeWidth(0)
-        layer.renderer().symbol().changeSymbolLayer(0, symbol)
-
         # fid
         idx = layer.fields().indexFromName("fid")
         setup = QgsEditorWidgetSetup("Hidden", {})
+        layer.setEditorWidgetSetup(idx, setup)
+
+        # site_id
+        idx = layer.fields().indexFromName("site_id")
+        cfg = {
+            "AllowAddFeatures": False,
+            "AllowNULL": False,
+            "ChainFilters": False,
+            "FilterExpression": ' current_parent_value( "fid")',
+            "FilterFields": [],
+            "MapIdentification": False,
+            "OrderByValue": False,
+            "ReadOnly": True,
+            "ReferencedLayerDataSource": self.followerSiteLayer.source(),
+            "ReferencedLayerId": self.followerSiteLayer.id(),
+            "ReferencedLayerName": "Followers_Site",
+            "ReferencedLayerProviderKey": "ogr",
+            "Relation": "followers_site_relation",
+            "ShowForm": False,
+            "ShowOpenFormButton": True,
+        }
+        setup = QgsEditorWidgetSetup("RelationReference", cfg)
         layer.setEditorWidgetSetup(idx, setup)
 
         # nFollower
@@ -775,16 +812,6 @@ def my_form_open(dialog, layer, feature):
             idx, QgsDefaultValue("'{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}'")
         )
 
-        # soundFile, soundStart, soundEnd, dateTime
-        for field in ["soundFile", "soundStart", "soundEnd", "dateTime"]:
-            idx = layer.fields().indexFromName(field)
-            form_config = layer.editFormConfig()
-            form_config.setReadOnly(idx, True)
-            if field != "dateTime":
-                setup = QgsEditorWidgetSetup("Hidden", {})
-                layer.setEditorWidgetSetup(idx, setup)
-            layer.setEditFormConfig(form_config)
-
         # comment
         idx = layer.fields().indexFromName("comment")
         cfg = {"IsMultiline": True, "UseHtml": False}
@@ -793,6 +820,48 @@ def my_form_open(dialog, layer, feature):
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
 
         layer = self.reuseLastValues(layer)
+
+        return layer
+
+    def _initFollowerSiteLayer(self) -> QgsVectorLayer:
+        layer = self.followerSiteLayer
+        layer.setName(FOLLOWERS_SITE_LAYER_NAME)
+        layer.setDisplayExpression("fid")
+
+        # symbology
+        symbol = QgsSvgMarkerSymbolLayer(path("seabird_symbol.svg"))
+        symbol.setSize(6)
+        symbol.setFillColor(QColor("#e89d34"))
+        symbol.setStrokeWidth(0)
+        layer.renderer().symbol().changeSymbolLayer(0, symbol)
+
+        # fid
+        idx = layer.fields().indexFromName("fid")
+        setup = QgsEditorWidgetSetup("Hidden", {})
+        layer.setDefaultValueDefinition(
+            idx,
+            QgsDefaultValue(
+                """
+                to_int(
+                    if (
+                        maximum("fid") is null,
+                        1,
+                        maximum("fid") +1
+                    )
+                )
+                """
+            ),
+        )
+        layer.setEditorWidgetSetup(idx, setup)
+
+        # soundFile, soundStart, soundEnd, dateTime
+        for field in ["soundFile", "soundStart", "soundEnd", "dateTime"]:
+            idx = layer.fields().indexFromName(field)
+            form_config = layer.editFormConfig()
+            form_config.setReadOnly(idx, True)
+            setup = QgsEditorWidgetSetup("Hidden", {})
+            layer.setEditorWidgetSetup(idx, setup)
+            layer.setEditFormConfig(form_config)
 
         return layer
 

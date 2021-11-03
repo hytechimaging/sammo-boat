@@ -24,6 +24,7 @@ GPS_TABLE = "gps"
 SPECIES_TABLE = "species"
 OBSERVER_TABLE = "observer"
 FOLLOWER_TABLE = "followers"
+FOLLOWER_SITE_TABLE = "site"
 SIGHTINGS_TABLE = "sightings"
 ENVIRONMENT_TABLE = "environment"
 
@@ -59,11 +60,13 @@ class SammoDataBase:
         self._createTable(
             self._fieldsSightings(), SIGHTINGS_TABLE, QgsWkbTypes.Point
         )
+        self._createTable(self._createFieldsForFollowerTable(), FOLLOWER_TABLE)
         self._createTable(
-            self._createFieldsForFollowerTable(),
-            FOLLOWER_TABLE,
+            self._createFieldsForFollowerSiteTable(),
+            FOLLOWER_SITE_TABLE,
             QgsWkbTypes.Point,
         )
+
         self._createTable(
             self._createFieldsForGpsTable(), GPS_TABLE, QgsWkbTypes.Point
         )
@@ -152,7 +155,7 @@ class SammoDataBase:
 
     def _createFieldsForFollowerTable(self) -> QgsFields:
         fields = QgsFields()
-        fields.append(QgsField("dateTime", QVariant.DateTime))
+        fields.append(QgsField("site_id", QVariant.Int))
         fields.append(QgsField("nFollower", QVariant.Int))
         fields.append(self._createFieldShortText("back"))
         fields.append(self._createFieldShortText("fishActivity"))
@@ -161,6 +164,12 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("age"))
         fields.append(self._createFieldShortText("unlucky"))
         fields.append(QgsField("comment", QVariant.String, len=200))
+
+        return fields
+
+    def _createFieldsForFollowerSiteTable(self) -> QgsFields:
+        fields = QgsFields()
+        fields.append(QgsField("dateTime", QVariant.DateTime))
         fields.append(self._createFieldShortText("soundFile"))
         fields.append(self._createFieldShortText("soundStart"))
         fields.append(self._createFieldShortText("soundEnd"))
