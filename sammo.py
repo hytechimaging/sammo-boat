@@ -234,6 +234,10 @@ class Sammo:
                     self.iface.addTabifiedDockWidget(
                         Qt.BottomDockWidgetArea, dockWidget
                     )
+            elif layer.id() in self.tableDocksWidget:
+                self.tableDocksWidget[layer.id()].widget().findChild(
+                    QWidget, "mFeatureFilterWidget"
+                ).findChild(QAction, "mActionApplyFilter").trigger()
             return True
         else:
             self.soundRecordingController.hardStopOfRecording()
