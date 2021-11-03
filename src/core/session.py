@@ -194,7 +194,7 @@ class SammoSession:
         if name and QgsProject.instance().mapLayersByName(name):
             return QgsProject.instance().mapLayersByName(name)[0]
 
-        return QgsVectorLayer(self.db.tableUri(table), table)
+        return QgsVectorLayer(self.db.tableUri(table))
 
     def _initSightingsLayer(self) -> QgsVectorLayer:
         layer = self.sightingsLayer
@@ -228,23 +228,26 @@ class SammoSession:
 
         # species
         idx = layer.fields().indexFromName("species")
-        cfg = {
-            "AllowMulti": False,
-            "AllowNull": False,
-            "Description": '"species"',
-            "FilterExpression": "",
-            "Key": "species",
-            "Layer": self.speciesLayer.id(),
-            "LayerName": SPECIES_LAYER_NAME,
-            "LayerProviderName": "ogr",
-            "LayerSource": self.db.tableUri(SPECIES_TABLE),
-            "NofColumns": 1,
-            "OrderByValue": False,
-            "UseCompleter": False,
-            "Value": "species",
-        }
-        setup = QgsEditorWidgetSetup("ValueRelation", cfg)
+        cfg = {'IsMultiline': False, 'UseHtml': False}
+        setup = QgsEditorWidgetSetup("TextEdit", cfg)
         layer.setEditorWidgetSetup(idx, setup)
+        layer.setConstraintExpression(
+            idx,
+            """
+            if(
+                attribute(
+                    get_feature(
+                        layer_property('Species','id'),
+                        'species',
+                        attribute('species')
+                    ),
+                    'fid'
+                ) != 0,
+                True,
+                False
+            )
+            """
+        )
 
         # podSize
         idx = layer.fields().indexFromName("podSize")
@@ -541,6 +544,30 @@ class SammoSession:
         setup = QgsEditorWidgetSetup("TextEdit", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
+
+        form_config = layer.editFormConfig()
+        form_config.setInitCode(
+            """
+from qgis.PyQt.QtWidgets import QLineEdit, QComboBox
+
+def my_form_open(dialog, layer, feature):
+    behaviour = dialog.findChild(QComboBox, "behaviour")
+    behavMam = dialog.findChild(QComboBox, "behavMam")
+    behavBird = dialog.findChild(QComboBox, "behavBird")
+    behavShip = dialog.findChild(QComboBox, "behavShip")
+    def updateBehav():
+        behaviour.currentIndexChanged.emit(behaviour.currentIndex())
+        behavMam.currentIndexChanged.emit(behavMam.currentIndex())
+        behavBird.currentIndexChanged.emit(behavBird.currentIndex())
+        behavShip.currentIndexChanged.emit(behavShip.currentIndex())
+
+    species = dialog.findChild(QLineEdit, "species")
+    species.valueChanged.connect(updateBehav)
+            """
+        )
+        form_config.setInitFunction("my_form_open")
+        form_config.setInitCodeSource(2)
+        layer.setEditFormConfig(form_config)
 
         layer = self.reuseLastValues(layer)
 
