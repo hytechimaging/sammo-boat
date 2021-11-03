@@ -161,6 +161,9 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("age"))
         fields.append(self._createFieldShortText("unlucky"))
         fields.append(QgsField("comment", QVariant.String, len=200))
+        fields.append(self._createFieldShortText("soundFile"))
+        fields.append(self._createFieldShortText("soundStart"))
+        fields.append(self._createFieldShortText("soundEnd"))
 
         return fields
 

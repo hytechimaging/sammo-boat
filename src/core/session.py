@@ -39,6 +39,7 @@ from .database import (
     SIGHTINGS_TABLE,
     ENVIRONMENT_TABLE,
 )
+from .sound_recording_controller import RecordType
 
 SPECIES_LAYER_NAME = "Species"
 ENVIRONMENT_LAYER_NAME = "Effort"
@@ -132,15 +133,17 @@ class SammoSession:
 
     def onStopSoundRecordingForEvent(
         self,
-        isObservation: bool,
+        recordType: RecordType,
         soundFile: str,
         soundStart: str,
         soundEnd: str,
     ):
-        if isObservation:
+        if recordType == RecordType.OBSERVATION:
             table = self.sightingsLayer
-        else:
+        elif recordType == RecordType.ENVIRONMENT:
             table = self.environmentLayer
+        elif recordType == RecordType.FOLLOWERS:
+            table = self.followerLayer
 
         table.startEditing()
         idLastAddedFeature = self.db.getIdOfLastAddedFeature(table)
@@ -325,6 +328,7 @@ class SammoSession:
         idx = layer.fields().indexFromName("age")
         cfg = {}
         cfg["map"] = [
+            {"<NULL>": "{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}"},
             {"A": "A"},
             {"I": "I"},
             {"J": "J"},
@@ -334,7 +338,6 @@ class SammoSession:
             {"I3": "I3"},
             {"I4": "I4"},
             {"NA": "NA"},
-            {"NULL": None},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
@@ -668,28 +671,32 @@ def my_form_open(dialog, layer, feature):
 
         # species
         idx = layer.fields().indexFromName("species")
-        cfg = {
-            "AllowMulti": False,
-            "AllowNull": False,
-            "Description": '"species"',
-            "FilterExpression": "",
-            "Key": "species",
-            "Layer": self.speciesLayer.id(),
-            "LayerName": SPECIES_LAYER_NAME,
-            "LayerProviderName": "ogr",
-            "LayerSource": self.db.tableUri(SPECIES_TABLE),
-            "NofColumns": 1,
-            "OrderByValue": False,
-            "UseCompleter": False,
-            "Value": "species",
-        }
-        setup = QgsEditorWidgetSetup("ValueRelation", cfg)
+        cfg = {"IsMultiline": False, "UseHtml": False}
+        setup = QgsEditorWidgetSetup("TextEdit", cfg)
         layer.setEditorWidgetSetup(idx, setup)
+        layer.setConstraintExpression(
+            idx,
+            """
+            if(
+                attribute(
+                    get_feature(
+                        layer_property('Species','id'),
+                        'species',
+                        attribute('species')
+                    ),
+                    'fid'
+                ) != 0,
+                True,
+                False
+            )
+            """,
+        )
 
         # age
         idx = layer.fields().indexFromName("age")
         cfg = {}
         cfg["map"] = [
+            {"<NULL>": "{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}"},
             {"A": "A"},
             {"I": "I"},
             {"J": "J"},
@@ -708,6 +715,7 @@ def my_form_open(dialog, layer, feature):
         idx = layer.fields().indexFromName("unlucky")
         cfg = {}
         cfg["map"] = [
+            {"<NULL>": "{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}"},
             {"wounded": "wounded"},
             {"oiled": "oiled"},
             {"stuck_fishing_device": "stuck_fishing_device"},
@@ -717,13 +725,19 @@ def my_form_open(dialog, layer, feature):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'tag'"))
+        layer.setDefaultValueDefinition(
+            idx, QgsDefaultValue("'{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}'")
+        )
 
-        # dateTime
-        idx = layer.fields().indexFromName("dateTime")
-        form_config = layer.editFormConfig()
-        form_config.setReadOnly(idx, True)
-        layer.setEditFormConfig(form_config)
+        # soundFile, soundStart, soundEnd, dateTime
+        for field in ["soundFile", "soundStart", "soundEnd", "dateTime"]:
+            idx = layer.fields().indexFromName(field)
+            form_config = layer.editFormConfig()
+            form_config.setReadOnly(idx, True)
+            if field != "dateTime":
+                setup = QgsEditorWidgetSetup("Hidden", {})
+                layer.setEditorWidgetSetup(idx, setup)
+            layer.setEditFormConfig(form_config)
 
         # comment
         idx = layer.fields().indexFromName("comment")

@@ -204,7 +204,7 @@ class Sammo:
                 i: attr for i, attr in enumerate(feat.attributes())
             }
             self.soundRecordingController.onStopEventWhichNeedSoundRecord()
-            if not self.tableDocksWidget:
+            if len(self.tableDocksWidget) != 3:
                 for layer in [
                     self.session.sightingsLayer,
                     self.session.followerLayer,
@@ -279,9 +279,10 @@ class Sammo:
                 i: attr for i, attr in enumerate(feat.attributes())
             }
             self.soundRecordingController.onStopEventWhichNeedSoundRecord()
-            self.tableDocksWidget[layer.id()].widget().findChild(
-                QWidget, "mFeatureFilterWidget"
-            ).findChild(QAction, "mActionApplyFilter").trigger()
+            if layer.id() in self.tableDocksWidget:
+                self.tableDocksWidget[layer.id()].widget().findChild(
+                    QWidget, "mFeatureFilterWidget"
+                ).findChild(QAction, "mActionApplyFilter").trigger()
             return True
         else:
             self.soundRecordingController.hardStopOfRecording()
@@ -289,6 +290,8 @@ class Sammo:
             return False
 
     def onFollowerAction(self) -> bool:
+        self.soundRecordingController.onStartFollowers()
+
         layer = self.session.followerLayer
         feat = QgsVectorLayerUtils.createFeature(layer)
 
@@ -311,14 +314,21 @@ class Sammo:
         if self.iface.openFeatureForm(layer, feat):
             layer.addFeature(feat)
             if not layer.commitChanges():
+                self.soundRecordingController.hardStopOfRecording()
                 layer.rollBack()
                 return False
 
             self.session.cacheAttr[layer.id()] = {
                 i: attr for i, attr in enumerate(feat.attributes())
             }
+            self.soundRecordingController.onStopEventWhichNeedSoundRecord(300)
+            if layer.id() in self.tableDocksWidget:
+                self.tableDocksWidget[layer.id()].widget().findChild(
+                    QWidget, "mFeatureFilterWidget"
+                ).findChild(QAction, "mActionApplyFilter").trigger()
             return True
         else:
+            self.soundRecordingController.hardStopOfRecording()
             layer.rollBack()
             return False
 
