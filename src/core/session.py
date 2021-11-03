@@ -16,6 +16,7 @@ from qgis.core import (
     QgsProject,
     QgsGeometry,
     QgsMapLayer,
+    QgsSettings,
     QgsApplication,
     QgsVectorLayer,
     QgsDefaultValue,
@@ -50,6 +51,15 @@ class SammoSession:
     def __init__(self):
         self.db = SammoDataBase()
         self.lastGpsGeom: QgsGeometry = None
+        self._cacheAttr = dict()
+
+    @property
+    def cacheAttr(self) -> dict:
+        return self._cacheAttr
+
+    @cacheAttr.setter
+    def cacheAttr(self, key, value):
+        self._cacheAttr[key] = value
 
     @property
     def environmentLayer(self) -> QgsVectorLayer:
@@ -89,6 +99,9 @@ class SammoSession:
             gpsLayer = self._initGpsLayer()
             project.addMapLayer(gpsLayer)
 
+            speciesLayer = self._initSpeciesLayer()
+            project.addMapLayer(speciesLayer)
+
             sightingsLayer = self._initSightingsLayer()
             project.addMapLayer(sightingsLayer)
 
@@ -100,9 +113,6 @@ class SammoSession:
 
             effortLayer = self._initEffortLayer()
             project.addMapLayer(effortLayer)
-
-            speciesLayer = self._initSpeciesLayer()
-            project.addMapLayer(speciesLayer)
 
             # configure project
             crs = QgsCoordinateReferenceSystem.fromEpsgId(4326)
@@ -118,6 +128,7 @@ class SammoSession:
 
         # read project
         QgsProject.instance().read(self.db.projectUri)
+        QgsSettings().setValue("qgis/enableMacros", "SessionOnly")
 
     def onStopSoundRecordingForEvent(
         self,
@@ -205,35 +216,38 @@ class SammoSession:
         idx = layer.fields().indexFromName("side")
         cfg = {}
         cfg["map"] = [
-            {"L": "L"},
-            {"R": "R"},
-            {"B": "B"},
-            {"C": "C"},
-            {"O": "O"},
+            {"L (portside)": "L (portside)"},
+            {"R (starboard)": "R (starboard)"},
+            {"C (center)": "C (center)"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'R'"))
+        layer.setDefaultValueDefinition(
+            idx, QgsDefaultValue("'R (starboard)'")
+        )
 
         # species
         idx = layer.fields().indexFromName("species")
-        cfg = {
-            "AllowMulti": False,
-            "AllowNull": False,
-            "Description": '"species"',
-            "FilterExpression": "",
-            "Key": "species",
-            "Layer": self.speciesLayer.id(),
-            "LayerName": SPECIES_LAYER_NAME,
-            "LayerProviderName": "ogr",
-            "LayerSource": self.db.tableUri(SPECIES_TABLE),
-            "NofColumns": 1,
-            "OrderByValue": False,
-            "UseCompleter": False,
-            "Value": "species",
-        }
-        setup = QgsEditorWidgetSetup("ValueRelation", cfg)
+        cfg = {'IsMultiline': False, 'UseHtml': False}
+        setup = QgsEditorWidgetSetup("TextEdit", cfg)
         layer.setEditorWidgetSetup(idx, setup)
+        layer.setConstraintExpression(
+            idx,
+            """
+            if(
+                attribute(
+                    get_feature(
+                        layer_property('Species','id'),
+                        'species',
+                        attribute('species')
+                    ),
+                    'fid'
+                ) != 0,
+                True,
+                False
+            )
+            """
+        )
 
         # podSize
         idx = layer.fields().indexFromName("podSize")
@@ -248,11 +262,21 @@ class SammoSession:
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("10"))
+        layer.setConstraintExpression(
+            idx,
+            """
+            if(
+                "podSizeMax" and "podSizeMin",
+                "podSizeMin" <=  "podSize" and  "podSize" <= "podSizeMax",
+                True
+            )
+            """
+        )
 
         # podSizeMin
         idx = layer.fields().indexFromName("podSizeMin")
         cfg = {
-            "AllowNull": False,
+            "AllowNull": True,
             "Max": 1000,
             "Min": 1,
             "Precision": 0,
@@ -262,11 +286,21 @@ class SammoSession:
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("5"))
+        layer.setConstraintExpression(
+            idx,
+            """
+            if(
+                "podSizeMax" and "podSizeMin",
+                "podSizeMin" <=  "podSizeMax",
+                "podSizeMax" is NULL and "podSizeMin" is NULL
+            )
+            """
+        )
 
         # podSizeMax
         idx = layer.fields().indexFromName("podSizeMax")
         cfg = {
-            "AllowNull": False,
+            "AllowNull": True,
             "Max": 1000,
             "Min": 1,
             "Precision": 0,
@@ -276,6 +310,16 @@ class SammoSession:
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("15"))
+        layer.setConstraintExpression(
+            idx,
+            """
+            if(
+                "podSizeMax" and "podSizeMin",
+                "podSizeMin" <=  "podSizeMax",
+                "podSizeMax" is NULL and "podSizeMin" is NULL
+            )
+            """
+        )
 
         # age
         idx = layer.fields().indexFromName("age")
@@ -290,6 +334,7 @@ class SammoSession:
             {"I3": "I3"},
             {"I4": "I4"},
             {"NA": "NA"},
+            {"NULL" : None}
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
@@ -298,9 +343,9 @@ class SammoSession:
         # distance
         idx = layer.fields().indexFromName("distance")
         cfg = {
-            "AllowNull": False,
+            "AllowNull": True,
             "Max": 20000,
-            "Min": 2,
+            "Min": 0,
             "Precision": 0,
             "Step": 1,
             "Style": "SpinBox",
@@ -312,9 +357,9 @@ class SammoSession:
         # angle
         idx = layer.fields().indexFromName("angle")
         cfg = {
-            "AllowNull": False,
+            "AllowNull": True,
             "Max": 360,
-            "Min": 1,
+            "Min": 0,
             "Precision": 0,
             "Step": 1,
             "Style": "SpinBox",
@@ -341,24 +386,46 @@ class SammoSession:
         idx = layer.fields().indexFromName("behaviour")
         cfg = {}
         cfg["map"] = [
-            {"ATTRACTION": "ATTRACTION"},
-            {"DEPLACEMENT": "DEPLACEMENT"},
-            {"FORAGING": "FORAGING"},
-            {"FUITE": "FUITE"},
-            {"STATIONNAIRE": "STATIONNAIRE"},
+            {'<NULL>': '{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}'},
+            {"attracting": "attracting"},
+            {"moving": "moving"},
+            {"foraging": "foraging"},
+            {"escape": "escape"},
+            {"stationary": "stationary"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'FORAGING'"))
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'foraging'"))
+        layer.setConstraintExpression(
+            idx,
+            f"""
+            if(
+                array_contains(
+                    array('Marine Mammal','Seabird','Ship'),
+                    attribute(
+                        get_feature(
+                            layer_property('Species','id'),
+                            'species',
+                            attribute('species')
+                        ),
+                        'taxon'
+                    )
+                ),
+                "behaviour" is not NULL,
+                True
+            )
+            """
+        )
 
         # behavGroup
         idx = layer.fields().indexFromName("behavGroup")
         cfg = {}
         cfg["map"] = [
-            {"CHASSE": "CHASSE"},
-            {"GROUPE_COMPACT": "GROUPE_COMPACT"},
-            {"GROUPE_DISPERSE": "GROUPE_DISPERSE"},
+            {'<NULL>': '{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}'},
+            {"feeding_agregation": "feeding_agregation"},
             {"MFSA": "MFSA"},
+            {"compact_group": "compact_group"},
+            {"scattered_group": "scattered_group"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
@@ -368,52 +435,107 @@ class SammoSession:
         idx = layer.fields().indexFromName("behavMam")
         cfg = {}
         cfg["map"] = [
-            {"ETRAVE": "ETRAVE"},
-            {"MILLING": "MILLING"},
-            {"NAGE_LENTE": "NAGE_LENTE"},
-            {"NAGE_RAPIDE": "NAGE_RAPIDE"},
-            {"PLONGE": "PLONGE"},
-            {"SAUTE": "SAUTE"},
+            {'<NULL>': '{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}'},
+            {"bow": "bow"},
+            {"milling": "milling"},
+            {"fast_swimming": "fast_swimming"},
+            {"slow_swimming": "slow_swimming"},
+            {"diving": "diving"},
+            {"breaching": "breaching"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'PLONGE'"))
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'diving'"))
+        layer.setConstraintExpression(
+            idx,
+            f"""
+            if(
+                attribute(
+                    get_feature(
+                        layer_property('Species','id'),
+                        'species',
+                        attribute('species')
+                        ),
+                    'taxon'
+                ) LIKE 'Marine Mammal',
+                "behavMam" is not NULL,
+                True
+            )
+            """
+        )
 
         # behavBird
         idx = layer.fields().indexFromName("behavBird")
         cfg = {}
         cfg["map"] = [
-            {"ATTAQUE": "ATTAQUE"},
-            {"AVEC_PROIE": "AVEC_PROIE"},
-            {"CHAROGNARD": "CHAROGNARD"},
-            {"KLEPTO": "KLEPTO"},
-            {"PLONGE": "PLONGE"},
-            {"SCAVEN_BATEAU": "SCAVEN_BATEAU"},
-            {"2_VOL_ALEATOIRE": "2_VOL_ALEATOIRE"},
-            {"3_VOL_CIRCULAIRE": "3_VOL_CIRCULAIRE"},
-            {"1_VOL_DIRECT": "1_VOL_DIRECT"},
-            {"NAGE": "NAGE"},
+            {'<NULL>': '{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}'},
+            {"attaking": "attaking"},
+            {"with_prey": "with_prey"},
+            {"scavenger": "scavenger"},
+            {"klepto": "klepto"},
+            {"diving": "diving"},
+            {"follow_boat": "follow_boat"},
+            {"random_flight": "random_flight"},
+            {"circular_flight": "circular_flight"},
+            {"direct_flight": "direct_flight"},
+            {"swimming": "swimming"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'1_VOL_DIRECT'"))
+        layer.setDefaultValueDefinition(
+            idx, QgsDefaultValue("'direct_flight'")
+        )
+        layer.setConstraintExpression(
+            idx,
+            f"""
+            if(
+                attribute(
+                    get_feature(
+                        layer_property('Species','id'),
+                        'species',
+                        attribute('species')
+                        ),
+                    'taxon'
+                ) LIKE 'Seabird',
+                "behavBird" is not NULL,
+                True
+            )
+            """
+        )
 
         # behavShip
         idx = layer.fields().indexFromName("behavShip")
         cfg = {}
-        cfg["map"] = [
-            {"PECHE": "PECHE"},
-            {"ROUTE": "ROUTE"},
-        ]
+        cfg["map"] = [{'<NULL>': '{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}'}, {"fishing": "fishing"}, {"go_ahead": "go_ahead"}]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'ROUTE'"))
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'go_ahead'"))
+        layer.setConstraintExpression(
+            idx,
+            f"""
+            if(
+                attribute(
+                    get_feature(
+                        layer_property('Species','id'),
+                        'species',
+                        attribute('species')
+                        ),
+                    'taxon'
+                ) LIKE 'Ship',
+                "behavShip" is not NULL,
+                True
+            )
+            """
+        )
 
         # soundFile, soundStart, soundEnd, dateTime
         for field in ["soundFile", "soundStart", "soundEnd", "dateTime"]:
             idx = layer.fields().indexFromName(field)
             form_config = layer.editFormConfig()
             form_config.setReadOnly(idx, True)
+            if field != "dateTime":
+                setup = QgsEditorWidgetSetup("Hidden", {})
+                layer.setEditorWidgetSetup(idx, setup)
             layer.setEditFormConfig(form_config)
 
         # comment
@@ -422,6 +544,32 @@ class SammoSession:
         setup = QgsEditorWidgetSetup("TextEdit", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
+
+        form_config = layer.editFormConfig()
+        form_config.setInitCode(
+            """
+from qgis.PyQt.QtWidgets import QLineEdit, QComboBox
+
+def my_form_open(dialog, layer, feature):
+    behaviour = dialog.findChild(QComboBox, "behaviour")
+    behavMam = dialog.findChild(QComboBox, "behavMam")
+    behavBird = dialog.findChild(QComboBox, "behavBird")
+    behavShip = dialog.findChild(QComboBox, "behavShip")
+    def updateBehav():
+        behaviour.currentIndexChanged.emit(behaviour.currentIndex())
+        behavMam.currentIndexChanged.emit(behavMam.currentIndex())
+        behavBird.currentIndexChanged.emit(behavBird.currentIndex())
+        behavShip.currentIndexChanged.emit(behavShip.currentIndex())
+
+    species = dialog.findChild(QLineEdit, "species")
+    species.valueChanged.connect(updateBehav)
+            """
+        )
+        form_config.setInitFunction("my_form_open")
+        form_config.setInitCodeSource(2)
+        layer.setEditFormConfig(form_config)
+
+        layer = self.reuseLastValues(layer)
 
         return layer
 
@@ -504,15 +652,15 @@ class SammoSession:
         idx = layer.fields().indexFromName("fishActivity")
         cfg = {}
         cfg["map"] = [
-            {"FILAGE": "FILAGE"},
-            {"VIRAGE": "VIRAGE"},
-            {"REJETS": "REJETS"},
-            {"EN_PECHE": "EN_PECHE"},
+            {"up_net": "up_net"},
+            {"net_down": "net_down"},
+            {"discard": "discard"},
+            {"hauling": "hauling"},
             {"NON_ACTIVE": "NON_ACTIVE"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'VIRAGE'"))
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'net_down'"))
 
         # species
         idx = layer.fields().indexFromName("species")
@@ -556,16 +704,16 @@ class SammoSession:
         idx = layer.fields().indexFromName("unlucky")
         cfg = {}
         cfg["map"] = [
-            {"MALADE/BLESSE": "MALADE/BLESSE"},
-            {"MAZOUTE": "MAZOUTE"},
-            {"PRIS_ENGIN_PECHE": "PRIS_ENGIN_PECHE"},
-            {"HAMECON": "HAMECON"},
-            {"FIL_PECHE": "FIL_PECHE"},
-            {"TAG": "TAG"},
+            {"wounded": "wounded"},
+            {"oiled": "oiled"},
+            {"stuck_fishing_device": "stuck_fishing_device"},
+            {"hook": "hook"},
+            {"fish_string": "fish_string"},
+            {"tag": "tag"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'TAG'"))
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'tag'"))
 
         # dateTime
         idx = layer.fields().indexFromName("dateTime")
@@ -579,6 +727,8 @@ class SammoSession:
         setup = QgsEditorWidgetSetup("TextEdit", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
+
+        layer = self.reuseLastValues(layer)
 
         return layer
 
@@ -601,13 +751,13 @@ class SammoSession:
         idx = layer.fields().indexFromName("plateform")
         cfg = {}
         cfg["map"] = [
-            {"passerelle": "passerelle"},
-            {"pont_sup": "pont_sup"},
-            {"pont_inf": "pont_inf"},
+            {"bridge": "bridge"},
+            {"upper_deck": "upper_deck"},
+            {"deck": "deck"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'pont_sup'"))
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'upper_deck'"))
 
         # route type
         idx = layer.fields().indexFromName("routeType")
@@ -639,7 +789,7 @@ class SammoSession:
         idx = layer.fields().indexFromName("windDirection")
         cfg = {
             "AllowNull": False,
-            "Max": 361,
+            "Max": 360,
             "Min": 0,
             "Precision": 0,
             "Step": 1,
@@ -667,7 +817,7 @@ class SammoSession:
         idx = layer.fields().indexFromName("swellDirection")
         cfg = {
             "AllowNull": False,
-            "Max": 361,
+            "Max": 360,
             "Min": 0,
             "Precision": 0,
             "Step": 1,
@@ -695,7 +845,7 @@ class SammoSession:
         idx = layer.fields().indexFromName("glareFrom")
         cfg = {
             "AllowNull": False,
-            "Max": 361,
+            "Max": 360,
             "Min": 0,
             "Precision": 0,
             "Step": 1,
@@ -709,7 +859,7 @@ class SammoSession:
         idx = layer.fields().indexFromName("glareTo")
         cfg = {
             "AllowNull": False,
-            "Max": 361,
+            "Max": 360,
             "Min": 0,
             "Precision": 0,
             "Step": 1,
@@ -723,14 +873,14 @@ class SammoSession:
         idx = layer.fields().indexFromName("glareSever")
         cfg = {}
         cfg["map"] = [
-            {"aucun": "aucun"},
-            {"faible": "faible"},
-            {"moyen": "moyen"},
-            {"fort": "fort"},
+            {"none": "none"},
+            {"slight": "slight"},
+            {"moderate": "moderate"},
+            {"strong": "strong"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'aucun'"))
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'none'"))
 
         # cloud cover
         idx = layer.fields().indexFromName("cloudCover")
@@ -763,12 +913,7 @@ class SammoSession:
         # subjective
         idx = layer.fields().indexFromName("subjective")
         cfg = {}
-        cfg["map"] = [
-            {"E": "E"},
-            {"G": "G"},
-            {"M": "M"},
-            {"P": "P"},
-        ]
+        cfg["map"] = [{"E": "E"}, {"G": "G"}, {"M": "M"}, {"P": "P"}]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'G'"))
@@ -790,10 +935,7 @@ class SammoSession:
         # camera
         idx = layer.fields().indexFromName("camera")
         cfg = {}
-        cfg["map"] = [
-            {"ON": "ON"},
-            {"OFF": "OFF"},
-        ]
+        cfg["map"] = [{"ON": "ON"}, {"OFF": "OFF"}]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'ON'"))
@@ -803,6 +945,9 @@ class SammoSession:
             idx = layer.fields().indexFromName(field)
             form_config = layer.editFormConfig()
             form_config.setReadOnly(idx, True)
+            if field != "dateTime":
+                setup = QgsEditorWidgetSetup("Hidden", {})
+                layer.setEditorWidgetSetup(idx, setup)
             layer.setEditFormConfig(form_config)
 
         # comment
@@ -817,7 +962,7 @@ class SammoSession:
             idx = layer.fields().indexFromName(field)
             cfg = {
                 "AllowMulti": False,
-                "AllowNull": False,
+                "AllowNull": True,
                 "Description": '"observer"',
                 "FilterExpression": "",
                 "Key": "observer",
@@ -832,6 +977,35 @@ class SammoSession:
             }
             setup = QgsEditorWidgetSetup("ValueRelation", cfg)
             layer.setEditorWidgetSetup(idx, setup)
+
+        layer = self.reuseLastValues(layer)
+
+        form_config = layer.editFormConfig()
+        form_config.setInitCode(
+            """
+from qgis.PyQt.QtWidgets import QSpinBox, QComboBox
+
+def my_form_open(dialog, layer, feature):
+    glareFrom = dialog.findChild(QSpinBox, "glareFrom")
+    glareTo = dialog.findChild(QSpinBox, "glareTo")
+    def updateGlareDir(idx):
+        if idx:
+            glareFrom.setEnabled(True)
+            glareTo.setEnabled(True)
+            return
+        glareFrom.setValue(0)
+        glareTo.setValue(0)
+        glareFrom.setEnabled(False)
+        glareTo.setEnabled(False)
+
+    glareSever = dialog.findChild(QComboBox, "glareSever")
+    updateGlareDir(glareSever.currentIndex())
+    glareSever.currentIndexChanged.connect(updateGlareDir)
+            """
+        )
+        form_config.setInitFunction("my_form_open")
+        form_config.setInitCodeSource(2)
+        layer.setEditFormConfig(form_config)
 
         return layer
 
@@ -872,6 +1046,18 @@ class SammoSession:
         return ""
 
     @staticmethod
+    def reuseLastValues(layer: QgsVectorLayer) -> QgsVectorLayer:
+        for idx, field in enumerate(layer.fields()):
+            form_config = layer.editFormConfig()
+            if field.name() in ["fid", "dateTime"] or form_config.readOnly(
+                idx
+            ):
+                continue
+            form_config.setReuseLastValue(idx, True)
+            layer.setEditFormConfig(form_config)
+        return layer
+
+    @staticmethod
     def _addFeature(feature: QgsFeature, vlayer: QgsVectorLayer) -> None:
         if not vlayer.addFeature(feature):
             Logger.error("addFeature : échec ")
@@ -887,10 +1073,7 @@ class SammoSession:
             )
         else:
             path = os.path.join(
-                path,
-                "resources",
-                "data",
-                "world_map.gpkg|layername=countries",
+                path, "resources", "data", "world_map.gpkg|layername=countries"
             )
         return path
 
