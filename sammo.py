@@ -173,6 +173,8 @@ class Sammo:
 
         layer = self.session.environmentLayer
         feat = QgsVectorLayerUtils.createFeature(layer)
+        layer.startEditing()
+        layer.addFeature(feat)
         for idx, field in enumerate(feat.fields()):
             if field.name() == "dateTime":
                 feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -186,9 +188,8 @@ class Sammo:
             ):
                 feat[field.name()] = self.session.cacheAttr[layer.id()][idx]
 
-        layer.startEditing()
         if self.iface.openFeatureForm(layer, feat):
-            layer.addFeature(feat)
+            layer.updateFeature(feat)
             if not layer.commitChanges():
                 self.soundRecordingController.hardStopOfRecording()
                 layer.rollBack()
