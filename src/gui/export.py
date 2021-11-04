@@ -13,9 +13,6 @@ from qgis.PyQt.QtWidgets import (
     QDialog,
     QFileDialog,
     QToolBar,
-    QPushButton,
-    QLineEdit,
-    QLabel,
 )
 
 from ..core.session import SammoSession
