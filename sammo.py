@@ -22,6 +22,7 @@ from .src.core.sound_recording_controller import SammoSoundRecordingController
 
 from .src.gui.status import StatusDock
 from .src.gui.effort import SammoEffortAction
+from .src.gui.export import SammoExportAction
 from .src.gui.session import SammoSessionAction
 from .src.gui.simu_gps import SammoSimuGpsAction
 from .src.gui.follower import SammoFollowerAction
@@ -39,6 +40,7 @@ class Sammo:
         self.session = SammoSession()
 
         self.sessionAction = self.createSessionAction()
+        self.exportAction = self.createExportAction()
         self.effortAction = self.createEffortAction()
         self.environmentAction = self.createEnvironmentAction()
         self.followerAction = self.createFollowerAction()
@@ -59,6 +61,7 @@ class Sammo:
         return self.iface.mainWindow()
 
     def setEnabled(self, status):
+        self.exportAction.setEnabled(status)
         self.statusDock.setEnabled(status)
         self.effortAction.setEnabled(status)
         self.followerAction.setEnabled(status)
@@ -115,6 +118,10 @@ class Sammo:
     def createSessionAction(self) -> SammoSessionAction:
         button = SammoSessionAction(self.mainWindow, self.toolbar)
         button.create.connect(self.onCreateSession)
+        return button
+
+    def createExportAction(self) -> SammoExportAction:
+        button = SammoExportAction(self.mainWindow, self.toolbar, self.session)
         return button
 
     def initGui(self):
@@ -253,6 +260,8 @@ class Sammo:
 
         layer = self.session.sightingsLayer
         feat = QgsVectorLayerUtils.createFeature(layer)
+        layer.startEditing()
+        layer.addFeature(feat)
         if self.session.lastGpsGeom:
             feat.setGeometry(self.session.lastGpsGeom)
         for idx, field in enumerate(feat.fields()):
@@ -267,9 +276,9 @@ class Sammo:
                 and (idx in self.session.cacheAttr[layer.id()])
             ):
                 feat[field.name()] = self.session.cacheAttr[layer.id()][idx]
-        layer.startEditing()
+
         if self.iface.openFeatureForm(layer, feat):
-            layer.addFeature(feat)
+            layer.updateFeature(feat)
             if not layer.commitChanges():
                 self.soundRecordingController.hardStopOfRecording()
                 layer.rollBack()
@@ -294,6 +303,8 @@ class Sammo:
 
         layer = self.session.followerLayer
         feat = QgsVectorLayerUtils.createFeature(layer)
+        layer.startEditing()
+        layer.addFeature(feat)
 
         if self.session.lastGpsGeom:
             feat.setGeometry(self.session.lastGpsGeom)
@@ -310,9 +321,8 @@ class Sammo:
             ):
                 feat[field.name()] = self.session.cacheAttr[layer.id()][idx]
 
-        layer.startEditing()
         if self.iface.openFeatureForm(layer, feat):
-            layer.addFeature(feat)
+            layer.updateFeature(feat)
             if not layer.commitChanges():
                 self.soundRecordingController.hardStopOfRecording()
                 layer.rollBack()

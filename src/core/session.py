@@ -64,6 +64,17 @@ class SammoSession:
         self._cacheAttr[key] = value
 
     @property
+    def layers(self) -> list:
+        return [
+            self.environmentLayer,
+            self.gpsLayer,
+            self.followerLayer,
+            self.observerLayer,
+            self.speciesLayer,
+            self.sightingsLayer,
+        ]
+
+    @property
     def environmentLayer(self) -> QgsVectorLayer:
         return self._layer(ENVIRONMENT_TABLE, ENVIRONMENT_LAYER_NAME)
 
@@ -198,7 +209,7 @@ class SammoSession:
         if name and QgsProject.instance().mapLayersByName(name):
             return QgsProject.instance().mapLayersByName(name)[0]
 
-        return QgsVectorLayer(self.db.tableUri(table))
+        return QgsVectorLayer(self.db.tableUri(table), table)
 
     def _initSightingsLayer(self) -> QgsVectorLayer:
         layer = self.sightingsLayer
