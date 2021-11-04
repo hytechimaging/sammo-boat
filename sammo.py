@@ -341,9 +341,9 @@ class Sammo:
                 ).trigger()
             return True
         else:
+            self.soundRecordingController.hardStopOfRecording()
             layer.rollBack()
             self.session.followerLayer.rollBack()
-            self.soundRecordingController.hardStopOfRecording()
             return False
 
     def onEnvironmentAction(self) -> None:
