@@ -804,12 +804,6 @@ def my_form_open(dialog, layer, feature):
         idx = layer.fields().indexFromName("fid")
         setup = QgsEditorWidgetSetup("Hidden", {})
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(
-            idx,
-            QgsDefaultValue(
-                """to_int(if(maximum("fid") is null, 1,maximum("fid")+1))"""
-            ),
-        )
 
         # status
         idx = layer.fields().indexFromName("status")
