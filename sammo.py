@@ -41,6 +41,7 @@ class Sammo:
 
         self.sessionAction = self.createSessionAction()
         self.exportAction = self.createExportAction()
+        self.toolbar.addSeparator()
         self.effortAction = self.createEffortAction()
         self.environmentAction = self.createEnvironmentAction()
         self.followerAction = self.createFollowerAction()
