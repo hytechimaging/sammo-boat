@@ -7,7 +7,11 @@ import os.path
 from datetime import datetime
 
 from qgis.PyQt.QtWidgets import QToolBar
-from qgis.core import QgsProject, QgsVectorLayerUtils, QgsPointXY
+from qgis.core import (
+    QgsProject,
+    QgsPointXY,
+    QgsVectorLayerUtils,
+)
 
 from .src.core.gps import SammoGpsReader
 from .src.core.session import SammoSession
