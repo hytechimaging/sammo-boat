@@ -16,6 +16,7 @@ from qgis.core import (
     QgsProject,
     QgsGeometry,
     QgsMapLayer,
+    QgsSettings,
     QgsApplication,
     QgsVectorLayer,
     QgsDefaultValue,
@@ -118,6 +119,7 @@ class SammoSession:
 
         # read project
         QgsProject.instance().read(self.db.projectUri)
+        QgsSettings().setValue("qgis/enableMacros", "SessionOnly")
 
     def onStopSoundRecordingForEvent(
         self,
@@ -252,11 +254,12 @@ class SammoSession:
         layer.setConstraintExpression(
             idx,
             """
-            if(
-                "podSizeMax" and "podSizeMin",
-                "podSizeMin" <=  "podSize" and  "podSize" <= "podSizeMax",
-                True
-            )
+            CASE
+            WHEN "podSizeMin" IS NOT NULL AND "podSizeMax" IS NULL THEN "podSize" >= "podSizeMin"
+            WHEN "podSizeMin" IS NULL AND "podSizeMax" IS NOT NULL THEN "podSize" <= "podSizeMax"
+            WHEN "podSizeMin" IS NOT NULL AND "podSizeMax" IS NOT NULL THEN "podSize" >= "podSizeMin" and "podSize" <= "podSizeMax"
+            ELSE TRUE
+            END
             """,
         )
 
@@ -277,9 +280,9 @@ class SammoSession:
             idx,
             """
             if(
-                "podSizeMax" and "podSizeMin",
-                "podSizeMin" <=  "podSizeMax",
-                "podSizeMax" is NULL and "podSizeMin" is NULL
+                "podSizeMin",
+                "podSizeMin" <= "podSize",
+                "podSizeMin" is NULL
             )
             """,
         )
@@ -301,9 +304,9 @@ class SammoSession:
             idx,
             """
             if(
-                "podSizeMax" and "podSizeMin",
-                "podSizeMin" <=  "podSizeMax",
-                "podSizeMax" is NULL and "podSizeMin" is NULL
+                "podSizeMax",
+                "podSize" <= "podSizeMax",
+                "podSizeMax" is NULL
             )
             """,
         )
