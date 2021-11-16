@@ -255,9 +255,12 @@ class SammoSession:
             idx,
             """
             CASE
-            WHEN "podSizeMin" IS NOT NULL AND "podSizeMax" IS NULL THEN "podSize" >= "podSizeMin"
-            WHEN "podSizeMin" IS NULL AND "podSizeMax" IS NOT NULL THEN "podSize" <= "podSizeMax"
-            WHEN "podSizeMin" IS NOT NULL AND "podSizeMax" IS NOT NULL THEN "podSize" >= "podSizeMin" and "podSize" <= "podSizeMax"
+              WHEN "podSizeMin" IS NOT NULL AND "podSizeMax" IS NULL
+                THEN "podSize" >= "podSizeMin"
+              WHEN "podSizeMin" IS NULL AND "podSizeMax" IS NOT NULL
+                THEN "podSize" <= "podSizeMax"
+              WHEN "podSizeMin" IS NOT NULL AND "podSizeMax" IS NOT NULL
+                THEN "podSize" >= "podSizeMin" and "podSize" <= "podSizeMax"
             ELSE TRUE
             END
             """,
