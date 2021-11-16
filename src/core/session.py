@@ -860,6 +860,12 @@ def my_form_open(dialog, layer, feature):
     glareSever = dialog.findChild(QComboBox, "glareSever")
     updateGlareDir(glareSever.currentIndex())
     glareSever.currentIndexChanged.connect(updateGlareDir)
+    form_config = layer.editFormConfig()
+    idx = layer.fields().indexFromName('glareFrom')
+    form_config.setReadOnly(idx, bool(feature["glareSever"]=='none'))
+    idx = layer.fields().indexFromName('glareTo')
+    form_config.setReadOnly(idx, bool(feature["glareSever"]=='none'))
+    layer.setEditFormConfig(form_config)
             """
         )
         form_config.setInitFunction("my_form_open")
