@@ -388,7 +388,7 @@ class SammoSession:
             {"diving": "diving"},
             {"follow_boat": "follow_boat"},
             {"random_flight": "random_flight"},
-            {"circular_flight": "circulat_flight"},
+            {"circular_flight": "circular_flight"},
             {"direct_flight": "direct_flight"},
             {"swimming": "swimming"},
         ]
