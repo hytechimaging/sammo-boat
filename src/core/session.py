@@ -806,7 +806,7 @@ class SammoSession:
             idx = layer.fields().indexFromName(field)
             cfg = {
                 "AllowMulti": False,
-                "AllowNull": False,
+                "AllowNull": True,
                 "Description": '"observer"',
                 "FilterExpression": "",
                 "Key": "observer",
