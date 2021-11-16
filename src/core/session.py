@@ -834,23 +834,39 @@ class SammoSession:
         form_config.setInitCode(
             """
 from qgis.PyQt.QtWidgets import QSpinBox, QComboBox
-
 def my_form_open(dialog, layer, feature):
     glareFrom = dialog.findChild(QSpinBox, "glareFrom")
     glareTo = dialog.findChild(QSpinBox, "glareTo")
+
     def updateGlareDir(idx):
+        form_config = layer.editFormConfig()
         if idx:
+            idx = layer.fields().indexFromName('glareFrom')
+            form_config.setReadOnly(idx, False)
+            idx = layer.fields().indexFromName('glareTo')
+            form_config.setReadOnly(idx, False)
+            layer.setEditFormConfig(form_config)
             glareFrom.setEnabled(True)
             glareTo.setEnabled(True)
             return
+        idx = layer.fields().indexFromName('glareFrom')
+        form_config.setReadOnly(idx, True)
+        idx = layer.fields().indexFromName('glareTo')
+        form_config.setReadOnly(idx, True)
         glareFrom.setValue(0)
         glareTo.setValue(0)
         glareFrom.setEnabled(False)
         glareTo.setEnabled(False)
+        layer.setEditFormConfig(form_config)
 
     glareSever = dialog.findChild(QComboBox, "glareSever")
-    updateGlareDir(glareSever.currentIndex())
     glareSever.currentIndexChanged.connect(updateGlareDir)
+    form_config = layer.editFormConfig()
+    idx = layer.fields().indexFromName('glareFrom')
+    form_config.setReadOnly(idx, bool(glareSever.currentIndex()==0))
+    idx = layer.fields().indexFromName('glareTo')
+    form_config.setReadOnly(idx, bool(glareSever.currentIndex()==0))
+    layer.setEditFormConfig(form_config)
             """
         )
         form_config.setInitFunction("my_form_open")
