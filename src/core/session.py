@@ -385,7 +385,7 @@ class SammoSession:
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'foraging'"))
         layer.setConstraintExpression(
             idx,
-            f"""
+            """
             if(
                 array_contains(
                     array('Marine Mammal','Seabird','Ship'),
@@ -435,7 +435,7 @@ class SammoSession:
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'diving'"))
         layer.setConstraintExpression(
             idx,
-            f"""
+            """
             if(
                 attribute(
                     get_feature(
@@ -474,7 +474,7 @@ class SammoSession:
         )
         layer.setConstraintExpression(
             idx,
-            f"""
+            """
             if(
                 attribute(
                     get_feature(
@@ -503,7 +503,7 @@ class SammoSession:
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'go_ahead'"))
         layer.setConstraintExpression(
             idx,
-            f"""
+            """
             if(
                 attribute(
                     get_feature(
