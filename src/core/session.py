@@ -20,6 +20,7 @@ from qgis.core import (
     QgsApplication,
     QgsVectorLayer,
     QgsDefaultValue,
+    QgsFieldConstraints,
     QgsVectorLayerUtils,
     QgsEditorWidgetSetup,
     QgsReferencedRectangle,
@@ -237,6 +238,11 @@ class SammoSession:
             )
             """,
         )
+        layer.setFieldConstraint(
+            idx,
+            QgsFieldConstraints.ConstraintExpression,
+            QgsFieldConstraints.ConstraintStrengthSoft,
+        )
 
         # podSize
         idx = layer.fields().indexFromName("podSize")
@@ -336,9 +342,9 @@ class SammoSession:
         # distance
         idx = layer.fields().indexFromName("distance")
         cfg = {
-            "AllowNull": True,
+            "AllowNull": False,
             "Max": 20000,
-            "Min": 0,
+            "Min": 1,
             "Precision": 0,
             "Step": 1,
             "Style": "SpinBox",
@@ -350,9 +356,9 @@ class SammoSession:
         # angle
         idx = layer.fields().indexFromName("angle")
         cfg = {
-            "AllowNull": True,
+            "AllowNull": False,
             "Max": 360,
-            "Min": 0,
+            "Min": 1,
             "Precision": 0,
             "Step": 1,
             "Style": "SpinBox",
