@@ -716,7 +716,9 @@ def my_form_open(dialog, layer, feature):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}'"))
+        layer.setDefaultValueDefinition(
+            idx, QgsDefaultValue("'{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}'")
+        )
 
         # soundFile, soundStart, soundEnd, dateTime
         for field in ["soundFile", "soundStart", "soundEnd", "dateTime"]:
