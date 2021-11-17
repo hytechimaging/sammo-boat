@@ -174,12 +174,14 @@ class Sammo:
 
         layer = self.session.environmentLayer
         feat = QgsVectorLayerUtils.createFeature(layer)
+        layer.startEditing()
+        layer.addFeature(feat)
         feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         feat["status"] = status
 
         layer.startEditing()
         if self.iface.openFeatureForm(layer, feat):
-            layer.addFeature(feat)
+            layer.updateFeature(feat)
             layer.commitChanges()
             self.soundRecordingController.onStopEventWhichNeedSoundRecord()
             return True
