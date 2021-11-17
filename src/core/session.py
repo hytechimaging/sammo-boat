@@ -687,6 +687,7 @@ def my_form_open(dialog, layer, feature):
         idx = layer.fields().indexFromName("age")
         cfg = {}
         cfg["map"] = [
+            {"<NULL>": "{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}"},
             {"A": "A"},
             {"I": "I"},
             {"J": "J"},
@@ -705,6 +706,7 @@ def my_form_open(dialog, layer, feature):
         idx = layer.fields().indexFromName("unlucky")
         cfg = {}
         cfg["map"] = [
+            {"<NULL>": "{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}"},
             {"wounded": "wounded"},
             {"oiled": "oiled"},
             {"stuck_fishing_device": "stuck_fishing_device"},
