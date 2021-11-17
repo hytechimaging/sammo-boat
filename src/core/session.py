@@ -716,11 +716,15 @@ def my_form_open(dialog, layer, feature):
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'tag'"))
 
-        # dateTime
-        idx = layer.fields().indexFromName("dateTime")
-        form_config = layer.editFormConfig()
-        form_config.setReadOnly(idx, True)
-        layer.setEditFormConfig(form_config)
+        # soundFile, soundStart, soundEnd, dateTime
+        for field in ["soundFile", "soundStart", "soundEnd", "dateTime"]:
+            idx = layer.fields().indexFromName(field)
+            form_config = layer.editFormConfig()
+            form_config.setReadOnly(idx, True)
+            if field != "dateTime":
+                setup = QgsEditorWidgetSetup("Hidden", {})
+                layer.setEditorWidgetSetup(idx, setup)
+            layer.setEditFormConfig(form_config)
 
         # comment
         idx = layer.fields().indexFromName("comment")
