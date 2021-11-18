@@ -29,7 +29,6 @@ class SammoEffortAction(QObject):
         self.action.setToolTip("Start/stop effort")
         self.action.triggered.connect(self.onClick)
         self.action.setEnabled(False)
-        self.action.setCheckable(True)
         toolbar.addAction(self.action)
 
     def unload(self):

@@ -31,6 +31,7 @@ class TableWidget(QFrame, FORM_CLASS):
         self.tables[sightingsLayer.name()] = self._attributeTable(sightingsLayer)
 
         self.verticalLayout.addWidget(self.tables[environmentLayer.name()])
+        self.verticalLayout.addWidget(QLabel("Sightings"))
         self.verticalLayout.addWidget(self.tables[sightingsLayer.name()])
 
     @staticmethod
@@ -69,14 +70,16 @@ class TableWidget(QFrame, FORM_CLASS):
         TableWidget.toolbar(table).hide()
 
         # update table view
-        table.findChild(QTableView).horizontalHeader().setStretchLastSection(True)
+        view = table.findChild(QTableView)
+        view.horizontalHeader().setStretchLastSection(True)
+        view.sortByColumn(0, Qt.DescendingOrder)
 
         return table
 
 
 class TableDock(QDockWidget):
     def __init__(self, iface):
-        super().__init__("Sammo Tables", iface.mainWindow())
+        super().__init__("Environment", iface.mainWindow())
         self.setObjectName("Sammo Tables")
         self.iface = iface
         self._widget = None

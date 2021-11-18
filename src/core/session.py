@@ -42,7 +42,7 @@ from .database import (
 )
 
 SPECIES_LAYER_NAME = "Species"
-ENVIRONMENT_LAYER_NAME = "Effort"
+ENVIRONMENT_LAYER_NAME = "Environment"
 FOLLOWERS_LAYER_NAME = "Followers"
 OBSERVERS_LAYER_NAME = "Observers"
 SIGHTINGS_LAYER_NAME = "Sightings"
@@ -208,9 +208,9 @@ class SammoSession:
         idx = layer.fields().indexFromName("side")
         cfg = {}
         cfg["map"] = [
-            {"L (portside)": "L (portside)"},
-            {"R (starboard)": "R (starboard)"},
-            {"C (center)": "C (center)"},
+            {"L": "L"},
+            {"R": "R"},
+            {"C": "C"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
@@ -1001,9 +1001,10 @@ def my_form_open(dialog, layer, feature):
     glareTo = dialog.findChild(QSpinBox, "glareTo")
 
     def updateGlareDir(idx):
-        print("updateGlareDir")
+        print("updateGlareDir 0")
         form_config = layer.editFormConfig()
         if idx:
+            print("updateGlareDir 1")
             idx = layer.fields().indexFromName('glareFrom')
             form_config.setReadOnly(idx, False)
             idx = layer.fields().indexFromName('glareTo')
@@ -1012,6 +1013,7 @@ def my_form_open(dialog, layer, feature):
             glareFrom.setEnabled(True)
             glareTo.setEnabled(True)
             return
+        print("updateGlareDir 2")
         idx = layer.fields().indexFromName('glareFrom')
         form_config.setReadOnly(idx, True)
         idx = layer.fields().indexFromName('glareTo')
