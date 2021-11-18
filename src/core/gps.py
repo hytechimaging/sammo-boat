@@ -47,7 +47,6 @@ class WorkerGpsExtractor(WorkerForOtherThread):
 
         if not self._gps:
             time.sleep(1.0)
-            print("Impossible d'ouvrir le port GPS")
             return
 
         try:
