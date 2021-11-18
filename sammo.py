@@ -207,6 +207,8 @@ class Sammo:
             layer.rollBack()
 
     def onFollowerAction(self):
+        self.soundRecordingController.onStartFollowers()
+
         layer = self.session.followerLayer
         feat = QgsVectorLayerUtils.createFeature(layer)
 
@@ -218,7 +220,9 @@ class Sammo:
         if self.iface.openFeatureForm(layer, feat):
             layer.addFeature(feat)
             layer.commitChanges()
+            self.soundRecordingController.onStopEventWhichNeedSoundRecord()
         else:
+            self.soundRecordingController.hardStopOfRecording()
             layer.rollBack()
 
     def onEnvironmentAction(self) -> None:

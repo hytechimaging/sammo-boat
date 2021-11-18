@@ -687,6 +687,7 @@ def my_form_open(dialog, layer, feature):
         idx = layer.fields().indexFromName("age")
         cfg = {}
         cfg["map"] = [
+            {"<NULL>": "{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}"},
             {"A": "A"},
             {"I": "I"},
             {"J": "J"},
@@ -705,6 +706,7 @@ def my_form_open(dialog, layer, feature):
         idx = layer.fields().indexFromName("unlucky")
         cfg = {}
         cfg["map"] = [
+            {"<NULL>": "{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}"},
             {"wounded": "wounded"},
             {"oiled": "oiled"},
             {"stuck_fishing_device": "stuck_fishing_device"},
@@ -714,13 +716,19 @@ def my_form_open(dialog, layer, feature):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'tag'"))
+        layer.setDefaultValueDefinition(
+            idx, QgsDefaultValue("'{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}'")
+        )
 
-        # dateTime
-        idx = layer.fields().indexFromName("dateTime")
-        form_config = layer.editFormConfig()
-        form_config.setReadOnly(idx, True)
-        layer.setEditFormConfig(form_config)
+        # soundFile, soundStart, soundEnd, dateTime
+        for field in ["soundFile", "soundStart", "soundEnd", "dateTime"]:
+            idx = layer.fields().indexFromName(field)
+            form_config = layer.editFormConfig()
+            form_config.setReadOnly(idx, True)
+            if field != "dateTime":
+                setup = QgsEditorWidgetSetup("Hidden", {})
+                layer.setEditorWidgetSetup(idx, setup)
+            layer.setEditFormConfig(form_config)
 
         # comment
         idx = layer.fields().indexFromName("comment")

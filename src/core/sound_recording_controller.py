@@ -4,79 +4,88 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
-from .thread_sound_recording import ThreadForSoundRecording
-from qgis.PyQt.QtCore import pyqtSignal, QObject
+from enum import Enum
 from datetime import datetime
+
+from qgis.PyQt.QtCore import pyqtSignal, QObject
+
+from .thread_sound_recording import ThreadForSoundRecording
+
+
+class RecordType(Enum):
+    ENVIRONMENT = 0
+    OBSERVATION = 1
+    FOLLOWERS = 2
 
 
 class SammoSoundRecordingController(QObject):
-    onStopSoundRecordingForEventSignal = pyqtSignal(bool, str, str, str)
+    onStopSoundRecordingForEventSignal = pyqtSignal(RecordType, str, str, str)
     onSoundRecordingStatusChanged = pyqtSignal(bool)
 
     def __init__(self):
         super().__init__()
         self._workingDirectory: str = None
-        self._threadSoundRecording = self._createSoundRecording()
-        self._currentSoundFileName: str = None
+        self._thread = self._createSoundRecording()
+        self._soundFile: str = None
         self._startTimerOnRecordForCurrentEvent: float = None
-        self._isCurrentEventAnObservation: bool = None
+        self._recordType: RecordType = None
 
     def unload(self):
-        if self._threadSoundRecording.isProceeding:
+        if self._thread.isProceeding:
             self._onAutomaticStopRecordingTimerEnded()
 
     def onStartObservation(self):
-        self._onStartEventWhichNeedSoundRecord(True)
+        self._onStartEventWhichNeedSoundRecord(RecordType.OBSERVATION)
 
     def onStartEnvironment(self):
-        self._onStartEventWhichNeedSoundRecord(False)
+        self._onStartEventWhichNeedSoundRecord(RecordType.ENVIRONMENT)
+
+    def onStartFollowers(self):
+        self._onStartEventWhichNeedSoundRecord(RecordType.FOLLOWERS)
 
     def hardStopOfRecording(self):
-        self._threadSoundRecording.stop()
-        self._currentSoundFileName = None
+        self._thread.stop()
+        self._soundFile = None
         self.onSoundRecordingStatusChanged.emit(False)
 
-    def _onStartEventWhichNeedSoundRecord(self, isObservation: bool):
-        if not self._threadSoundRecording.isProceeding:
+    def _onStartEventWhichNeedSoundRecord(self, recordType: RecordType):
+        if not self._thread.isProceeding:
             # on start observation when no sound recording is in progress
-            self._isCurrentEventAnObservation = isObservation
-            self._startRecording(isObservation)
-
+            self._recordType = recordType
+            self._startRecording(recordType)
         else:
-            if self._isCurrentEventAnObservation == isObservation:
-                self._startSameEventWhenRecordingIsInProgress(isObservation)
+            if self._recordType == recordType:
+                self._startSameEventWhenRecordingIsInProgress(recordType)
             else:
                 self._stopRecording()
-                self._isCurrentEventAnObservation = isObservation
-                self._startRecording(isObservation)
+                self._recordType = recordType
+                self._startRecording(recordType)
 
-    def _startSameEventWhenRecordingIsInProgress(self, isObservation: bool):
+    def _startSameEventWhenRecordingIsInProgress(self, recordType: RecordType):
         # on start same event when sound recording is in progress
-        self._threadSoundRecording.setAutomaticStopTimerSignal.emit(
+        self._thread.setAutomaticStopTimerSignal.emit(
             -1
         )  # cancel automatic stop
-        soundEnd = "{:.1f}".format(self._threadSoundRecording.recordTimer_s())
+        soundEnd = "{:.1f}".format(self._thread.recordTimer_s())
         if self._startTimerOnRecordForCurrentEvent > 0:
             soundStart = "{:.1f}".format(
                 self._startTimerOnRecordForCurrentEvent
             )
         else:
             soundStart = "0"
-        if isObservation:
-            self._finalizeObservation(
-                self._currentSoundFileName, soundStart, soundEnd
-            )
-        else:
-            self._finalizeEnvironment(
-                self._currentSoundFileName, soundStart, soundEnd
-            )
-        self._startTimerOnRecordForCurrentEvent = (
-            self._threadSoundRecording.recordTimer_s()
-        )
+
+        if recordType == RecordType.OBSERVATION:
+            self._finalizeObservation(self._soundFile, soundStart, soundEnd)
+        elif recordType == RecordType.ENVIRONMENT:
+            self._finalizeEnvironment(self._soundFile, soundStart, soundEnd)
+        elif recordType == RecordType.FOLLOWERS:
+            self._finalizeFollowers(self._soundFile, soundStart, soundEnd)
+
+        self._startTimerOnRecordForCurrentEvent = self._thread.recordTimer_s()
 
     def onStopEventWhichNeedSoundRecord(self):
         # on end observation or environment changes
-        self._threadSoundRecording.setAutomaticStopTimerSignal.emit(15)
+        self._thread.setAutomaticStopTimerSignal.emit(15)
 
     def onNewSession(self, workingDirectory: str):
         self._workingDirectory = workingDirectory
@@ -87,23 +96,19 @@ class SammoSoundRecordingController(QObject):
         )
         return threadSoundRecording
 
-    def _startRecording(self, isObservation: bool):
+    def _startRecording(self, recordType: RecordType):
         dateTimeObj = datetime.now()
         timeTxt = dateTimeObj.strftime("%Y%m%d_%H%M%S")
-        if isObservation:
-            self._currentSoundFileName = (
-                f"observation_sound_recording_{timeTxt}.wav"
-            )
-        else:
-            self._currentSoundFileName = (
-                f"environment_sound_recording_{timeTxt}.wav"
-            )
+        if recordType == RecordType.OBSERVATION:
+            self._soundFile = f"observation_sound_recording_{timeTxt}.wav"
+        elif recordType == RecordType.ENVIRONMENT:
+            self._soundFile = f"environment_sound_recording_{timeTxt}.wav"
+        elif recordType == RecordType.FOLLOWERS:
+            self._soundFile = f"followers_sound_recording_{timeTxt}.wav"
 
-        soundFilePath = os.path.join(
-            self._workingDirectory, self._currentSoundFileName
-        )
+        soundFilePath = os.path.join(self._workingDirectory, self._soundFile)
         self._startTimerOnRecordForCurrentEvent = 0
-        self._threadSoundRecording.start(soundFilePath)
+        self._thread.start(soundFilePath)
 
         self.onSoundRecordingStatusChanged.emit(True)
 
@@ -111,7 +116,7 @@ class SammoSoundRecordingController(QObject):
         self._stopRecording()
 
     def _stopRecording(self):
-        soundEnd = "{:.1f}".format(self._threadSoundRecording.recordTimer_s())
+        soundEnd = "{:.1f}".format(self._thread.recordTimer_s())
         if self._startTimerOnRecordForCurrentEvent > 0:
             soundStart = "{:.1f}".format(
                 self._startTimerOnRecordForCurrentEvent
@@ -119,17 +124,15 @@ class SammoSoundRecordingController(QObject):
         else:
             soundStart = "0"
 
-        if self._isCurrentEventAnObservation:
-            self._finalizeObservation(
-                self._currentSoundFileName, soundStart, soundEnd
-            )
-        else:
-            self._finalizeEnvironment(
-                self._currentSoundFileName, soundStart, soundEnd
-            )
+        if self._recordType == RecordType.OBSERVATION:
+            self._finalizeObservation(self._soundFile, soundStart, soundEnd)
+        elif self._recordType == RecordType.ENVIRONMENT:
+            self._finalizeEnvironment(self._soundFile, soundStart, soundEnd)
+        elif self._recordType == RecordType.FOLLOWERS:
+            self._finalizeFollowers(self._soundFile, soundStart, soundEnd)
 
-        self._threadSoundRecording.stop()
-        self._currentSoundFileName = None
+        self._thread.stop()
+        self._soundFile = None
         self.onSoundRecordingStatusChanged.emit(False)
 
     def _finalizeEnvironment(
@@ -137,7 +140,7 @@ class SammoSoundRecordingController(QObject):
     ):
         self._startTimerOnRecordForCurrentEvent = None
         self.onStopSoundRecordingForEventSignal.emit(
-            False, soundFile, soundStart, soundEnd
+            RecordType.ENVIRONMENT, soundFile, soundStart, soundEnd
         )
 
     def _finalizeObservation(
@@ -145,5 +148,13 @@ class SammoSoundRecordingController(QObject):
     ):
         self._startTimerOnRecordForCurrentEvent = None
         self.onStopSoundRecordingForEventSignal.emit(
-            True, soundFile, soundStart, soundEnd
+            RecordType.OBSERVATION, soundFile, soundStart, soundEnd
+        )
+
+    def _finalizeFollowers(
+        self, soundFile: str, soundStart: str, soundEnd: str
+    ):
+        self._startTimerOnRecordForCurrentEvent = None
+        self.onStopSoundRecordingForEventSignal.emit(
+            RecordType.FOLLOWERS, soundFile, soundStart, soundEnd
         )
