@@ -26,7 +26,7 @@ class SammoEffortAction(QObject):
     def initGui(self, parent: QObject, toolbar: QToolBar):
         self.action = QAction(parent)
         self.action.setIcon(icon("effort.png"))
-        self.action.setToolTip("Start/stop effort")
+        self.action.setToolTip("New environment")
         self.action.triggered.connect(self.onClick)
         self.action.setEnabled(False)
         toolbar.addAction(self.action)
