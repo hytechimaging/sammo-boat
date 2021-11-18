@@ -195,13 +195,15 @@ class Sammo:
 
         layer = self.session.sightingsLayer
         feat = QgsVectorLayerUtils.createFeature(layer)
+        layer.startEditing()
+        layer.addFeature(feat)
         if self.session.lastGpsGeom:
             feat.setGeometry(self.session.lastGpsGeom)
         feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         layer.startEditing()
         if self.iface.openFeatureForm(layer, feat):
-            layer.addFeature(feat)
+            layer.updateFeature(feat)
             layer.commitChanges()
             self.soundRecordingController.onStopEventWhichNeedSoundRecord()
         else:
@@ -213,6 +215,8 @@ class Sammo:
 
         layer = self.session.followerLayer
         feat = QgsVectorLayerUtils.createFeature(layer)
+        layer.startEditing()
+        layer.addFeature(feat)
 
         if self.session.lastGpsGeom:
             feat.setGeometry(self.session.lastGpsGeom)
@@ -220,7 +224,7 @@ class Sammo:
 
         layer.startEditing()
         if self.iface.openFeatureForm(layer, feat):
-            layer.addFeature(feat)
+            layer.updateFeature(feat)
             layer.commitChanges()
             self.soundRecordingController.onStopEventWhichNeedSoundRecord()
         else:
