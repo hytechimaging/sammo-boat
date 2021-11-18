@@ -750,9 +750,15 @@ def my_form_open(dialog, layer, feature):
 
         # status
         idx = layer.fields().indexFromName("status")
-        form_config = layer.editFormConfig()
-        form_config.setReadOnly(idx, True)
-        layer.setEditFormConfig(form_config)
+        cfg = {}
+        cfg["map"] = [
+            {"B": "B"},
+            {"A": "A"},
+            {"E": "E"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'A'"))
 
         # platform
         idx = layer.fields().indexFromName("plateform")
@@ -990,10 +996,12 @@ def my_form_open(dialog, layer, feature):
             """
 from qgis.PyQt.QtWidgets import QSpinBox, QComboBox
 def my_form_open(dialog, layer, feature):
+    print("FORM OPEN")
     glareFrom = dialog.findChild(QSpinBox, "glareFrom")
     glareTo = dialog.findChild(QSpinBox, "glareTo")
 
     def updateGlareDir(idx):
+        print("updateGlareDir")
         form_config = layer.editFormConfig()
         if idx:
             idx = layer.fields().indexFromName('glareFrom')
