@@ -18,6 +18,7 @@ from .src.core.session import SammoSession
 from .src.core.thread_simu_gps import ThreadSimuGps
 from .src.core.sound_recording_controller import SammoSoundRecordingController
 
+from .src.gui.table import TableDock
 from .src.gui.status import StatusDock
 from .src.gui.effort import SammoEffortAction
 from .src.gui.session import SammoSessionAction
@@ -46,6 +47,7 @@ class Sammo:
         self.soundRecordingController = self.createSoundRecordingController()
         self.gpsReader = self.createGpsReader()
         self.statusDock = StatusDock(iface)
+        self.tableDock = TableDock(iface)
 
         iface.projectRead.connect(self.onProjectLoaded)
         iface.newProjectCreated.connect(self.onProjectLoaded)
@@ -148,6 +150,8 @@ class Sammo:
         self.setEnabled(True)
 
         self.soundRecordingController.onNewSession(sessionDirectory)
+
+        self.tableDock.init(self.session.environmentLayer, self.session.sightingsLayer)
 
         # init simu
         if self.simuGpsAction:
