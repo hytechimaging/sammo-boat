@@ -8,7 +8,7 @@ import sys
 
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import Qt, QSize
-from qgis.PyQt.QtWidgets import QFrame, QLabel, QDockWidget
+from qgis.PyQt.QtWidgets import QFrame, QLabel, QDockWidget, QTableView, QAction, QHeaderView, QToolBar
 
 from qgis.core import QgsSettings
 
@@ -25,52 +25,54 @@ class TableWidget(QFrame, FORM_CLASS):
         super().__init__()
         self.iface = iface
         self.setupUi(self)
-        self.verticalLayout.addWidget(self._attributeTable(environmentLayer))
-        self.verticalLayout.addWidget(self._attributeTable(sightingsLayer))
+
+        self.tables = {}
+        self.tables[environmentLayer.name()] = self._attributeTable(environmentLayer)
+        self.tables[sightingsLayer.name()] = self._attributeTable(sightingsLayer)
+
+        self.verticalLayout.addWidget(self.tables[environmentLayer.name()])
+        self.verticalLayout.addWidget(self.tables[sightingsLayer.name()])
+
+    @staticmethod
+    def toolbar(table):
+        return table.findChild(QToolBar, "mToolbar")
+
+    @staticmethod
+    def refresh(table):
+        table.findChild(QAction, "mActionReload").trigger()
+        table.findChild(QTableView).resizeColumnsToContents()
 
     def _attributeTable(self, layer):
-        table = self.iface.showAttributeTable(
-            layer,
-            """
-            array_contains(
-            array_reverse(
-                array_slice(
-                    aggregate(
-                        @layer,
-                        'array_agg',
-                        "fid",
-                        order_by:="fid"
-                    ),
-                    -3,
-                    -1
-                )
-            ),
-            "fid"
-            )
-            """,
-        )
-
-        last = table.layout().rowCount() - 1
-        hbox = table.layout().itemAtPosition(last, 0).itemAt(0)
-        hbox.itemAt(0).widget().hide()
-        hbox.itemAt(1).widget().hide()
-        hbox.itemAt(2).widget().hide()
-
-        for child in table.children():
-            if "mToolbar" in child.objectName():
-                child.hide()
-
+        # hide some columns
+        hiddens = ["fid", "soundFile", "soundStart", "soundEnd"]
         config = layer.attributeTableConfig()
         columns = config.columns()
         for column in columns:
-            print(column.name)
-            if column.name == "fid":
+            if column.name in hiddens:
                 column.hidden = True
-                break
         config.setColumns( columns )
         layer.setAttributeTableConfig( config )
 
+        # init attribute table
+        table = self.iface.showAttributeTable(layer)
+
+        # hide some items
+        last = table.layout().rowCount() - 1
+        layout = table.layout().itemAtPosition(last, 0).itemAt(0)
+        for idx in range(layout.count()):
+            layout.itemAt(idx).widget().hide()
+
+        layout = table.findChild(QFrame, "mUpdateExpressionBox").layout()
+        for idx in range(layout.count()):
+            layout.itemAt(idx).widget().hide()
+
+        TableWidget.toolbar(table).hide()
+
+        # update table view
+        table.findChild(QTableView).horizontalHeader().setStretchLastSection(True)
+
         return table
+
 
 class TableDock(QDockWidget):
     def __init__(self, iface):
@@ -87,3 +89,7 @@ class TableDock(QDockWidget):
         self.iface.addDockWidget(
             Qt.BottomDockWidgetArea, self
         )
+
+    def refresh(self, layer):
+        table = self._widget.tables[layer.name()]
+        TableWidget.refresh(table)
