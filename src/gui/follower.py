@@ -3,10 +3,18 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
+import os
+
+from qgis.PyQt import uic
 from qgis.PyQt.QtCore import pyqtSignal, QObject
-from qgis.PyQt.QtWidgets import QAction, QToolBar
+from qgis.PyQt.QtWidgets import QAction, QToolBar, QFrame, QDialog
 
 from ..core import icon
+from .attribute_table import SammoAttributeTable
+
+FORM_CLASS, _ = uic.loadUiType(
+    os.path.join(os.path.dirname(__file__), "ui/follower.ui")
+)
 
 
 class SammoFollowerAction(QObject):
@@ -33,3 +41,16 @@ class SammoFollowerAction(QObject):
 
     def onClick(self):
         self.triggered.emit()
+
+
+class SammoFollowerTable(QDialog, FORM_CLASS):
+
+    def __init__(self, iface, followerLayer):
+        super().__init__()
+        self.iface = iface
+        self.setupUi(self)
+        self.table = SammoAttributeTable.attributeTable(iface, followerLayer)
+        self.verticalLayout.addWidget(self.table)
+
+    def refresh(self):
+        SammoAttributeTable.refresh(self.table)
