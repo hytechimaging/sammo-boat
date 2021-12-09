@@ -40,6 +40,7 @@ from .database import (
     SIGHTINGS_TABLE,
     ENVIRONMENT_TABLE,
 )
+from .sound_recording_controller import RecordType
 
 SPECIES_LAYER_NAME = "Species"
 ENVIRONMENT_LAYER_NAME = "Environment"
@@ -124,17 +125,18 @@ class SammoSession:
 
     def onStopSoundRecordingForEvent(
         self,
-        isObservation: bool,
+        recordType: RecordType,
         soundFile: str,
         soundStart: str,
         soundEnd: str,
     ):
-        if isObservation:
+        if recordType == RecordType.ENVIRONMENT:
+            table = self.environmentLayer
+        elif recordType == RecordType.OBSERVATION:
             table = self.sightingsLayer
         else:
-            table = self.environmentLayer
+            table = self.followerLayer
 
-        table.startEditing()
         idLastAddedFeature = self.db.getIdOfLastAddedFeature(table)
         if idLastAddedFeature != -1:
             field_idx = table.fields().indexOf("soundFile")
@@ -147,7 +149,6 @@ class SammoSession:
             )
             field_idx = table.fields().indexOf("soundEnd")
             table.changeAttributeValue(idLastAddedFeature, field_idx, soundEnd)
-        table.commitChanges()
 
     def loadTable(self, tableName: str) -> QgsVectorLayer:
         layer = self.db.loadTable(self.directory, tableName)
