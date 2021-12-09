@@ -15,66 +15,24 @@ from qgis.core import QgsSettings
 from ..core import pixmap
 from ..core.thread_widget import ThreadWidget
 
+from .attribute_table import SammoAttributeTable
+
 FORM_CLASS, _ = uic.loadUiType(
     os.path.join(os.path.dirname(__file__), "ui/table.ui")
 )
 
 
 class TableWidget(QFrame, FORM_CLASS):
-    def __init__(self, iface, environmentLayer, sightingsLayer):
+    def __init__(self, iface, environmentLayer, sightingLayer):
         super().__init__()
-        self.iface = iface
         self.setupUi(self)
 
-        self.tables = {}
-        self.tables[environmentLayer.name()] = self._attributeTable(environmentLayer)
-        self.tables[sightingsLayer.name()] = self._attributeTable(sightingsLayer)
+        self.environmentTable = SammoAttributeTable.attributeTable(iface, environmentLayer)
+        self.sightingTable = SammoAttributeTable.attributeTable(iface, sightingLayer)
 
-        self.verticalLayout.addWidget(self.tables[environmentLayer.name()])
+        self.verticalLayout.addWidget(self.environmentTable)
         self.verticalLayout.addWidget(QLabel("Sightings"))
-        self.verticalLayout.addWidget(self.tables[sightingsLayer.name()])
-
-    @staticmethod
-    def toolbar(table):
-        return table.findChild(QToolBar, "mToolbar")
-
-    @staticmethod
-    def refresh(table):
-        table.findChild(QAction, "mActionReload").trigger()
-        table.findChild(QTableView).resizeColumnsToContents()
-
-    def _attributeTable(self, layer):
-        # hide some columns
-        hiddens = ["fid", "soundFile", "soundStart", "soundEnd"]
-        config = layer.attributeTableConfig()
-        columns = config.columns()
-        for column in columns:
-            if column.name in hiddens:
-                column.hidden = True
-        config.setColumns( columns )
-        layer.setAttributeTableConfig( config )
-
-        # init attribute table
-        table = self.iface.showAttributeTable(layer)
-
-        # hide some items
-        last = table.layout().rowCount() - 1
-        layout = table.layout().itemAtPosition(last, 0).itemAt(0)
-        for idx in range(layout.count()):
-            layout.itemAt(idx).widget().hide()
-
-        layout = table.findChild(QFrame, "mUpdateExpressionBox").layout()
-        for idx in range(layout.count()):
-            layout.itemAt(idx).widget().hide()
-
-        TableWidget.toolbar(table).hide()
-
-        # update table view
-        view = table.findChild(QTableView)
-        view.horizontalHeader().setStretchLastSection(True)
-        view.sortByColumn(0, Qt.DescendingOrder)
-
-        return table
+        self.verticalLayout.addWidget(self.sightingTable)
 
 
 class TableDock(QDockWidget):
