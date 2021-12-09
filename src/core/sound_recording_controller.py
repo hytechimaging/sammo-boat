@@ -83,9 +83,9 @@ class SammoSoundRecordingController(QObject):
 
         self._startTimerOnRecordForCurrentEvent = self._thread.recordTimer_s()
 
-    def onStopEventWhichNeedSoundRecord(self):
+    def onStopEventWhichNeedSoundRecord(self, duration_sec=15):
         # on end observation or environment changes
-        self._thread.setAutomaticStopTimerSignal.emit(15)
+        self._thread.setAutomaticStopTimerSignal.emit(duration_sec)
 
     def onNewSession(self, workingDirectory: str):
         self._workingDirectory = workingDirectory

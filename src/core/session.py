@@ -991,53 +991,6 @@ def my_form_open(dialog, layer, feature):
             setup = QgsEditorWidgetSetup("ValueRelation", cfg)
             layer.setEditorWidgetSetup(idx, setup)
 
-        form_config = layer.editFormConfig()
-        form_config.setInitCode(
-            """
-from qgis.PyQt.QtWidgets import QSpinBox, QComboBox
-def my_form_open(dialog, layer, feature):
-    print("FORM OPEN")
-    glareFrom = dialog.findChild(QSpinBox, "glareFrom")
-    glareTo = dialog.findChild(QSpinBox, "glareTo")
-
-    def updateGlareDir(idx):
-        print("updateGlareDir 0")
-        form_config = layer.editFormConfig()
-        if idx:
-            print("updateGlareDir 1")
-            idx = layer.fields().indexFromName('glareFrom')
-            form_config.setReadOnly(idx, False)
-            idx = layer.fields().indexFromName('glareTo')
-            form_config.setReadOnly(idx, False)
-            layer.setEditFormConfig(form_config)
-            glareFrom.setEnabled(True)
-            glareTo.setEnabled(True)
-            return
-        print("updateGlareDir 2")
-        idx = layer.fields().indexFromName('glareFrom')
-        form_config.setReadOnly(idx, True)
-        idx = layer.fields().indexFromName('glareTo')
-        form_config.setReadOnly(idx, True)
-        glareFrom.setValue(0)
-        glareTo.setValue(0)
-        glareFrom.setEnabled(False)
-        glareTo.setEnabled(False)
-        layer.setEditFormConfig(form_config)
-
-    glareSever = dialog.findChild(QComboBox, "glareSever")
-    glareSever.currentIndexChanged.connect(updateGlareDir)
-    form_config = layer.editFormConfig()
-    idx = layer.fields().indexFromName('glareFrom')
-    form_config.setReadOnly(idx, bool(glareSever.currentIndex()==0))
-    idx = layer.fields().indexFromName('glareTo')
-    form_config.setReadOnly(idx, bool(glareSever.currentIndex()==0))
-    layer.setEditFormConfig(form_config)
-            """
-        )
-        form_config.setInitFunction("my_form_open")
-        form_config.setInitCodeSource(2)
-        layer.setEditFormConfig(form_config)
-
         return layer
 
     def _initGpsLayer(self) -> QgsVectorLayer:
