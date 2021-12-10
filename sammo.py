@@ -22,9 +22,9 @@ from .src.gui.table import TableDock
 from .src.gui.status import StatusDock
 from .src.gui.session import SammoSessionAction
 from .src.gui.simu_gps import SammoSimuGpsAction
-from .src.gui.observation import SammoObservationAction
+from .src.gui.sightings import SammoSightingsAction
 from .src.gui.environment import SammoEnvironmentAction
-from .src.gui.follower import SammoFollowerAction, SammoFollowerTable
+from .src.gui.followers import SammoFollowersAction, SammoFollowersTable
 
 
 class Sammo:
@@ -39,8 +39,8 @@ class Sammo:
         self.sessionAction = self.createSessionAction()
         self.toolbar.addSeparator()
         self.environmentAction = self.createEnvironmentAction()
-        self.observationAction = self.createObservationAction()
-        self.followerAction = self.createFollowerAction()
+        self.sightingsAction = self.createSightingsAction()
+        self.followersAction = self.createFollowersAction()
         self.simuGpsAction, self.threadSimuGps = self.createSimuGps()
 
         self.soundRecordingController = self.createSoundRecordingController()
@@ -58,8 +58,8 @@ class Sammo:
     def setEnabled(self, status):
         self.statusDock.setEnabled(status)
         self.environmentAction.setEnabled(status)
-        self.followerAction.setEnabled(status)
-        self.observationAction.setEnabled(status)
+        self.followersAction.setEnabled(status)
+        self.sightingsAction.setEnabled(status)
 
     def createSoundRecordingController(self) -> SammoSoundRecordingController:
         controller = SammoSoundRecordingController()
@@ -89,14 +89,14 @@ class Sammo:
         gps.start()
         return gps
 
-    def createFollowerAction(self):
-        button = SammoFollowerAction(self.mainWindow, self.toolbar)
-        button.triggered.connect(self.onFollowerAction)
+    def createFollowersAction(self):
+        button = SammoFollowersAction(self.mainWindow, self.toolbar)
+        button.triggered.connect(self.onFollowersAction)
         return button
 
-    def createObservationAction(self) -> SammoObservationAction:
-        button = SammoObservationAction(self.mainWindow, self.toolbar)
-        button.triggered.connect(self.onObservationAction)
+    def createSightingsAction(self) -> SammoSightingsAction:
+        button = SammoSightingsAction(self.mainWindow, self.toolbar)
+        button.triggered.connect(self.onSightingsAction)
         return button
 
     def createEnvironmentAction(self) -> SammoEnvironmentAction:
@@ -120,7 +120,7 @@ class Sammo:
         self.soundRecordingController.unload()
         self.sessionAction.unload()
         self.environmentAction.unload()
-        self.observationAction.unload()
+        self.sightingsAction.unload()
         if self.simuGpsAction is not None:
             self.simuGpsAction.unload()
 
@@ -169,8 +169,8 @@ class Sammo:
         self.tableDock.refresh(layer)
         self.soundRecordingController.onStopEventWhichNeedSoundRecord()
 
-    def onObservationAction(self):
-        self.soundRecordingController.onStartObservation()
+    def onSightingsAction(self):
+        self.soundRecordingController.onStartSightings()
 
         layer = self.session.sightingsLayer
         feat = QgsVectorLayerUtils.createFeature(layer)
@@ -185,22 +185,22 @@ class Sammo:
         self.tableDock.refresh(layer)
         self.soundRecordingController.onStopEventWhichNeedSoundRecord(10)
 
-    def onFollowerAction(self):
-        self.followerTable = SammoFollowerTable(
-            self.iface, self.session.followerLayer
+    def onFollowersAction(self):
+        self.followersTable = SammoFollowersTable(
+            self.iface, self.session.followersLayer
         )
-        self.followerTable.addButton.clicked.connect(self.onFollowerAdd)
-        self.followerTable.okButton.clicked.connect(self.onFollowerOk)
-        self.followerTable.show()
+        self.followersTable.addButton.clicked.connect(self.onFollowersAdd)
+        self.followersTable.okButton.clicked.connect(self.onFollowersOk)
+        self.followersTable.show()
 
-    def onFollowerOk(self):
+    def onFollowersOk(self):
         self.saveAll()
-        self.followerTable.close()
+        self.followersTable.close()
 
-    def onFollowerAdd(self):
-        layer = self.session.followerLayer
+    def onFollowersAdd(self):
+        layer = self.session.followersLayer
         feat = QgsVectorLayerUtils.createFeature(layer)
-        feat["dateTime"] = self.followerTable.datetime
+        feat["dateTime"] = self.followersTable.datetime
 
         if not layer.isEditable():
             layer.startEditing()
@@ -208,7 +208,7 @@ class Sammo:
 
         self.saveAll()
 
-        self.followerTable.refresh()
+        self.followersTable.refresh()
 
     def onChangeSimuGpsStatus(self, isOn: bool):
         if isOn:
@@ -236,7 +236,7 @@ class Sammo:
         for layer in [
             self.session.environmentLayer,
             self.session.sightingsLayer,
-            self.session.followerLayer,
+            self.session.followersLayer,
         ]:
             layer.commitChanges()
             layer.startEditing()

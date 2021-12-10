@@ -18,7 +18,7 @@ FORM_CLASS, _ = uic.loadUiType(
 )
 
 
-class SammoFollowerAction(QObject):
+class SammoFollowersAction(QObject):
     triggered = pyqtSignal()
 
     def __init__(self, parent: QObject, toolbar: QToolBar):
@@ -44,7 +44,7 @@ class SammoFollowerAction(QObject):
         self.triggered.emit()
 
 
-class SammoFollowerTable(QDialog, FORM_CLASS):
+class SammoFollowersTable(QDialog, FORM_CLASS):
     def __init__(self, iface, followerLayer):
         super().__init__()
         self.iface = iface
