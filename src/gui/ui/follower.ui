@@ -6,32 +6,44 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>759</width>
-    <height>227</height>
+    <width>689</width>
+    <height>428</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Followers</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,1">
-   <property name="leftMargin">
+   <property name="spacing">
     <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>3</number>
    </property>
    <property name="topMargin">
     <number>0</number>
    </property>
    <property name="rightMargin">
-    <number>0</number>
+    <number>3</number>
    </property>
    <property name="bottomMargin">
     <number>0</number>
    </property>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <property name="spacing">
+      <number>4</number>
+     </property>
+     <property name="topMargin">
+      <number>3</number>
+     </property>
+     <property name="bottomMargin">
+      <number>3</number>
+     </property>
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="addButton">
        <property name="text">
-        <string>PLUS</string>
+        <string/>
        </property>
       </widget>
      </item>

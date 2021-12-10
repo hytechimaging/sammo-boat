@@ -48,7 +48,10 @@ class SammoFollowerTable(QDialog, FORM_CLASS):
     def __init__(self, iface, followerLayer):
         super().__init__()
         self.iface = iface
+
         self.setupUi(self)
+        self.addButton.setIcon(icon("plus.png"))
+
         self.table = SammoAttributeTable.attributeTable(iface, followerLayer)
         self.verticalLayout.addWidget(self.table)
 
