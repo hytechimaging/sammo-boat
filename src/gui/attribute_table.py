@@ -47,7 +47,6 @@ class SammoAttributeTable:
         # update table view
         view = table.findChild(QTableView)
         view.horizontalHeader().setStretchLastSection(True)
-        view.verticalHeader().hide()
         view.sortByColumn(0, Qt.DescendingOrder)
 
         return table
