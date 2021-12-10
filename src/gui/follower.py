@@ -52,15 +52,16 @@ class SammoFollowerTable(QDialog, FORM_CLASS):
         self.setupUi(self)
         self.addButton.setIcon(icon("plus.png"))
 
-        self.table = SammoAttributeTable.attributeTable(iface, followerLayer)
+        # the same datetime is used for all followers added in this session
+        self.datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        filter_expr = f"epoch(\"dateTime\") = epoch(to_datetime('{self.datetime}'))"
+        self.table = SammoAttributeTable.attributeTable(iface, followerLayer, filter_expr)
+
         self.verticalLayout.addWidget(self.table)
 
     def show(self):
         super().show()
         self.refresh()
-
-        # the same datetime is used for all followers added in this session
-        self.datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     def refresh(self):
         SammoAttributeTable.refresh(self.table)

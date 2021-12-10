@@ -15,10 +15,12 @@ class SammoAttributeTable:
     @staticmethod
     def refresh(table):
         table.findChild(QAction, "mActionReload").trigger()
+        table.findChild(QAction, "mActionApplyFilter").trigger()
+
         table.findChild(QTableView).resizeColumnsToContents()
 
     @staticmethod
-    def attributeTable(iface, layer):
+    def attributeTable(iface, layer, filter_expr=""):
         # hide some columns
         hiddens = ["fid", "soundFile", "soundStart", "soundEnd"]
         config = layer.attributeTableConfig()
@@ -30,7 +32,7 @@ class SammoAttributeTable:
         layer.setAttributeTableConfig(config)
 
         # init attribute table
-        table = iface.showAttributeTable(layer)
+        table = iface.showAttributeTable(layer, filter_expr)
 
         # hide some items
         last = table.layout().rowCount() - 1
