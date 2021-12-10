@@ -9,7 +9,7 @@ from qgis.PyQt.QtWidgets import QAction, QToolBar
 from ..core import icon
 
 
-class SammoObservationAction(QObject):
+class SammoSightingsAction(QObject):
     triggered = pyqtSignal()
 
     def __init__(self, parent: QObject, toolbar: QToolBar):
@@ -19,8 +19,8 @@ class SammoObservationAction(QObject):
 
     def initGui(self, parent: QObject, toolbar: QToolBar):
         self.button = QAction(parent)
-        self.button.setIcon(icon("observation.png"))
-        self.button.setToolTip("New observation")
+        self.button.setIcon(icon("sightings.png"))
+        self.button.setToolTip("New sighting")
         self.button.triggered.connect(self.onClick)
         self.button.setEnabled(False)
         toolbar.addAction(self.button)

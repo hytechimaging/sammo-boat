@@ -35,8 +35,8 @@ from .database import (
     DB_NAME,
     GPS_TABLE,
     SPECIES_TABLE,
-    FOLLOWER_TABLE,
-    OBSERVER_TABLE,
+    FOLLOWERS_TABLE,
+    OBSERVERS_TABLE,
     SIGHTINGS_TABLE,
     ENVIRONMENT_TABLE,
 )
@@ -63,12 +63,12 @@ class SammoSession:
         return self._layer(GPS_TABLE)
 
     @property
-    def followerLayer(self) -> QgsVectorLayer:
-        return self._layer(FOLLOWER_TABLE, FOLLOWERS_LAYER_NAME)
+    def followersLayer(self) -> QgsVectorLayer:
+        return self._layer(FOLLOWERS_TABLE, FOLLOWERS_LAYER_NAME)
 
     @property
-    def observerLayer(self) -> QgsVectorLayer:
-        return self._layer(OBSERVER_TABLE)
+    def observersLayer(self) -> QgsVectorLayer:
+        return self._layer(OBSERVERS_TABLE)
 
     @property
     def speciesLayer(self) -> QgsVectorLayer:
@@ -98,14 +98,14 @@ class SammoSession:
             sightingsLayer = self._initSightingsLayer()
             project.addMapLayer(sightingsLayer)
 
-            followerLayer = self._initFollowerLayer()
-            project.addMapLayer(followerLayer)
+            followersLayer = self._initFollowersLayer()
+            project.addMapLayer(followersLayer)
 
-            observerLayer = self._initObserverLayer()
-            project.addMapLayer(observerLayer)
+            observersLayer = self._initObserversLayer()
+            project.addMapLayer(observersLayer)
 
-            effortLayer = self._initEffortLayer()
-            project.addMapLayer(effortLayer)
+            environmentLayer = self._initEnvironmentLayer()
+            project.addMapLayer(environmentLayer)
 
             # configure project
             crs = QgsCoordinateReferenceSystem.fromEpsgId(4326)
@@ -132,10 +132,10 @@ class SammoSession:
     ):
         if recordType == RecordType.ENVIRONMENT:
             table = self.environmentLayer
-        elif recordType == RecordType.OBSERVATION:
+        elif recordType == RecordType.SIGHTINGS:
             table = self.sightingsLayer
         else:
-            table = self.followerLayer
+            table = self.followersLayer
 
         idLastAddedFeature = self.db.getIdOfLastAddedFeature(table)
         if idLastAddedFeature != -1:
@@ -549,30 +549,6 @@ class SammoSession:
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
 
-        form_config = layer.editFormConfig()
-        form_config.setInitCode(
-            """
-from qgis.PyQt.QtWidgets import QLineEdit, QComboBox
-
-def my_form_open(dialog, layer, feature):
-    behaviour = dialog.findChild(QComboBox, "behaviour")
-    behavMam = dialog.findChild(QComboBox, "behavMam")
-    behavBird = dialog.findChild(QComboBox, "behavBird")
-    behavShip = dialog.findChild(QComboBox, "behavShip")
-    def updateBehav():
-        behaviour.currentIndexChanged.emit(behaviour.currentIndex())
-        behavMam.currentIndexChanged.emit(behavMam.currentIndex())
-        behavBird.currentIndexChanged.emit(behavBird.currentIndex())
-        behavShip.currentIndexChanged.emit(behavShip.currentIndex())
-
-    species = dialog.findChild(QLineEdit, "species")
-    species.valueChanged.connect(updateBehav)
-            """
-        )
-        form_config.setInitFunction("my_form_open")
-        form_config.setInitCodeSource(2)
-        layer.setEditFormConfig(form_config)
-
         return layer
 
     def _initSpeciesLayer(self) -> QgsVectorLayer:
@@ -586,8 +562,8 @@ def my_form_open(dialog, layer, feature):
 
         return layer
 
-    def _initFollowerLayer(self) -> QgsVectorLayer:
-        layer = self.followerLayer
+    def _initFollowersLayer(self) -> QgsVectorLayer:
+        layer = self.followersLayer
         layer.setName(FOLLOWERS_LAYER_NAME)
 
         # symbology
@@ -638,10 +614,10 @@ def my_form_open(dialog, layer, feature):
             "Description": '"observer"',
             "FilterExpression": "",
             "Key": "observer",
-            "Layer": self.observerLayer.id(),
+            "Layer": self.observersLayer.id(),
             "LayerName": OBSERVERS_LAYER_NAME,
             "LayerProviderName": "ogr",
-            "LayerSource": self.db.tableUri(OBSERVER_TABLE),
+            "LayerSource": self.db.tableUri(OBSERVERS_TABLE),
             "NofColumns": 1,
             "OrderByValue": False,
             "UseCompleter": False,
@@ -740,7 +716,7 @@ def my_form_open(dialog, layer, feature):
 
         return layer
 
-    def _initEffortLayer(self) -> QgsVectorLayer:
+    def _initEnvironmentLayer(self) -> QgsVectorLayer:
         layer = self.environmentLayer
         layer.setName(ENVIRONMENT_LAYER_NAME)
 
@@ -980,10 +956,10 @@ def my_form_open(dialog, layer, feature):
                 "Description": '"observer"',
                 "FilterExpression": "",
                 "Key": "observer",
-                "Layer": self.observerLayer.id(),
+                "Layer": self.observersLayer.id(),
                 "LayerName": OBSERVERS_LAYER_NAME,
                 "LayerProviderName": "ogr",
-                "LayerSource": self.db.tableUri(OBSERVER_TABLE),
+                "LayerSource": self.db.tableUri(OBSERVERS_TABLE),
                 "NofColumns": 1,
                 "OrderByValue": False,
                 "UseCompleter": False,
@@ -1007,8 +983,8 @@ def my_form_open(dialog, layer, feature):
 
         return gpsLayer
 
-    def _initObserverLayer(self) -> QgsVectorLayer:
-        layer = self.observerLayer
+    def _initObserversLayer(self) -> QgsVectorLayer:
+        layer = self.observersLayer
         layer.setName(OBSERVERS_LAYER_NAME)
 
         # fid

@@ -14,7 +14,7 @@ from .thread_sound_recording import ThreadForSoundRecording
 
 class RecordType(Enum):
     ENVIRONMENT = 0
-    OBSERVATION = 1
+    SIGHTINGS = 1
     FOLLOWERS = 2
 
 
@@ -34,8 +34,8 @@ class SammoSoundRecordingController(QObject):
         if self._thread.isProceeding:
             self._onAutomaticStopRecordingTimerEnded()
 
-    def onStartObservation(self):
-        self._onStartEventWhichNeedSoundRecord(RecordType.OBSERVATION)
+    def onStartSightings(self):
+        self._onStartEventWhichNeedSoundRecord(RecordType.SIGHTINGS)
 
     def onStartEnvironment(self):
         self._onStartEventWhichNeedSoundRecord(RecordType.ENVIRONMENT)
@@ -74,7 +74,7 @@ class SammoSoundRecordingController(QObject):
         else:
             soundStart = "0"
 
-        if recordType == RecordType.OBSERVATION:
+        if recordType == RecordType.SIGHTINGS:
             self._finalizeObservation(self._soundFile, soundStart, soundEnd)
         elif recordType == RecordType.ENVIRONMENT:
             self._finalizeEnvironment(self._soundFile, soundStart, soundEnd)
@@ -99,7 +99,7 @@ class SammoSoundRecordingController(QObject):
     def _startRecording(self, recordType: RecordType):
         dateTimeObj = datetime.now()
         timeTxt = dateTimeObj.strftime("%Y%m%d_%H%M%S")
-        if recordType == RecordType.OBSERVATION:
+        if recordType == RecordType.SIGHTINGS:
             self._soundFile = f"observation_sound_recording_{timeTxt}.wav"
         elif recordType == RecordType.ENVIRONMENT:
             self._soundFile = f"environment_sound_recording_{timeTxt}.wav"
@@ -124,7 +124,7 @@ class SammoSoundRecordingController(QObject):
         else:
             soundStart = "0"
 
-        if self._recordType == RecordType.OBSERVATION:
+        if self._recordType == RecordType.SIGHTINGS:
             self._finalizeObservation(self._soundFile, soundStart, soundEnd)
         elif self._recordType == RecordType.ENVIRONMENT:
             self._finalizeEnvironment(self._soundFile, soundStart, soundEnd)
@@ -148,7 +148,7 @@ class SammoSoundRecordingController(QObject):
     ):
         self._startTimerOnRecordForCurrentEvent = None
         self.onStopSoundRecordingForEventSignal.emit(
-            RecordType.OBSERVATION, soundFile, soundStart, soundEnd
+            RecordType.SIGHTINGS, soundFile, soundStart, soundEnd
         )
 
     def _finalizeFollowers(
