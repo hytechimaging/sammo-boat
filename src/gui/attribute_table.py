@@ -3,21 +3,11 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-import os
-import sys
-
-from qgis.PyQt import uic
-from qgis.PyQt.QtCore import Qt, QSize
-from qgis.PyQt.QtWidgets import QFrame, QLabel, QDockWidget, QTableView, QAction, QHeaderView, QToolBar
-
-from qgis.core import QgsSettings
-
-from ..core import pixmap
-from ..core.thread_widget import ThreadWidget
+from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtWidgets import QFrame, QTableView, QAction, QToolBar
 
 
-class SammoAttributeTable():
-
+class SammoAttributeTable:
     @staticmethod
     def toolbar(table):
         return table.findChild(QToolBar, "mToolbar")
@@ -36,8 +26,8 @@ class SammoAttributeTable():
         for column in columns:
             if column.name in hiddens:
                 column.hidden = True
-        config.setColumns( columns )
-        layer.setAttributeTableConfig( config )
+        config.setColumns(columns)
+        layer.setAttributeTableConfig(config)
 
         # init attribute table
         table = iface.showAttributeTable(layer)
@@ -57,6 +47,7 @@ class SammoAttributeTable():
         # update table view
         view = table.findChild(QTableView)
         view.horizontalHeader().setStretchLastSection(True)
+        view.verticalHeader().hide()
         view.sortByColumn(0, Qt.DescendingOrder)
 
         return table

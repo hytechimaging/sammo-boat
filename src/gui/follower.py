@@ -4,10 +4,11 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os
+from datetime import datetime
 
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import pyqtSignal, QObject
-from qgis.PyQt.QtWidgets import QAction, QToolBar, QFrame, QDialog
+from qgis.PyQt.QtWidgets import QAction, QToolBar, QDialog
 
 from ..core import icon
 from .attribute_table import SammoAttributeTable
@@ -44,7 +45,6 @@ class SammoFollowerAction(QObject):
 
 
 class SammoFollowerTable(QDialog, FORM_CLASS):
-
     def __init__(self, iface, followerLayer):
         super().__init__()
         self.iface = iface
@@ -54,6 +54,13 @@ class SammoFollowerTable(QDialog, FORM_CLASS):
 
         self.table = SammoAttributeTable.attributeTable(iface, followerLayer)
         self.verticalLayout.addWidget(self.table)
+
+    def show(self):
+        super().show()
+        self.refresh()
+
+        # the same datetime is used for all followers added in this session
+        self.datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     def refresh(self):
         SammoAttributeTable.refresh(self.table)
