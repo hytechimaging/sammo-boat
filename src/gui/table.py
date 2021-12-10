@@ -27,12 +27,12 @@ class TableWidget(QFrame, FORM_CLASS):
         super().__init__()
         self.setupUi(self)
 
-        self.environmentTable = SammoAttributeTable.attributeTable(iface, environmentLayer)
-        self.sightingTable = SammoAttributeTable.attributeTable(iface, sightingLayer)
-
-        self.verticalLayout.addWidget(self.environmentTable)
+        self.tables = {}
+        self.tables[environmentLayer.name()] = SammoAttributeTable.attributeTable(iface, environmentLayer)
+        self.tables[sightingLayer.name()] = SammoAttributeTable.attributeTable(iface, sightingLayer)
+        self.verticalLayout.addWidget(self.tables[environmentLayer.name()])
         self.verticalLayout.addWidget(QLabel("Sightings"))
-        self.verticalLayout.addWidget(self.sightingTable)
+        self.verticalLayout.addWidget(self.tables[sightingLayer.name()])
 
 
 class TableDock(QDockWidget):
@@ -53,4 +53,4 @@ class TableDock(QDockWidget):
 
     def refresh(self, layer):
         table = self._widget.tables[layer.name()]
-        TableWidget.refresh(table)
+        SammoAttributeTable.refresh(table)
