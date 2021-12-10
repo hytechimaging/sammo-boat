@@ -22,8 +22,8 @@ DB_NAME = "sammo-boat.gpkg"
 
 GPS_TABLE = "gps"
 SPECIES_TABLE = "species"
-OBSERVER_TABLE = "observer"
-FOLLOWER_TABLE = "followers"
+OBSERVERS_TABLE = "observers"
+FOLLOWERS_TABLE = "followers"
 SIGHTINGS_TABLE = "sightings"
 ENVIRONMENT_TABLE = "environment"
 
@@ -60,15 +60,15 @@ class SammoDataBase:
             self._fieldsSightings(), SIGHTINGS_TABLE, QgsWkbTypes.Point
         )
         self._createTable(
-            self._createFieldsForFollowerTable(),
-            FOLLOWER_TABLE,
+            self._createFieldsForFollowersTable(),
+            FOLLOWERS_TABLE,
             QgsWkbTypes.Point,
         )
         self._createTable(
             self._createFieldsForGpsTable(), GPS_TABLE, QgsWkbTypes.Point
         )
 
-        self._createTable(self._fieldsObserver(), OBSERVER_TABLE)
+        self._createTable(self._fieldsObserver(), OBSERVERS_TABLE)
 
         return True
 
@@ -150,7 +150,7 @@ class SammoDataBase:
 
         return fields
 
-    def _createFieldsForFollowerTable(self) -> QgsFields:
+    def _createFieldsForFollowersTable(self) -> QgsFields:
         fields = QgsFields()
         fields.append(QgsField("dateTime", QVariant.DateTime))
         fields.append(QgsField("nFollower", QVariant.Int))

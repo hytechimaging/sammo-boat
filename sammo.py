@@ -20,10 +20,10 @@ from .src.core.sound_recording_controller import SammoSoundRecordingController
 
 from .src.gui.table import TableDock
 from .src.gui.status import StatusDock
-from .src.gui.effort import SammoEffortAction
 from .src.gui.session import SammoSessionAction
 from .src.gui.simu_gps import SammoSimuGpsAction
 from .src.gui.observation import SammoObservationAction
+from .src.gui.environment import SammoEnvironmentAction
 from .src.gui.follower import SammoFollowerAction, SammoFollowerTable
 
 
@@ -38,7 +38,7 @@ class Sammo:
 
         self.sessionAction = self.createSessionAction()
         self.toolbar.addSeparator()
-        self.effortAction = self.createEffortAction()
+        self.environmentAction = self.createEnvironmentAction()
         self.observationAction = self.createObservationAction()
         self.followerAction = self.createFollowerAction()
         self.simuGpsAction, self.threadSimuGps = self.createSimuGps()
@@ -57,7 +57,7 @@ class Sammo:
 
     def setEnabled(self, status):
         self.statusDock.setEnabled(status)
-        self.effortAction.setEnabled(status)
+        self.environmentAction.setEnabled(status)
         self.followerAction.setEnabled(status)
         self.observationAction.setEnabled(status)
 
@@ -99,9 +99,9 @@ class Sammo:
         button.triggered.connect(self.onObservationAction)
         return button
 
-    def createEffortAction(self) -> SammoEffortAction:
-        button = SammoEffortAction(self.mainWindow, self.toolbar)
-        button.updateEffort.connect(self.onEffortAction)
+    def createEnvironmentAction(self) -> SammoEnvironmentAction:
+        button = SammoEnvironmentAction(self.mainWindow, self.toolbar)
+        button.updateEnvironment.connect(self.onEnvironmentAction)
         return button
 
     def createSessionAction(self) -> SammoSessionAction:
@@ -119,7 +119,7 @@ class Sammo:
             self.threadSimuGps.stop()
         self.soundRecordingController.unload()
         self.sessionAction.unload()
-        self.effortAction.unload()
+        self.environmentAction.unload()
         self.observationAction.unload()
         if self.simuGpsAction is not None:
             self.simuGpsAction.unload()
@@ -154,7 +154,7 @@ class Sammo:
         if self.simuGpsAction:
             self.simuGpsAction.onNewSession()
 
-    def onEffortAction(self, onEffort: bool):
+    def onEnvironmentAction(self, onEnvironment: bool):
         self.soundRecordingController.onStartEnvironment()
         layer = self.session.environmentLayer
         feat = QgsVectorLayerUtils.createFeature(layer)

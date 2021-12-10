@@ -10,8 +10,8 @@ from qgis.PyQt.QtWidgets import QAction, QToolBar
 from ..core import icon
 
 
-class SammoEffortAction(QObject):
-    updateEffort = pyqtSignal(bool)
+class SammoEnvironmentAction(QObject):
+    updateEnvironment = pyqtSignal(bool)
 
     def __init__(self, parent: QObject, toolbar: QToolBar):
         super().__init__()
@@ -25,8 +25,8 @@ class SammoEffortAction(QObject):
 
     def initGui(self, parent: QObject, toolbar: QToolBar):
         self.action = QAction(parent)
-        self.action.setIcon(icon("effort.png"))
-        self.action.setToolTip("New environment")
+        self.action.setIcon(icon("environment.png"))
+        self.action.setToolTip("Update environment")
         self.action.triggered.connect(self.onClick)
         self.action.setEnabled(False)
         toolbar.addAction(self.action)
@@ -35,4 +35,4 @@ class SammoEffortAction(QObject):
         del self.action
 
     def onClick(self):
-        self.updateEffort.emit(self.action.isChecked())
+        self.updateEnvironment.emit(self.action.isChecked())

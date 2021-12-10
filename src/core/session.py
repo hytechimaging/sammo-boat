@@ -35,8 +35,8 @@ from .database import (
     DB_NAME,
     GPS_TABLE,
     SPECIES_TABLE,
-    FOLLOWER_TABLE,
-    OBSERVER_TABLE,
+    FOLLOWERS_TABLE,
+    OBSERVERS_TABLE,
     SIGHTINGS_TABLE,
     ENVIRONMENT_TABLE,
 )
@@ -64,11 +64,11 @@ class SammoSession:
 
     @property
     def followerLayer(self) -> QgsVectorLayer:
-        return self._layer(FOLLOWER_TABLE, FOLLOWERS_LAYER_NAME)
+        return self._layer(FOLLOWERS_TABLE, FOLLOWERS_LAYER_NAME)
 
     @property
     def observerLayer(self) -> QgsVectorLayer:
-        return self._layer(OBSERVER_TABLE)
+        return self._layer(OBSERVERS_TABLE)
 
     @property
     def speciesLayer(self) -> QgsVectorLayer:
@@ -641,7 +641,7 @@ def my_form_open(dialog, layer, feature):
             "Layer": self.observerLayer.id(),
             "LayerName": OBSERVERS_LAYER_NAME,
             "LayerProviderName": "ogr",
-            "LayerSource": self.db.tableUri(OBSERVER_TABLE),
+            "LayerSource": self.db.tableUri(OBSERVERS_TABLE),
             "NofColumns": 1,
             "OrderByValue": False,
             "UseCompleter": False,
@@ -983,7 +983,7 @@ def my_form_open(dialog, layer, feature):
                 "Layer": self.observerLayer.id(),
                 "LayerName": OBSERVERS_LAYER_NAME,
                 "LayerProviderName": "ogr",
-                "LayerSource": self.db.tableUri(OBSERVER_TABLE),
+                "LayerSource": self.db.tableUri(OBSERVERS_TABLE),
                 "NofColumns": 1,
                 "OrderByValue": False,
                 "UseCompleter": False,
