@@ -18,13 +18,13 @@ from .src.core.session import SammoSession
 from .src.core.thread_simu_gps import ThreadSimuGps
 from .src.core.sound_recording_controller import SammoSoundRecordingController
 
+from .src.gui.table import TableDock
 from .src.gui.status import StatusDock
 from .src.gui.effort import SammoEffortAction
 from .src.gui.session import SammoSessionAction
 from .src.gui.simu_gps import SammoSimuGpsAction
-from .src.gui.follower import SammoFollowerAction
 from .src.gui.observation import SammoObservationAction
-from .src.gui.environment import SammoEnvironmentAction
+from .src.gui.follower import SammoFollowerAction, SammoFollowerTable
 
 
 class Sammo:
@@ -37,15 +37,16 @@ class Sammo:
         self.session = SammoSession()
 
         self.sessionAction = self.createSessionAction()
+        self.toolbar.addSeparator()
         self.effortAction = self.createEffortAction()
-        self.environmentAction = self.createEnvironmentAction()
-        self.followerAction = self.createFollowerAction()
         self.observationAction = self.createObservationAction()
+        self.followerAction = self.createFollowerAction()
         self.simuGpsAction, self.threadSimuGps = self.createSimuGps()
 
         self.soundRecordingController = self.createSoundRecordingController()
         self.gpsReader = self.createGpsReader()
         self.statusDock = StatusDock(iface)
+        self.tableDock = TableDock(iface)
 
         iface.projectRead.connect(self.onProjectLoaded)
         iface.newProjectCreated.connect(self.onProjectLoaded)
@@ -103,11 +104,6 @@ class Sammo:
         button.updateEffort.connect(self.onEffortAction)
         return button
 
-    def createEnvironmentAction(self) -> SammoEnvironmentAction:
-        button = SammoEnvironmentAction(self.mainWindow, self.toolbar)
-        button.triggered.connect(self.onEnvironmentAction)
-        return button
-
     def createSessionAction(self) -> SammoSessionAction:
         button = SammoSessionAction(self.mainWindow, self.toolbar)
         button.create.connect(self.onCreateSession)
@@ -124,7 +120,6 @@ class Sammo:
         self.soundRecordingController.unload()
         self.sessionAction.unload()
         self.effortAction.unload()
-        self.environmentAction.unload()
         self.observationAction.unload()
         if self.simuGpsAction is not None:
             self.simuGpsAction.unload()
@@ -149,92 +144,71 @@ class Sammo:
 
         self.soundRecordingController.onNewSession(sessionDirectory)
 
+        self.tableDock.init(
+            self.session.environmentLayer, self.session.sightingsLayer
+        )
+        self.tableDock.refresh(self.session.sightingsLayer)
+        self.tableDock.refresh(self.session.environmentLayer)
+
         # init simu
         if self.simuGpsAction:
             self.simuGpsAction.onNewSession()
 
     def onEffortAction(self, onEffort: bool):
-        if not onEffort:
-            if self.updateEffort("E"):  # cancel
-                self.statusDock.isEffortOn = False
-            else:
-                self.effortAction.action.setChecked(True)
-        else:
-            if not self.updateEffort("B"):
-                # the user pressed the CANCEL button of the form
-                self.effortAction.action.setChecked(False)
-                self.statusDock.isEffortOn = False
-            else:
-                self.statusDock.isEffortOn = True
-
-        self.environmentAction.onChangeEffortStatus(self.statusDock.isEffortOn)
-
-    def updateEffort(self, status: str = "A") -> bool:
         self.soundRecordingController.onStartEnvironment()
-
         layer = self.session.environmentLayer
         feat = QgsVectorLayerUtils.createFeature(layer)
-        layer.startEditing()
-        layer.addFeature(feat)
         feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        feat["status"] = status
 
-        layer.startEditing()
-        if self.iface.openFeatureForm(layer, feat):
-            layer.updateFeature(feat)
-            layer.commitChanges()
-            self.soundRecordingController.onStopEventWhichNeedSoundRecord()
-            return True
-        else:
-            self.soundRecordingController.hardStopOfRecording()
-            layer.rollBack()
-            return False
+        if not layer.isEditable():
+            layer.startEditing()
+        layer.addFeature(feat)
+
+        self.saveAll()
+
+        self.tableDock.refresh(layer)
+        self.soundRecordingController.onStopEventWhichNeedSoundRecord()
 
     def onObservationAction(self):
         self.soundRecordingController.onStartObservation()
 
         layer = self.session.sightingsLayer
         feat = QgsVectorLayerUtils.createFeature(layer)
-        layer.startEditing()
-        layer.addFeature(feat)
-        if self.session.lastGpsGeom:
-            feat.setGeometry(self.session.lastGpsGeom)
         feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        layer.startEditing()
-        if self.iface.openFeatureForm(layer, feat):
-            layer.updateFeature(feat)
-            layer.commitChanges()
-            self.soundRecordingController.onStopEventWhichNeedSoundRecord()
-        else:
-            self.soundRecordingController.hardStopOfRecording()
-            layer.rollBack()
+        if not layer.isEditable():
+            layer.startEditing()
+        layer.addFeature(feat)
+
+        self.saveAll()
+
+        self.tableDock.refresh(layer)
+        self.soundRecordingController.onStopEventWhichNeedSoundRecord(10)
 
     def onFollowerAction(self):
-        self.soundRecordingController.onStartFollowers()
+        self.followerTable = SammoFollowerTable(
+            self.iface, self.session.followerLayer
+        )
+        self.followerTable.addButton.clicked.connect(self.onFollowerAdd)
+        self.followerTable.okButton.clicked.connect(self.onFollowerOk)
+        self.followerTable.show()
 
+    def onFollowerOk(self):
+        self.saveAll()
+        self.followerTable.close()
+
+    def onFollowerAdd(self):
         layer = self.session.followerLayer
         feat = QgsVectorLayerUtils.createFeature(layer)
-        layer.startEditing()
+        feat["dateTime"] = self.followerTable.datetime
+
+        if not layer.isEditable():
+            layer.startEditing()
         layer.addFeature(feat)
 
-        if self.session.lastGpsGeom:
-            feat.setGeometry(self.session.lastGpsGeom)
-        feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.saveAll()
 
-        layer.startEditing()
-        if self.iface.openFeatureForm(layer, feat):
-            layer.updateFeature(feat)
-            layer.commitChanges()
-            self.soundRecordingController.onStopEventWhichNeedSoundRecord()
-        else:
-            self.soundRecordingController.hardStopOfRecording()
-            layer.rollBack()
-
-    def onEnvironmentAction(self) -> None:
-        if self.updateEffort():
-            self.statusDock.isEffortOn = True
-            self.soundRecordingController.onStopEventWhichNeedSoundRecord()
+        self.followerTable.refresh()
 
     def onChangeSimuGpsStatus(self, isOn: bool):
         if isOn:
@@ -257,6 +231,15 @@ class Sammo:
             return
 
         self.onCreateSession(sessionDir)
+
+    def saveAll(self) -> None:
+        for layer in [
+            self.session.environmentLayer,
+            self.session.sightingsLayer,
+            self.session.followerLayer,
+        ]:
+            layer.commitChanges()
+            layer.startEditing()
 
     @staticmethod
     def pluginFolder():

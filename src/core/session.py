@@ -40,9 +40,10 @@ from .database import (
     SIGHTINGS_TABLE,
     ENVIRONMENT_TABLE,
 )
+from .sound_recording_controller import RecordType
 
 SPECIES_LAYER_NAME = "Species"
-ENVIRONMENT_LAYER_NAME = "Effort"
+ENVIRONMENT_LAYER_NAME = "Environment"
 FOLLOWERS_LAYER_NAME = "Followers"
 OBSERVERS_LAYER_NAME = "Observers"
 SIGHTINGS_LAYER_NAME = "Sightings"
@@ -124,17 +125,18 @@ class SammoSession:
 
     def onStopSoundRecordingForEvent(
         self,
-        isObservation: bool,
+        recordType: RecordType,
         soundFile: str,
         soundStart: str,
         soundEnd: str,
     ):
-        if isObservation:
+        if recordType == RecordType.ENVIRONMENT:
+            table = self.environmentLayer
+        elif recordType == RecordType.OBSERVATION:
             table = self.sightingsLayer
         else:
-            table = self.environmentLayer
+            table = self.followerLayer
 
-        table.startEditing()
         idLastAddedFeature = self.db.getIdOfLastAddedFeature(table)
         if idLastAddedFeature != -1:
             field_idx = table.fields().indexOf("soundFile")
@@ -147,7 +149,6 @@ class SammoSession:
             )
             field_idx = table.fields().indexOf("soundEnd")
             table.changeAttributeValue(idLastAddedFeature, field_idx, soundEnd)
-        table.commitChanges()
 
     def loadTable(self, tableName: str) -> QgsVectorLayer:
         layer = self.db.loadTable(self.directory, tableName)
@@ -208,9 +209,9 @@ class SammoSession:
         idx = layer.fields().indexFromName("side")
         cfg = {}
         cfg["map"] = [
-            {"L (portside)": "L (portside)"},
-            {"R (starboard)": "R (starboard)"},
-            {"C (center)": "C (center)"},
+            {"L": "L"},
+            {"R": "R"},
+            {"C": "C"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
@@ -750,9 +751,15 @@ def my_form_open(dialog, layer, feature):
 
         # status
         idx = layer.fields().indexFromName("status")
-        form_config = layer.editFormConfig()
-        form_config.setReadOnly(idx, True)
-        layer.setEditFormConfig(form_config)
+        cfg = {}
+        cfg["map"] = [
+            {"B": "B"},
+            {"A": "A"},
+            {"E": "E"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'A'"))
 
         # platform
         idx = layer.fields().indexFromName("plateform")
@@ -984,49 +991,6 @@ def my_form_open(dialog, layer, feature):
             }
             setup = QgsEditorWidgetSetup("ValueRelation", cfg)
             layer.setEditorWidgetSetup(idx, setup)
-
-        form_config = layer.editFormConfig()
-        form_config.setInitCode(
-            """
-from qgis.PyQt.QtWidgets import QSpinBox, QComboBox
-def my_form_open(dialog, layer, feature):
-    glareFrom = dialog.findChild(QSpinBox, "glareFrom")
-    glareTo = dialog.findChild(QSpinBox, "glareTo")
-
-    def updateGlareDir(idx):
-        form_config = layer.editFormConfig()
-        if idx:
-            idx = layer.fields().indexFromName('glareFrom')
-            form_config.setReadOnly(idx, False)
-            idx = layer.fields().indexFromName('glareTo')
-            form_config.setReadOnly(idx, False)
-            layer.setEditFormConfig(form_config)
-            glareFrom.setEnabled(True)
-            glareTo.setEnabled(True)
-            return
-        idx = layer.fields().indexFromName('glareFrom')
-        form_config.setReadOnly(idx, True)
-        idx = layer.fields().indexFromName('glareTo')
-        form_config.setReadOnly(idx, True)
-        glareFrom.setValue(0)
-        glareTo.setValue(0)
-        glareFrom.setEnabled(False)
-        glareTo.setEnabled(False)
-        layer.setEditFormConfig(form_config)
-
-    glareSever = dialog.findChild(QComboBox, "glareSever")
-    glareSever.currentIndexChanged.connect(updateGlareDir)
-    form_config = layer.editFormConfig()
-    idx = layer.fields().indexFromName('glareFrom')
-    form_config.setReadOnly(idx, bool(glareSever.currentIndex()==0))
-    idx = layer.fields().indexFromName('glareTo')
-    form_config.setReadOnly(idx, bool(glareSever.currentIndex()==0))
-    layer.setEditFormConfig(form_config)
-            """
-        )
-        form_config.setInitFunction("my_form_open")
-        form_config.setInitCodeSource(2)
-        layer.setEditFormConfig(form_config)
 
         return layer
 
