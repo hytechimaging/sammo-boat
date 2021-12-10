@@ -77,7 +77,7 @@ class Sammo:
         button = SammoSimuGpsAction(self.mainWindow, self.toolbar)
         button.onChangeSimuGpsStatusSignal.connect(self.onChangeSimuGpsStatus)
         testFilePath = os.path.join(
-            self.pluginFolder(), "src", "core", "trace_simu_gps.csv"
+            self.pluginFolder(), "src", "core", "gps_simu.csv"
         )
         threadGps = ThreadSimuGps(self.session, testFilePath)
         threadGps.frame.connect(self.onGpsFrame)

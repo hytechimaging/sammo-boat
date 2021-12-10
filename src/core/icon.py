@@ -3,16 +3,14 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-import os
+from pathlib import Path
 
 from qgis.PyQt.QtCore import QSize
 from qgis.PyQt.QtGui import QIcon, QPixmap
 
 
 def path(name: str) -> str:
-    d = os.path.dirname(os.path.abspath(__file__))
-    root = os.path.dirname(os.path.dirname(d))
-    return os.path.join(root, "images", name)
+    return str(Path(__file__).parent.parent.parent / "images" / name)
 
 
 def icon(name: str) -> QIcon:
@@ -20,6 +18,4 @@ def icon(name: str) -> QIcon:
 
 
 def pixmap(name: str, size: QSize) -> QPixmap:
-    d = os.path.dirname(os.path.abspath(__file__))
-    root = os.path.dirname(os.path.dirname(d))
-    return QIcon(os.path.join(root, "images", name)).pixmap(size)
+    return icon(name).pixmap(size)
