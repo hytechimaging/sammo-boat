@@ -7,7 +7,7 @@ from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import pyqtSignal, QObject
 from qgis.PyQt.QtWidgets import QAction, QToolBar
 
-from ..core import icon
+from ..core.utils import icon
 
 
 class SammoEnvironmentAction(QObject):

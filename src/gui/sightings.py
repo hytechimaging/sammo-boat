@@ -6,7 +6,7 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 from qgis.PyQt.QtCore import pyqtSignal, QObject
 from qgis.PyQt.QtWidgets import QAction, QToolBar
 
-from ..core import icon
+from ..core.utils import icon
 
 
 class SammoSightingsAction(QObject):

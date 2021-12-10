@@ -4,13 +4,12 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os
-from datetime import datetime
 
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import pyqtSignal, QObject
 from qgis.PyQt.QtWidgets import QAction, QToolBar, QDialog
 
-from ..core import icon
+from ..core import utils
 from .attribute_table import SammoAttributeTable
 
 FORM_CLASS, _ = uic.loadUiType(
@@ -31,7 +30,7 @@ class SammoFollowersAction(QObject):
 
     def initGui(self, parent: QObject, toolbar: QToolBar):
         self.action = QAction(parent)
-        self.action.setIcon(icon("seabird.png"))
+        self.action.setIcon(utils.icon("seabird.png"))
         self.action.setToolTip("New follower")
         self.action.triggered.connect(self.onClick)
         self.action.setEnabled(False)
@@ -50,10 +49,10 @@ class SammoFollowersTable(QDialog, FORM_CLASS):
         self.iface = iface
 
         self.setupUi(self)
-        self.addButton.setIcon(icon("plus.png"))
+        self.addButton.setIcon(utils.icon("plus.png"))
 
         # the same datetime is used for all followers added in this session
-        self.datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.datetime = utils.now()
         filter_expr = (
             f"epoch(\"dateTime\") = epoch(to_datetime('{self.datetime}'))"
         )

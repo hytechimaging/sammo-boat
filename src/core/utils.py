@@ -4,6 +4,7 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 from pathlib import Path
+from datetime import datetime
 
 from qgis.PyQt.QtCore import QSize
 from qgis.PyQt.QtGui import QIcon, QPixmap
@@ -19,3 +20,7 @@ def icon(name: str) -> QIcon:
 
 def pixmap(name: str, size: QSize) -> QPixmap:
     return icon(name).pixmap(size)
+
+
+def now() -> str:
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")

@@ -12,7 +12,7 @@ from qgis.PyQt.QtWidgets import QFrame, QLabel, QDockWidget
 
 from qgis.core import QgsSettings
 
-from ..core import pixmap
+from ..core.utils import pixmap
 from ..core.thread_widget import ThreadWidget
 
 FORM_CLASS, _ = uic.loadUiType(
