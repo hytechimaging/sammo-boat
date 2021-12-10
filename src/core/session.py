@@ -598,9 +598,9 @@ def my_form_open(dialog, layer, feature):
         layer.renderer().symbol().changeSymbolLayer(0, symbol)
 
         # fid
-        # idx = layer.fields().indexFromName("fid")
-        # setup = QgsEditorWidgetSetup("Hidden", {})
-        # layer.setEditorWidgetSetup(idx, setup)
+        idx = layer.fields().indexFromName("fid")
+        setup = QgsEditorWidgetSetup("Hidden", {})
+        layer.setEditorWidgetSetup(idx, setup)
 
         # nFollower
         idx = layer.fields().indexFromName("nFollower")
