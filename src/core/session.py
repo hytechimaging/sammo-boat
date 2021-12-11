@@ -35,11 +35,11 @@ from .database import (
     DB_NAME,
     GPS_TABLE,
     SPECIES_TABLE,
-    FOLLOWERS_TABLE,
     OBSERVERS_TABLE,
     SIGHTINGS_TABLE,
     ENVIRONMENT_TABLE,
 )
+from .layers import SammoFollowersLayer
 from .sound_recording_controller import RecordType
 
 SPECIES_LAYER_NAME = "Species"
@@ -54,6 +54,8 @@ class SammoSession:
         self.db = SammoDataBase()
         self.lastGpsGeom: QgsGeometry = None
 
+        self._followersLayer: SammoFollowersLayer
+
     @property
     def environmentLayer(self) -> QgsVectorLayer:
         return self._layer(ENVIRONMENT_TABLE, ENVIRONMENT_LAYER_NAME)
@@ -64,7 +66,7 @@ class SammoSession:
 
     @property
     def followersLayer(self) -> QgsVectorLayer:
-        return self._layer(FOLLOWERS_TABLE, FOLLOWERS_LAYER_NAME)
+        return self._followersLayer.layer
 
     @property
     def observersLayer(self) -> QgsVectorLayer:
@@ -98,11 +100,13 @@ class SammoSession:
             sightingsLayer = self._initSightingsLayer()
             project.addMapLayer(sightingsLayer)
 
-            followersLayer = self._initFollowersLayer()
-            project.addMapLayer(followersLayer)
-
             observersLayer = self._initObserversLayer()
             project.addMapLayer(observersLayer)
+
+            self._followersLayer = SammoFollowersLayer(
+                self.db, observersLayer, speciesLayer
+            )
+            self._followersLayer.addToProject(project)
 
             environmentLayer = self._initEnvironmentLayer()
             project.addMapLayer(environmentLayer)
