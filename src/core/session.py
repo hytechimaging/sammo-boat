@@ -23,12 +23,13 @@ from .database import (
     DB_NAME,
 )
 from .layers import (
+    SammoGpsLayer,
+    SammoWorldLayer,
+    SammoSpeciesLayer,
     SammoFollowersLayer,
     SammoObserversLayer,
-    SammoSpeciesLayer,
-    SammoEnvironmentLayer,
     SammoSightingsLayer,
-    SammoGpsLayer,
+    SammoEnvironmentLayer,
 )
 from .sound_recording_controller import RecordType
 
@@ -38,6 +39,7 @@ class SammoSession:
         self.db = SammoDataBase()
 
         self._gpsLayer: SammoGpsLayer
+        self._worldLayer: SammoWorldLayer
         self._speciesLayer: SammoSpeciesLayer
         self._followersLayer: SammoFollowersLayer
         self._observersLayer: SammoObserversLayer
@@ -76,8 +78,8 @@ class SammoSession:
             project = QgsProject()
 
             # add layers
-            worldLayer = SammoSession._initWorldLayer()
-            project.addMapLayer(worldLayer)
+            self._worldLayer = SammoWorldLayer()
+            self._worldLayer.addToProject(project)
 
             self._gpsLayer = SammoGpsLayer(self.db)
             self._gpsLayer.addToProject(project)
@@ -105,7 +107,7 @@ class SammoSession:
             crs = QgsCoordinateReferenceSystem.fromEpsgId(4326)
             project.setCrs(crs)
 
-            extent = QgsReferencedRectangle(worldLayer.extent(), crs)
+            extent = QgsReferencedRectangle(self._worldLayer.layer.extent(), crs)
             project.viewSettings().setDefaultViewExtent(extent)
 
             project.setBackgroundColor(QColor(166, 206, 227))
@@ -160,23 +162,3 @@ class SammoSession:
                 return uri.split("|")[0].replace(DB_NAME, "")
 
         return ""
-
-    @staticmethod
-    def _worldMapPath() -> str:
-        path = QgsApplication.instance().pkgDataPath()
-        if platform.system() == "Windows":
-            path = os.path.join(
-                path, "resources", "data", "world_map.gpkg|layername=countries"
-            )
-        else:
-            path = os.path.join(
-                path, "resources", "data", "world_map.gpkg|layername=countries"
-            )
-        return path
-
-    @staticmethod
-    def _initWorldLayer() -> QgsVectorLayer:
-        worldLayer = QgsVectorLayer(SammoSession._worldMapPath(), "World")
-        symbol = worldLayer.renderer().symbol()
-        symbol.setColor(QColor(178, 223, 138))
-        return worldLayer
