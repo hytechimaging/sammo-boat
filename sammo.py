@@ -9,10 +9,8 @@ from qgis.PyQt.QtWidgets import QToolBar
 from qgis.core import (
     QgsProject,
     QgsPointXY,
-    QgsVectorLayerUtils,
 )
 
-from .src.core import utils
 from .src.core.gps import SammoGpsReader
 from .src.core.session import SammoSession
 from .src.core.thread_simu_gps import ThreadSimuGps
@@ -157,32 +155,13 @@ class Sammo:
 
     def onEnvironmentAction(self, onEnvironment: bool):
         self.soundRecordingController.onStartEnvironment()
-        layer = self.session.environmentLayer
-        feat = QgsVectorLayerUtils.createFeature(layer)
-        feat["dateTime"] = utils.now()
-
-        if not layer.isEditable():
-            layer.startEditing()
-        layer.addFeature(feat)
-
-        self.saveAll()
-
+        layer = self.session.addEnvironmentFeature()
         self.tableDock.refresh(layer)
         self.soundRecordingController.onStopEventWhichNeedSoundRecord()
 
     def onSightingsAction(self):
         self.soundRecordingController.onStartSightings()
-
-        layer = self.session.sightingsLayer
-        feat = QgsVectorLayerUtils.createFeature(layer)
-        feat["dateTime"] = utils.now()
-
-        if not layer.isEditable():
-            layer.startEditing()
-        layer.addFeature(feat)
-
-        self.saveAll()
-
+        layer = self.session.addSightingsFeature()
         self.tableDock.refresh(layer)
         self.soundRecordingController.onStopEventWhichNeedSoundRecord()
 
@@ -197,21 +176,12 @@ class Sammo:
         self.followersTable.show()
 
     def onFollowersOk(self):
-        self.saveAll()
+        self.session.saveAll()
         self.followersTable.close()
         self.soundRecordingController.onStopEventWhichNeedSoundRecord(0)
 
     def onFollowersAdd(self):
-        layer = self.session.followersLayer
-        feat = QgsVectorLayerUtils.createFeature(layer)
-        feat["dateTime"] = self.followersTable.datetime
-
-        if not layer.isEditable():
-            layer.startEditing()
-        layer.addFeature(feat)
-
-        self.saveAll()
-
+        self.session.addFollowersFeature(self.followersTable.datetime)
         self.followersTable.refresh()
 
     def onChangeSimuGpsStatus(self, isOn: bool):
@@ -235,15 +205,6 @@ class Sammo:
             return
 
         self.onCreateSession(sessionDir)
-
-    def saveAll(self) -> None:
-        for layer in [
-            self.session.environmentLayer,
-            self.session.sightingsLayer,
-            self.session.followersLayer,
-        ]:
-            layer.commitChanges()
-            layer.startEditing()
 
     @staticmethod
     def pluginFolder():

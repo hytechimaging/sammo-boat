@@ -3,7 +3,7 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-from qgis.PyQt.QtCore import Qt
+from qgis.PyQt import QtCore
 from qgis.PyQt.QtWidgets import QFrame, QTableView, QAction, QToolBar
 
 
@@ -49,6 +49,8 @@ class SammoAttributeTable:
         # update table view
         view = table.findChild(QTableView)
         view.horizontalHeader().setStretchLastSection(True)
-        view.sortByColumn(0, Qt.DescendingOrder)
+        view.model().rowsInserted.connect(
+            lambda: QtCore.QTimer.singleShot(0, view.scrollToBottom)
+        )
 
         return table

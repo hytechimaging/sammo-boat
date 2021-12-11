@@ -10,10 +10,12 @@ from qgis.core import (
     QgsMapLayer,
     QgsSettings,
     QgsVectorLayer,
+    QgsVectorLayerUtils,
     QgsReferencedRectangle,
     QgsCoordinateReferenceSystem,
 )
 
+from . import utils
 from .database import (
     SammoDataBase,
     DB_NAME,
@@ -117,13 +119,36 @@ class SammoSession:
         QgsProject.instance().read(self.db.projectUri)
         QgsSettings().setValue("qgis/enableMacros", "SessionOnly")
 
+    def addEnvironmentFeature(self) -> QgsVectorLayer:
+        layer = self.environmentLayer
+        self._addFeature(layer)
+        return layer
+
+    def addSightingsFeature(self) -> QgsVectorLayer:
+        layer = self.sightingsLayer
+        self._addFeature(layer)
+        return layer
+
+    def addFollowersFeature(self, dt: str) -> None:
+        layer = self.followersLayer
+        self._addFeature(layer, dt)
+
+    def saveAll(self) -> None:
+        for layer in [
+            self.environmentLayer,
+            self.sightingsLayer,
+            self.followersLayer,
+        ]:
+            layer.commitChanges()
+            layer.startEditing()
+
     def onStopSoundRecordingForEvent(
         self,
         recordType: RecordType,
         soundFile: str,
         soundStart: str,
         soundEnd: str,
-    ):
+    ) -> None:
         if recordType == RecordType.ENVIRONMENT:
             table = self.environmentLayer
         elif recordType == RecordType.SIGHTINGS:
@@ -131,23 +156,43 @@ class SammoSession:
         else:
             table = self.followersLayer
 
-        idLastAddedFeature = self.db.getIdOfLastAddedFeature(table)
-        if idLastAddedFeature != -1:
-            field_idx = table.fields().indexOf("soundFile")
-            table.changeAttributeValue(
-                idLastAddedFeature, field_idx, soundFile
-            )
-            field_idx = table.fields().indexOf("soundStart")
-            table.changeAttributeValue(
-                idLastAddedFeature, field_idx, soundStart
-            )
-            field_idx = table.fields().indexOf("soundEnd")
-            table.changeAttributeValue(idLastAddedFeature, field_idx, soundEnd)
+        lastFeature = self.db.lastFeature(table)
+        if not lastFeature:
+            return
+
+        idLastAddedFeature = lastFeature.id()
+
+        field_idx = table.fields().indexOf("soundFile")
+        table.changeAttributeValue(idLastAddedFeature, field_idx, soundFile)
+        field_idx = table.fields().indexOf("soundStart")
+        table.changeAttributeValue(idLastAddedFeature, field_idx, soundStart)
+        field_idx = table.fields().indexOf("soundEnd")
+        table.changeAttributeValue(idLastAddedFeature, field_idx, soundEnd)
 
     def addGps(
         self, longitude: float, latitude: float, hour: int, minu: int, sec: int
     ):
         self._gpsLayer.add(longitude, latitude, hour, minu, sec)
+
+    def _addFeature(self, layer: QgsVectorLayer, dt: str = "") -> None:
+        feat = QgsVectorLayerUtils.createFeature(layer)
+
+        if not dt:
+            dt = utils.now()
+        feat["dateTime"] = dt
+
+        lastFeat = SammoDataBase.lastFeature(layer)
+        if lastFeat:
+            for name in lastFeat.fields().names():
+                if name == "fid" or name == "dateTime":
+                    continue
+                feat[name] = lastFeat[name]
+
+        if not layer.isEditable():
+            layer.startEditing()
+        layer.addFeature(feat)
+
+        self.saveAll()
 
     @staticmethod
     def sessionDirectory(project: QgsProject) -> str:
