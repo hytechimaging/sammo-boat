@@ -19,27 +19,24 @@ from qgis.core import (
     QgsSettings,
     QgsApplication,
     QgsVectorLayer,
-    QgsDefaultValue,
-    QgsFieldConstraints,
     QgsVectorLayerUtils,
-    QgsEditorWidgetSetup,
     QgsReferencedRectangle,
-    QgsSvgMarkerSymbolLayer,
     QgsCoordinateReferenceSystem,
 )
 
-from .utils import path
 from .logger import Logger
 from .database import (
     SammoDataBase,
     DB_NAME,
-    GPS_TABLE,
-    SPECIES_TABLE,
-    OBSERVERS_TABLE,
-    SIGHTINGS_TABLE,
-    ENVIRONMENT_TABLE,
 )
-from .layers import SammoFollowersLayer, SammoObserversLayer, SammoSpeciesLayer, SammoEnvironmentLayer, SammoSightingsLayer, SammoGpsLayer
+from .layers import (
+    SammoFollowersLayer,
+    SammoObserversLayer,
+    SammoSpeciesLayer,
+    SammoEnvironmentLayer,
+    SammoSightingsLayer,
+    SammoGpsLayer,
+)
 from .sound_recording_controller import RecordType
 
 
@@ -107,7 +104,9 @@ class SammoSession:
             )
             self._followersLayer.addToProject(project)
 
-            self._environmentLayer = SammoEnvironmentLayer(self.db, self._observersLayer)
+            self._environmentLayer = SammoEnvironmentLayer(
+                self.db, self._observersLayer
+            )
             self._environmentLayer.addToProject(project)
 
             # configure project

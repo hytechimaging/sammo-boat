@@ -3,17 +3,6 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-from qgis.PyQt.QtGui import QColor
-
-from qgis.core import (
-    QgsVectorLayer,
-    QgsDefaultValue,
-    QgsEditorWidgetSetup,
-    QgsSvgMarkerSymbolLayer,
-)
-
-from ..utils import path
-
 from ..database import (
     SammoDataBase,
     OBSERVERS_TABLE,

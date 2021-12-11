@@ -5,14 +5,7 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 from qgis.PyQt.QtGui import QColor
 
-from qgis.core import (
-    QgsVectorLayer,
-    QgsDefaultValue,
-    QgsEditorWidgetSetup,
-    QgsSvgMarkerSymbolLayer,
-)
-
-from ..utils import path
+from qgis.core import QgsVectorLayer
 
 from ..database import (
     SammoDataBase,
