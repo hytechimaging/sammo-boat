@@ -6,3 +6,4 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 from .species import SammoSpeciesLayer
 from .observers import SammoObserversLayer
 from .followers import SammoFollowersLayer
+from .environment import SammoEnvironmentLayer

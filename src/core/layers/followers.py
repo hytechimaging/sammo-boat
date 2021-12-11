@@ -41,11 +41,6 @@ class SammoFollowersLayer(SammoLayer):
         layer.renderer().symbol().changeSymbolLayer(0, symbol)
 
     def _init_widgets(self, layer: QgsVectorLayer) -> None:
-        # fid
-        idx = layer.fields().indexFromName("fid")
-        setup = QgsEditorWidgetSetup("Hidden", {})
-        layer.setEditorWidgetSetup(idx, setup)
-
         # nFollower
         idx = layer.fields().indexFromName("nFollower")
         cfg = {

@@ -3,7 +3,7 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-from qgis.core import QgsProject, QgsVectorLayer
+from qgis.core import QgsProject, QgsVectorLayer, QgsEditorWidgetSetup
 
 from ..database import SammoDataBase
 
@@ -29,7 +29,15 @@ class SammoLayer:
         layer = self.layer
         layer.setName(self.name)
         project.addMapLayer(layer)
+
+        self._hideWidgetFid(layer)
         self._init(layer)
 
-    def _init(self):
-        ...
+    def _init(self, layer: QgsVectorLayer) -> None:
+        pass
+
+    def _hideWidgetFid(self, layer: QgsVectorLayer) -> None:
+        # fid
+        idx = layer.fields().indexFromName("fid")
+        setup = QgsEditorWidgetSetup("Hidden", {})
+        layer.setEditorWidgetSetup(idx, setup)
