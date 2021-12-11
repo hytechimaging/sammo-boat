@@ -59,28 +59,6 @@ class SammoSightingsLayer(SammoLayer):
         cfg = {"IsMultiline": False, "UseHtml": False}
         setup = QgsEditorWidgetSetup("TextEdit", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setConstraintExpression(
-            idx,
-            """
-            if(
-                attribute(
-                    get_feature(
-                        layer_property('Species','id'),
-                        'species',
-                        attribute('species')
-                    ),
-                    'fid'
-                ) != 0,
-                True,
-                False
-            )
-            """,
-        )
-        layer.setFieldConstraint(
-            idx,
-            QgsFieldConstraints.ConstraintExpression,
-            QgsFieldConstraints.ConstraintStrengthSoft,
-        )
 
         # podSize
         idx = layer.fields().indexFromName("podSize")
@@ -199,26 +177,6 @@ class SammoSightingsLayer(SammoLayer):
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'foraging'"))
-        layer.setConstraintExpression(
-            idx,
-            """
-            if(
-                array_contains(
-                    array('Marine Mammal','Seabird','Ship'),
-                    attribute(
-                        get_feature(
-                            layer_property('Species','id'),
-                            'species',
-                            attribute('species')
-                        ),
-                        'taxon'
-                    )
-                ),
-                "behaviour" is not NULL,
-                True
-            )
-            """,
-        )
 
         # behavGroup
         idx = layer.fields().indexFromName("behavGroup")
@@ -249,23 +207,6 @@ class SammoSightingsLayer(SammoLayer):
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'diving'"))
-        layer.setConstraintExpression(
-            idx,
-            """
-            if(
-                attribute(
-                    get_feature(
-                        layer_property('Species','id'),
-                        'species',
-                        attribute('species')
-                        ),
-                    'taxon'
-                ) LIKE 'Marine Mammal',
-                "behavMam" is not NULL,
-                True
-            )
-            """,
-        )
 
         # behavBird
         idx = layer.fields().indexFromName("behavBird")
@@ -288,23 +229,6 @@ class SammoSightingsLayer(SammoLayer):
         layer.setDefaultValueDefinition(
             idx, QgsDefaultValue("'direct_flight'")
         )
-        layer.setConstraintExpression(
-            idx,
-            """
-            if(
-                attribute(
-                    get_feature(
-                        layer_property('Species','id'),
-                        'species',
-                        attribute('species')
-                        ),
-                    'taxon'
-                ) LIKE 'Seabird',
-                "behavBird" is not NULL,
-                True
-            )
-            """,
-        )
 
         # behavShip
         idx = layer.fields().indexFromName("behavShip")
@@ -317,23 +241,6 @@ class SammoSightingsLayer(SammoLayer):
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'go_ahead'"))
-        layer.setConstraintExpression(
-            idx,
-            """
-            if(
-                attribute(
-                    get_feature(
-                        layer_property('Species','id'),
-                        'species',
-                        attribute('species')
-                        ),
-                    'taxon'
-                ) LIKE 'Ship',
-                "behavShip" is not NULL,
-                True
-            )
-            """,
-        )
 
         # soundFile, soundStart, soundEnd, dateTime
         for field in ["soundFile", "soundStart", "soundEnd", "dateTime"]:
@@ -415,3 +322,18 @@ class SammoSightingsLayer(SammoLayer):
         style = QgsConditionalStyle(expr.format(taxon))
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("behavShip", [style])
+
+        # species
+        expr = """
+            attribute(
+                get_feature(
+                    layer_property('Species', 'id'),
+                    'species',
+                    attribute('species')
+                )
+                , 'fid'
+            ) is NULL
+        """
+        style = QgsConditionalStyle(expr)
+        style.setBackgroundColor(QColor("orange"))
+        layer.conditionalStyles().setFieldStyles("species", [style])
