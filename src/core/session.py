@@ -39,7 +39,7 @@ from .database import (
     SIGHTINGS_TABLE,
     ENVIRONMENT_TABLE,
 )
-from .layers import SammoFollowersLayer, SammoObserversLayer, SammoSpeciesLayer, SammoEnvironmentLayer, SammoSightingsLayer
+from .layers import SammoFollowersLayer, SammoObserversLayer, SammoSpeciesLayer, SammoEnvironmentLayer, SammoSightingsLayer, SammoGpsLayer
 from .sound_recording_controller import RecordType
 
 
@@ -48,6 +48,7 @@ class SammoSession:
         self.db = SammoDataBase()
         self.lastGpsGeom: QgsGeometry = None
 
+        self._gpsLayer: SammoGpsLayer
         self._speciesLayer: SammoSpeciesLayer
         self._followersLayer: SammoFollowersLayer
         self._observersLayer: SammoObserversLayer
@@ -60,7 +61,7 @@ class SammoSession:
 
     @property
     def gpsLayer(self) -> QgsVectorLayer:
-        return self._layer(GPS_TABLE)
+        return self._gpsLayer.layer
 
     @property
     def followersLayer(self) -> QgsVectorLayer:
@@ -89,8 +90,8 @@ class SammoSession:
             worldLayer = SammoSession._initWorldLayer()
             project.addMapLayer(worldLayer)
 
-            gpsLayer = self._initGpsLayer()
-            project.addMapLayer(gpsLayer)
+            self._gpsLayer = SammoGpsLayer(self.db)
+            self._gpsLayer.addToProject(project)
 
             self._speciesLayer = SammoSpeciesLayer(self.db)
             self._speciesLayer.addToProject(project)
@@ -165,7 +166,7 @@ class SammoSession:
     def addGps(
         self, longitude: float, latitude: float, hour: int, minu: int, sec: int
     ):
-        vlayer = self.gpsLayer
+        vlayer = self._gpsLayer.layer
         vlayer.startEditing()
 
         feature = QgsFeature(QgsVectorLayerUtils.createFeature(vlayer))
@@ -190,19 +191,6 @@ class SammoSession:
             return QgsProject.instance().mapLayersByName(name)[0]
 
         return QgsVectorLayer(self.db.tableUri(table))
-
-    def _initGpsLayer(self) -> QgsVectorLayer:
-        gpsLayer = self.gpsLayer
-        gpsLayer.setName("GPS")
-
-        symbol = gpsLayer.renderer().symbol()
-        symbol.setColor(QColor(219, 30, 42))
-        symbol.setSize(2)
-
-        gpsLayer.setAutoRefreshInterval(1000)
-        gpsLayer.setAutoRefreshEnabled(True)
-
-        return gpsLayer
 
     @staticmethod
     def sessionDirectory(project: QgsProject) -> str:
