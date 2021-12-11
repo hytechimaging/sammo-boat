@@ -39,7 +39,7 @@ from .database import (
     SIGHTINGS_TABLE,
     ENVIRONMENT_TABLE,
 )
-from .layers import SammoFollowersLayer
+from .layers import SammoFollowersLayer, SammoObserversLayer, SammoSpeciesLayer
 from .sound_recording_controller import RecordType
 
 SPECIES_LAYER_NAME = "Species"
@@ -54,7 +54,9 @@ class SammoSession:
         self.db = SammoDataBase()
         self.lastGpsGeom: QgsGeometry = None
 
+        self._speciesLayer: SammoSpeciesLayer
         self._followersLayer: SammoFollowersLayer
+        self._observersLayer: SammoObserversLayer
 
     @property
     def environmentLayer(self) -> QgsVectorLayer:
@@ -70,11 +72,11 @@ class SammoSession:
 
     @property
     def observersLayer(self) -> QgsVectorLayer:
-        return self._layer(OBSERVERS_TABLE)
+        return self._observersLayer.layer
 
     @property
     def speciesLayer(self) -> QgsVectorLayer:
-        return self._layer(SPECIES_TABLE, SPECIES_LAYER_NAME)
+        return self._speciesLayer.layer
 
     @property
     def sightingsLayer(self) -> QgsVectorLayer:
@@ -94,17 +96,17 @@ class SammoSession:
             gpsLayer = self._initGpsLayer()
             project.addMapLayer(gpsLayer)
 
-            speciesLayer = self._initSpeciesLayer()
-            project.addMapLayer(speciesLayer)
+            self._speciesLayer = SammoSpeciesLayer(self.db)
+            self._speciesLayer.addToProject(project)
 
             sightingsLayer = self._initSightingsLayer()
             project.addMapLayer(sightingsLayer)
 
-            observersLayer = self._initObserversLayer()
-            project.addMapLayer(observersLayer)
+            self._observersLayer = SammoObserversLayer(self.db)
+            self._observersLayer.addToProject(project)
 
             self._followersLayer = SammoFollowersLayer(
-                self.db, observersLayer, speciesLayer
+                self.db, self._observersLayer, self._speciesLayer
             )
             self._followersLayer.addToProject(project)
 
@@ -555,171 +557,6 @@ class SammoSession:
 
         return layer
 
-    def _initSpeciesLayer(self) -> QgsVectorLayer:
-        layer = self.speciesLayer
-        layer.setName(SPECIES_LAYER_NAME)
-
-        # fid
-        idx = layer.fields().indexFromName("fid")
-        setup = QgsEditorWidgetSetup("Hidden", {})
-        layer.setEditorWidgetSetup(idx, setup)
-
-        return layer
-
-    def _initFollowersLayer(self) -> QgsVectorLayer:
-        layer = self.followersLayer
-        layer.setName(FOLLOWERS_LAYER_NAME)
-
-        # symbology
-        symbol = QgsSvgMarkerSymbolLayer(path("seabird_symbol.svg"))
-        symbol.setSize(6)
-        symbol.setFillColor(QColor("#e89d34"))
-        symbol.setStrokeWidth(0)
-        layer.renderer().symbol().changeSymbolLayer(0, symbol)
-
-        # fid
-        idx = layer.fields().indexFromName("fid")
-        setup = QgsEditorWidgetSetup("Hidden", {})
-        layer.setEditorWidgetSetup(idx, setup)
-
-        # nFollower
-        idx = layer.fields().indexFromName("nFollower")
-        cfg = {
-            "AllowNull": False,
-            "Max": 1000,
-            "Min": 0,
-            "Precision": 0,
-            "Step": 1,
-            "Style": "SpinBox",
-        }
-        setup = QgsEditorWidgetSetup("Range", cfg)
-        layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("0"))
-
-        # podSize
-        idx = layer.fields().indexFromName("podSize")
-        cfg = {
-            "AllowNull": False,
-            "Max": 1000,
-            "Min": 1,
-            "Precision": 0,
-            "Step": 1,
-            "Style": "SpinBox",
-        }
-        setup = QgsEditorWidgetSetup("Range", cfg)
-        layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("10"))
-
-        # back
-        idx = layer.fields().indexFromName("back")
-        cfg = {
-            "AllowMulti": False,
-            "AllowNull": False,
-            "Description": '"observer"',
-            "FilterExpression": "",
-            "Key": "observer",
-            "Layer": self.observersLayer.id(),
-            "LayerName": OBSERVERS_LAYER_NAME,
-            "LayerProviderName": "ogr",
-            "LayerSource": self.db.tableUri(OBSERVERS_TABLE),
-            "NofColumns": 1,
-            "OrderByValue": False,
-            "UseCompleter": False,
-            "Value": "observer",
-        }
-        setup = QgsEditorWidgetSetup("ValueRelation", cfg)
-        layer.setEditorWidgetSetup(idx, setup)
-
-        # fishActivity
-        idx = layer.fields().indexFromName("fishActivity")
-        cfg = {}
-        cfg["map"] = [
-            {"up_net": "up_net"},
-            {"net_down": "net_down"},
-            {"discard": "discard"},
-            {"hauling": "hauling"},
-            {"NON_ACTIVE": "NON_ACTIVE"},
-        ]
-        setup = QgsEditorWidgetSetup("ValueMap", cfg)
-        layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'net_down'"))
-
-        # species
-        idx = layer.fields().indexFromName("species")
-        cfg = {
-            "AllowMulti": False,
-            "AllowNull": False,
-            "Description": '"species"',
-            "FilterExpression": "",
-            "Key": "species",
-            "Layer": self.speciesLayer.id(),
-            "LayerName": SPECIES_LAYER_NAME,
-            "LayerProviderName": "ogr",
-            "LayerSource": self.db.tableUri(SPECIES_TABLE),
-            "NofColumns": 1,
-            "OrderByValue": False,
-            "UseCompleter": False,
-            "Value": "species",
-        }
-        setup = QgsEditorWidgetSetup("ValueRelation", cfg)
-        layer.setEditorWidgetSetup(idx, setup)
-
-        # age
-        idx = layer.fields().indexFromName("age")
-        cfg = {}
-        cfg["map"] = [
-            {"<NULL>": "{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}"},
-            {"A": "A"},
-            {"I": "I"},
-            {"J": "J"},
-            {"M": "M"},
-            {"I1": "I1"},
-            {"I2": "I2"},
-            {"I3": "I3"},
-            {"I4": "I4"},
-            {"NA": "NA"},
-        ]
-        setup = QgsEditorWidgetSetup("ValueMap", cfg)
-        layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'A'"))
-
-        # unlucky
-        idx = layer.fields().indexFromName("unlucky")
-        cfg = {}
-        cfg["map"] = [
-            {"<NULL>": "{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}"},
-            {"wounded": "wounded"},
-            {"oiled": "oiled"},
-            {"stuck_fishing_device": "stuck_fishing_device"},
-            {"hook": "hook"},
-            {"fish_string": "fish_string"},
-            {"tag": "tag"},
-        ]
-        setup = QgsEditorWidgetSetup("ValueMap", cfg)
-        layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(
-            idx, QgsDefaultValue("'{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}'")
-        )
-
-        # soundFile, soundStart, soundEnd, dateTime
-        for field in ["soundFile", "soundStart", "soundEnd", "dateTime"]:
-            idx = layer.fields().indexFromName(field)
-            form_config = layer.editFormConfig()
-            form_config.setReadOnly(idx, True)
-            if field != "dateTime":
-                setup = QgsEditorWidgetSetup("Hidden", {})
-                layer.setEditorWidgetSetup(idx, setup)
-            layer.setEditFormConfig(form_config)
-
-        # comment
-        idx = layer.fields().indexFromName("comment")
-        cfg = {"IsMultiline": True, "UseHtml": False}
-        setup = QgsEditorWidgetSetup("TextEdit", cfg)
-        layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
-
-        return layer
-
     def _initEnvironmentLayer(self) -> QgsVectorLayer:
         layer = self.environmentLayer
         layer.setName(ENVIRONMENT_LAYER_NAME)
@@ -986,17 +823,6 @@ class SammoSession:
         gpsLayer.setAutoRefreshEnabled(True)
 
         return gpsLayer
-
-    def _initObserversLayer(self) -> QgsVectorLayer:
-        layer = self.observersLayer
-        layer.setName(OBSERVERS_LAYER_NAME)
-
-        # fid
-        idx = layer.fields().indexFromName("fid")
-        setup = QgsEditorWidgetSetup("Hidden", {})
-        layer.setEditorWidgetSetup(idx, setup)
-
-        return layer
 
     @staticmethod
     def sessionDirectory(project: QgsProject) -> str:
