@@ -373,3 +373,45 @@ class SammoSightingsLayer(SammoLayer):
         )
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("podSizeMax", [style])
+
+        # behaviour
+        expr = """
+            if (
+                array_contains(
+                    array({}),
+                    attribute(
+                        get_feature(
+                            layer_property('Species', 'id'),
+                            'species',
+                            attribute('species')
+                        )
+                        , 'taxon'
+                    )
+                ),
+                @value is NULL,
+                False
+            )
+            """
+
+        taxons = "'Marine Mammal', 'Seabird', 'Ship'"
+        style = QgsConditionalStyle(expr.format(taxons))
+        style.setBackgroundColor(QColor("orange"))
+        layer.conditionalStyles().setFieldStyles("behaviour", [style])
+
+        # behavMam
+        taxon = "'Marine Mammal'"
+        style = QgsConditionalStyle(expr.format(taxon))
+        style.setBackgroundColor(QColor("orange"))
+        layer.conditionalStyles().setFieldStyles("behavMam", [style])
+
+        # behavBird
+        taxon = "'Seabird'"
+        style = QgsConditionalStyle(expr.format(taxon))
+        style.setBackgroundColor(QColor("orange"))
+        layer.conditionalStyles().setFieldStyles("behavBird", [style])
+
+        # behavShip
+        taxon = "'Ship'"
+        style = QgsConditionalStyle(expr.format(taxon))
+        style.setBackgroundColor(QColor("orange"))
+        layer.conditionalStyles().setFieldStyles("behavShip", [style])
