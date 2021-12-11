@@ -8,7 +8,7 @@ from qgis.PyQt.QtGui import QColor
 from qgis.core import (
     QgsVectorLayer,
     QgsDefaultValue,
-    QgsFieldConstraints,
+    QgsConditionalStyle,
     QgsEditorWidgetSetup,
     QgsSvgMarkerSymbolLayer,
 )
@@ -30,6 +30,7 @@ class SammoSightingsLayer(SammoLayer):
     def _init(self, layer: QgsVectorLayer) -> None:
         self._init_symbology(layer)
         self._init_widgets(layer)
+        self._init_conditional_style(layer)
 
     def _init_symbology(self, layer: QgsVectorLayer) -> None:
         # symbology
@@ -57,28 +58,6 @@ class SammoSightingsLayer(SammoLayer):
         cfg = {"IsMultiline": False, "UseHtml": False}
         setup = QgsEditorWidgetSetup("TextEdit", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setConstraintExpression(
-            idx,
-            """
-            if(
-                attribute(
-                    get_feature(
-                        layer_property('Species','id'),
-                        'species',
-                        attribute('species')
-                    ),
-                    'fid'
-                ) != 0,
-                True,
-                False
-            )
-            """,
-        )
-        layer.setFieldConstraint(
-            idx,
-            QgsFieldConstraints.ConstraintExpression,
-            QgsFieldConstraints.ConstraintStrengthSoft,
-        )
 
         # podSize
         idx = layer.fields().indexFromName("podSize")
@@ -93,20 +72,6 @@ class SammoSightingsLayer(SammoLayer):
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("10"))
-        layer.setConstraintExpression(
-            idx,
-            """
-            CASE
-              WHEN "podSizeMin" IS NOT NULL AND "podSizeMax" IS NULL
-                THEN "podSize" >= "podSizeMin"
-              WHEN "podSizeMin" IS NULL AND "podSizeMax" IS NOT NULL
-                THEN "podSize" <= "podSizeMax"
-              WHEN "podSizeMin" IS NOT NULL AND "podSizeMax" IS NOT NULL
-                THEN "podSize" >= "podSizeMin" and "podSize" <= "podSizeMax"
-            ELSE TRUE
-            END
-            """,
-        )
 
         # podSizeMin
         idx = layer.fields().indexFromName("podSizeMin")
@@ -121,16 +86,6 @@ class SammoSightingsLayer(SammoLayer):
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("5"))
-        layer.setConstraintExpression(
-            idx,
-            """
-            if(
-                "podSizeMin",
-                "podSizeMin" <= "podSize",
-                "podSizeMin" is NULL
-            )
-            """,
-        )
 
         # podSizeMax
         idx = layer.fields().indexFromName("podSizeMax")
@@ -145,16 +100,6 @@ class SammoSightingsLayer(SammoLayer):
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("15"))
-        layer.setConstraintExpression(
-            idx,
-            """
-            if(
-                "podSizeMax",
-                "podSize" <= "podSizeMax",
-                "podSizeMax" is NULL
-            )
-            """,
-        )
 
         # age
         idx = layer.fields().indexFromName("age")
@@ -231,26 +176,6 @@ class SammoSightingsLayer(SammoLayer):
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'foraging'"))
-        layer.setConstraintExpression(
-            idx,
-            """
-            if(
-                array_contains(
-                    array('Marine Mammal','Seabird','Ship'),
-                    attribute(
-                        get_feature(
-                            layer_property('Species','id'),
-                            'species',
-                            attribute('species')
-                        ),
-                        'taxon'
-                    )
-                ),
-                "behaviour" is not NULL,
-                True
-            )
-            """,
-        )
 
         # behavGroup
         idx = layer.fields().indexFromName("behavGroup")
@@ -281,23 +206,6 @@ class SammoSightingsLayer(SammoLayer):
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'diving'"))
-        layer.setConstraintExpression(
-            idx,
-            """
-            if(
-                attribute(
-                    get_feature(
-                        layer_property('Species','id'),
-                        'species',
-                        attribute('species')
-                        ),
-                    'taxon'
-                ) LIKE 'Marine Mammal',
-                "behavMam" is not NULL,
-                True
-            )
-            """,
-        )
 
         # behavBird
         idx = layer.fields().indexFromName("behavBird")
@@ -320,23 +228,6 @@ class SammoSightingsLayer(SammoLayer):
         layer.setDefaultValueDefinition(
             idx, QgsDefaultValue("'direct_flight'")
         )
-        layer.setConstraintExpression(
-            idx,
-            """
-            if(
-                attribute(
-                    get_feature(
-                        layer_property('Species','id'),
-                        'species',
-                        attribute('species')
-                        ),
-                    'taxon'
-                ) LIKE 'Seabird',
-                "behavBird" is not NULL,
-                True
-            )
-            """,
-        )
 
         # behavShip
         idx = layer.fields().indexFromName("behavShip")
@@ -349,23 +240,6 @@ class SammoSightingsLayer(SammoLayer):
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("'go_ahead'"))
-        layer.setConstraintExpression(
-            idx,
-            """
-            if(
-                attribute(
-                    get_feature(
-                        layer_property('Species','id'),
-                        'species',
-                        attribute('species')
-                        ),
-                    'taxon'
-                ) LIKE 'Ship',
-                "behavShip" is not NULL,
-                True
-            )
-            """,
-        )
 
         # soundFile, soundStart, soundEnd, dateTime
         for field in ["soundFile", "soundStart", "soundEnd", "dateTime"]:
@@ -383,3 +257,82 @@ class SammoSightingsLayer(SammoLayer):
         setup = QgsEditorWidgetSetup("TextEdit", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
+
+    def _init_conditional_style(self, layer: QgsVectorLayer) -> None:
+        # podSize
+        style = QgsConditionalStyle(
+            '@value > "podSizeMax" or @value < "podSizeMin"'
+        )
+        style.setBackgroundColor(QColor("orange"))
+        layer.conditionalStyles().setFieldStyles("podSize", [style])
+
+        # podSizeMin
+        style = QgsConditionalStyle(
+            '@value > "podSizeMax" or @value > "podSize"'
+        )
+        style.setBackgroundColor(QColor("orange"))
+        layer.conditionalStyles().setFieldStyles("podSizeMin", [style])
+
+        # podSizeMax
+        style = QgsConditionalStyle(
+            '@value < "podSizeMin" or @value < "podSize"'
+        )
+        style.setBackgroundColor(QColor("orange"))
+        layer.conditionalStyles().setFieldStyles("podSizeMax", [style])
+
+        # behaviour
+        expr = """
+            if (
+                array_contains(
+                    array({}),
+                    attribute(
+                        get_feature(
+                            layer_property('Species', 'id'),
+                            'species',
+                            attribute('species')
+                        )
+                        , 'taxon'
+                    )
+                ),
+                @value is NULL,
+                False
+            )
+            """
+
+        taxons = "'Marine Mammal', 'Seabird', 'Ship'"
+        style = QgsConditionalStyle(expr.format(taxons))
+        style.setBackgroundColor(QColor("orange"))
+        layer.conditionalStyles().setFieldStyles("behaviour", [style])
+
+        # behavMam
+        taxon = "'Marine Mammal'"
+        style = QgsConditionalStyle(expr.format(taxon))
+        style.setBackgroundColor(QColor("orange"))
+        layer.conditionalStyles().setFieldStyles("behavMam", [style])
+
+        # behavBird
+        taxon = "'Seabird'"
+        style = QgsConditionalStyle(expr.format(taxon))
+        style.setBackgroundColor(QColor("orange"))
+        layer.conditionalStyles().setFieldStyles("behavBird", [style])
+
+        # behavShip
+        taxon = "'Ship'"
+        style = QgsConditionalStyle(expr.format(taxon))
+        style.setBackgroundColor(QColor("orange"))
+        layer.conditionalStyles().setFieldStyles("behavShip", [style])
+
+        # species
+        expr = """
+            attribute(
+                get_feature(
+                    layer_property('Species', 'id'),
+                    'species',
+                    attribute('species')
+                )
+                , 'fid'
+            ) is NULL
+        """
+        style = QgsConditionalStyle(expr)
+        style.setBackgroundColor(QColor("orange"))
+        layer.conditionalStyles().setFieldStyles("species", [style])
