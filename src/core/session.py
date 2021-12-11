@@ -7,7 +7,6 @@ from qgis.PyQt.QtGui import QColor
 
 from qgis.core import (
     QgsProject,
-    QgsFeature,
     QgsMapLayer,
     QgsSettings,
     QgsVectorLayer,
@@ -120,25 +119,14 @@ class SammoSession:
         QgsProject.instance().read(self.db.projectUri)
         QgsSettings().setValue("qgis/enableMacros", "SessionOnly")
 
+    def addEnvironmentFeature(self) -> QgsVectorLayer:
+        layer = self.environmentLayer
+        self._addFeature(layer)
+        return layer
+
     def addSightingsFeature(self) -> QgsVectorLayer:
         layer = self.sightingsLayer
-
-        feat = QgsVectorLayerUtils.createFeature(layer)
-        feat["dateTime"] = utils.now()
-
-        lastFeat = SammoDataBase.lastFeature(layer)
-        if lastFeat:
-            for name in lastFeat.fields().names():
-                if name == "fid" or name == "dateTime":
-                    continue
-                feat[name] = lastFeat[name]
-
-        if not layer.isEditable():
-            layer.startEditing()
-        layer.addFeature(feat)
-
-        self.saveAll()
-
+        self._addFeature(layer)
         return layer
 
     def saveAll(self) -> None:
@@ -171,13 +159,9 @@ class SammoSession:
         idLastAddedFeature = lastFeature.id()
 
         field_idx = table.fields().indexOf("soundFile")
-        table.changeAttributeValue(
-            idLastAddedFeature, field_idx, soundFile
-        )
+        table.changeAttributeValue(idLastAddedFeature, field_idx, soundFile)
         field_idx = table.fields().indexOf("soundStart")
-        table.changeAttributeValue(
-            idLastAddedFeature, field_idx, soundStart
-        )
+        table.changeAttributeValue(idLastAddedFeature, field_idx, soundStart)
         field_idx = table.fields().indexOf("soundEnd")
         table.changeAttributeValue(idLastAddedFeature, field_idx, soundEnd)
 
@@ -185,6 +169,23 @@ class SammoSession:
         self, longitude: float, latitude: float, hour: int, minu: int, sec: int
     ):
         self._gpsLayer.add(longitude, latitude, hour, minu, sec)
+
+    def _addFeature(self, layer) -> None:
+        feat = QgsVectorLayerUtils.createFeature(layer)
+        feat["dateTime"] = utils.now()
+
+        lastFeat = SammoDataBase.lastFeature(layer)
+        if lastFeat:
+            for name in lastFeat.fields().names():
+                if name == "fid" or name == "dateTime":
+                    continue
+                feat[name] = lastFeat[name]
+
+        if not layer.isEditable():
+            layer.startEditing()
+        layer.addFeature(feat)
+
+        self.saveAll()
 
     @staticmethod
     def sessionDirectory(project: QgsProject) -> str:

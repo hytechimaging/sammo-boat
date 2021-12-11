@@ -157,16 +157,7 @@ class Sammo:
 
     def onEnvironmentAction(self, onEnvironment: bool):
         self.soundRecordingController.onStartEnvironment()
-        layer = self.session.environmentLayer
-        feat = QgsVectorLayerUtils.createFeature(layer)
-        feat["dateTime"] = utils.now()
-
-        if not layer.isEditable():
-            layer.startEditing()
-        layer.addFeature(feat)
-
-        self.saveAll()
-
+        layer = self.session.addEnvironmentFeature()
         self.tableDock.refresh(layer)
         self.soundRecordingController.onStopEventWhichNeedSoundRecord()
 
