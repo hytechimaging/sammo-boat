@@ -8,7 +8,6 @@ from qgis.PyQt.QtGui import QColor
 from qgis.core import (
     QgsVectorLayer,
     QgsDefaultValue,
-    QgsFieldConstraints,
     QgsConditionalStyle,
     QgsEditorWidgetSetup,
     QgsSvgMarkerSymbolLayer,
