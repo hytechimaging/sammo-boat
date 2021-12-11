@@ -119,6 +119,7 @@ class Sammo:
             self.threadSimuGps.stop()
         self.soundRecordingController.unload()
         self.sessionAction.unload()
+        self.followersAction.unload()
         self.environmentAction.unload()
         self.sightingsAction.unload()
         if self.simuGpsAction is not None:
