@@ -5,26 +5,19 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
 import platform
-from datetime import datetime
 
 from qgis.PyQt.QtGui import QColor
-from qgis.PyQt.QtWidgets import QMessageBox
 
 from qgis.core import (
-    QgsFeature,
-    QgsPointXY,
     QgsProject,
-    QgsGeometry,
     QgsMapLayer,
     QgsSettings,
     QgsApplication,
     QgsVectorLayer,
-    QgsVectorLayerUtils,
     QgsReferencedRectangle,
     QgsCoordinateReferenceSystem,
 )
 
-from .logger import Logger
 from .database import (
     SammoDataBase,
     DB_NAME,
@@ -43,7 +36,6 @@ from .sound_recording_controller import RecordType
 class SammoSession:
     def __init__(self):
         self.db = SammoDataBase()
-        self.lastGpsGeom: QgsGeometry = None
 
         self._gpsLayer: SammoGpsLayer
         self._speciesLayer: SammoSpeciesLayer
@@ -152,44 +144,10 @@ class SammoSession:
             field_idx = table.fields().indexOf("soundEnd")
             table.changeAttributeValue(idLastAddedFeature, field_idx, soundEnd)
 
-    def loadTable(self, tableName: str) -> QgsVectorLayer:
-        layer = self.db.loadTable(self.directory, tableName)
-        if not layer.isValid():
-            QMessageBox.critical(
-                None,
-                "Sammo-Boat plugin",
-                "Impossible to read the table " + tableName,
-            )
-        return layer
-
     def addGps(
         self, longitude: float, latitude: float, hour: int, minu: int, sec: int
     ):
-        vlayer = self._gpsLayer.layer
-        vlayer.startEditing()
-
-        feature = QgsFeature(QgsVectorLayerUtils.createFeature(vlayer))
-        self.lastGpsGeom = QgsGeometry.fromPointXY(
-            QgsPointXY(longitude, latitude)
-        )
-        feature.setGeometry(self.lastGpsGeom)
-
-        now = datetime.now()
-        feature.setAttribute("dateTime", now.strftime("%Y-%m-%d %H:%M:%S"))
-
-        gpsNow = datetime(now.year, now.month, now.day, hour, minu, sec)
-        feature.setAttribute(
-            "gpsDateTime", gpsNow.strftime("%Y-%m-%d %H:%M:%S")
-        )
-
-        self._addFeature(feature, vlayer)
-
-    def _layer(self, table: str, name: str = "") -> QgsVectorLayer:
-        # return the project layer in priority
-        if name and QgsProject.instance().mapLayersByName(name):
-            return QgsProject.instance().mapLayersByName(name)[0]
-
-        return QgsVectorLayer(self.db.tableUri(table))
+        self._gpsLayer.add(longitude, latitude, hour, minu, sec)
 
     @staticmethod
     def sessionDirectory(project: QgsProject) -> str:
@@ -202,13 +160,6 @@ class SammoSession:
                 return uri.split("|")[0].replace(DB_NAME, "")
 
         return ""
-
-    @staticmethod
-    def _addFeature(feature: QgsFeature, vlayer: QgsVectorLayer) -> None:
-        if not vlayer.addFeature(feature):
-            Logger.error("addFeature : échec ")
-        if not vlayer.commitChanges():
-            Logger.error("_addFeatureThreadSafe : échec ")
 
     @staticmethod
     def _worldMapPath() -> str:
