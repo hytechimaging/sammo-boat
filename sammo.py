@@ -4,7 +4,6 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
-from datetime import datetime
 
 from qgis.PyQt.QtWidgets import QToolBar
 from qgis.core import (
@@ -13,6 +12,7 @@ from qgis.core import (
     QgsVectorLayerUtils,
 )
 
+from .src.core import utils
 from .src.core.gps import SammoGpsReader
 from .src.core.session import SammoSession
 from .src.core.thread_simu_gps import ThreadSimuGps
@@ -158,7 +158,7 @@ class Sammo:
         self.soundRecordingController.onStartEnvironment()
         layer = self.session.environmentLayer
         feat = QgsVectorLayerUtils.createFeature(layer)
-        feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        feat["dateTime"] = utils.now()
 
         if not layer.isEditable():
             layer.startEditing()
@@ -174,7 +174,7 @@ class Sammo:
 
         layer = self.session.sightingsLayer
         feat = QgsVectorLayerUtils.createFeature(layer)
-        feat["dateTime"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        feat["dateTime"] = utils.now()
 
         if not layer.isEditable():
             layer.startEditing()

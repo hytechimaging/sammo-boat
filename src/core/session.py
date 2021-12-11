@@ -28,7 +28,7 @@ from qgis.core import (
     QgsCoordinateReferenceSystem,
 )
 
-from .icon import path
+from .utils import path
 from .logger import Logger
 from .database import (
     SammoDataBase,
