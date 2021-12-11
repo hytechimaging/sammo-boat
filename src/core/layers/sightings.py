@@ -352,19 +352,24 @@ class SammoSightingsLayer(SammoLayer):
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
 
-
     def _init_conditional_style(self, layer: QgsVectorLayer) -> None:
         # podSize
-        style = QgsConditionalStyle("@value > \"podSizeMax\" or @value < \"podSizeMin\"")
+        style = QgsConditionalStyle(
+            '@value > "podSizeMax" or @value < "podSizeMin"'
+        )
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("podSize", [style])
 
         # podSizeMin
-        style = QgsConditionalStyle("@value > \"podSizeMax\" or @value > \"podSize\"")
+        style = QgsConditionalStyle(
+            '@value > "podSizeMax" or @value > "podSize"'
+        )
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("podSizeMin", [style])
 
         # podSizeMax
-        style = QgsConditionalStyle("@value < \"podSizeMin\" or @value < \"podSize\"")
+        style = QgsConditionalStyle(
+            '@value < "podSizeMin" or @value < "podSize"'
+        )
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("podSizeMax", [style])
