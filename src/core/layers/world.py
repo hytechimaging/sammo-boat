@@ -12,14 +12,7 @@ from qgis.core import (
     QgsProject,
     QgsApplication,
     QgsVectorLayer,
-    QgsDefaultValue,
-    QgsEditorWidgetSetup,
-    QgsSvgMarkerSymbolLayer,
 )
-
-from ..utils import path
-
-from .layer import SammoLayer
 
 
 class SammoWorldLayer:

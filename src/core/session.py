@@ -3,16 +3,12 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-import os.path
-import platform
-
 from qgis.PyQt.QtGui import QColor
 
 from qgis.core import (
     QgsProject,
     QgsMapLayer,
     QgsSettings,
-    QgsApplication,
     QgsVectorLayer,
     QgsReferencedRectangle,
     QgsCoordinateReferenceSystem,
@@ -107,7 +103,9 @@ class SammoSession:
             crs = QgsCoordinateReferenceSystem.fromEpsgId(4326)
             project.setCrs(crs)
 
-            extent = QgsReferencedRectangle(self._worldLayer.layer.extent(), crs)
+            extent = QgsReferencedRectangle(
+                self._worldLayer.layer.extent(), crs
+            )
             project.viewSettings().setDefaultViewExtent(extent)
 
             project.setBackgroundColor(QColor(166, 206, 227))
