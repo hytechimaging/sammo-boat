@@ -7,13 +7,16 @@ from qgis.PyQt.QtGui import QColor
 
 from qgis.core import (
     QgsProject,
+    QgsFeature,
     QgsMapLayer,
     QgsSettings,
     QgsVectorLayer,
+    QgsVectorLayerUtils,
     QgsReferencedRectangle,
     QgsCoordinateReferenceSystem,
 )
 
+from . import utils
 from .database import (
     SammoDataBase,
     DB_NAME,
@@ -117,13 +120,43 @@ class SammoSession:
         QgsProject.instance().read(self.db.projectUri)
         QgsSettings().setValue("qgis/enableMacros", "SessionOnly")
 
+    def addSightingsFeature(self) -> QgsVectorLayer:
+        layer = self.sightingsLayer
+
+        feat = QgsVectorLayerUtils.createFeature(layer)
+        feat["dateTime"] = utils.now()
+
+        lastFeat = SammoDataBase.lastFeature(layer)
+        if lastFeat:
+            for name in lastFeat.fields().names():
+                if name == "fid" or name == "dateTime":
+                    continue
+                feat[name] = lastFeat[name]
+
+        if not layer.isEditable():
+            layer.startEditing()
+        layer.addFeature(feat)
+
+        self.saveAll()
+
+        return layer
+
+    def saveAll(self) -> None:
+        for layer in [
+            self.environmentLayer,
+            self.sightingsLayer,
+            self.followersLayer,
+        ]:
+            layer.commitChanges()
+            layer.startEditing()
+
     def onStopSoundRecordingForEvent(
         self,
         recordType: RecordType,
         soundFile: str,
         soundStart: str,
         soundEnd: str,
-    ):
+    ) -> None:
         if recordType == RecordType.ENVIRONMENT:
             table = self.environmentLayer
         elif recordType == RecordType.SIGHTINGS:
@@ -131,18 +164,22 @@ class SammoSession:
         else:
             table = self.followersLayer
 
-        idLastAddedFeature = self.db.getIdOfLastAddedFeature(table)
-        if idLastAddedFeature != -1:
-            field_idx = table.fields().indexOf("soundFile")
-            table.changeAttributeValue(
-                idLastAddedFeature, field_idx, soundFile
-            )
-            field_idx = table.fields().indexOf("soundStart")
-            table.changeAttributeValue(
-                idLastAddedFeature, field_idx, soundStart
-            )
-            field_idx = table.fields().indexOf("soundEnd")
-            table.changeAttributeValue(idLastAddedFeature, field_idx, soundEnd)
+        lastFeature = self.db.lastFeature(table)
+        if not lastFeature:
+            return
+
+        idLastAddedFeature = lastFeature.id()
+
+        field_idx = table.fields().indexOf("soundFile")
+        table.changeAttributeValue(
+            idLastAddedFeature, field_idx, soundFile
+        )
+        field_idx = table.fields().indexOf("soundStart")
+        table.changeAttributeValue(
+            idLastAddedFeature, field_idx, soundStart
+        )
+        field_idx = table.fields().indexOf("soundEnd")
+        table.changeAttributeValue(idLastAddedFeature, field_idx, soundEnd)
 
     def addGps(
         self, longitude: float, latitude: float, hour: int, minu: int, sec: int

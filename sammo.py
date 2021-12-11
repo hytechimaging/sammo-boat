@@ -172,17 +172,7 @@ class Sammo:
 
     def onSightingsAction(self):
         self.soundRecordingController.onStartSightings()
-
-        layer = self.session.sightingsLayer
-        feat = QgsVectorLayerUtils.createFeature(layer)
-        feat["dateTime"] = utils.now()
-
-        if not layer.isEditable():
-            layer.startEditing()
-        layer.addFeature(feat)
-
-        self.saveAll()
-
+        layer = self.session.addSightingsFeature()
         self.tableDock.refresh(layer)
         self.soundRecordingController.onStopEventWhichNeedSoundRecord()
 

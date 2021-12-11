@@ -9,6 +9,7 @@ from qgis.PyQt.QtCore import QVariant
 from qgis.core import (
     QgsField,
     QgsFields,
+    QgsFeature,
     QgsProject,
     QgsWkbTypes,
     QgsFeatureSink,
@@ -77,13 +78,15 @@ class SammoDataBase:
         return os.path.isfile(os.path.join(directory, DB_NAME))
 
     @staticmethod
-    def getIdOfLastAddedFeature(layer: QgsVectorLayer) -> int:
-        maxId = -1
+    def lastFeature(layer: QgsVectorLayer) -> QgsFeature:
+        feat = None
         for feature in layer.getFeatures():
-            if feature.id() > maxId:
-                maxId = feature.id()
+            if not feat:
+                feat = feature
+            elif feature.id() > feat.id():
+                feat = feature
 
-        return maxId
+        return feat
 
     def _createFieldsForEnvironmentTable(self) -> QgsFields:
         fields = QgsFields()
