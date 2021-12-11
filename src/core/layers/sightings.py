@@ -9,6 +9,7 @@ from qgis.core import (
     QgsVectorLayer,
     QgsDefaultValue,
     QgsFieldConstraints,
+    QgsConditionalStyle,
     QgsEditorWidgetSetup,
     QgsSvgMarkerSymbolLayer,
 )
@@ -30,6 +31,7 @@ class SammoSightingsLayer(SammoLayer):
     def _init(self, layer: QgsVectorLayer) -> None:
         self._init_symbology(layer)
         self._init_widgets(layer)
+        self._init_conditional_style(layer)
 
     def _init_symbology(self, layer: QgsVectorLayer) -> None:
         # symbology
@@ -93,20 +95,6 @@ class SammoSightingsLayer(SammoLayer):
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("10"))
-        layer.setConstraintExpression(
-            idx,
-            """
-            CASE
-              WHEN "podSizeMin" IS NOT NULL AND "podSizeMax" IS NULL
-                THEN "podSize" >= "podSizeMin"
-              WHEN "podSizeMin" IS NULL AND "podSizeMax" IS NOT NULL
-                THEN "podSize" <= "podSizeMax"
-              WHEN "podSizeMin" IS NOT NULL AND "podSizeMax" IS NOT NULL
-                THEN "podSize" >= "podSizeMin" and "podSize" <= "podSizeMax"
-            ELSE TRUE
-            END
-            """,
-        )
 
         # podSizeMin
         idx = layer.fields().indexFromName("podSizeMin")
@@ -121,16 +109,6 @@ class SammoSightingsLayer(SammoLayer):
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("5"))
-        layer.setConstraintExpression(
-            idx,
-            """
-            if(
-                "podSizeMin",
-                "podSizeMin" <= "podSize",
-                "podSizeMin" is NULL
-            )
-            """,
-        )
 
         # podSizeMax
         idx = layer.fields().indexFromName("podSizeMax")
@@ -145,16 +123,6 @@ class SammoSightingsLayer(SammoLayer):
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("15"))
-        layer.setConstraintExpression(
-            idx,
-            """
-            if(
-                "podSizeMax",
-                "podSize" <= "podSizeMax",
-                "podSizeMax" is NULL
-            )
-            """,
-        )
 
         # age
         idx = layer.fields().indexFromName("age")
@@ -383,3 +351,20 @@ class SammoSightingsLayer(SammoLayer):
         setup = QgsEditorWidgetSetup("TextEdit", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
+
+
+    def _init_conditional_style(self, layer: QgsVectorLayer) -> None:
+        # podSize
+        style = QgsConditionalStyle("@value > \"podSizeMax\" or @value < \"podSizeMin\"")
+        style.setBackgroundColor(QColor("orange"))
+        layer.conditionalStyles().setFieldStyles("podSize", [style])
+
+        # podSizeMin
+        style = QgsConditionalStyle("@value > \"podSizeMax\" or @value > \"podSize\"")
+        style.setBackgroundColor(QColor("orange"))
+        layer.conditionalStyles().setFieldStyles("podSizeMin", [style])
+
+        # podSizeMax
+        style = QgsConditionalStyle("@value < \"podSizeMin\" or @value < \"podSize\"")
+        style.setBackgroundColor(QColor("orange"))
+        layer.conditionalStyles().setFieldStyles("podSizeMax", [style])
