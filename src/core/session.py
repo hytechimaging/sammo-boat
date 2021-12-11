@@ -129,6 +129,10 @@ class SammoSession:
         self._addFeature(layer)
         return layer
 
+    def addFollowersFeature(self, dt: str) -> None:
+        layer = self.followersLayer
+        self._addFeature(layer, dt)
+
     def saveAll(self) -> None:
         for layer in [
             self.environmentLayer,
@@ -170,9 +174,12 @@ class SammoSession:
     ):
         self._gpsLayer.add(longitude, latitude, hour, minu, sec)
 
-    def _addFeature(self, layer) -> None:
+    def _addFeature(self, layer: QgsVectorLayer, dt: str = "") -> None:
         feat = QgsVectorLayerUtils.createFeature(layer)
-        feat["dateTime"] = utils.now()
+
+        if not dt:
+            dt = utils.now()
+        feat["dateTime"] = dt
 
         lastFeat = SammoDataBase.lastFeature(layer)
         if lastFeat:
