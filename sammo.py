@@ -119,6 +119,7 @@ class Sammo:
             self.threadSimuGps.stop()
         self.soundRecordingController.unload()
         self.sessionAction.unload()
+        self.followersAction.unload()
         self.environmentAction.unload()
         self.sightingsAction.unload()
         if self.simuGpsAction is not None:
@@ -183,9 +184,11 @@ class Sammo:
         self.saveAll()
 
         self.tableDock.refresh(layer)
-        self.soundRecordingController.onStopEventWhichNeedSoundRecord(10)
+        self.soundRecordingController.onStopEventWhichNeedSoundRecord()
 
     def onFollowersAction(self):
+        self.soundRecordingController.onStartFollowers()
+
         self.followersTable = SammoFollowersTable(
             self.iface, self.session.followersLayer
         )
@@ -196,6 +199,7 @@ class Sammo:
     def onFollowersOk(self):
         self.saveAll()
         self.followersTable.close()
+        self.soundRecordingController.onStopEventWhichNeedSoundRecord(0)
 
     def onFollowersAdd(self):
         layer = self.session.followersLayer

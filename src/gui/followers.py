@@ -66,5 +66,9 @@ class SammoFollowersTable(QDialog, FORM_CLASS):
         super().show()
         self.refresh()
 
+    def close(self):
+        self.table.close()
+        super().close()
+
     def refresh(self):
         SammoAttributeTable.refresh(self.table)
