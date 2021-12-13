@@ -89,7 +89,7 @@ class StatusWidget(QFrame, FORM_CLASS):
         """
 
 
-class StatusDock(QDockWidget):
+class SammoStatusDock(QDockWidget):
     def __init__(self, iface, session):
         super().__init__("Sammo Status", iface.mainWindow())
         self.setObjectName("Sammo Status")
@@ -113,7 +113,7 @@ class StatusDock(QDockWidget):
         if status:
             location = int(
                 QgsSettings().value(
-                    "Sammo/StatusDock/Location/", Qt.LeftDockWidgetArea
+                    "Sammo/SammoStatusDock/Location/", Qt.LeftDockWidgetArea
                 )
             )
             self.setVisible(True)
@@ -198,4 +198,6 @@ class StatusDock(QDockWidget):
         self.setWidget(self._widget)
 
     def _saveLastLocation(self, location):
-        QgsSettings().setValue("Sammo/StatusDock/Location/", int(location))
+        QgsSettings().setValue(
+            "Sammo/SammoStatusDock/Location/", int(location)
+        )

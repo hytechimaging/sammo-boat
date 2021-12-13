@@ -3,11 +3,9 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-import os
 
-from qgis.PyQt import uic
 from qgis.PyQt.QtCore import pyqtSignal, QObject
-from qgis.PyQt.QtWidgets import QAction, QToolBar, QDialog
+from qgis.PyQt.QtWidgets import QAction, QToolBar
 
 from ..core import utils
 
