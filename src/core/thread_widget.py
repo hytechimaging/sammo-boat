@@ -9,26 +9,26 @@ from qgis.PyQt.QtCore import pyqtSignal
 
 
 class WorkerWidget(WorkerForOtherThread):
-    timer_500msec_signal = pyqtSignal()
+    timerSignal = pyqtSignal()
 
     def __init__(self):
         super().__init__()
         self._lines = None
 
     def _toDoInsideLoop(self):
-        sleep(0.5)
-        self.timer_500msec_signal.emit()
+        sleep(2)
+        self.timerSignal.emit()
 
     def _onStart(self):
         pass
 
 
 class ThreadWidget(OtherThread):
-    def __init__(self, timerMethod_500msec):
+    def __init__(self, timerMethod):
         super().__init__()
-        self._timerMethod_500msec = timerMethod_500msec
+        self._timerMethod = timerMethod
 
     def start(self):
         worker = WorkerWidget()
-        worker.timer_500msec_signal.connect(self._timerMethod_500msec)
+        worker.timerSignal.connect(self._timerMethod)
         super()._start(worker)

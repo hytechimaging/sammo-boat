@@ -43,7 +43,7 @@ class Sammo:
 
         self.soundRecordingController = self.createSoundRecordingController()
         self.gpsReader = self.createGpsReader()
-        self.statusDock = StatusDock(iface)
+        self.statusDock = StatusDock(iface, self.session)
         self.tableDock = TableDock(iface)
 
         iface.projectRead.connect(self.onProjectLoaded)

@@ -42,11 +42,13 @@ class SammoSession:
         self._followersLayer: SammoFollowersLayer
         self._observersLayer: SammoObserversLayer
         self._sightingsLayer: SammoSightingsLayer
-        self._environmentLayer: SammoEnvironmentLayer
+        self._environmentLayer: SammoEnvironmentLayer = None
 
     @property
     def environmentLayer(self) -> QgsVectorLayer:
-        return self._environmentLayer.layer
+        if self._environmentLayer:
+            return self._environmentLayer.layer
+        return None
 
     @property
     def gpsLayer(self) -> QgsVectorLayer:
