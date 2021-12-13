@@ -9,8 +9,8 @@ from qgis.PyQt.QtWidgets import QToolBar
 from qgis.core import (
     QgsProject,
     QgsPointXY,
-    QgsFeatureRequest,
     QgsExpression,
+    QgsFeatureRequest,
 )
 
 from .src.core.gps import SammoGpsReader
