@@ -156,15 +156,10 @@ class StatusDock(QDockWidget):
 
         feat = None
         idx = layer.fields().indexFromName("routeType")
-        for feature in layer.getFeatures():
-            routeType = feature[idx]
-            if routeType != "prospection":
-                continue
-
-            if not feat:
-                feat = feature
-            elif feature.id() > feat.id():
-                feat = feature
+        request = QgsFeatureRequest("routeType = 'prospection'")
+        request.addOrderBy("fid", false)
+        for feat in layer.getFeatures(request):
+            break
 
         if not feat:
             return False
