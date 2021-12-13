@@ -171,6 +171,8 @@ class SammoSession:
         field_idx = table.fields().indexOf("soundEnd")
         table.changeAttributeValue(idLastAddedFeature, field_idx, soundEnd)
 
+        self.saveAll()
+
     def addGps(
         self, longitude: float, latitude: float, hour: int, minu: int, sec: int
     ):
