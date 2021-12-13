@@ -9,7 +9,7 @@ from qgis.PyQt.QtCore import pyqtSignal
 
 
 class WorkerWidget(WorkerForOtherThread):
-    timer_signal = pyqtSignal()
+    timerSignal = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -17,7 +17,7 @@ class WorkerWidget(WorkerForOtherThread):
 
     def _toDoInsideLoop(self):
         sleep(2)
-        self.timer_signal.emit()
+        self.timerSignal.emit()
 
     def _onStart(self):
         pass
@@ -30,5 +30,5 @@ class ThreadWidget(OtherThread):
 
     def start(self):
         worker = WorkerWidget()
-        worker.timer_signal.connect(self._timerMethod)
+        worker.timerSignal.connect(self._timerMethod)
         super()._start(worker)
