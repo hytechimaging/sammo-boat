@@ -3,9 +3,12 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
+from qgis.PyQt.QtGui import QColor
+
 from qgis.core import (
     QgsVectorLayer,
     QgsDefaultValue,
+    QgsConditionalStyle,
     QgsEditorWidgetSetup,
 )
 
@@ -23,6 +26,10 @@ class SammoEnvironmentLayer(SammoLayer):
         self.observersLayer = observersLayer
 
     def _init(self, layer: QgsVectorLayer):
+        self._init_widgets(layer)
+        self._init_conditional_style(layer)
+
+    def _init_widgets(self, layer: QgsVectorLayer) -> None:
         # status
         idx = layer.fields().indexFromName("status")
         cfg = {}
@@ -265,3 +272,15 @@ class SammoEnvironmentLayer(SammoLayer):
             }
             setup = QgsEditorWidgetSetup("ValueRelation", cfg)
             layer.setEditorWidgetSetup(idx, setup)
+
+    def _init_conditional_style(self, layer: QgsVectorLayer) -> None:
+        # glareFrom
+        expr = "if (\"glareSever\" = 'none', @value != 0, False)"
+        style = QgsConditionalStyle(expr)
+        style.setBackgroundColor(QColor("orange"))
+        layer.conditionalStyles().setFieldStyles("glareFrom", [style])
+
+        # glareTo
+        style = QgsConditionalStyle(expr)
+        style.setBackgroundColor(QColor("orange"))
+        layer.conditionalStyles().setFieldStyles("glareTo", [style])
