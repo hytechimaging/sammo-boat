@@ -36,12 +36,12 @@ class SammoSession:
     def __init__(self):
         self.db = SammoDataBase()
 
-        self._gpsLayer: SammoGpsLayer
-        self._worldLayer: SammoWorldLayer
-        self._speciesLayer: SammoSpeciesLayer
-        self._followersLayer: SammoFollowersLayer
-        self._observersLayer: SammoObserversLayer
-        self._sightingsLayer: SammoSightingsLayer
+        self._gpsLayer: SammoGpsLayer = None
+        self._worldLayer: SammoWorldLayer = None
+        self._speciesLayer: SammoSpeciesLayer = None
+        self._followersLayer: SammoFollowersLayer = None
+        self._observersLayer: SammoObserversLayer = None
+        self._sightingsLayer: SammoSightingsLayer = None
         self._environmentLayer: SammoEnvironmentLayer = None
 
     @property
@@ -56,7 +56,9 @@ class SammoSession:
 
     @property
     def followersLayer(self) -> QgsVectorLayer:
-        return self._followersLayer.layer
+        if self._followersLayer:
+            return self._followersLayer.layer
+        return None
 
     @property
     def observersLayer(self) -> QgsVectorLayer:
@@ -68,7 +70,9 @@ class SammoSession:
 
     @property
     def sightingsLayer(self) -> QgsVectorLayer:
-        return self._sightingsLayer.layer
+        if self._sightingsLayer:
+            return self._sightingsLayer.layer
+        return None
 
     def init(self, directory: str) -> None:
         new = self.db.init(directory)
@@ -134,6 +138,23 @@ class SammoSession:
     def addFollowersFeature(self, dt: str) -> None:
         layer = self.followersLayer
         self._addFeature(layer, dt)
+
+    def needsSaving(self) -> None:
+        for layer in [
+            self.environmentLayer,
+            self.sightingsLayer,
+            self.followersLayer,
+        ]:
+            if not layer:
+                continue
+
+            if not layer.editBuffer():
+                continue
+
+            if len(layer.editBuffer().allAddedOrEditedFeatures()) != 0:
+                return True
+
+        return False
 
     def saveAll(self) -> None:
         for layer in [
