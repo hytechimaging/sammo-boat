@@ -74,6 +74,17 @@ class SammoSession:
             return self._sightingsLayer.layer
         return None
 
+    @property
+    def allLayers(self) -> list[QgsVectorLayer]:
+        return [
+            self.environmentLayer,
+            self.gpsLayer,
+            self.followersLayer,
+            self.observersLayer,
+            self.speciesLayer,
+            self.sightingsLayer,
+        ]
+
     def init(self, directory: str) -> None:
         new = self.db.init(directory)
 
