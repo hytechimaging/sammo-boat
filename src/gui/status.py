@@ -90,11 +90,12 @@ class StatusWidget(QFrame, FORM_CLASS):
 
 
 class StatusDock(QDockWidget):
-    def __init__(self, iface):
+    def __init__(self, iface, session):
         super().__init__("Sammo Status", iface.mainWindow())
         self.setObjectName("Sammo Status")
 
         self.iface = iface
+        self.session = session
         self._gpsTitleLabel: QLabel = None
         self._longitudeLabel: QLabel = None
         self._latitudeLabel: QLabel = None
@@ -125,12 +126,14 @@ class StatusDock(QDockWidget):
         if not self._widget:
             return
 
+        # gps status
         self._counter500msWithoutGpsInfo = self._counter500msWithoutGpsInfo + 1
         if self._counter500msWithoutGpsInfo > 4:
             self._onGpsOffline()
 
+        # upate widget
         self._widget.updateGps(not self._isGpsOffline)
-        self._widget.updateEffort(self.isEffortOn)
+        self._widget.updateEffort(self._isEffortOn)
         self._widget.updateRecording(self.isSoundRecordingOn)
 
     def updateGpsInfo(self, longitude: float, latitude: float):
@@ -144,6 +147,33 @@ class StatusDock(QDockWidget):
 
     def unload(self):
         self._endThread()
+
+    @property
+    def _isEffortOn(self) -> bool:
+        layer = self.session.environmentLayer
+        if not layer:
+            return False
+
+        feat = None
+        idx = layer.fields().indexFromName("routeType")
+        for feature in layer.getFeatures():
+            routeType = feature[idx]
+            if routeType != "prospection":
+                continue
+
+            if not feat:
+                feat = feature
+            elif feature.id() > feat.id():
+                feat = feature
+
+        if not feat:
+            return False
+
+        idx = layer.fields().indexFromName("status")
+        if feat[idx] == "B" or feat[idx] == "A":
+            return True
+
+        return False
 
     def _onGpsOffline(self):
         self._isGpsOffline = True
