@@ -17,8 +17,8 @@ from .src.core.gps import SammoGpsReader
 from .src.core.session import SammoSession
 from .src.core.thread_simu_gps import ThreadSimuGps
 from .src.core.sound_recording_controller import (
-    SammoSoundRecordingController,
     RecordType,
+    SammoSoundRecordingController,
 )
 
 from .src.gui.save import SammoSaveAction
