@@ -10,7 +10,7 @@ from qgis.PyQt import uic
 from qgis.PyQt.QtCore import Qt, QSize
 from qgis.PyQt.QtWidgets import QFrame, QLabel, QDockWidget
 
-from qgis.core import QgsSettings
+from qgis.core import QgsSettings, QgsFeatureRequest, QgsExpression
 
 from ..core.utils import pixmap
 from ..core.thread_widget import ThreadWidget
@@ -155,9 +155,8 @@ class StatusDock(QDockWidget):
             return False
 
         feat = None
-        idx = layer.fields().indexFromName("routeType")
-        request = QgsFeatureRequest("routeType = 'prospection'")
-        request.addOrderBy("fid", false)
+        request = QgsFeatureRequest(QgsExpression("routeType = 'prospection'"))
+        request.addOrderBy("fid", False)
         for feat in layer.getFeatures(request):
             break
 
