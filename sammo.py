@@ -9,12 +9,17 @@ from qgis.PyQt.QtWidgets import QToolBar
 from qgis.core import (
     QgsProject,
     QgsPointXY,
+    QgsFeatureRequest,
+    QgsExpression,
 )
 
 from .src.core.gps import SammoGpsReader
 from .src.core.session import SammoSession
 from .src.core.thread_simu_gps import ThreadSimuGps
-from .src.core.sound_recording_controller import SammoSoundRecordingController
+from .src.core.sound_recording_controller import (
+    SammoSoundRecordingController,
+    RecordType,
+)
 
 from .src.gui.save import SammoSaveAction
 from .src.gui.table import SammoTableDock
@@ -65,7 +70,7 @@ class Sammo:
     def createSoundRecordingController(self) -> SammoSoundRecordingController:
         controller = SammoSoundRecordingController()
         controller.onStopSoundRecordingForEventSignal.connect(
-            self.session.onStopSoundRecordingForEvent
+            self.onStopSoundRecordingForEvent
         )
         controller.onSoundRecordingStatusChanged.connect(
             self.onSoundRecordingStatusChanged
@@ -197,6 +202,34 @@ class Sammo:
             self.threadSimuGps.start()
         else:
             self.threadSimuGps.stop()
+
+    def onStopSoundRecordingForEvent(
+        self,
+        recordType: RecordType,
+        soundFile: str,
+        soundStart: str,
+        soundEnd: str,
+    ) -> None:
+        saveSound = False
+
+        # ok button from followers panel may be clicked without actually adding
+        # features
+        if recordType == RecordType.FOLLOWERS:
+            lastDatetime = self.followersTable.datetime
+            expr = QgsExpression(f"epoch(dateTime) = epoch('{lastDatetime}')")
+            request = QgsFeatureRequest(expr)
+
+            for fet in self.session.followersLayer.getFeatures(request):
+                saveSound = True
+                break
+        else:
+            saveSound = True
+
+        # saveSound information if necessary
+        if saveSound:
+            self.session.onStopSoundRecordingForEvent(
+                recordType, soundFile, soundStart, soundEnd
+            )
 
     def onSoundRecordingStatusChanged(self, isOn: bool):
         self.statusDock.isSoundRecordingOn = isOn
