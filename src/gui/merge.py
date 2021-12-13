@@ -40,3 +40,15 @@ class SammoMergeAction(QObject):
 
     def onClick(self):
         self.triggered.emit()
+
+
+class SammoMergeDialog(QDialog, FORM_CLASS):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+
+        self.ok.clicked.connect(self.merge)
+        self.cancel.clicked.connect(self.close)
+
+    def merge(self):
+        pass

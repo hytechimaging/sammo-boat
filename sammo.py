@@ -32,6 +32,7 @@ from .src.gui.session import SammoSessionAction
 from .src.gui.simu_gps import SammoSimuGpsAction
 from .src.gui.sightings import SammoSightingsAction
 from .src.gui.environment import SammoEnvironmentAction
+from .src.gui.merge import SammoMergeAction, SammoMergeDialog
 from .src.gui.followers import SammoFollowersAction, SammoFollowersTable
 
 
@@ -135,6 +136,7 @@ class Sammo:
 
     def createMergeAction(self) -> SammoSessionAction:
         button = SammoMergeAction(self.mainWindow, self.toolbar)
+        button.triggered.connect(self.onMergeAction)
         return button
 
     def initGui(self):
@@ -204,7 +206,8 @@ class Sammo:
             self.simuGpsAction.onNewSession()
 
     def onMergeAction(self):
-        pass
+        self.mergeDialog = SammoMergeDialog()
+        self.mergeDialog.show()
 
     def onEnvironmentAction(self):
         self.soundRecordingController.onStartEnvironment()
