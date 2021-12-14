@@ -266,10 +266,9 @@ class SammoSession:
         sessionOutput = SammoSession()
         sessionOutput.init(sessionOutputDir, load=False)
 
-        # only not already copied features are merged in dynamic layers
+        # copy features from dynamic layers
         request = QgsFeatureRequest(QgsExpression('"copy" = 0'))
 
-        # copy features from sightingsLayer
         dynamicLayers = [
             "environmentLayer",
             "sightingsLayer",
@@ -293,4 +292,17 @@ class SammoSession:
 
                     newFid += 1
 
+            out.commitChanges()
+
+        # copy content of static layers only if output is empty
+        staticLayers = ["speciesLayer", "observersLayer"]
+        for layer in staticLayers:
+            out = getattr(sessionOutput, layer)
+            if out.featureCount() != 0:
+                continue
+
+            out.startEditing()
+            vl = getattr(sessionA, layer)
+            for feature in vl.getFeatures():
+                out.addFeature(feature)
             out.commitChanges()
