@@ -29,6 +29,17 @@ class StatusWidget(QFrame, FORM_CLASS):
         self.setupUi(self)
         self.init()
 
+    def updateNeedSave(self, status):
+        self.save.setStyleSheet(self._styleSheet(not status))
+        self.save.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+
+        icon = "pen_ok.png"
+        if status:
+            icon = "pen_ko.png"
+
+        px = pixmap(icon, QSize(64, 64))
+        self.save.setPixmap(px)
+
     def updateRecording(self, status):
         self.record.setStyleSheet(self._styleSheet(status))
         self.record.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
@@ -89,7 +100,7 @@ class StatusWidget(QFrame, FORM_CLASS):
         """
 
 
-class StatusDock(QDockWidget):
+class SammoStatusDock(QDockWidget):
     def __init__(self, iface, session):
         super().__init__("Sammo Status", iface.mainWindow())
         self.setObjectName("Sammo Status")
@@ -113,7 +124,7 @@ class StatusDock(QDockWidget):
         if status:
             location = int(
                 QgsSettings().value(
-                    "Sammo/StatusDock/Location/", Qt.LeftDockWidgetArea
+                    "Sammo/SammoStatusDock/Location/", Qt.LeftDockWidgetArea
                 )
             )
             self.setVisible(True)
@@ -135,6 +146,7 @@ class StatusDock(QDockWidget):
         self._widget.updateGps(not self._isGpsOffline)
         self._widget.updateEffort(self._isEffortOn)
         self._widget.updateRecording(self.isSoundRecordingOn)
+        self._widget.updateNeedSave(self.session.needsSaving())
 
     def updateGpsInfo(self, longitude: float, latitude: float):
         self._counter500msWithoutGpsInfo = 0
@@ -198,4 +210,6 @@ class StatusDock(QDockWidget):
         self.setWidget(self._widget)
 
     def _saveLastLocation(self, location):
-        QgsSettings().setValue("Sammo/StatusDock/Location/", int(location))
+        QgsSettings().setValue(
+            "Sammo/SammoStatusDock/Location/", int(location)
+        )

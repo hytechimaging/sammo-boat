@@ -17,8 +17,8 @@ from qgis.core import (
 
 from . import utils
 from .database import (
-    SammoDataBase,
     DB_NAME,
+    SammoDataBase,
 )
 from .layers import (
     SammoGpsLayer,
@@ -36,12 +36,12 @@ class SammoSession:
     def __init__(self):
         self.db = SammoDataBase()
 
-        self._gpsLayer: SammoGpsLayer
-        self._worldLayer: SammoWorldLayer
-        self._speciesLayer: SammoSpeciesLayer
-        self._followersLayer: SammoFollowersLayer
-        self._observersLayer: SammoObserversLayer
-        self._sightingsLayer: SammoSightingsLayer
+        self._gpsLayer: SammoGpsLayer = None
+        self._worldLayer: SammoWorldLayer = None
+        self._speciesLayer: SammoSpeciesLayer = None
+        self._followersLayer: SammoFollowersLayer = None
+        self._observersLayer: SammoObserversLayer = None
+        self._sightingsLayer: SammoSightingsLayer = None
         self._environmentLayer: SammoEnvironmentLayer = None
 
     @property
@@ -56,7 +56,9 @@ class SammoSession:
 
     @property
     def followersLayer(self) -> QgsVectorLayer:
-        return self._followersLayer.layer
+        if self._followersLayer:
+            return self._followersLayer.layer
+        return None
 
     @property
     def observersLayer(self) -> QgsVectorLayer:
@@ -68,39 +70,36 @@ class SammoSession:
 
     @property
     def sightingsLayer(self) -> QgsVectorLayer:
-        return self._sightingsLayer.layer
+        if self._sightingsLayer:
+            return self._sightingsLayer.layer
+        return None
 
     def init(self, directory: str) -> None:
         new = self.db.init(directory)
+
+        self._worldLayer = SammoWorldLayer()
+        self._gpsLayer = SammoGpsLayer(self.db)
+        self._speciesLayer = SammoSpeciesLayer(self.db)
+        self._sightingsLayer = SammoSightingsLayer(self.db)
+        self._observersLayer = SammoObserversLayer(self.db)
+        self._followersLayer = SammoFollowersLayer(
+            self.db, self._observersLayer, self._speciesLayer
+        )
+        self._environmentLayer = SammoEnvironmentLayer(
+            self.db, self._observersLayer
+        )
 
         # create database if necessary
         if new:
             project = QgsProject()
 
             # add layers
-            self._worldLayer = SammoWorldLayer()
             self._worldLayer.addToProject(project)
-
-            self._gpsLayer = SammoGpsLayer(self.db)
             self._gpsLayer.addToProject(project)
-
-            self._speciesLayer = SammoSpeciesLayer(self.db)
             self._speciesLayer.addToProject(project)
-
-            self._sightingsLayer = SammoSightingsLayer(self.db)
             self._sightingsLayer.addToProject(project)
-
-            self._observersLayer = SammoObserversLayer(self.db)
             self._observersLayer.addToProject(project)
-
-            self._followersLayer = SammoFollowersLayer(
-                self.db, self._observersLayer, self._speciesLayer
-            )
             self._followersLayer.addToProject(project)
-
-            self._environmentLayer = SammoEnvironmentLayer(
-                self.db, self._observersLayer
-            )
             self._environmentLayer.addToProject(project)
 
             # configure project
@@ -134,6 +133,23 @@ class SammoSession:
     def addFollowersFeature(self, dt: str) -> None:
         layer = self.followersLayer
         self._addFeature(layer, dt)
+
+    def needsSaving(self) -> None:
+        for layer in [
+            self.environmentLayer,
+            self.sightingsLayer,
+            self.followersLayer,
+        ]:
+            if not layer:
+                continue
+
+            if not layer.editBuffer():
+                continue
+
+            if len(layer.editBuffer().allAddedOrEditedFeatures()) != 0:
+                return True
+
+        return False
 
     def saveAll(self) -> None:
         for layer in [
@@ -170,6 +186,8 @@ class SammoSession:
         table.changeAttributeValue(idLastAddedFeature, field_idx, soundStart)
         field_idx = table.fields().indexOf("soundEnd")
         table.changeAttributeValue(idLastAddedFeature, field_idx, soundEnd)
+
+        self.saveAll()
 
     def addGps(
         self, longitude: float, latitude: float, hour: int, minu: int, sec: int

@@ -37,7 +37,7 @@ class TableWidget(QFrame, FORM_CLASS):
         self.verticalLayout.addWidget(self.tables[sightingLayer.name()])
 
 
-class TableDock(QDockWidget):
+class SammoTableDock(QDockWidget):
     def __init__(self, iface):
         super().__init__("Environment", iface.mainWindow())
         self.setObjectName("Sammo Tables")

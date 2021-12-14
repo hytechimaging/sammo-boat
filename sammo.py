@@ -9,15 +9,21 @@ from qgis.PyQt.QtWidgets import QToolBar
 from qgis.core import (
     QgsProject,
     QgsPointXY,
+    QgsExpression,
+    QgsFeatureRequest,
 )
 
 from .src.core.gps import SammoGpsReader
 from .src.core.session import SammoSession
 from .src.core.thread_simu_gps import ThreadSimuGps
-from .src.core.sound_recording_controller import SammoSoundRecordingController
+from .src.core.sound_recording_controller import (
+    RecordType,
+    SammoSoundRecordingController,
+)
 
-from .src.gui.table import TableDock
-from .src.gui.status import StatusDock
+from .src.gui.save import SammoSaveAction
+from .src.gui.table import SammoTableDock
+from .src.gui.status import SammoStatusDock
 from .src.gui.session import SammoSessionAction
 from .src.gui.simu_gps import SammoSimuGpsAction
 from .src.gui.sightings import SammoSightingsAction
@@ -35,6 +41,7 @@ class Sammo:
         self.session = SammoSession()
 
         self.sessionAction = self.createSessionAction()
+        self.saveAction = self.createSaveAction()
         self.toolbar.addSeparator()
         self.environmentAction = self.createEnvironmentAction()
         self.sightingsAction = self.createSightingsAction()
@@ -43,8 +50,8 @@ class Sammo:
 
         self.soundRecordingController = self.createSoundRecordingController()
         self.gpsReader = self.createGpsReader()
-        self.statusDock = StatusDock(iface, self.session)
-        self.tableDock = TableDock(iface)
+        self.statusDock = SammoStatusDock(iface, self.session)
+        self.tableDock = SammoTableDock(iface)
 
         iface.projectRead.connect(self.onProjectLoaded)
         iface.newProjectCreated.connect(self.onProjectLoaded)
@@ -58,11 +65,12 @@ class Sammo:
         self.environmentAction.setEnabled(status)
         self.followersAction.setEnabled(status)
         self.sightingsAction.setEnabled(status)
+        self.saveAction.setEnabled(status)
 
     def createSoundRecordingController(self) -> SammoSoundRecordingController:
         controller = SammoSoundRecordingController()
         controller.onStopSoundRecordingForEventSignal.connect(
-            self.session.onStopSoundRecordingForEvent
+            self.onStopSoundRecordingForEvent
         )
         controller.onSoundRecordingStatusChanged.connect(
             self.onSoundRecordingStatusChanged
@@ -86,6 +94,11 @@ class Sammo:
         gps.frame.connect(self.onGpsFrame)
         gps.start()
         return gps
+
+    def createSaveAction(self) -> SammoSaveAction:
+        button = SammoSaveAction(self.mainWindow, self.toolbar)
+        button.triggered.connect(self.session.saveAll)
+        return button
 
     def createFollowersAction(self):
         button = SammoFollowersAction(self.mainWindow, self.toolbar)
@@ -136,6 +149,7 @@ class Sammo:
         # init session
         self.loading = True
         self.session.init(sessionDirectory)
+        self.session.saveAll()
         self.loading = False
 
         self.gpsReader.active = True
@@ -189,6 +203,34 @@ class Sammo:
             self.threadSimuGps.start()
         else:
             self.threadSimuGps.stop()
+
+    def onStopSoundRecordingForEvent(
+        self,
+        recordType: RecordType,
+        soundFile: str,
+        soundStart: str,
+        soundEnd: str,
+    ) -> None:
+        saveSound = False
+
+        # ok button from followers panel may be clicked without actually adding
+        # features
+        if recordType == RecordType.FOLLOWERS:
+            lastDatetime = self.followersTable.datetime
+            expr = QgsExpression(f"epoch(dateTime) = epoch('{lastDatetime}')")
+            request = QgsFeatureRequest(expr)
+
+            for fet in self.session.followersLayer.getFeatures(request):
+                saveSound = True
+                break
+        else:
+            saveSound = True
+
+        # saveSound information if necessary
+        if saveSound:
+            self.session.onStopSoundRecordingForEvent(
+                recordType, soundFile, soundStart, soundEnd
+            )
 
     def onSoundRecordingStatusChanged(self, isOn: bool):
         self.statusDock.isSoundRecordingOn = isOn
