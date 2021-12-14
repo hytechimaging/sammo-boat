@@ -48,6 +48,8 @@ class SammoGpsLayer(SammoLayer):
         )
         feature.setGeometry(self.lastGpsGeom)
 
+        feature.setAttribute("copy", 0)
+
         now = datetime.now()
         feature.setAttribute("dateTime", now.strftime("%Y-%m-%d %H:%M:%S"))
 

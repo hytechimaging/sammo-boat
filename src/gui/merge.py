@@ -4,13 +4,13 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os
-import pygeodiff
 
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import pyqtSignal, QObject, QDir
 from qgis.PyQt.QtWidgets import QAction, QToolBar, QDialog, QFileDialog
 
 from ..core import utils
+from ..core.session import SammoSession
 from .attribute_table import SammoAttributeTable
 
 FORM_CLASS, _ = uic.loadUiType(
@@ -88,4 +88,5 @@ class SammoMergeDialog(QDialog, FORM_CLASS):
             self.sessionMergedDir.setText(sessionMerged)
 
     def merge(self):
-        pass
+        SammoSession.merge(self.sessionADir.text(), self.sessionBDir.text(), self.sessionMergedDir.text())
+        self.close()

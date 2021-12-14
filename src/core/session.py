@@ -3,12 +3,16 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
+import pathlib
+from shutil import copy
+
 from qgis.PyQt.QtGui import QColor
 
 from qgis.core import (
     QgsProject,
     QgsMapLayer,
     QgsSettings,
+    QgsExpression,
     QgsVectorLayer,
     QgsVectorLayerUtils,
     QgsReferencedRectangle,
@@ -85,7 +89,11 @@ class SammoSession:
             self.sightingsLayer,
         ]
 
-    def init(self, directory: str) -> None:
+    @property
+    def wavFiles(self) -> list[str]:
+        return list(pathlib.Path(self.db.directory).glob('*.wav'))
+
+    def init(self, directory: str, load: bool = True) -> None:
         new = self.db.init(directory)
 
         self._worldLayer = SammoWorldLayer()
@@ -128,8 +136,9 @@ class SammoSession:
             self.db.writeProject(project)
 
         # read project
-        QgsProject.instance().read(self.db.projectUri)
-        QgsSettings().setValue("qgis/enableMacros", "SessionOnly")
+        if load:
+            QgsProject.instance().read(self.db.projectUri)
+            QgsSettings().setValue("qgis/enableMacros", "SessionOnly")
 
     def addEnvironmentFeature(self) -> QgsVectorLayer:
         layer = self.environmentLayer
@@ -211,6 +220,7 @@ class SammoSession:
         if not dt:
             dt = utils.now()
         feat["dateTime"] = dt
+        feat["copy"] = 0
 
         lastFeat = SammoDataBase.lastFeature(layer)
         if lastFeat:
@@ -236,3 +246,36 @@ class SammoSession:
                 return uri.split("|")[0].replace(DB_NAME, "")
 
         return ""
+
+    @staticmethod
+    def merge(sessionADir, sessionBDir, sessionOutputDir):
+        # open input session
+        sessionA = SammoSession()
+        sessionA.init(sessionADir, load=False)
+
+        sessionB = SammoSession()
+        sessionB.init(sessionBDir, load=False)
+
+        # copy wav files to output session
+        for session in [sessionA, sessionB]:
+            for wav in session.wavFiles:
+                copy(wav, sessionOutputDir)
+
+        # create output session
+        sessionOutput = SammoSession()
+        sessionOutput.init(sessionOutputDir, load=False)
+
+        # only not already copied features are merged in dynamic layers
+        expr = QgsExpression("\"copy\" != 0")
+
+        # copy features from environmentLayer
+        environmentLayerA = sessionA.environmentLayer
+        environmentLayerB = sessionB.environmentLayer
+
+        environmentLayerOutput = sessionOutput.environmentLayer
+        environmentLayerOutput.startEditing()
+
+        for layer in [environmentLayerA, environmentLayerB]:
+            for feature in layer.getFeatures(expr):
+                feature["copy"] = 1
+                environmentLayerOutput.addFeature(feature)
