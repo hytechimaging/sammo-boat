@@ -143,9 +143,7 @@ class Sammo:
         )
         self.sightingsShortcut.activated.connect(self.onSightingsAction)
 
-        self.saveShortcut = QShortcut(
-            QKeySequence("Shift+S"), self.mainWindow
-        )
+        self.saveShortcut = QShortcut(QKeySequence("Shift+S"), self.mainWindow)
         self.saveShortcut.activated.connect(self.session.saveAll)
 
     def unload(self):
