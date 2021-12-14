@@ -5,7 +5,9 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
 
-from qgis.PyQt.QtWidgets import QToolBar
+from qgis.PyQt.QtGui import QKeySequence
+from qgis.PyQt.QtWidgets import QToolBar, QShortcut
+
 from qgis.core import (
     QgsProject,
     QgsPointXY,
@@ -57,6 +59,8 @@ class Sammo:
 
         iface.projectRead.connect(self.onProjectLoaded)
         iface.newProjectCreated.connect(self.onProjectLoaded)
+
+        self.initShortcuts()
 
     @property
     def mainWindow(self):
@@ -130,6 +134,25 @@ class Sammo:
     def initGui(self):
         pass
 
+    def initShortcuts(self) -> None:
+        self.environmentShortcut = QShortcut(
+            QKeySequence("Shift+E"), self.mainWindow
+        )
+        self.environmentShortcut.activated.connect(self.onEnvironmentAction)
+
+        self.followersShortcut = QShortcut(
+            QKeySequence("Shift+F"), self.mainWindow
+        )
+        self.followersShortcut.activated.connect(self.onFollowersAction)
+
+        self.sightingsShortcut = QShortcut(
+            QKeySequence("Shift+O"), self.mainWindow
+        )
+        self.sightingsShortcut.activated.connect(self.onSightingsAction)
+
+        self.saveShortcut = QShortcut(QKeySequence("Shift+S"), self.mainWindow)
+        self.saveShortcut.activated.connect(self.session.saveAll)
+
     def unload(self):
         self.gpsReader.stop()
 
@@ -174,7 +197,7 @@ class Sammo:
         if self.simuGpsAction:
             self.simuGpsAction.onNewSession()
 
-    def onEnvironmentAction(self, onEnvironment: bool):
+    def onEnvironmentAction(self):
         self.soundRecordingController.onStartEnvironment()
         layer = self.session.addEnvironmentFeature()
         self.tableDock.refresh(layer)
@@ -195,6 +218,11 @@ class Sammo:
         self.followersTable.addButton.clicked.connect(self.onFollowersAdd)
         self.followersTable.okButton.clicked.connect(self.onFollowersOk)
         self.followersTable.show()
+
+        self.followersAddShortcut = QShortcut(
+            QKeySequence("Shift+A"), self.followersTable
+        )
+        self.followersAddShortcut.activated.connect(self.onFollowersAdd)
 
     def onFollowersOk(self):
         self.session.saveAll()
