@@ -49,6 +49,7 @@ class Sammo:
         self.saveAction = self.createSaveAction()
         self.exportAction = self.createExportAction()
         self.mergeAction = self.createMergeAction()
+        self.saveAction = self.createSaveAction()
         self.toolbar.addSeparator()
         self.environmentAction = self.createEnvironmentAction()
         self.sightingsAction = self.createSightingsAction()

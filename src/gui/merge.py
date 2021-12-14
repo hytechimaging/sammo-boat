@@ -11,7 +11,6 @@ from qgis.PyQt.QtWidgets import QAction, QToolBar, QDialog, QFileDialog
 
 from ..core import utils
 from ..core.session import SammoSession
-from .attribute_table import SammoAttributeTable
 
 FORM_CLASS, _ = uic.loadUiType(
     os.path.join(os.path.dirname(__file__), "ui/merge.ui")
@@ -88,5 +87,9 @@ class SammoMergeDialog(QDialog, FORM_CLASS):
             self.sessionMergedDir.setText(sessionMerged)
 
     def merge(self):
-        SammoSession.merge(self.sessionADir.text(), self.sessionBDir.text(), self.sessionMergedDir.text())
+        SammoSession.merge(
+            self.sessionADir.text(),
+            self.sessionBDir.text(),
+            self.sessionMergedDir.text(),
+        )
         self.close()

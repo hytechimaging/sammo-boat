@@ -14,6 +14,7 @@ from qgis.core import (
     QgsSettings,
     QgsExpression,
     QgsVectorLayer,
+    QgsFeatureRequest,
     QgsVectorLayerUtils,
     QgsReferencedRectangle,
     QgsCoordinateReferenceSystem,
@@ -91,7 +92,7 @@ class SammoSession:
 
     @property
     def wavFiles(self) -> list[str]:
-        return list(pathlib.Path(self.db.directory).glob('*.wav'))
+        return list(pathlib.Path(self.db.directory).glob("*.wav"))
 
     def init(self, directory: str, load: bool = True) -> None:
         new = self.db.init(directory)
@@ -266,16 +267,50 @@ class SammoSession:
         sessionOutput.init(sessionOutputDir, load=False)
 
         # only not already copied features are merged in dynamic layers
-        expr = QgsExpression("\"copy\" != 0")
+        request = QgsFeatureRequest(QgsExpression('"copy" = 0'))
 
-        # copy features from environmentLayer
-        environmentLayerA = sessionA.environmentLayer
-        environmentLayerB = sessionB.environmentLayer
+        # copy features from sightingsLayer
+        dynamicLayers = []
+        dynamicLayers.append(
+            (
+                sessionA.environmentLayer,
+                sessionB.environmentLayer,
+                sessionOutput.environmentLayer,
+            )
+        )
+        dynamicLayers.append(
+            (
+                sessionA.followersLayer,
+                sessionB.followersLayer,
+                sessionOutput.followersLayer,
+            )
+        )
+        dynamicLayers.append(
+            (
+                sessionA.sightingsLayer,
+                sessionB.sightingsLayer,
+                sessionOutput.sightingsLayer,
+            )
+        )
+        dynamicLayers.append(
+            (sessionA.gpsLayer, sessionB.gpsLayer, sessionOutput.gpsLayer)
+        )
 
-        environmentLayerOutput = sessionOutput.environmentLayer
-        environmentLayerOutput.startEditing()
+        for layers in dynamicLayers:
+            out = layers[2]
+            out.startEditing()
 
-        for layer in [environmentLayerA, environmentLayerB]:
-            for feature in layer.getFeatures(expr):
-                feature["copy"] = 1
-                environmentLayerOutput.addFeature(feature)
+            newFid = 0
+            lastFeature = SammoDataBase.lastFeature(out)
+            if lastFeature:
+                newFid = lastFeature["fid"] + 1
+
+            for vl in layers[0:2]:
+                for feature in vl.getFeatures(request):
+                    feature["fid"] = newFid
+                    feature["copy"] = 1
+                    out.addFeature(feature)
+
+                    newFid += 1
+
+            out.commitChanges()
