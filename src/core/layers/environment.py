@@ -22,7 +22,7 @@ from .layer import SammoLayer
 
 class SammoEnvironmentLayer(SammoLayer):
     def __init__(self, db: SammoDataBase, observersLayer: SammoLayer):
-        super().__init__(db, ENVIRONMENT_TABLE, "Environment")
+        super().__init__(db, ENVIRONMENT_TABLE, "Environment", True)
         self.observersLayer = observersLayer
 
     def _init(self, layer: QgsVectorLayer):

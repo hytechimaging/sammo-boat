@@ -10,6 +10,7 @@ installed through the `Python Console` of QGIS Desktop:
 
 ```` python
 >>> import pip
+>>> pip.main(['install', 'pydub'])
 >>> pip.main(['install', 'sounddevice'])
 >>> pip.main(['install', 'soundfile'])
 >>> pip.main(['install', 'pyserial'])
