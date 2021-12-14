@@ -149,6 +149,7 @@ class Sammo:
         # init session
         self.loading = True
         self.session.init(sessionDirectory)
+        self.session.saveAll()
         self.loading = False
 
         self.gpsReader.active = True

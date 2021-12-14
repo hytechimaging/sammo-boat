@@ -17,8 +17,8 @@ from qgis.core import (
 
 from . import utils
 from .database import (
-    SammoDataBase,
     DB_NAME,
+    SammoDataBase,
 )
 from .layers import (
     SammoGpsLayer,
@@ -77,34 +77,29 @@ class SammoSession:
     def init(self, directory: str) -> None:
         new = self.db.init(directory)
 
+        self._worldLayer = SammoWorldLayer()
+        self._gpsLayer = SammoGpsLayer(self.db)
+        self._speciesLayer = SammoSpeciesLayer(self.db)
+        self._sightingsLayer = SammoSightingsLayer(self.db)
+        self._observersLayer = SammoObserversLayer(self.db)
+        self._followersLayer = SammoFollowersLayer(
+            self.db, self._observersLayer, self._speciesLayer
+        )
+        self._environmentLayer = SammoEnvironmentLayer(
+            self.db, self._observersLayer
+        )
+
         # create database if necessary
         if new:
             project = QgsProject()
 
             # add layers
-            self._worldLayer = SammoWorldLayer()
             self._worldLayer.addToProject(project)
-
-            self._gpsLayer = SammoGpsLayer(self.db)
             self._gpsLayer.addToProject(project)
-
-            self._speciesLayer = SammoSpeciesLayer(self.db)
             self._speciesLayer.addToProject(project)
-
-            self._sightingsLayer = SammoSightingsLayer(self.db)
             self._sightingsLayer.addToProject(project)
-
-            self._observersLayer = SammoObserversLayer(self.db)
             self._observersLayer.addToProject(project)
-
-            self._followersLayer = SammoFollowersLayer(
-                self.db, self._observersLayer, self._speciesLayer
-            )
             self._followersLayer.addToProject(project)
-
-            self._environmentLayer = SammoEnvironmentLayer(
-                self.db, self._observersLayer
-            )
             self._environmentLayer.addToProject(project)
 
             # configure project
