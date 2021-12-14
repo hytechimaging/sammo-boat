@@ -4,6 +4,7 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os
+import pygeodiff
 
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import pyqtSignal, QObject
