@@ -221,7 +221,6 @@ class SammoSession:
         if not dt:
             dt = utils.now()
         feat["dateTime"] = dt
-        feat["copy"] = 0
 
         lastFeat = SammoDataBase.lastFeature(layer)
         if lastFeat:
@@ -267,8 +266,6 @@ class SammoSession:
         sessionOutput.init(sessionOutputDir, load=False)
 
         # copy features from dynamic layers
-        request = QgsFeatureRequest(QgsExpression('"copy" = 0'))
-
         dynamicLayers = [
             "environmentLayer",
             "sightingsLayer",
@@ -277,7 +274,6 @@ class SammoSession:
         ]
         for layer in dynamicLayers:
             out = getattr(sessionOutput, layer)
-            out.startEditing()
 
             newFid = 0
             lastFeature = SammoDataBase.lastFeature(out)
@@ -285,14 +281,22 @@ class SammoSession:
                 newFid = lastFeature["fid"] + 1
 
             for vl in [getattr(sessionA, layer), getattr(sessionB, layer)]:
-                for feature in vl.getFeatures(request):
-                    feature["fid"] = newFid
-                    feature["copy"] = 1
-                    out.addFeature(feature)
+                for feature in vl.getFeatures():
+                    attrs = feature.attributes()[1:]
 
-                    newFid += 1
+                    exist = False
+                    for featureOut in out.getFeatures():
+                        if featureOut.attributes()[1:] == attrs:
+                            exist = True
+                            break
 
-            out.commitChanges()
+                    if not exist:
+                        feature["fid"] = newFid
+                        newFid += 1
+
+                        out.startEditing()
+                        out.addFeature(feature)
+                        out.commitChanges()
 
         # copy content of static layers only if output is empty
         staticLayers = ["speciesLayer", "observersLayer"]

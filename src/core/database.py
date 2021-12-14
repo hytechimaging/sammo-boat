@@ -90,7 +90,6 @@ class SammoDataBase:
 
     def _createFieldsForEnvironmentTable(self) -> QgsFields:
         fields = QgsFields()
-        fields.append(QgsField("copy", QVariant.Int))
         fields.append(QgsField("dateTime", QVariant.DateTime))
         fields.append(self._createFieldShortText("status"))
         fields.append(self._createFieldShortText("plateform"))
@@ -131,7 +130,6 @@ class SammoDataBase:
 
     def _fieldsSightings(self) -> QgsFields:
         fields = QgsFields()
-        fields.append(QgsField("copy", QVariant.Int))
         fields.append(QgsField("dateTime", QVariant.DateTime))
         fields.append(self._createFieldShortText("side"))
         fields.append(self._createFieldShortText("species"))
@@ -156,7 +154,6 @@ class SammoDataBase:
 
     def _createFieldsForFollowersTable(self) -> QgsFields:
         fields = QgsFields()
-        fields.append(QgsField("copy", QVariant.Int))
         fields.append(QgsField("dateTime", QVariant.DateTime))
         fields.append(QgsField("nFollower", QVariant.Int))
         fields.append(self._createFieldShortText("back"))
@@ -174,7 +171,6 @@ class SammoDataBase:
 
     def _createFieldsForGpsTable(self) -> QgsFields:
         fields = QgsFields()
-        fields.append(QgsField("copy", QVariant.Int))
         fields.append(QgsField("dateTime", QVariant.DateTime))
         fields.append(QgsField("gpsDateTime", QVariant.DateTime))
         fields.append(QgsField("speed", QVariant.Double))
