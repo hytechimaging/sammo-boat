@@ -101,7 +101,7 @@ class Sammo:
     def createSaveAction(self) -> SammoSaveAction:
         button = SammoSaveAction(self.mainWindow, self.toolbar)
         button.triggered.connect(self.session.saveAll)
-	return button
+        return button
 
     def createExportAction(self) -> SammoExportAction:
         button = SammoExportAction(self.mainWindow, self.toolbar, self.session)
