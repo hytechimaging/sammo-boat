@@ -25,7 +25,6 @@ from .src.core.sound_recording_controller import (
 
 from .src.gui.save import SammoSaveAction
 from .src.gui.table import SammoTableDock
-from .src.gui.merge import SammoMergeAction
 from .src.gui.status import SammoStatusDock
 from .src.gui.export import SammoExportAction
 from .src.gui.session import SammoSessionAction
@@ -49,7 +48,6 @@ class Sammo:
         self.saveAction = self.createSaveAction()
         self.exportAction = self.createExportAction()
         self.mergeAction = self.createMergeAction()
-        self.saveAction = self.createSaveAction()
         self.toolbar.addSeparator()
         self.environmentAction = self.createEnvironmentAction()
         self.sightingsAction = self.createSightingsAction()
