@@ -270,34 +270,9 @@ class SammoSession:
         request = QgsFeatureRequest(QgsExpression('"copy" = 0'))
 
         # copy features from sightingsLayer
-        dynamicLayers = []
-        dynamicLayers.append(
-            (
-                sessionA.environmentLayer,
-                sessionB.environmentLayer,
-                sessionOutput.environmentLayer,
-            )
-        )
-        dynamicLayers.append(
-            (
-                sessionA.followersLayer,
-                sessionB.followersLayer,
-                sessionOutput.followersLayer,
-            )
-        )
-        dynamicLayers.append(
-            (
-                sessionA.sightingsLayer,
-                sessionB.sightingsLayer,
-                sessionOutput.sightingsLayer,
-            )
-        )
-        dynamicLayers.append(
-            (sessionA.gpsLayer, sessionB.gpsLayer, sessionOutput.gpsLayer)
-        )
-
-        for layers in dynamicLayers:
-            out = layers[2]
+        dynamicLayers = ["environmentLayer", "sightingsLayer", "gpsLayer", "followersLayer"]
+        for layer in dynamicLayers:
+            out = getattr(sessionOutput, layer)
             out.startEditing()
 
             newFid = 0
@@ -305,7 +280,7 @@ class SammoSession:
             if lastFeature:
                 newFid = lastFeature["fid"] + 1
 
-            for vl in layers[0:2]:
+            for vl in [getattr(sessionA, layer), getattr(sessionB, layer)]:
                 for feature in vl.getFeatures(request):
                     feature["fid"] = newFid
                     feature["copy"] = 1
