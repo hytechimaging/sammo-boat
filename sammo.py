@@ -143,10 +143,10 @@ class Sammo:
         )
         self.sightingsShortcut.activated.connect(self.onSightingsAction)
 
-        self.sightingsShortcut = QShortcut(
+        self.saveShortcut = QShortcut(
             QKeySequence("Shift+S"), self.mainWindow
         )
-        self.sightingsShortcut.activated.connect(self.session.saveAll)
+        self.saveShortcut.activated.connect(self.session.saveAll)
 
     def unload(self):
         self.gpsReader.stop()
