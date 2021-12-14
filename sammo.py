@@ -24,6 +24,7 @@ from .src.core.sound_recording_controller import (
 from .src.gui.save import SammoSaveAction
 from .src.gui.table import SammoTableDock
 from .src.gui.status import SammoStatusDock
+from .src.gui.export import SammoExportAction
 from .src.gui.session import SammoSessionAction
 from .src.gui.simu_gps import SammoSimuGpsAction
 from .src.gui.sightings import SammoSightingsAction
@@ -42,6 +43,7 @@ class Sammo:
 
         self.sessionAction = self.createSessionAction()
         self.saveAction = self.createSaveAction()
+        self.exportAction = self.createExportAction()
         self.toolbar.addSeparator()
         self.environmentAction = self.createEnvironmentAction()
         self.sightingsAction = self.createSightingsAction()
@@ -61,6 +63,7 @@ class Sammo:
         return self.iface.mainWindow()
 
     def setEnabled(self, status):
+        self.exportAction.setEnabled(status)
         self.statusDock.setEnabled(status)
         self.environmentAction.setEnabled(status)
         self.followersAction.setEnabled(status)
@@ -98,6 +101,10 @@ class Sammo:
     def createSaveAction(self) -> SammoSaveAction:
         button = SammoSaveAction(self.mainWindow, self.toolbar)
         button.triggered.connect(self.session.saveAll)
+        return button
+
+    def createExportAction(self) -> SammoExportAction:
+        button = SammoExportAction(self.mainWindow, self.toolbar, self.session)
         return button
 
     def createFollowersAction(self):
