@@ -270,7 +270,12 @@ class SammoSession:
         request = QgsFeatureRequest(QgsExpression('"copy" = 0'))
 
         # copy features from sightingsLayer
-        dynamicLayers = ["environmentLayer", "sightingsLayer", "gpsLayer", "followersLayer"]
+        dynamicLayers = [
+            "environmentLayer",
+            "sightingsLayer",
+            "gpsLayer",
+            "followersLayer",
+        ]
         for layer in dynamicLayers:
             out = getattr(sessionOutput, layer)
             out.startEditing()
