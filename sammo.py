@@ -208,7 +208,7 @@ class Sammo:
         self.mergeDialog = SammoMergeDialog()
         self.mergeDialog.show()
 
-    def onEnvironmentAction(self):
+    def onEnvironmentAction(self) -> None:
         self.soundRecordingController.onStartEnvironment()
         layer = self.session.addEnvironmentFeature()
         self.tableDock.refresh(layer)
