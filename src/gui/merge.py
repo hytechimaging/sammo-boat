@@ -38,7 +38,7 @@ class SammoMergeAction(QObject):
     def unload(self) -> None:
         del self.action
 
-    def onClick(self):
+    def onClick(self) -> None:
         self.triggered.emit()
 
 
