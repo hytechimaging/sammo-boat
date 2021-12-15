@@ -64,7 +64,7 @@ class SammoMergeDialog(QDialog, FORM_CLASS):
         if sessionA:
             self.sessionADir.setText(sessionA)
 
-    def sessionB(self):
+    def sessionB(self) -> None:
         sessionB = QFileDialog.getExistingDirectory(
             None,
             "Session B",
