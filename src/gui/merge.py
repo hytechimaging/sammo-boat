@@ -35,7 +35,7 @@ class SammoMergeAction(QObject):
         self.action.triggered.connect(self.onClick)
         toolbar.addAction(self.action)
 
-    def unload(self):
+    def unload(self) -> None:
         del self.action
 
     def onClick(self):
