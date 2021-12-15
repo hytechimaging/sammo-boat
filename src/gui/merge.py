@@ -28,7 +28,7 @@ class SammoMergeAction(QObject):
     def setEnabled(self, status: bool) -> None:
         self.action.setEnabled(status)
 
-    def initGui(self, parent: QObject, toolbar: QToolBar):
+    def initGui(self, parent: QObject, toolbar: QToolBar) -> None:
         self.action = QAction(parent)
         self.action.setIcon(utils.icon("merge.png"))
         self.action.setToolTip("Merge projects")
