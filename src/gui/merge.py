@@ -86,7 +86,7 @@ class SammoMergeDialog(QDialog, FORM_CLASS):
         if sessionMerged:
             self.sessionMergedDir.setText(sessionMerged)
 
-    def merge(self):
+    def merge(self) -> None:
         SammoSession.merge(
             self.sessionADir.text(),
             self.sessionBDir.text(),
