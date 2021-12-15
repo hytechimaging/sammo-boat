@@ -3,6 +3,9 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
+import pathlib
+from shutil import copy
+
 from qgis.PyQt.QtGui import QColor
 
 from qgis.core import (
@@ -85,7 +88,11 @@ class SammoSession:
             self.sightingsLayer,
         ]
 
-    def init(self, directory: str) -> None:
+    @property
+    def wavFiles(self) -> list[str]:
+        return list(pathlib.Path(self.db.directory).glob("*.wav"))
+
+    def init(self, directory: str, load: bool = True) -> None:
         new = self.db.init(directory)
 
         self._worldLayer = SammoWorldLayer()
@@ -128,8 +135,9 @@ class SammoSession:
             self.db.writeProject(project)
 
         # read project
-        QgsProject.instance().read(self.db.projectUri)
-        QgsSettings().setValue("qgis/enableMacros", "SessionOnly")
+        if load:
+            QgsProject.instance().read(self.db.projectUri)
+            QgsSettings().setValue("qgis/enableMacros", "SessionOnly")
 
     def addEnvironmentFeature(self) -> QgsVectorLayer:
         layer = self.environmentLayer
@@ -247,3 +255,69 @@ class SammoSession:
                 return uri.split("|")[0].replace(DB_NAME, "")
 
         return ""
+
+    @staticmethod
+    def merge(
+        sessionADir: str, sessionBDir: str, sessionOutputDir: str
+    ) -> None:
+        # open input session
+        sessionA = SammoSession()
+        sessionA.init(sessionADir, load=False)
+
+        sessionB = SammoSession()
+        sessionB.init(sessionBDir, load=False)
+
+        # copy wav files to output session
+        for session in [sessionA, sessionB]:
+            for wav in session.wavFiles:
+                copy(wav, sessionOutputDir)
+
+        # create output session
+        sessionOutput = SammoSession()
+        sessionOutput.init(sessionOutputDir, load=False)
+
+        # copy features from dynamic layers
+        dynamicLayers = [
+            "environmentLayer",
+            "sightingsLayer",
+            "gpsLayer",
+            "followersLayer",
+        ]
+        for layer in dynamicLayers:
+            out = getattr(sessionOutput, layer)
+
+            newFid = 0
+            lastFeature = SammoDataBase.lastFeature(out)
+            if lastFeature:
+                newFid = lastFeature["fid"] + 1
+
+            for vl in [getattr(sessionA, layer), getattr(sessionB, layer)]:
+                for feature in vl.getFeatures():
+                    attrs = feature.attributes()[1:]
+
+                    exist = False
+                    for featureOut in out.getFeatures():
+                        if featureOut.attributes()[1:] == attrs:
+                            exist = True
+                            break
+
+                    if not exist:
+                        feature["fid"] = newFid
+                        newFid += 1
+
+                        out.startEditing()
+                        out.addFeature(feature)
+                        out.commitChanges()
+
+        # copy content of static layers only if output is empty
+        staticLayers = ["speciesLayer", "observersLayer"]
+        for layer in staticLayers:
+            out = getattr(sessionOutput, layer)
+            if out.featureCount() != 0:
+                continue
+
+            out.startEditing()
+            vl = getattr(sessionA, layer)
+            for feature in vl.getFeatures():
+                out.addFeature(feature)
+            out.commitChanges()
