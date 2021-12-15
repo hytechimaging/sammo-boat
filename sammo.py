@@ -204,7 +204,7 @@ class Sammo:
         if self.simuGpsAction:
             self.simuGpsAction.onNewSession()
 
-    def onMergeAction(self):
+    def onMergeAction(self) -> None:
         self.mergeDialog = SammoMergeDialog()
         self.mergeDialog.show()
 
