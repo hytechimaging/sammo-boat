@@ -3,10 +3,11 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
+from pathlib import Path
 from datetime import datetime
 from qgis.core import QgsMessageLog
 
-LOG_FILE_NAME = "Sammo.log"
+LOG_FILE_NAME = (Path(__file__).parent.parent.parent / "Sammo.log").as_posix()
 
 
 class Logger:
