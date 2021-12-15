@@ -138,7 +138,7 @@ class Sammo:
         button.triggered.connect(self.onMergeAction)
         return button
 
-    def initGui(self):
+    def initGui(self) -> None:
         pass
 
     def initShortcuts(self) -> None:
