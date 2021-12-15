@@ -3,16 +3,28 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-from qgis.core import QgsProject, QgsVectorLayer, QgsEditorWidgetSetup
+from qgis.core import (
+    QgsAction,
+    QgsProject,
+    QgsVectorLayer,
+    QgsEditorWidgetSetup,
+)
 
 from ..database import SammoDataBase
 
 
 class SammoLayer:
-    def __init__(self, db: SammoDataBase, table: str, name: str):
+    def __init__(
+        self,
+        db: SammoDataBase,
+        table: str,
+        name: str,
+        soundAction: bool = False,
+    ):
         self.db = db
         self.table = table
         self.name = name
+        self.soundAction = soundAction
 
     @property
     def layer(self) -> QgsVectorLayer:
@@ -30,6 +42,9 @@ class SammoLayer:
         layer.setName(self.name)
         project.addMapLayer(layer)
 
+        if self.soundAction:
+            self._addSoundAction(layer)
+
         self._hideWidgetFid(layer)
         self._init(layer)
 
@@ -41,3 +56,17 @@ class SammoLayer:
         idx = layer.fields().indexFromName("fid")
         setup = QgsEditorWidgetSetup("Hidden", {})
         layer.setEditorWidgetSetup(idx, setup)
+
+    def _addSoundAction(self, layer: QgsVectorLayer) -> None:
+        code = f"""
+import soundfile as sf
+import sounddevice as sd
+from pathlib import Path
+
+filename = Path(\"{self.db.directory}\") / "[% soundFile %]"
+sound, fs = sf.read(filename)
+sd.play(sound, fs)
+        """
+
+        ac = QgsAction(1, "Play", code, False)
+        layer.actions().addAction(ac)
