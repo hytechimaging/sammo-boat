@@ -157,7 +157,18 @@ class SammoSession:
             if not layer.editBuffer():
                 continue
 
-            if len(layer.editBuffer().allAddedOrEditedFeatures()) != 0:
+            if (
+                len(
+                    set(
+                        list(layer.editBuffer().addedFeatures().keys())
+                        + list(
+                            layer.editBuffer().changedAttributeValues().keys()
+                        )
+                        + list(layer.editBuffer().changedGeometries().keys())
+                    )
+                )
+                != 0
+            ):
                 return True
 
         return False
