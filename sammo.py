@@ -190,8 +190,6 @@ class Sammo:
         self.tableDock.init(
             self.session.environmentLayer, self.session.sightingsLayer
         )
-        self.tableDock.refresh(self.session.sightingsLayer)
-        self.tableDock.refresh(self.session.environmentLayer)
 
         # init simu
         if self.simuGpsAction:
