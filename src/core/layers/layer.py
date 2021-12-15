@@ -62,6 +62,8 @@ class SammoLayer:
 from pathlib import Path
 import sounddevice as sd
 import soundfile as sf
+import sounddevice as sd
+from pathlib import Path
 
 filename = Path(\"{self.db.directory}\") / "[% soundFile %]"
 sound, fs = sf.read(filename)
