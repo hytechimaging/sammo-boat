@@ -53,7 +53,7 @@ class SammoMergeDialog(QDialog, FORM_CLASS):
         self.sessionBButton.clicked.connect(self.sessionB)
         self.sessionMergedButton.clicked.connect(self.sessionMerged)
 
-    def sessionA(self):
+    def sessionA(self) -> None:
         sessionA = QFileDialog.getExistingDirectory(
             None,
             "Session 1",
