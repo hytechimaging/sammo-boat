@@ -25,7 +25,7 @@ class SammoMergeAction(QObject):
         self.action: QAction = None
         self.initGui(parent, toolbar)
 
-    def setEnabled(self, status):
+    def setEnabled(self, status: bool) -> None:
         self.action.setEnabled(status)
 
     def initGui(self, parent: QObject, toolbar: QToolBar):
