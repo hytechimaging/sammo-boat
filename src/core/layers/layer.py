@@ -59,8 +59,6 @@ class SammoLayer:
 
     def _addSoundAction(self, layer: QgsVectorLayer) -> None:
         code = f"""
-from pathlib import Path
-import sounddevice as sd
 import soundfile as sf
 import sounddevice as sd
 from pathlib import Path
