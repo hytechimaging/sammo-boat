@@ -60,12 +60,12 @@ class SammoLayer:
     def _addSoundAction(self, layer: QgsVectorLayer) -> None:
         code = f"""
 from pathlib import Path
-from pydub import AudioSegment
-from pydub.playback import play
+import sounddevice as sd
+import soundfile as sf
 
 filename = Path(\"{self.db.directory}\") / "[% soundFile %]"
-sound = AudioSegment.from_wav(filename)
-play(sound)
+sound, fs = sf.read(filename)
+sd.play(sound, fs)
         """
 
         ac = QgsAction(1, "Play", code, False)
