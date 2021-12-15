@@ -246,7 +246,9 @@ class SammoSession:
         return ""
 
     @staticmethod
-    def merge(sessionADir: str, sessionBDir: str, sessionOutputDir: str) -> None:
+    def merge(
+        sessionADir: str, sessionBDir: str, sessionOutputDir: str
+    ) -> None:
         # open input session
         sessionA = SammoSession()
         sessionA.init(sessionADir, load=False)
