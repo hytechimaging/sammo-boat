@@ -8,7 +8,6 @@ from qgis.core import (
     QgsProject,
     QgsVectorLayer,
     QgsEditorWidgetSetup,
-    QgsAction,
 )
 
 from ..database import SammoDataBase
