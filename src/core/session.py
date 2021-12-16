@@ -10,6 +10,7 @@ from qgis.PyQt.QtGui import QColor
 
 from qgis.core import (
     QgsProject,
+    QgsGeometry,
     QgsMapLayer,
     QgsSettings,
     QgsVectorLayer,
@@ -146,12 +147,12 @@ class SammoSession:
 
     def addSightingsFeature(self) -> QgsVectorLayer:
         layer = self.sightingsLayer
-        self._addFeature(layer)
+        self._addFeature(layer, geom=self._gpsLayer.lastGpsGeom)
         return layer
 
     def addFollowersFeature(self, dt: str) -> None:
         layer = self.followersLayer
-        self._addFeature(layer, dt)
+        self._addFeature(layer, dt, self._gpsLayer.lastGpsGeom)
 
     def needsSaving(self) -> None:
         for layer in [
@@ -224,12 +225,19 @@ class SammoSession:
     ):
         self._gpsLayer.add(longitude, latitude, hour, minu, sec)
 
-    def _addFeature(self, layer: QgsVectorLayer, dt: str = "") -> None:
+    def _addFeature(
+        self,
+        layer: QgsVectorLayer,
+        dt: str = "",
+        geom: QgsGeometry = QgsGeometry(),
+    ) -> None:
         feat = QgsVectorLayerUtils.createFeature(layer)
 
         if not dt:
             dt = utils.now()
         feat["dateTime"] = dt
+        if geom:
+            feat.setGeometry(geom)
 
         lastFeat = SammoDataBase.lastFeature(layer)
         if lastFeat:

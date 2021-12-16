@@ -26,7 +26,7 @@ from .layer import SammoLayer
 class SammoGpsLayer(SammoLayer):
     def __init__(self, db: SammoDataBase):
         super().__init__(db, GPS_TABLE, "GPS")
-        self.lastGpsGeom: QgsGeometry = None
+        self.lastGpsGeom: QgsGeometry = QgsGeometry()
 
     def _init(self, layer: QgsVectorLayer):
         symbol = layer.renderer().symbol()
