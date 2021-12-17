@@ -5,6 +5,7 @@ In particular, this tool is used by the [Megascope](https://www.observatoire-pel
 
 SAMMO-Boat is a QGIS extension that redesigns interface and handles GPS and microphone support. The GPS trace, the effort data and observations are directly seen on the map. Observers focus on animal detection and can quickly fulfill this detection by relying on audio record. This record can be used afterwards to add the missing information and to validate observations according defined standards.
 
+![](https://github.com/hytechimaging/sammo-boat/blob/main/images/interface.png?raw=true)
 
 ## Dependencies
 
@@ -20,6 +21,23 @@ installed through the `Python Console` of QGIS Desktop:
 
 QGIS Desktop needs to be restarted after installing these dependencies.
 
+## Interface
+
+SAMMO-Boat is designed to work with a clean interface. We provide some QGIS customization files in the `profile` folder.
+
+The `admin` profile provides a full QGIS interface while the operator profile will remove allmost all QGIS toolbar and menu.
+
+To use it, you can use the following commandline :
+
+```
+--customizationfile path/to/QGISCUSTOMIZATION3_operateur.ini --globalsettingsfile path/to/QGIS3_operateur.ini
+```
+
+or add the following arguments in a shortcut configuration :
+
+```
+--customizationfile path/to/QGISCUSTOMIZATION3_operateur.ini --globalsettingsfile path/to/QGIS3_operateur.ini
+```
 
 ## Known issues
 
