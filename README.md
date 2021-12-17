@@ -25,19 +25,21 @@ QGIS Desktop needs to be restarted after installing these dependencies.
 
 SAMMO-Boat is designed to work with a clean interface. We provide some QGIS customization files in the `profile` folder.
 
-The `admin` profile provides a full QGIS interface while the operator profile will remove allmost all QGIS toolbar and menu.
+The `admin` profile provides a full QGIS interface while the operator profile removes allmost all QGIS toolbar and menu.
 
 To use it, you can use the following commandline :
 
 ```
---customizationfile path/to/QGISCUSTOMIZATION3_operateur.ini --globalsettingsfile path/to/QGIS3_operateur.ini
+--customizationfile path/to/QGISCUSTOMIZATION3_operator.ini --globalsettingsfile path/to/QGIS3_operator.ini
 ```
 
 or add the following arguments in a shortcut configuration :
 
 ```
---customizationfile path/to/QGISCUSTOMIZATION3_operateur.ini --globalsettingsfile path/to/QGIS3_operateur.ini
+--customizationfile path/to/QGISCUSTOMIZATION3_operator.ini --globalsettingsfile path/to/QGIS3_operator.ini
 ```
+
+![](https://github.com/hytechimaging/sammo-boat/blob/main/images/profile.png?raw=true)
 
 ## Known issues
 
