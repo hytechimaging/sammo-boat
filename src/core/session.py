@@ -5,6 +5,7 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import pathlib
 from shutil import copy
+from typing import List
 
 from qgis.PyQt.QtGui import QColor
 
@@ -79,7 +80,7 @@ class SammoSession:
         return None
 
     @property
-    def allLayers(self) -> list[QgsVectorLayer]:
+    def allLayers(self) -> List[QgsVectorLayer]:
         return [
             self.environmentLayer,
             self.gpsLayer,
@@ -90,7 +91,7 @@ class SammoSession:
         ]
 
     @property
-    def wavFiles(self) -> list[str]:
+    def wavFiles(self) -> List[str]:
         return list(pathlib.Path(self.db.directory).glob("*.wav"))
 
     def init(self, directory: str, load: bool = True) -> None:
