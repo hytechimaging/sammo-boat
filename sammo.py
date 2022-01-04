@@ -6,12 +6,14 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 import os.path
 
 from qgis.PyQt.QtGui import QKeySequence
-from qgis.PyQt.QtWidgets import QToolBar, QShortcut
+from qgis.PyQt.QtCore import QObject
+from qgis.PyQt.QtWidgets import QToolBar, QShortcut, QTableView
 
 from qgis.core import (
     QgsProject,
     QgsPointXY,
     QgsExpression,
+    QgsApplication,
     QgsFeatureRequest,
 )
 
@@ -63,6 +65,7 @@ class Sammo:
         iface.newProjectCreated.connect(self.onProjectLoaded)
 
         self.initShortcuts()
+        QgsApplication.instance().focusChanged.connect(self.focusOn)
 
     @property
     def mainWindow(self):
@@ -201,6 +204,20 @@ class Sammo:
         # init simu
         if self.simuGpsAction:
             self.simuGpsAction.onNewSession()
+
+    def focusOn(self, old, new) -> None:
+        # Set the active on attribute table focus, to use undo/redo action
+        if not new:
+            return
+        if self.tableDock.widget():
+            if new == self.tableDock.widget().tables["Environment"].findChild(
+                QTableView, "mTableView"
+            ):
+                self.iface.setActiveLayer(self.session.environmentLayer)
+            elif new == self.tableDock.widget().tables["Sightings"].findChild(
+                QTableView, "mTableView"
+            ):
+                self.iface.setActiveLayer(self.session.sightingsLayer)
 
     def onMergeAction(self) -> None:
         self.mergeDialog = SammoMergeDialog()
