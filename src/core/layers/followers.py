@@ -8,6 +8,7 @@ from qgis.PyQt.QtGui import QColor
 from qgis.core import (
     QgsVectorLayer,
     QgsDefaultValue,
+    QgsConditionalStyle,
     QgsEditorWidgetSetup,
     QgsSvgMarkerSymbolLayer,
 )
@@ -31,6 +32,7 @@ class SammoFollowersLayer(SammoLayer):
     def _init(self, layer: QgsVectorLayer):
         self._init_symbology(layer)
         self._init_widgets(layer)
+        self._init_conditional_style(layer)
 
     def _init_symbology(self, layer: QgsVectorLayer) -> None:
         # symbology
@@ -105,22 +107,8 @@ class SammoFollowersLayer(SammoLayer):
 
         # species
         idx = layer.fields().indexFromName("species")
-        cfg = {
-            "AllowMulti": False,
-            "AllowNull": False,
-            "Description": '"species"',
-            "FilterExpression": "",
-            "Key": "species",
-            "Layer": self.speciesLayer.layer.id(),
-            "LayerName": self.speciesLayer.name,
-            "LayerProviderName": "ogr",
-            "LayerSource": self.speciesLayer.uri,
-            "NofColumns": 1,
-            "OrderByValue": False,
-            "UseCompleter": False,
-            "Value": "species",
-        }
-        setup = QgsEditorWidgetSetup("ValueRelation", cfg)
+        cfg = {"IsMultiline": False, "UseHtml": False}
+        setup = QgsEditorWidgetSetup("TextEdit", cfg)
         layer.setEditorWidgetSetup(idx, setup)
 
         # age
@@ -176,3 +164,19 @@ class SammoFollowersLayer(SammoLayer):
         setup = QgsEditorWidgetSetup("TextEdit", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
+
+    def _init_conditional_style(self, layer: QgsVectorLayer) -> None:
+        # species
+        expr = """
+            attribute(
+                get_feature(
+                    layer_property('Species', 'id'),
+                    'species',
+                    attribute('species')
+                )
+                , 'fid'
+            ) is NULL
+        """
+        style = QgsConditionalStyle(expr)
+        style.setBackgroundColor(QColor("orange"))
+        layer.conditionalStyles().setFieldStyles("species", [style])

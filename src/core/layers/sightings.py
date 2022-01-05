@@ -151,7 +151,7 @@ class SammoSightingsLayer(SammoLayer):
         # direction
         idx = layer.fields().indexFromName("direction")
         cfg = {
-            "AllowNull": False,
+            "AllowNull": True,
             "Max": 360,
             "Min": 1,
             "Precision": 0,
@@ -279,6 +279,11 @@ class SammoSightingsLayer(SammoLayer):
         )
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("podSizeMax", [style])
+
+        # angle
+        style = QgsConditionalStyle("@value > 91 and @value < 269")
+        style.setBackgroundColor(QColor("orange"))
+        layer.conditionalStyles().setFieldStyles("angle", [style])
 
         # behaviour
         expr = """
