@@ -234,7 +234,6 @@ class Sammo:
                 self.iface.setActiveLayer(self.session.sightingsLayer)
 
     def undo(self):
-        print(self.iface.activeLayer(), "test")
         self.iface.activeLayer().undoStack().undo()
 
     def redo(self):
