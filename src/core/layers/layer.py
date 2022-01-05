@@ -76,7 +76,7 @@ from qgis.PyQt.QtWidgets import (
 )
 
 BUFFERSIZE = 20
-BLOCKSIZE = 383
+BLOCKSIZE = 256
 SAMPLERATE = 44100
 
 
