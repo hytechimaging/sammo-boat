@@ -6,7 +6,7 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 import os.path
 
 from qgis.PyQt.QtGui import QKeySequence
-from qgis.PyQt.QtWidgets import QToolBar, QShortcut, QTableView
+from qgis.PyQt.QtWidgets import QToolBar, QShortcut, QTableView, QAction
 
 from qgis.core import (
     QgsProject,
@@ -159,6 +159,21 @@ class Sammo:
         )
         self.sightingsShortcut.activated.connect(self.onSightingsAction)
 
+        # Avoid shorcut overload and recreate undo/redo shortcut
+        self.iface.mainWindow().findChild(QAction, "mActionUndo").setShortcut(
+            QKeySequence()
+        )
+        self.iface.mainWindow().findChild(QAction, "mActionRedo").setShortcut(
+            QKeySequence()
+        )
+        self.undoShortcut = QShortcut(QKeySequence("Ctrl+Z"), self.mainWindow)
+        self.undoShortcut.activated.connect(self.undo)
+
+        self.redoShortcut = QShortcut(
+            QKeySequence("Ctrl+Shift+Z"), self.mainWindow
+        )
+        self.redoShortcut.activated.connect(self.redo)
+
         self.saveShortcut = QShortcut(QKeySequence("Shift+S"), self.mainWindow)
         self.saveShortcut.activated.connect(self.session.saveAll)
 
@@ -217,6 +232,13 @@ class Sammo:
                 QTableView, "mTableView"
             ):
                 self.iface.setActiveLayer(self.session.sightingsLayer)
+
+    def undo(self):
+        print(self.iface.activeLayer(), "test")
+        self.iface.activeLayer().undoStack().undo()
+
+    def redo(self):
+        self.iface.activeLayer().undoStack().redo()
 
     def onMergeAction(self) -> None:
         self.mergeDialog = SammoMergeDialog()
