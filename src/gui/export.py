@@ -6,7 +6,7 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 from pathlib import Path
 
 from qgis.PyQt import uic
-from qgis.PyQt.QtCore import QObject
+from qgis.PyQt.QtCore import QObject, QVariant
 from qgis.PyQt.QtWidgets import (
     QAction,
     QDialog,
@@ -14,7 +14,12 @@ from qgis.PyQt.QtWidgets import (
     QFileDialog,
 )
 
-from qgis.core import QgsVectorFileWriter
+from qgis.core import (
+    QgsVectorFileWriter,
+    QgsVectorLayer,
+    QgsField,
+    QgsVectorLayerJoinInfo,
+)
 
 from ..core import utils
 from ..core.session import SammoSession
@@ -59,6 +64,39 @@ class SammoExportAction(QDialog):
             self.progressBar.setFormat(
                 f"Export de la couche {layer.name()}, Total : %p%"
             )
+
+            # Export is done from copy to avoid bug with join field, due to
+            # the table dock.
+            layer = QgsVectorLayer(layer.source(), layer.name())
+
+            # Add Lon/Lat field
+            if layer.geometryType() != 4:
+                field = QgsField("lat", QVariant.Double)
+                layer.addExpressionField("x($geometry) ", field)
+                field = QgsField("lon", QVariant.Double)
+                layer.addExpressionField("y($geometry) ", field)
+
+            # Add joined fields
+            if layer.name() == self.session.sightingsLayer.name():
+                joinLayer = QgsVectorLayer(
+                    self.session.speciesLayer.source(),
+                    self.session.speciesLayer.name(),
+                )  # keepped alive until export is done
+                layer.addJoin(self.sightingsLayerJoinInfo(joinLayer))
+
+            elif layer.name() == self.session.environmentLayer.name():
+                joinLayer = QgsVectorLayer(
+                    self.session.observersLayer.source(),
+                    self.session.observersLayer.name(),
+                )  # keepped alive until export is done
+                layer.addJoin(self.environmentLayerJoinInfo(joinLayer, "left"))
+                layer.addJoin(
+                    self.environmentLayerJoinInfo(joinLayer, "rigth")
+                )
+                layer.addJoin(
+                    self.environmentLayerJoinInfo(joinLayer, "center")
+                )
+
             QgsVectorFileWriter.writeAsVectorFormat(
                 layer,
                 (
@@ -66,7 +104,31 @@ class SammoExportAction(QDialog):
                 ).as_posix(),
                 "utf-8",
                 driverName="CSV",
-                layerOptions=["GEOMETRY=AS_XY"],
             )
+            if layer.geometryType() != 4:
+                layer.removeExpressionField(layer.fields().indexOf("lon"))
+                layer.removeExpressionField(layer.fields().indexOf("lat"))
             self.progressBar.setValue(int(100 / nb * (i + 1)))
         self.close()
+
+    def sightingsLayerJoinInfo(self, layer):
+        joinInfo = QgsVectorLayerJoinInfo()
+        joinInfo.setJoinLayer(layer)
+        joinInfo.setJoinFieldName("species")
+        joinInfo.setTargetFieldName("species")
+        joinInfo.setPrefix("species_")
+        joinInfo.setJoinFieldNamesSubset(
+            ["commonName", "latinName", "groupName", "family", "taxon"]
+        )
+        return joinInfo
+
+    def environmentLayerJoinInfo(self, layer, side):
+        joinInfo = QgsVectorLayerJoinInfo()
+        joinInfo.setJoinLayer(layer)
+        joinInfo.setJoinFieldName("observer")
+        joinInfo.setTargetFieldName(side)
+        joinInfo.setPrefix(f"{side}_")
+        joinInfo.setJoinFieldNamesSubset(
+            ["firstName", "lastName", "organization", "family", "taxon"]
+        )
+        return joinInfo
