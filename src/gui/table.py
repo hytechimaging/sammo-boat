@@ -72,3 +72,8 @@ class SammoTableDock(QDockWidget):
     def refresh(self, layer):
         table = self._widget.tables[layer.name()]
         SammoAttributeTable.refresh(table)
+
+    def removeTable(self, name):
+        if name in self._widget.tables:
+            self._widget.tables[name].close()
+            self._widget.tables.pop(name, None)

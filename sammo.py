@@ -214,22 +214,38 @@ class Sammo:
         self.tableDock.init(
             self.session.environmentLayer, self.session.sightingsLayer
         )
+        QgsProject.instance().layerWillBeRemoved.connect(self.cleanTableDock)
 
         # init simu
         if self.simuGpsAction:
             self.simuGpsAction.onNewSession()
+
+    def cleanTableDock(self, layerId):
+        if layerId == self.session.environmentLayer.id():
+            self.tableDock.removeTable(self.session.environmentLayer.name())
+        elif layerId == self.session.sightingsLayer.id():
+            self.tableDock.removeTable(self.session.sightingsLayer.name())
 
     def focusOn(self, old, new) -> None:
         # Set the active on attribute table focus, to use undo/redo action
         if not new:
             return
         if self.tableDock.widget():
-            if new == self.tableDock.widget().tables["Environment"].findChild(
-                QTableView, "mTableView"
+            tables = self.tableDock.widget().tables
+            if (
+                "Environment" in tables
+                and new
+                == self.tableDock.widget()
+                .tables["Environment"]
+                .findChild(QTableView, "mTableView")
             ):
                 self.iface.setActiveLayer(self.session.environmentLayer)
-            elif new == self.tableDock.widget().tables["Sightings"].findChild(
-                QTableView, "mTableView"
+            elif (
+                "Sightings" in tables
+                and new
+                == self.tableDock.widget()
+                .tables["Sightings"]
+                .findChild(QTableView, "mTableView")
             ):
                 self.iface.setActiveLayer(self.session.sightingsLayer)
 
