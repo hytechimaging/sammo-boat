@@ -15,9 +15,10 @@ from qgis.PyQt.QtWidgets import (
 )
 
 from qgis.core import (
-    QgsVectorFileWriter,
-    QgsVectorLayer,
     QgsField,
+    QgsWkbTypes,
+    QgsVectorLayer,
+    QgsVectorFileWriter,
     QgsVectorLayerJoinInfo,
 )
 
@@ -70,7 +71,7 @@ class SammoExportAction(QDialog):
             layer = QgsVectorLayer(layer.source(), layer.name())
 
             # Add Lon/Lat field
-            if layer.geometryType() != 4:
+            if layer.geometryType() == QgsWkbTypes.NullGeometry:
                 field = QgsField("lat", QVariant.Double)
                 layer.addExpressionField("x($geometry) ", field)
                 field = QgsField("lon", QVariant.Double)
@@ -105,9 +106,6 @@ class SammoExportAction(QDialog):
                 "utf-8",
                 driverName="CSV",
             )
-            if layer.geometryType() != 4:
-                layer.removeExpressionField(layer.fields().indexOf("lon"))
-                layer.removeExpressionField(layer.fields().indexOf("lat"))
             self.progressBar.setValue(int(100 / nb * (i + 1)))
         self.close()
 
@@ -129,6 +127,6 @@ class SammoExportAction(QDialog):
         joinInfo.setTargetFieldName(side)
         joinInfo.setPrefix(f"{side}_")
         joinInfo.setJoinFieldNamesSubset(
-            ["firstName", "lastName", "organization", "family", "taxon"]
+            ["firstName", "lastName", "organization"]
         )
         return joinInfo
