@@ -3,6 +3,7 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
+from pathlib import Path
 from qgis.core import (
     QgsAction,
     QgsProject,
@@ -58,15 +59,21 @@ class SammoLayer:
         layer.setEditorWidgetSetup(idx, setup)
 
     def _addSoundAction(self, layer: QgsVectorLayer) -> None:
-        code = f"""
-import soundfile as sf
-import sounddevice as sd
-from pathlib import Path
-
-filename = Path(\"{self.db.directory}\") / "[% soundFile %]"
-sound, fs = sf.read(filename)
-sd.play(sound, fs)
-        """
+        with open(Path(__file__).parent / "audio_action.py") as f:
+            code = f.read()
+        code = code.format(
+            (
+                Path(__file__).parent.parent.parent.parent
+                / "images"
+                / "pause.png"
+            ).as_posix(),
+            (
+                Path(__file__).parent.parent.parent.parent
+                / "images"
+                / "play.png"
+            ).as_posix(),
+            self.db.directory,
+        )
 
         ac = QgsAction(1, "Play", code, False)
         layer.actions().addAction(ac)
