@@ -62,6 +62,10 @@ To use Undo / Redo shorcut, you need to click on the table you want to change be
 
 The save tool <img src="https://github.com/hytechimaging/sammo-boat/blob/main/images/pen.png?raw=true" height="30" width="30" /> can be use to save manually all tables.
 
+#### Export tool
+
+The export tool <img src="https://github.com/hytechimaging/sammo-boat/blob/main/images/export.png?raw=true" height="30" width="30" /> allow to export all tables as csv into an output directory.
+
 #### Merge tool
 
 The merge tool <img src="https://github.com/hytechimaging/sammo-boat/blob/main/images/merge.png?raw=true" height="30" width="30" /> can be use to merge two sessions into another.
