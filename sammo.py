@@ -263,13 +263,13 @@ class Sammo:
         self.soundRecordingController.onStartEnvironment()
         layer = self.session.addEnvironmentFeature()
         self.tableDock.refresh(layer)
-        self.soundRecordingController.onStopEventWhichNeedSoundRecord()
+        self.soundRecordingController.onStopEventWhichNeedSoundRecord(60)
 
     def onSightingsAction(self):
         self.soundRecordingController.onStartSightings()
         layer = self.session.addSightingsFeature()
         self.tableDock.refresh(layer)
-        self.soundRecordingController.onStopEventWhichNeedSoundRecord()
+        self.soundRecordingController.onStopEventWhichNeedSoundRecord(60)
 
     def onFollowersAction(self):
         self.soundRecordingController.onStartFollowers()
@@ -292,7 +292,9 @@ class Sammo:
         self.soundRecordingController.onStopEventWhichNeedSoundRecord(0)
 
     def onFollowersAdd(self):
-        self.session.addFollowersFeature(self.followersTable.datetime)
+        self.session.addFollowersFeature(
+            self.followersTable.datetime, bool(self.followersTable.rowCount())
+        )
         self.followersTable.refresh()
 
     def onChangeSimuGpsStatus(self, isOn: bool):

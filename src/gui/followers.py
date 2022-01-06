@@ -7,7 +7,7 @@ import os
 
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import pyqtSignal, QObject
-from qgis.PyQt.QtWidgets import QAction, QToolBar, QDialog
+from qgis.PyQt.QtWidgets import QAction, QToolBar, QDialog, QTableView
 
 from ..core import utils
 from .attribute_table import SammoAttributeTable
@@ -61,6 +61,11 @@ class SammoFollowersTable(QDialog, FORM_CLASS):
         )
 
         self.verticalLayout.addWidget(self.table)
+
+    def rowCount(self):
+        return (
+            self.table.findChild(QTableView, "mTableView").model().rowCount()
+        )
 
     def show(self):
         super().show()

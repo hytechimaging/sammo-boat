@@ -151,9 +151,9 @@ class SammoSession:
         self._addFeature(layer, geom=self._gpsLayer.lastGpsGeom)
         return layer
 
-    def addFollowersFeature(self, dt: str) -> None:
+    def addFollowersFeature(self, dt: str, duplicate: bool) -> None:
         layer = self.followersLayer
-        self._addFeature(layer, dt, self._gpsLayer.lastGpsGeom)
+        self._addFeature(layer, dt, self._gpsLayer.lastGpsGeom, duplicate)
 
     def needsSaving(self) -> None:
         for layer in [
@@ -231,6 +231,7 @@ class SammoSession:
         layer: QgsVectorLayer,
         dt: str = "",
         geom: QgsGeometry = QgsGeometry(),
+        duplicate: bool = False,
     ) -> None:
         feat = QgsVectorLayerUtils.createFeature(layer)
 
@@ -242,10 +243,13 @@ class SammoSession:
 
         lastFeat = SammoDataBase.lastFeature(layer)
         if lastFeat:
-            for name in lastFeat.fields().names():
-                if name == "fid" or name == "dateTime":
-                    continue
-                feat[name] = lastFeat[name]
+            if layer == self.sightingsLayer:
+                feat["side"] = lastFeat["side"]
+            if layer == self.environmentLayer or duplicate:
+                for name in lastFeat.fields().names():
+                    if name == "fid" or name == "dateTime":
+                        continue
+                    feat[name] = lastFeat[name]
 
         if not layer.isEditable():
             layer.startEditing()

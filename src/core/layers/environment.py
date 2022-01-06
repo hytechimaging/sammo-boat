@@ -247,7 +247,7 @@ class SammoEnvironmentLayer(SammoLayer):
 
         # comment
         idx = layer.fields().indexFromName("comment")
-        cfg = {"IsMultiline": True, "UseHtml": False}
+        cfg = {"IsMultiline": False, "UseHtml": False}
         setup = QgsEditorWidgetSetup("TextEdit", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))

@@ -151,7 +151,7 @@ class SammoSightingsLayer(SammoLayer):
         # direction
         idx = layer.fields().indexFromName("direction")
         cfg = {
-            "AllowNull": False,
+            "AllowNull": True,
             "Max": 360,
             "Min": 1,
             "Precision": 0,
@@ -253,7 +253,7 @@ class SammoSightingsLayer(SammoLayer):
 
         # comment
         idx = layer.fields().indexFromName("comment")
-        cfg = {"IsMultiline": True, "UseHtml": False}
+        cfg = {"IsMultiline": False, "UseHtml": False}
         setup = QgsEditorWidgetSetup("TextEdit", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
@@ -280,6 +280,11 @@ class SammoSightingsLayer(SammoLayer):
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("podSizeMax", [style])
 
+        # angle
+        style = QgsConditionalStyle("@value > 91 and @value < 269")
+        style.setBackgroundColor(QColor("orange"))
+        layer.conditionalStyles().setFieldStyles("angle", [style])
+
         # behaviour
         expr = """
             if (
@@ -295,30 +300,38 @@ class SammoSightingsLayer(SammoLayer):
                     )
                 ),
                 @value is NULL,
-                False
+                {}
+            )
+            """
+        addExpr = """
+            (
+                if(  "behavMam" ,1,0) +
+                if(  "behavBird" ,1,0) +
+                if(  "behavShip" ,1,0)
+                > 1
             )
             """
 
         taxons = "'Marine Mammal', 'Seabird', 'Ship'"
-        style = QgsConditionalStyle(expr.format(taxons))
+        style = QgsConditionalStyle(expr.format(taxons, "False"))
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("behaviour", [style])
 
         # behavMam
         taxon = "'Marine Mammal'"
-        style = QgsConditionalStyle(expr.format(taxon))
+        style = QgsConditionalStyle(expr.format(taxon, addExpr))
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("behavMam", [style])
 
         # behavBird
         taxon = "'Seabird'"
-        style = QgsConditionalStyle(expr.format(taxon))
+        style = QgsConditionalStyle(expr.format(taxon, addExpr))
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("behavBird", [style])
 
         # behavShip
         taxon = "'Ship'"
-        style = QgsConditionalStyle(expr.format(taxon))
+        style = QgsConditionalStyle(expr.format(taxon, addExpr))
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("behavShip", [style])
 
