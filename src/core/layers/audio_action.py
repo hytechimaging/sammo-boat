@@ -5,12 +5,12 @@ from pathlib import Path
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtCore import Qt, QObject, QThread, pyqtSignal
 from qgis.PyQt.QtWidgets import (
+    QLabel,
     QDialog,
+    QSlider,
     QPushButton,
     QHBoxLayout,
     QVBoxLayout,
-    QSlider,
-    QLabel,
 )
 
 BUFFERSIZE = 20
