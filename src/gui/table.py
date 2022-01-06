@@ -6,11 +6,14 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 import os
 
 from qgis.PyQt import uic
-from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtCore import Qt, QSize
 from qgis.PyQt.QtWidgets import (
     QFrame,
     QLabel,
+    QWidget,
+    QSplitter,
     QDockWidget,
+    QVBoxLayout,
 )
 
 from .attribute_table import SammoAttributeTable
@@ -29,12 +32,25 @@ class TableWidget(QFrame, FORM_CLASS):
         self.tables[
             environmentLayer.name()
         ] = SammoAttributeTable.attributeTable(iface, environmentLayer)
+        self.tables[environmentLayer.name()].setMinimumSize(QSize(10, 10))
         self.tables[sightingLayer.name()] = SammoAttributeTable.attributeTable(
             iface, sightingLayer
         )
-        self.verticalLayout.addWidget(self.tables[environmentLayer.name()])
-        self.verticalLayout.addWidget(QLabel("Sightings"))
-        self.verticalLayout.addWidget(self.tables[sightingLayer.name()])
+        self.tables[sightingLayer.name()].setMinimumSize(QSize(10, 10))
+
+        widget1 = QWidget()
+        verticalLayout1 = QVBoxLayout()
+        verticalLayout1.addWidget(self.tables[environmentLayer.name()])
+        widget1.setLayout(verticalLayout1)
+        widget2 = QWidget()
+        verticalLayout2 = QVBoxLayout()
+        verticalLayout2.addWidget(QLabel("Sightings"))
+        verticalLayout2.addWidget(self.tables[sightingLayer.name()])
+        widget2.setLayout(verticalLayout2)
+        splitter = QSplitter(Qt.Vertical)
+        splitter.addWidget(widget1)
+        splitter.addWidget(widget2)
+        self.verticalLayout.addWidget(splitter)
 
 
 class SammoTableDock(QDockWidget):
@@ -56,3 +72,8 @@ class SammoTableDock(QDockWidget):
     def refresh(self, layer):
         table = self._widget.tables[layer.name()]
         SammoAttributeTable.refresh(table)
+
+    def removeTable(self, name):
+        if name in self._widget.tables:
+            self._widget.tables[name].close()
+            self._widget.tables.pop(name, None)

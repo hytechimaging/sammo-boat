@@ -17,7 +17,14 @@ class SammoAttributeTable:
         table.findChild(QAction, "mActionReload").trigger()
         table.findChild(QAction, "mActionApplyFilter").trigger()
 
-        table.findChild(QTableView).resizeColumnsToContents()
+        view = table.findChild(QTableView, "mTableView")
+        view.resizeColumnsToContents()
+        index = view.model().index(0, 1)
+        view.selectionModel().setCurrentIndex(
+            index,
+            QtCore.QItemSelectionModel.ClearAndSelect
+            | QtCore.QItemSelectionModel.Rows,
+        )
 
     @staticmethod
     def attributeTable(iface, layer, filter_expr=""):
@@ -29,6 +36,8 @@ class SammoAttributeTable:
             if column.name in hiddens:
                 column.hidden = True
         config.setColumns(columns)
+        config.setSortExpression('"dateTime"')
+        config.setSortOrder(QtCore.Qt.DescendingOrder)
         layer.setAttributeTableConfig(config)
 
         # init attribute table
@@ -47,10 +56,10 @@ class SammoAttributeTable:
         SammoAttributeTable.toolbar(table).hide()
 
         # update table view
-        view = table.findChild(QTableView)
+        view = table.findChild(QTableView, "mTableView")
         view.horizontalHeader().setStretchLastSection(True)
         view.model().rowsInserted.connect(
-            lambda: QtCore.QTimer.singleShot(0, view.scrollToBottom)
+            lambda: QtCore.QTimer.singleShot(0, view.scrollToTop)
         )
 
         return table

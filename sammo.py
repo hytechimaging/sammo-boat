@@ -6,12 +6,13 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 import os.path
 
 from qgis.PyQt.QtGui import QKeySequence
-from qgis.PyQt.QtWidgets import QToolBar, QShortcut
+from qgis.PyQt.QtWidgets import QToolBar, QShortcut, QTableView, QAction
 
 from qgis.core import (
     QgsProject,
     QgsPointXY,
     QgsExpression,
+    QgsApplication,
     QgsFeatureRequest,
 )
 
@@ -63,6 +64,7 @@ class Sammo:
         iface.newProjectCreated.connect(self.onProjectLoaded)
 
         self.initShortcuts()
+        QgsApplication.instance().focusChanged.connect(self.focusOn)
 
     @property
     def mainWindow(self):
@@ -157,6 +159,21 @@ class Sammo:
         )
         self.sightingsShortcut.activated.connect(self.onSightingsAction)
 
+        # Avoid shorcut overload and recreate undo/redo shortcut
+        self.iface.mainWindow().findChild(QAction, "mActionUndo").setShortcut(
+            QKeySequence()
+        )
+        self.iface.mainWindow().findChild(QAction, "mActionRedo").setShortcut(
+            QKeySequence()
+        )
+        self.undoShortcut = QShortcut(QKeySequence("Ctrl+Z"), self.mainWindow)
+        self.undoShortcut.activated.connect(self.undo)
+
+        self.redoShortcut = QShortcut(
+            QKeySequence("Ctrl+Shift+Z"), self.mainWindow
+        )
+        self.redoShortcut.activated.connect(self.redo)
+
         self.saveShortcut = QShortcut(QKeySequence("Shift+S"), self.mainWindow)
         self.saveShortcut.activated.connect(self.session.saveAll)
 
@@ -197,10 +214,46 @@ class Sammo:
         self.tableDock.init(
             self.session.environmentLayer, self.session.sightingsLayer
         )
+        QgsProject.instance().layerWillBeRemoved.connect(self.cleanTableDock)
 
         # init simu
         if self.simuGpsAction:
             self.simuGpsAction.onNewSession()
+
+    def cleanTableDock(self, layerId):
+        if layerId == self.session.environmentLayer.id():
+            self.tableDock.removeTable(self.session.environmentLayer.name())
+        elif layerId == self.session.sightingsLayer.id():
+            self.tableDock.removeTable(self.session.sightingsLayer.name())
+
+    def focusOn(self, old, new) -> None:
+        # Set the active on attribute table focus, to use undo/redo action
+        if not new:
+            return
+        if self.tableDock.widget():
+            tables = self.tableDock.widget().tables
+            if (
+                "Environment" in tables
+                and new
+                == self.tableDock.widget()
+                .tables["Environment"]
+                .findChild(QTableView, "mTableView")
+            ):
+                self.iface.setActiveLayer(self.session.environmentLayer)
+            elif (
+                "Sightings" in tables
+                and new
+                == self.tableDock.widget()
+                .tables["Sightings"]
+                .findChild(QTableView, "mTableView")
+            ):
+                self.iface.setActiveLayer(self.session.sightingsLayer)
+
+    def undo(self):
+        self.iface.activeLayer().undoStack().undo()
+
+    def redo(self):
+        self.iface.activeLayer().undoStack().redo()
 
     def onMergeAction(self) -> None:
         self.mergeDialog = SammoMergeDialog()
