@@ -42,7 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Modified
 
-- patches the v1.1.0 to avoid typing error for python version 3.8
+- Patches the v1.1.0 to avoid typing error for python version 3.8
 
 -----
 
