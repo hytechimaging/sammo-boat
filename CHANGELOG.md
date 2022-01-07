@@ -77,7 +77,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Add
 
-
 - GPS integration
 - Status dock widget
 - Up-to-date data model
