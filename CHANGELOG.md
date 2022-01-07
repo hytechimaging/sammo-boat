@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove duplication of the last entity for sightings (except `side` field)
 - `angle` field restriction on sighting table
 - `direction` field can be null on sighting table
-- rectrition of one value between `behavMaM`/`behavBirds`/`behavShip` fields on sighting table
+- Restriction of one value between `behavMaM`/`behavBirds`/`behavShip` fields on sighting table
 - Restrict duplication of the last entity in followers table in a same dialog
 - `species` field changed to lineEdit instead of comboBox in followers table
 - Export : X/Y field renamed Lat/Lon
