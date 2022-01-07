@@ -51,7 +51,7 @@ Some keyboard shortcuts are available in SAMMO-Boat :
 - `Shift+E` : add an entity in environment table 
 - `Shift+O` : add an entity in sighting table
 - `Shift+F` : open follower dialog to add entities in follower table
-- `Ctrl+Z` : Undo last operation
+- `Ctrl+Z` : undo last operation
 - `Ctrl+Shift+Z` : Redo last canceled operation
 
 To use Undo / Redo shorcut, you need to click on the table you want to change before pressing the shortcut.
