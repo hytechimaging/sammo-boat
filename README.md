@@ -41,6 +41,43 @@ or add the following arguments in a shortcut configuration :
 
 ![](https://github.com/hytechimaging/sammo-boat/blob/main/images/profile.png?raw=true)
 
+## User Manual
+
+### Keyboard shorcuts
+
+Some keyboard shortcuts are available in SAMMO-Boat :
+
+- `Shift+S` : save all tables manually
+- `Shift+E` : add an entity in environment table 
+- `Shift+O` : add an entity in sighting table
+- `Shift+F` : open follower dialog to add entities in follower table
+- `Ctrl+Z` : undo last operation
+- `Ctrl+Shift+Z` : redo last canceled operation
+
+To use Undo / Redo shorcut, you need to click on the table you want to change before pressing the shortcut.
+
+### Tools
+
+#### Save tool
+
+The save tool <img src="https://github.com/hytechimaging/sammo-boat/blob/main/images/pen.png?raw=true" height="30" width="30" /> can be used to manually save all tables.
+
+#### Export tool
+
+The export tool <img src="https://github.com/hytechimaging/sammo-boat/blob/main/images/export.png?raw=true" height="30" width="30" /> allows to export all tables as csv into an output directory.
+
+#### Merge tool
+
+The merge tool <img src="https://github.com/hytechimaging/sammo-boat/blob/main/images/merge.png?raw=true" height="30" width="30" /> can be used to merge two sessions into another.
+
+To use it, fulfill the merge form with the directory of each session to merge and the output directory. The output session will contain each entity of both session. In case of strict identical entity, only one entity is copied. 
+
+#### Sound replay
+
+When a new entity is added, SAMMO-Boat will capture a sound record. To play it again, you can do a right click on the table line and click on `Play`. An audio player will pop up.
+
+![](https://github.com/hytechimaging/sammo-boat/blob/main/images/play_audio.png?raw=true)
+
 ## Known issues
 
 #### Map canvas blinking
