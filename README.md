@@ -64,7 +64,7 @@ The save tool <img src="https://github.com/hytechimaging/sammo-boat/blob/main/im
 
 #### Export tool
 
-The export tool <img src="https://github.com/hytechimaging/sammo-boat/blob/main/images/export.png?raw=true" height="30" width="30" /> allow to export all tables as csv into an output directory.
+The export tool <img src="https://github.com/hytechimaging/sammo-boat/blob/main/images/export.png?raw=true" height="30" width="30" /> allows to export all tables as csv into an output directory.
 
 #### Merge tool
 
