@@ -20,7 +20,7 @@ from ..database import (
     SIGHTINGS_TABLE,
 )
 
-from .layer import SammoLayer
+from .layer import SammoLayer, NULL
 
 
 class SammoSightingsLayer(SammoLayer):
@@ -51,7 +51,6 @@ class SammoSightingsLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'R'"))
 
         # species
         idx = layer.fields().indexFromName("species")
@@ -71,7 +70,6 @@ class SammoSightingsLayer(SammoLayer):
         }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("10"))
 
         # podSizeMin
         idx = layer.fields().indexFromName("podSizeMin")
@@ -85,7 +83,6 @@ class SammoSightingsLayer(SammoLayer):
         }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("5"))
 
         # podSizeMax
         idx = layer.fields().indexFromName("podSizeMax")
@@ -99,7 +96,6 @@ class SammoSightingsLayer(SammoLayer):
         }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("15"))
 
         # age
         idx = layer.fields().indexFromName("age")
@@ -118,7 +114,6 @@ class SammoSightingsLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'A'"))
 
         # distance
         idx = layer.fields().indexFromName("distance")
@@ -132,7 +127,6 @@ class SammoSightingsLayer(SammoLayer):
         }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("100"))
 
         # angle
         idx = layer.fields().indexFromName("angle")
@@ -146,7 +140,6 @@ class SammoSightingsLayer(SammoLayer):
         }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("100"))
 
         # direction
         idx = layer.fields().indexFromName("direction")
@@ -160,13 +153,12 @@ class SammoSightingsLayer(SammoLayer):
         }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("100"))
 
         # behaviour
         idx = layer.fields().indexFromName("behaviour")
         cfg = {}
         cfg["map"] = [
-            {"<NULL>": "{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}"},
+            {"<NULL>": NULL},
             {"attracting": "attracting"},
             {"moving": "moving"},
             {"foraging": "foraging"},
@@ -175,13 +167,13 @@ class SammoSightingsLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'foraging'"))
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue(NULL))
 
         # behavGroup
         idx = layer.fields().indexFromName("behavGroup")
         cfg = {}
         cfg["map"] = [
-            {"<NULL>": "{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}"},
+            {"<NULL>": NULL},
             {"feeding_agregation": "feeding_agregation"},
             {"MFSA": "MFSA"},
             {"compact_group": "compact_group"},
@@ -189,13 +181,13 @@ class SammoSightingsLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'MFSA'"))
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue(NULL))
 
         # behavMam
         idx = layer.fields().indexFromName("behavMam")
         cfg = {}
         cfg["map"] = [
-            {"<NULL>": "{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}"},
+            {"<NULL>": NULL},
             {"bow": "bow"},
             {"milling": "milling"},
             {"fast_swimming": "fast_swimming"},
@@ -205,13 +197,13 @@ class SammoSightingsLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'diving'"))
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue(NULL))
 
         # behavBird
         idx = layer.fields().indexFromName("behavBird")
         cfg = {}
         cfg["map"] = [
-            {"<NULL>": "{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}"},
+            {"<NULL>": NULL},
             {"attaking": "attaking"},
             {"with_prey": "with_prey"},
             {"scavenger": "scavenger"},
@@ -225,21 +217,19 @@ class SammoSightingsLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(
-            idx, QgsDefaultValue("'direct_flight'")
-        )
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue(NULL))
 
         # behavShip
         idx = layer.fields().indexFromName("behavShip")
         cfg = {}
         cfg["map"] = [
-            {"<NULL>": "{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}"},
+            {"<NULL>": NULL},
             {"fishing": "fishing"},
             {"go_ahead": "go_ahead"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'go_ahead'"))
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue(NULL))
 
         # soundFile, soundStart, soundEnd, dateTime
         for field in ["soundFile", "soundStart", "soundEnd", "dateTime"]:

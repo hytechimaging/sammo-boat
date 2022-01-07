@@ -13,6 +13,8 @@ from qgis.core import (
 
 from ..database import SammoDataBase
 
+NULL = "{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}"
+
 
 class SammoLayer:
     def __init__(

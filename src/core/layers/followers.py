@@ -20,7 +20,7 @@ from ..database import (
     FOLLOWERS_TABLE,
 )
 
-from .layer import SammoLayer
+from .layer import SammoLayer, NULL
 
 
 class SammoFollowersLayer(SammoLayer):
@@ -43,20 +43,6 @@ class SammoFollowersLayer(SammoLayer):
         layer.renderer().symbol().changeSymbolLayer(0, symbol)
 
     def _init_widgets(self, layer: QgsVectorLayer) -> None:
-        # nFollower
-        idx = layer.fields().indexFromName("nFollower")
-        cfg = {
-            "AllowNull": False,
-            "Max": 1000,
-            "Min": 0,
-            "Precision": 0,
-            "Step": 1,
-            "Style": "SpinBox",
-        }
-        setup = QgsEditorWidgetSetup("Range", cfg)
-        layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("0"))
-
         # podSize
         idx = layer.fields().indexFromName("podSize")
         cfg = {
@@ -69,7 +55,6 @@ class SammoFollowersLayer(SammoLayer):
         }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("10"))
 
         # back
         idx = layer.fields().indexFromName("back")
@@ -95,6 +80,7 @@ class SammoFollowersLayer(SammoLayer):
         idx = layer.fields().indexFromName("fishActivity")
         cfg = {}
         cfg["map"] = [
+            {"<NULL>": NULL},
             {"up_net": "up_net"},
             {"net_down": "net_down"},
             {"discard": "discard"},
@@ -103,7 +89,7 @@ class SammoFollowersLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'net_down'"))
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue(NULL))
 
         # species
         idx = layer.fields().indexFromName("species")
@@ -115,7 +101,7 @@ class SammoFollowersLayer(SammoLayer):
         idx = layer.fields().indexFromName("age")
         cfg = {}
         cfg["map"] = [
-            {"<NULL>": "{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}"},
+            {"<NULL>": NULL},
             {"A": "A"},
             {"I": "I"},
             {"J": "J"},
@@ -128,13 +114,13 @@ class SammoFollowersLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'A'"))
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue(NULL))
 
         # unlucky
         idx = layer.fields().indexFromName("unlucky")
         cfg = {}
         cfg["map"] = [
-            {"<NULL>": "{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}"},
+            {"<NULL>": NULL},
             {"wounded": "wounded"},
             {"oiled": "oiled"},
             {"stuck_fishing_device": "stuck_fishing_device"},
@@ -144,9 +130,7 @@ class SammoFollowersLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(
-            idx, QgsDefaultValue("'{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}'")
-        )
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue(NULL))
 
         # soundFile, soundStart, soundEnd, dateTime
         for field in ["soundFile", "soundStart", "soundEnd", "dateTime"]:

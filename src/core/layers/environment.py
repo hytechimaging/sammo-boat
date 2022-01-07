@@ -40,7 +40,6 @@ class SammoEnvironmentLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'A'"))
 
         # platform
         idx = layer.fields().indexFromName("plateform")
@@ -52,7 +51,6 @@ class SammoEnvironmentLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'upper_deck'"))
 
         # route type
         idx = layer.fields().indexFromName("routeType")
@@ -64,7 +62,6 @@ class SammoEnvironmentLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'prospection'"))
 
         # sea state
         idx = layer.fields().indexFromName("seaState")
@@ -78,7 +75,6 @@ class SammoEnvironmentLayer(SammoLayer):
         }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("2"))
 
         # wind direction
         idx = layer.fields().indexFromName("windDirection")
@@ -92,7 +88,6 @@ class SammoEnvironmentLayer(SammoLayer):
         }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("71"))
 
         # wind force
         idx = layer.fields().indexFromName("windForce")
@@ -106,7 +101,6 @@ class SammoEnvironmentLayer(SammoLayer):
         }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("71"))
 
         # swell direction
         idx = layer.fields().indexFromName("swellDirection")
@@ -120,7 +114,6 @@ class SammoEnvironmentLayer(SammoLayer):
         }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("165"))
 
         # swell height
         idx = layer.fields().indexFromName("swellHeight")
@@ -134,7 +127,6 @@ class SammoEnvironmentLayer(SammoLayer):
         }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("0.5"))
 
         # glare from
         idx = layer.fields().indexFromName("glareFrom")
@@ -189,7 +181,6 @@ class SammoEnvironmentLayer(SammoLayer):
         }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("8"))
 
         # visibility
         idx = layer.fields().indexFromName("visibility")
@@ -203,15 +194,54 @@ class SammoEnvironmentLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("0.5"))
 
         # subjective
-        idx = layer.fields().indexFromName("subjective")
+        idx = layer.fields().indexFromName("subjectiveMam")
         cfg = {}
-        cfg["map"] = [{"E": "E"}, {"G": "G"}, {"M": "M"}, {"P": "P"}]
+        cfg["map"] = [
+            {"EE": "EE"},
+            {"EG": "EG"},
+            {"GE": "GE"},
+            {"EM": "EM"},
+            {"ME": "ME"},
+            {"EP": "EP"},
+            {"PE": "PE"},
+            {"GG": "GG"},
+            {"GM": "GM"},
+            {"MG": "MG"},
+            {"GP": "GP"},
+            {"PG": "PG"},
+            {"MM": "MM"},
+            {"MP": "MP"},
+            {"PM": "PM"},
+            {"PP": "PP"},
+        ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'G'"))
+
+        # subjective
+        idx = layer.fields().indexFromName("subjectiveBirds")
+        cfg = {}
+        cfg["map"] = [
+            {"EE": "EE"},
+            {"EG": "EG"},
+            {"GE": "GE"},
+            {"EM": "EM"},
+            {"ME": "ME"},
+            {"EP": "EP"},
+            {"PE": "PE"},
+            {"GG": "GG"},
+            {"GM": "GM"},
+            {"MG": "MG"},
+            {"GP": "GP"},
+            {"PG": "PG"},
+            {"MM": "MM"},
+            {"MP": "MP"},
+            {"PM": "PM"},
+            {"PP": "PP"},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
 
         # n observers
         idx = layer.fields().indexFromName("nObservers")
@@ -225,7 +255,6 @@ class SammoEnvironmentLayer(SammoLayer):
         }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("2"))
 
         # camera
         idx = layer.fields().indexFromName("camera")
@@ -233,7 +262,6 @@ class SammoEnvironmentLayer(SammoLayer):
         cfg["map"] = [{"ON": "ON"}, {"OFF": "OFF"}]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue("'ON'"))
 
         # soundFile, soundStart, soundEnd, dateTime
         for field in ["soundFile", "soundStart", "soundEnd", "dateTime"]:
