@@ -247,7 +247,7 @@ class SammoSession:
                 feat["side"] = lastFeat["side"]
             if layer == self.environmentLayer or duplicate:
                 for name in lastFeat.fields().names():
-                    if name == "fid" or name == "dateTime":
+                    if name in ["fid", "dateTime", "speed", "courseAverage"]:
                         continue
                     feat[name] = lastFeat[name]
 

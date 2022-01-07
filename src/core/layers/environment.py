@@ -63,6 +63,32 @@ class SammoEnvironmentLayer(SammoLayer):
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
 
+        # speed
+        idx = layer.fields().indexFromName("speed")
+        cfg = {
+            "AllowNull": False,
+            "Max": 30,
+            "Min": 0,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+
+        # course
+        idx = layer.fields().indexFromName("courseAverage")
+        cfg = {
+            "AllowNull": False,
+            "Max": 360,
+            "Min": 1,
+            "Precision": 0,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+
         # sea state
         idx = layer.fields().indexFromName("seaState")
         cfg = {
@@ -302,6 +328,13 @@ class SammoEnvironmentLayer(SammoLayer):
             layer.setEditorWidgetSetup(idx, setup)
 
     def _init_conditional_style(self, layer: QgsVectorLayer) -> None:
+        # routeType, speed, courseAverage
+        expr = "@value is NULL"
+        style = QgsConditionalStyle(expr)
+        style.setBackgroundColor(QColor("orange"))
+        for fieldName in ["routeType", "speed", "courseAverage"]:
+            layer.conditionalStyles().setFieldStyles(fieldName, [style])
+
         # glareFrom
         expr = "if (\"glareSever\" = 'none', @value != 0, False)"
         style = QgsConditionalStyle(expr)
