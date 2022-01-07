@@ -70,7 +70,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SAMMO-Boat log file will always be written in the plugin root folder
 - Debug mode
 
-
 -----
 
 ## [v1.0.0] - 2021-10-08
