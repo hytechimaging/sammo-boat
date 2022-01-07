@@ -68,7 +68,7 @@ The export tool <img src="https://github.com/hytechimaging/sammo-boat/blob/main/
 
 #### Merge tool
 
-The merge tool <img src="https://github.com/hytechimaging/sammo-boat/blob/main/images/merge.png?raw=true" height="30" width="30" /> can be use to merge two sessions into another.
+The merge tool <img src="https://github.com/hytechimaging/sammo-boat/blob/main/images/merge.png?raw=true" height="30" width="30" /> can be used to merge two sessions into another.
 
 To use it, fulfill the merge form with the directory of each session to merge and the output directory. The output session will contain each entity of both session. In case of strict identical entity, only one entity is copied. 
 
