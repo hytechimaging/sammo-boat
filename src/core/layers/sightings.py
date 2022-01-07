@@ -249,7 +249,7 @@ class SammoSightingsLayer(SammoLayer):
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
 
     def _init_conditional_style(self, layer: QgsVectorLayer) -> None:
-        #
+        # side, distance
         expr = "@value is NULL"
         style = QgsConditionalStyle(expr)
         style.setBackgroundColor(QColor("orange"))

@@ -328,6 +328,7 @@ class SammoEnvironmentLayer(SammoLayer):
             layer.setEditorWidgetSetup(idx, setup)
 
     def _init_conditional_style(self, layer: QgsVectorLayer) -> None:
+        # routeType, speed, courseAverage
         expr = "@value is NULL"
         style = QgsConditionalStyle(expr)
         style.setBackgroundColor(QColor("orange"))
