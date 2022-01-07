@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Undo / redo mechanisms
 - Export : sightings layer is exported with joined fields of species table
 - Export : environment layer is exported with joined fields of observer table (for left/right/center observer)
+- `speed` and `course` field in environment table
 
 ### Modified
 
