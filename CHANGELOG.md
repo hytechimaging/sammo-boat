@@ -68,7 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Layer attribute constraints #67 #68 #69
 - Remove side attribute values in the sighting layer form
 - SAMMO-Boat log file will always be written in the plugin root folder
-- mode debug
+- Debug mode
 
 
 -----
