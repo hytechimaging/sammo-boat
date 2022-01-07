@@ -74,7 +74,7 @@ To use it, fulfill the merge form with the directory of each session to merge an
 
 #### Sound replay
 
-When a new entity is added, SAMMO-Boat will capture a sound record. To play it again, you can do a right click on the table line and click on `Play`. A audio player will pop up.
+When a new entity is added, SAMMO-Boat will capture a sound record. To play it again, you can do a right click on the table line and click on `Play`. An audio player will pop up.
 
 ![](https://github.com/hytechimaging/sammo-boat/blob/main/images/play_audio.png?raw=true)
 
