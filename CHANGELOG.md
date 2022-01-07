@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Restrict duplication of the last entity in followers table in a same dialog
 - `species` field changed to lineEdit instead of comboBox in followers table
 - Export : X/Y field renamed Lat/Lon
+- Conditional style on null forbidden field
 
 ### Removed
 
