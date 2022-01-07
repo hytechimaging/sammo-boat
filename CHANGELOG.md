@@ -60,7 +60,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add .ini files to use SAMMO-Boat in operator/admin profile
 - Add keyboard shortcut
 
-
 ### Modified
 
 - Translation fixes
