@@ -60,7 +60,7 @@ To use Undo / Redo shorcut, you need to click on the table you want to change be
 
 #### Save tool
 
-The save tool <img src="https://github.com/hytechimaging/sammo-boat/blob/main/images/pen.png?raw=true" height="30" width="30" /> can be use to save manually all tables.
+The save tool <img src="https://github.com/hytechimaging/sammo-boat/blob/main/images/pen.png?raw=true" height="30" width="30" /> can be used to manually save all tables.
 
 #### Export tool
 
