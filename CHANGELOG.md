@@ -16,7 +16,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Export : sightings layer is exported with joined fields of species table
 - Export : environment layer is exported with joined fields of observer table (for left/right/center observer)
 
-
 ### Modified
 
 - Update README.md with main features
