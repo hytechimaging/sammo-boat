@@ -164,3 +164,8 @@ class SammoFollowersLayer(SammoLayer):
         style = QgsConditionalStyle(expr)
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("species", [style])
+
+        # podSize
+        style = QgsConditionalStyle("@value is NULL")
+        style.setBackgroundColor(QColor("orange"))
+        layer.conditionalStyles().setFieldStyles("podSize", [style])

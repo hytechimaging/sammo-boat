@@ -94,6 +94,8 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("status"))
         fields.append(self._createFieldShortText("plateform"))
         fields.append(self._createFieldShortText("routeType"))
+        fields.append(QgsField("speed", QVariant.Int))
+        fields.append(QgsField("courseAverage", QVariant.Int))
         fields.append(QgsField("seaState", QVariant.Int))
         fields.append(QgsField("windDirection", QVariant.Int))
         fields.append(QgsField("windForce", QVariant.Int))

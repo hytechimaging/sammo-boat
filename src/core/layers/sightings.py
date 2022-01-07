@@ -249,9 +249,16 @@ class SammoSightingsLayer(SammoLayer):
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
 
     def _init_conditional_style(self, layer: QgsVectorLayer) -> None:
+        #
+        expr = "@value is NULL"
+        style = QgsConditionalStyle(expr)
+        style.setBackgroundColor(QColor("orange"))
+        for fieldName in ["side", "distance"]:
+            layer.conditionalStyles().setFieldStyles(fieldName, [style])
+
         # podSize
         style = QgsConditionalStyle(
-            '@value > "podSizeMax" or @value < "podSizeMin"'
+            '@value > "podSizeMax" or @value < "podSizeMin" or @value is NULL'
         )
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("podSize", [style])
@@ -271,7 +278,11 @@ class SammoSightingsLayer(SammoLayer):
         layer.conditionalStyles().setFieldStyles("podSizeMax", [style])
 
         # angle
-        style = QgsConditionalStyle("@value > 91 and @value < 269")
+        style = QgsConditionalStyle(
+            """
+            (@value > 91 and @value < 269) or @value is NULL
+        """
+        )
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("angle", [style])
 
