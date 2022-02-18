@@ -4,6 +4,7 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
+from pathlib import Path
 
 from qgis.PyQt.QtCore import QVariant
 from qgis.core import (
@@ -12,6 +13,7 @@ from qgis.core import (
     QgsFeature,
     QgsProject,
     QgsWkbTypes,
+    QgsApplication,
     QgsFeatureSink,
     QgsVectorLayer,
     QgsVectorFileWriter,
@@ -27,6 +29,7 @@ OBSERVERS_TABLE = "observers"
 FOLLOWERS_TABLE = "followers"
 SIGHTINGS_TABLE = "sightings"
 ENVIRONMENT_TABLE = "environment"
+WORLD_TABLE = "world"
 
 
 class SammoDataBase:
@@ -70,6 +73,8 @@ class SammoDataBase:
         )
 
         self._createTable(self._fieldsObserver(), OBSERVERS_TABLE)
+
+        self._copyWorldTable()
 
         return True
 
@@ -226,3 +231,25 @@ class SammoDataBase:
     @staticmethod
     def _createFieldShortText(fieldName, len=50) -> QgsField:
         return QgsField(fieldName, QVariant.String, len=len)
+
+    def _copyWorldTable(self):
+        """
+        Copy world table from qgis data into gpkg file
+        """
+        opts = QgsVectorFileWriter.SaveVectorOptions()
+        opts.driverName = "GPKG"
+        opts.layerName = WORLD_TABLE
+        opts.actionOnExistingFile = QgsVectorFileWriter.CreateOrOverwriteLayer
+        layer = QgsVectorLayer(self._worldMapPath(), "World")
+        QgsVectorFileWriter.writeAsVectorFormatV2(
+            layer, self.path, QgsCoordinateTransformContext(), opts
+        )
+
+    @staticmethod
+    def _worldMapPath() -> str:
+        return (
+            Path(QgsApplication.instance().pkgDataPath())
+            / "resources"
+            / "data"
+            / "world_map.gpkg"
+        ).as_posix() + "|layername=countries"

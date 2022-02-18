@@ -97,7 +97,7 @@ class SammoSession:
     def init(self, directory: str, load: bool = True) -> None:
         new = self.db.init(directory)
 
-        self._worldLayer = SammoWorldLayer()
+        self._worldLayer = SammoWorldLayer(self.db)
         self._gpsLayer = SammoGpsLayer(self.db)
         self._speciesLayer = SammoSpeciesLayer(self.db)
         self._sightingsLayer = SammoSightingsLayer(self.db)

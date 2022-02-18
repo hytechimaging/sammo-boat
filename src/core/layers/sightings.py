@@ -13,7 +13,7 @@ from qgis.core import (
     QgsSvgMarkerSymbolLayer,
 )
 
-from ..utils import path
+from ..utils import path, base64File
 
 from ..database import (
     SammoDataBase,
@@ -34,7 +34,8 @@ class SammoSightingsLayer(SammoLayer):
 
     def _init_symbology(self, layer: QgsVectorLayer) -> None:
         # symbology
-        symbol = QgsSvgMarkerSymbolLayer(path("observation_symbol.svg"))
+        svgBase64 = base64File(path("observation_symbol.svg"))
+        symbol = QgsSvgMarkerSymbolLayer(svgBase64)
         symbol.setSize(6)
         symbol.setFillColor(QColor("#a76dad"))
         symbol.setStrokeWidth(0)
