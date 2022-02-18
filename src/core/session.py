@@ -350,6 +350,16 @@ class SammoSession:
         sessionB = SammoSession()
         sessionB.init(sessionBDir, load=False)
 
+        # copy wav files to output session
+        tot = len(sessionA.wavFiles) + len(sessionB.wavFiles)
+        nb = 0
+        progressBar.setFormat("Sound file, Total : %p%")
+        for session in [sessionA, sessionB]:
+            for wav in session.wavFiles:
+                copy(wav, sessionOutputDir)
+                nb += 1
+                progressBar.setValue(int(100 / tot * (nb + 1)))
+
         # create output session
         sessionOutput = SammoSession()
         sessionOutput.init(sessionOutputDir, load=False)
