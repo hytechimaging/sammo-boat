@@ -15,7 +15,9 @@ from qgis.core import (
     QgsGeometry,
     QgsMapLayer,
     QgsSettings,
+    QgsExpression,
     QgsVectorLayer,
+    QgsFeatureRequest,
     QgsVectorLayerUtils,
     QgsReferencedRectangle,
     QgsCoordinateReferenceSystem,
@@ -315,7 +317,16 @@ class SammoSession:
                     attrs = feature.attributes()[1:]
 
                     exist = False
-                    for featureOut in out.getFeatures():
+                    ft_datetime = feature["datetime"].toPyDateTime().strftime(
+                        "%Y-%m-%dT%H:%M:%-S"
+                    )
+                    request = QgsFeatureRequest(
+                        QgsExpression(
+                            "format_date(datetime, 'yyyy-MM-ddThh:mm:ss') = "
+                            f"{ft_datetime}"
+                        )
+                    )
+                    for featureOut in out.getFeatures(request):
                         if featureOut.attributes()[1:] == attrs:
                             exist = True
                             break
