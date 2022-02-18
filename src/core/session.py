@@ -8,7 +8,6 @@ from shutil import copytree
 from datetime import datetime
 from typing import List, Optional
 
-
 from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtWidgets import QProgressBar
 from qgis.PyQt.QtCore import QDate, QDateTime
@@ -64,10 +63,6 @@ class SammoSession:
         self._plateformLayer: SammoPlateformLayer = None
         self.lastGpsGeom: QgsGeometry = QgsGeometry()
         self.lastCaptureTime: datetime = datetime(1900, 1, 1, 0, 0, 0)
-
-    @property
-    def audioFolder(self) -> str:
-        return (Path(self.db.directory) / "audio").as_posix()
 
     @property
     def audioFolder(self) -> str:
