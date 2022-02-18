@@ -71,7 +71,7 @@ class SammoExportAction(QDialog):
             layer = QgsVectorLayer(layer.source(), layer.name())
 
             # Add Lon/Lat field
-            if layer.geometryType() == QgsWkbTypes.NullGeometry:
+            if layer.geometryType() == QgsWkbTypes.PointGeometry:
                 field = QgsField("lat", QVariant.Double)
                 layer.addExpressionField("x($geometry) ", field)
                 field = QgsField("lon", QVariant.Double)

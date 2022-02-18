@@ -110,7 +110,7 @@ class Sammo:
 
     def createSaveAction(self) -> SammoSaveAction:
         button = SammoSaveAction(self.mainWindow, self.toolbar)
-        button.triggered.connect(self.session.saveAll)
+        button.triggered.connect(self.saveAll)
         return button
 
     def createExportAction(self) -> SammoExportAction:
@@ -177,7 +177,7 @@ class Sammo:
         self.redoShortcut.activated.connect(self.redo)
 
         self.saveShortcut = QShortcut(QKeySequence("Shift+S"), self.mainWindow)
-        self.saveShortcut.activated.connect(self.session.saveAll)
+        self.saveShortcut.activated.connect(self.saveAll)
 
     def unload(self):
         self.gpsReader.stop()
@@ -195,6 +195,9 @@ class Sammo:
         self.statusDock.unload()
         del self.statusDock
         del self.toolbar
+
+    def saveAll(self) -> None:
+        self.session.saveAll()
 
     def onGpsFrame(self, longitude, latitude, h, m, s):
         self.session.lastGpsGeom = QgsGeometry.fromPointXY(
@@ -226,6 +229,7 @@ class Sammo:
         self.tableDock.init(
             self.session.environmentLayer, self.session.sightingsLayer
         )
+        self.exportAction.session = self.session
         QgsProject.instance().layerWillBeRemoved.connect(self.cleanTableDock)
 
         # init simu

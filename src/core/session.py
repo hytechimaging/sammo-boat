@@ -152,7 +152,7 @@ class SammoSession:
 
     def addEnvironmentFeature(self) -> QgsVectorLayer:
         layer = self.environmentLayer
-        self._addFeature(layer)
+        self._addFeature(layer, geom=self.lastGpsGeom)
         return layer
 
     def addSightingsFeature(self) -> QgsVectorLayer:

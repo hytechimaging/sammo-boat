@@ -57,7 +57,9 @@ class SammoDataBase:
             return False
 
         self._createTable(
-            self._createFieldsForEnvironmentTable(), ENVIRONMENT_TABLE
+            self._createFieldsForEnvironmentTable(),
+            ENVIRONMENT_TABLE,
+            QgsWkbTypes.Point,
         )
         self._createTable(self._createFieldsForSpeciesTable(), SPECIES_TABLE)
         self._createTable(
