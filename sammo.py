@@ -349,12 +349,12 @@ class Sammo:
     def onProjectLoaded(self) -> None:
         if self.loading:
             return
-
         self.gpsReader.active = False
         self.setEnabled(False)
         sessionDir = SammoSession.sessionDirectory(QgsProject.instance())
 
         if not sessionDir:
+            self.session = SammoSession()
             return
 
         self.onCreateSession(sessionDir)

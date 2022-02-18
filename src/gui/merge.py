@@ -91,5 +91,6 @@ class SammoMergeDialog(QDialog, FORM_CLASS):
             self.sessionADir.text(),
             self.sessionBDir.text(),
             self.sessionMergedDir.text(),
+            self.progressBar,
         )
         self.close()

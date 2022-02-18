@@ -9,6 +9,7 @@ from typing import List
 from datetime import datetime
 
 from qgis.PyQt.QtGui import QColor
+from qgis.PyQt.QtWidgets import QProgressBar
 
 from qgis.core import (
     QgsProject,
@@ -52,7 +53,7 @@ class SammoSession:
         self._sightingsLayer: SammoSightingsLayer = None
         self._environmentLayer: SammoEnvironmentLayer = None
         self.lastGpsGeom: QgsGeometry = QgsGeometry()
-        self.lastCaptureTime: datetime = datetime(1900,1,1,0,0,0)
+        self.lastCaptureTime: datetime = datetime(1900, 1, 1, 0, 0, 0)
 
     @property
     def environmentLayer(self) -> QgsVectorLayer:
@@ -279,7 +280,10 @@ class SammoSession:
 
     @staticmethod
     def merge(
-        sessionADir: str, sessionBDir: str, sessionOutputDir: str
+        sessionADir: str,
+        sessionBDir: str,
+        sessionOutputDir: str,
+        progressBar: QProgressBar,
     ) -> None:
         # open input session
         sessionA = SammoSession()
@@ -289,9 +293,14 @@ class SammoSession:
         sessionB.init(sessionBDir, load=False)
 
         # copy wav files to output session
+        tot = len(sessionA.wavFiles) + len(sessionB.wavFiles)
+        nb = 0
+        progressBar.setFormat("Sound file, Total : %p%")
         for session in [sessionA, sessionB]:
             for wav in session.wavFiles:
                 copy(wav, sessionOutputDir)
+                nb += 1
+                progressBar.setValue(int(100 / tot * (nb + 1)))
 
         # create output session
         sessionOutput = SammoSession()
@@ -306,24 +315,33 @@ class SammoSession:
         ]
         for layer in dynamicLayers:
             out = getattr(sessionOutput, layer)
+            nb = 0
+            progressBar.setFormat(f"Copy {layer}, Total : %p%")
 
             newFid = 0
             lastFeature = SammoDataBase.lastFeature(out)
             if lastFeature:
                 newFid = lastFeature["fid"] + 1
-
+            tot = (
+                getattr(sessionA, layer).featureCount()
+                + getattr(sessionB, layer).featureCount()
+            )
             for vl in [getattr(sessionA, layer), getattr(sessionB, layer)]:
                 for feature in vl.getFeatures():
+                    nb += 1
+                    progressBar.setValue(int(100 / tot * (nb + 1)))
                     attrs = feature.attributes()[1:]
 
                     exist = False
-                    ft_datetime = feature["datetime"].toPyDateTime().strftime(
-                        "%Y-%m-%dT%H:%M:%-S"
+                    ft_datetime = (
+                        feature["datetime"]
+                        .toPyDateTime()
+                        .strftime("%Y-%m-%dT%H:%M:%S")
                     )
                     request = QgsFeatureRequest(
                         QgsExpression(
                             "format_date(datetime, 'yyyy-MM-ddThh:mm:ss') = "
-                            f"{ft_datetime}"
+                            f"'{ft_datetime}'"
                         )
                     )
                     for featureOut in out.getFeatures(request):
@@ -338,6 +356,47 @@ class SammoSession:
                         out.startEditing()
                         out.addFeature(feature)
                         out.commitChanges()
+
+        # gps layer
+        out = getattr(sessionOutput, "gpsLayer")
+        datetimeSet = set(
+            [
+                ft["datetime"].toPyDateTime().replace(second=0, microsecond=0)
+                for ft in out.getFeatures()
+            ]
+        )
+        nb = 0
+        progressBar.setFormat("Copy gpsLayer, Total : %p%")
+
+        newFid = 0
+        lastFeature = SammoDataBase.lastFeature(out)
+        if lastFeature:
+            newFid = lastFeature["fid"] + 1
+        tot = (
+            getattr(sessionA, "gpsLayer").featureCount()
+            + getattr(sessionB, "gpsLayer").featureCount()
+        )
+        for vl in [
+            getattr(sessionA, "gpsLayer"),
+            getattr(sessionB, "gpsLayer"),
+        ]:
+            for feature in vl.getFeatures():
+                nb += 1
+                progressBar.setValue(int(100 / tot * (nb + 1)))
+                dateTimeAttr = (
+                    feature["datetime"]
+                    .toPyDateTime()
+                    .replace(second=0, microsecond=0)
+                )
+                if dateTimeAttr in datetimeSet:
+                    continue
+                datetimeSet.add(dateTimeAttr)
+                feature["fid"] = newFid
+                newFid += 1
+
+                out.startEditing()
+                out.addFeature(feature)
+                out.commitChanges()
 
         # copy content of static layers only if output is empty
         staticLayers = ["speciesLayer", "observersLayer"]
