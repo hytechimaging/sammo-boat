@@ -6,6 +6,7 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 import pathlib
 from shutil import copy
 from typing import List
+from datetime import datetime
 
 from qgis.PyQt.QtGui import QColor
 
@@ -48,6 +49,8 @@ class SammoSession:
         self._observersLayer: SammoObserversLayer = None
         self._sightingsLayer: SammoSightingsLayer = None
         self._environmentLayer: SammoEnvironmentLayer = None
+        self.lastGpsGeom: QgsGeometry = QgsGeometry()
+        self.lastCaptureTime: datetime = datetime(1900,1,1,0,0,0)
 
     @property
     def environmentLayer(self) -> QgsVectorLayer:
@@ -151,12 +154,12 @@ class SammoSession:
 
     def addSightingsFeature(self) -> QgsVectorLayer:
         layer = self.sightingsLayer
-        self._addFeature(layer, geom=self._gpsLayer.lastGpsGeom)
+        self._addFeature(layer, geom=self.lastGpsGeom)
         return layer
 
     def addFollowersFeature(self, dt: str, duplicate: bool) -> None:
         layer = self.followersLayer
-        self._addFeature(layer, dt, self._gpsLayer.lastGpsGeom, duplicate)
+        self._addFeature(layer, dt, self.lastGpsGeom, duplicate)
 
     def needsSaving(self) -> None:
         for layer in [

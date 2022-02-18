@@ -4,6 +4,7 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
+from datetime import datetime
 
 from qgis.PyQt.QtGui import QKeySequence
 from qgis.PyQt.QtWidgets import QToolBar, QShortcut, QTableView, QAction
@@ -11,6 +12,7 @@ from qgis.PyQt.QtWidgets import QToolBar, QShortcut, QTableView, QAction
 from qgis.core import (
     QgsProject,
     QgsPointXY,
+    QgsGeometry,
     QgsExpression,
     QgsApplication,
     QgsFeatureRequest,
@@ -195,7 +197,17 @@ class Sammo:
         del self.toolbar
 
     def onGpsFrame(self, longitude, latitude, h, m, s):
-        self.session.addGps(longitude, latitude, h, m, s)
+        self.session.lastGpsGeom = QgsGeometry.fromPointXY(
+            QgsPointXY(longitude, latitude)
+        )
+        now = datetime.now()
+        gpsNow = datetime(now.year, now.month, now.day, h, m, s)
+        if (
+            not self.session.lastCaptureTime
+            or (gpsNow - self.session.lastCaptureTime).total_seconds() > 59
+        ):
+            self.session.addGps(longitude, latitude, h, m, s)
+            self.session.lastCaptureTime = gpsNow
         self.iface.mapCanvas().setCenter(QgsPointXY(longitude, latitude))
         self.statusDock.updateGpsInfo(longitude, latitude)
 

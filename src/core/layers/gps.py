@@ -26,7 +26,6 @@ from .layer import SammoLayer
 class SammoGpsLayer(SammoLayer):
     def __init__(self, db: SammoDataBase):
         super().__init__(db, GPS_TABLE, "GPS")
-        self.lastGpsGeom: QgsGeometry = QgsGeometry()
 
     def _init(self, layer: QgsVectorLayer):
         symbol = layer.renderer().symbol()
@@ -43,10 +42,9 @@ class SammoGpsLayer(SammoLayer):
         layer.startEditing()
 
         feature = QgsFeature(QgsVectorLayerUtils.createFeature(layer))
-        self.lastGpsGeom = QgsGeometry.fromPointXY(
-            QgsPointXY(longitude, latitude)
+        feature.setGeometry(
+            QgsGeometry.fromPointXY(QgsPointXY(longitude, latitude))
         )
-        feature.setGeometry(self.lastGpsGeom)
 
         now = datetime.now()
         feature.setAttribute("dateTime", now.strftime("%Y-%m-%d %H:%M:%S"))
