@@ -139,6 +139,9 @@ class SammoSession:
         # read project
         if load:
             QgsProject.instance().read(self.db.projectUri)
+            self._environmentLayer.addSoundAction(self.environmentLayer)
+            self._sightingsLayer.addSoundAction(self.sightingsLayer)
+            self._followersLayer.addSoundAction(self.followersLayer)
             QgsSettings().setValue("qgis/enableMacros", "SessionOnly")
 
     def addEnvironmentFeature(self) -> QgsVectorLayer:

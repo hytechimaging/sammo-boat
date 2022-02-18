@@ -46,7 +46,7 @@ class SammoLayer:
         project.addMapLayer(layer)
 
         if self.soundAction:
-            self._addSoundAction(layer)
+            self.addSoundAction(layer)
 
         self._hideWidgetFid(layer)
         self._init(layer)
@@ -60,7 +60,8 @@ class SammoLayer:
         setup = QgsEditorWidgetSetup("Hidden", {})
         layer.setEditorWidgetSetup(idx, setup)
 
-    def _addSoundAction(self, layer: QgsVectorLayer) -> None:
+    def addSoundAction(self, layer: QgsVectorLayer) -> None:
+        layer.actions().clearActions()
         with open(Path(__file__).parent / "audio_action.py") as f:
             code = f.read()
         code = code.format(
