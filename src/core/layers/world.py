@@ -18,5 +18,5 @@ class SammoWorldLayer(SammoLayer):
         symbol = layer.renderer().symbol()
         symbolLayer = symbol.symbolLayer(0)
         symbolLayer.setColor(QColor(178, 223, 138))
-        symbolLayer.setStrokeColor(QColor(119,116,104,153))
+        symbolLayer.setStrokeColor(QColor(119, 116, 104, 153))
         symbol.changeSymbolLayer(0, symbolLayer)
