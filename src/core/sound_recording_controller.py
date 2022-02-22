@@ -48,6 +48,10 @@ class SammoSoundRecordingController(QObject):
         self._soundFile = None
         self.onSoundRecordingStatusChanged.emit(False)
 
+    def interruptRecording(self):
+        if self._thread.isProceeding:
+            self._stopRecording()
+
     def _onStartEventWhichNeedSoundRecord(self, recordType: RecordType):
         if not self._thread.isProceeding:
             # on start observation when no sound recording is in progress

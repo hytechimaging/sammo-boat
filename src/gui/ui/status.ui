@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>124</height>
+    <height>127</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -207,9 +207,15 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="record">
+        <widget class="QPushButton" name="record">
          <property name="text">
           <string/>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>64</width>
+           <height>64</height>
+          </size>
          </property>
         </widget>
        </item>

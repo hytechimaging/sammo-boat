@@ -15,7 +15,7 @@ from qgis.PyQt.QtWidgets import (
 
 BUFFERSIZE = 20
 BLOCKSIZE = 256
-SAMPLERATE = 44100
+SAMPLERATE = 22050
 
 
 def timeformat(seconds: int) -> str:
