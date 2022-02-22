@@ -79,4 +79,5 @@ class SammoLayer:
         )
 
         ac = QgsAction(1, "Play", code, False)
+        ac.setActionScopes({"Field"})
         layer.actions().addAction(ac)
