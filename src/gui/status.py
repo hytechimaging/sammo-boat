@@ -178,16 +178,9 @@ class SammoStatusDock(QDockWidget):
         request = QgsFeatureRequest(QgsExpression("routeType = 'prospection'"))
         request.addOrderBy("fid", False)
         for feat in layer.getFeatures(request):
+            if feat["routeType"] == "prospection" and feat["status"] in [0, 1]:
+                return True
             break
-
-        if not feat:
-            return False
-
-        idx = layer.fields().indexFromName("status")
-        if feat[idx] == "B" or feat[idx] == "A":
-            return True
-
-        return False
 
     def _onGpsOffline(self):
         self._isGpsOffline = True

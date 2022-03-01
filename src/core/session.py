@@ -153,11 +153,58 @@ class SammoSession:
             self._sightingsLayer.addSoundAction(self.sightingsLayer)
             self._followersLayer.addSoundAction(self.followersLayer)
             QgsSettings().setValue("qgis/enableMacros", "SessionOnly")
+        self.environmentLayer.attributeValueChanged.connect(
+            self.updateRouteTypeStatus
+        )
 
     def addEnvironmentFeature(self) -> QgsVectorLayer:
         layer = self.environmentLayer
-        self._addFeature(layer, geom=self.lastGpsGeom)
+        self._addFeature(
+            layer,
+            geom=self.lastGpsGeom,
+            status=int(bool(layer.featureCount())),
+        )
         return layer
+
+    def updateRouteTypeStatus(self, fid, idx, value) -> None:
+        if (
+            not self.environmentLayer
+            or idx != self.environmentLayer.fields().indexOf("routeType")
+        ):
+            return
+
+        feat = self.environmentLayer.getFeature(fid)
+        request = QgsFeatureRequest().addOrderBy("dateTime", False)
+        for prevFeat in self.environmentLayer.getFeatures(request):
+            if prevFeat["fid"] == feat["fid"]:
+                continue
+            elif prevFeat["status"] == 2:
+                return
+            elif (
+                prevFeat["status"] in [0, 1]
+                and prevFeat["routeType"] == feat["routeType"]
+            ):
+                self.environmentLayer.changeAttributeValue(
+                    fid, self.environmentLayer.fields().indexOf("status"), 1
+                )
+            elif prevFeat["routeType"] != feat["routeType"]:
+                routeType = feat["routeType"]
+                self.environmentLayer.changeAttributeValue(
+                    fid, self.environmentLayer.fields().indexOf("status"), 2
+                )
+                self.environmentLayer.changeAttributeValue(
+                    fid,
+                    self.environmentLayer.fields().indexOf("routeType"),
+                    prevFeat["routeType"],
+                )
+                self._addFeature(
+                    self.environmentLayer,
+                    feat["dateTime"],
+                    geom=feat.geometry(),
+                    status=0,
+                    routeType=routeType,
+                )
+            break
 
     def addSightingsFeature(self) -> QgsVectorLayer:
         layer = self.sightingsLayer
@@ -197,6 +244,47 @@ class SammoSession:
         return False
 
     def saveAll(self) -> None:
+        rmFeatures = []
+        lastFeature = None
+        request = QgsFeatureRequest().addOrderBy("dateTime").addOrderBy("fid")
+        for feat in self.environmentLayer.getFeatures(request):
+            if (
+                not lastFeature
+                or lastFeature["routeType"] != feat["routeType"]
+            ) and feat["status"] == 1:
+                self.environmentLayer.changeAttributeValue(
+                    feat.id(),
+                    self.environmentLayer.fields().indexOf("status"),
+                    0,
+                )
+                feat = self.environmentLayer.getFeature(feat.id())
+            elif (
+                not lastFeature
+                or lastFeature["routeType"] != feat["routeType"]
+            ) and feat["status"] == 2:
+                rmFeatures.append(feat.id())
+            elif not lastFeature:
+                lastFeature = feat
+                continue
+
+            if (
+                lastFeature["routeType"] != feat["routeType"]
+                and lastFeature["status"] == 1
+            ):
+                self.environmentLayer.changeAttributeValue(
+                    lastFeature.id(),
+                    self.environmentLayer.fields().indexOf("status"),
+                    2,
+                )
+            elif (
+                lastFeature["routeType"] != feat["routeType"]
+                and lastFeature["status"] == 0
+            ):
+                rmFeatures.append(feat.id())
+
+            lastFeature = feat
+        self.environmentLayer.deleteFeatures(rmFeatures)
+
         for layer in [
             self.environmentLayer,
             self.sightingsLayer,
@@ -245,6 +333,7 @@ class SammoSession:
         dt: str = "",
         geom: QgsGeometry = QgsGeometry(),
         duplicate: bool = False,
+        **kwargs,
     ) -> None:
         feat = QgsVectorLayerUtils.createFeature(layer)
 
@@ -263,6 +352,10 @@ class SammoSession:
                     if name in ["fid", "dateTime", "speed", "courseAverage"]:
                         continue
                     feat[name] = lastFeat[name]
+
+        for key, value in kwargs.items():
+            if key in layer.fields().names():
+                feat[key] = value
 
         if not layer.isEditable():
             layer.startEditing()

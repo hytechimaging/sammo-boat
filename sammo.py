@@ -362,6 +362,7 @@ class Sammo:
 
         if not sessionDir:
             self.session = SammoSession()
+            self.statusDock.session = self.session
             return
 
         self.onCreateSession(sessionDir)
