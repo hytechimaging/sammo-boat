@@ -3,8 +3,8 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-import os.path
 from enum import Enum
+from pathlib import Path
 from datetime import datetime
 
 from qgis.PyQt.QtCore import pyqtSignal, QObject
@@ -93,6 +93,8 @@ class SammoSoundRecordingController(QObject):
 
     def onNewSession(self, workingDirectory: str):
         self._workingDirectory = workingDirectory
+        audioPath = Path(self._workingDirectory) / "audio"
+        audioPath.mkdir(exist_ok=True)
 
     def _createSoundRecording(self) -> ThreadForSoundRecording:
         threadSoundRecording = ThreadForSoundRecording(
@@ -103,14 +105,26 @@ class SammoSoundRecordingController(QObject):
     def _startRecording(self, recordType: RecordType):
         dateTimeObj = datetime.now()
         timeTxt = dateTimeObj.strftime("%Y%m%d_%H%M%S")
+        dateTxt = dateTimeObj.strftime("%Y%m%d")
         if recordType == RecordType.SIGHTINGS:
-            self._soundFile = f"observation_sound_recording_{timeTxt}.wav"
+            self._soundFile = (
+                f"audio/{dateTxt}/observation_sound_recording_{timeTxt}.wav"
+            )
         elif recordType == RecordType.ENVIRONMENT:
-            self._soundFile = f"environment_sound_recording_{timeTxt}.wav"
+            self._soundFile = (
+                f"audio/{dateTxt}/environment_sound_recording_{timeTxt}.wav"
+            )
         elif recordType == RecordType.FOLLOWERS:
-            self._soundFile = f"followers_sound_recording_{timeTxt}.wav"
+            self._soundFile = (
+                f"audio/{dateTxt}/followers_sound_recording_{timeTxt}.wav"
+            )
 
-        soundFilePath = os.path.join(self._workingDirectory, self._soundFile)
+        folderPath = Path(self._workingDirectory) / "audio" / dateTxt
+        folderPath.mkdir(exist_ok=True)
+
+        soundFilePath = (
+            Path(self._workingDirectory) / self._soundFile
+        ).as_posix()
         self._startTimerOnRecordForCurrentEvent = 0
         self._thread.start(soundFilePath)
 

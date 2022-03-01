@@ -3,10 +3,10 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-import pathlib
-from shutil import copy
-from typing import List, Optional
+from pathlib import Path
+from shutil import copytree
 from datetime import datetime
+from typing import List, Optional
 
 from qgis.PyQt.QtCore import QDate
 from qgis.PyQt.QtGui import QColor
@@ -57,6 +57,10 @@ class SammoSession:
         self.lastCaptureTime: datetime = datetime(1900, 1, 1, 0, 0, 0)
 
     @property
+    def audioFolder(self) -> str:
+        return (Path(self.db.directory) / "audio").as_posix()
+
+    @property
     def environmentLayer(self) -> QgsVectorLayer:
         if self._environmentLayer:
             return self._environmentLayer.layer
@@ -96,10 +100,6 @@ class SammoSession:
             self.speciesLayer,
             self.sightingsLayer,
         ]
-
-    @property
-    def wavFiles(self) -> List[str]:
-        return list(pathlib.Path(self.db.directory).glob("*.wav"))
 
     def init(self, directory: str, load: bool = True) -> None:
         new = self.db.init(directory)
@@ -294,19 +294,17 @@ class SammoSession:
         sessionB = SammoSession()
         sessionB.init(sessionBDir, load=False)
 
-        # copy wav files to output session
-        tot = len(sessionA.wavFiles) + len(sessionB.wavFiles)
-        nb = 0
-        progressBar.setFormat("Sound file, Total : %p%")
-        for session in [sessionA, sessionB]:
-            for wav in session.wavFiles:
-                copy(wav, sessionOutputDir)
-                nb += 1
-                progressBar.setValue(int(100 / tot * (nb + 1)))
-
         # create output session
         sessionOutput = SammoSession()
         sessionOutput.init(sessionOutputDir, load=False)
+
+        # copy wav files to output session
+        for session in [sessionA, sessionB]:
+            copytree(
+                session.audioFolder,
+                sessionOutput.audioFolder,
+                dirs_exist_ok=True,
+            )
 
         # copy features from dynamic layers
         dynamicLayers = [
