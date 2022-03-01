@@ -10,7 +10,10 @@ from qgis.core import (
     QgsDefaultValue,
     QgsConditionalStyle,
     QgsEditorWidgetSetup,
+    QgsSvgMarkerSymbolLayer,
 )
+
+from ..utils import path, base64File
 
 from ..database import (
     SammoDataBase,
@@ -26,8 +29,18 @@ class SammoEnvironmentLayer(SammoLayer):
         self.observersLayer = observersLayer
 
     def _init(self, layer: QgsVectorLayer):
+        self._init_symbology(layer)
         self._init_widgets(layer)
         self._init_conditional_style(layer)
+
+    def _init_symbology(self, layer: QgsVectorLayer) -> None:
+        # symbology
+        svgBase64 = base64File(path("environment_symbol.svg"))
+        symbol = QgsSvgMarkerSymbolLayer(svgBase64)
+        symbol.setSize(6)
+        symbol.setFillColor(QColor("#a76dad"))
+        symbol.setStrokeWidth(0)
+        layer.renderer().symbol().changeSymbolLayer(0, symbol)
 
     def _init_widgets(self, layer: QgsVectorLayer) -> None:
         # status
