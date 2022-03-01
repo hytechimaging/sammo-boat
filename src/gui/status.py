@@ -24,8 +24,8 @@ KO_COLOR = "rgb(242, 186, 195)"
 
 
 class StatusWidget(QFrame, FORM_CLASS):
-    
-    recordInterrupted: pyqtSignal=pyqtSignal()
+
+    recordInterrupted: pyqtSignal = pyqtSignal()
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -107,7 +107,7 @@ class StatusWidget(QFrame, FORM_CLASS):
 
 class SammoStatusDock(QDockWidget):
 
-    recordInterrupted: pyqtSignal=pyqtSignal()
+    recordInterrupted: pyqtSignal = pyqtSignal()
 
     def __init__(self, iface, session):
         super().__init__("Sammo Status", iface.mainWindow())
