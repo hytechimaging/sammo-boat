@@ -3,6 +3,7 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
+from typing import List, Optional
 from pathlib import Path
 from shutil import copytree
 from datetime import datetime
