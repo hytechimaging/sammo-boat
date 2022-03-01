@@ -8,10 +8,9 @@ from shutil import copytree
 from datetime import datetime
 from typing import List, Optional
 
-from qgis.PyQt.QtCore import QDate
 from qgis.PyQt.QtGui import QColor
-from qgis.PyQt.QtCore import QDateTime
 from qgis.PyQt.QtWidgets import QProgressBar
+from qgis.PyQt.QtCore import QDate, QDateTime
 
 from qgis.core import (
     QgsProject,
