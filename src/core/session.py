@@ -355,7 +355,7 @@ class SammoSession:
         sessionOutput = SammoSession()
         sessionOutput.init(sessionOutputDir, load=False)
 
-        # copy flac files to output session
+        # copy wav files to output session
         progressBar.setFormat("Copying sound files")
         for session in [sessionA, sessionB]:
             copytree(
