@@ -16,6 +16,7 @@ from qgis.core import (
     QgsApplication,
     QgsFeatureSink,
     QgsVectorLayer,
+    QgsFeatureRequest,
     QgsVectorFileWriter,
     QgsCoordinateReferenceSystem,
     QgsCoordinateTransformContext,
@@ -87,7 +88,15 @@ class SammoDataBase:
     @staticmethod
     def lastFeature(layer: QgsVectorLayer) -> QgsFeature:
         feat = None
-        for feature in layer.getFeatures():
+        for feature in layer.getFeatures(
+            QgsFeatureRequest().addOrderBy("fid", False)
+        ):
+            if (
+                layer.name() == ENVIRONMENT_TABLE.capitalize()
+                and feature["status"] == 2
+            ):
+                continue
+
             if not feat:
                 feat = feature
             elif feature.id() > feat.id():
@@ -98,7 +107,6 @@ class SammoDataBase:
     def _createFieldsForEnvironmentTable(self) -> QgsFields:
         fields = QgsFields()
         fields.append(QgsField("dateTime", QVariant.DateTime))
-        fields.append(self._createFieldShortText("status"))
         fields.append(self._createFieldShortText("plateform"))
         fields.append(self._createFieldShortText("routeType"))
         fields.append(QgsField("speed", QVariant.Int))
@@ -121,6 +129,7 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("left"))
         fields.append(self._createFieldShortText("right"))
         fields.append(self._createFieldShortText("center"))
+        fields.append(QgsField("status", QVariant.Int))
 
         fields.append(self._createFieldShortText("soundFile", len=80))
         fields.append(self._createFieldShortText("soundStart"))

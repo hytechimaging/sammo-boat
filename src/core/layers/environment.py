@@ -43,17 +43,6 @@ class SammoEnvironmentLayer(SammoLayer):
         layer.renderer().symbol().changeSymbolLayer(0, symbol)
 
     def _init_widgets(self, layer: QgsVectorLayer) -> None:
-        # status
-        idx = layer.fields().indexFromName("status")
-        cfg = {}
-        cfg["map"] = [
-            {"B": "B"},
-            {"A": "A"},
-            {"E": "E"},
-        ]
-        setup = QgsEditorWidgetSetup("ValueMap", cfg)
-        layer.setEditorWidgetSetup(idx, setup)
-
         # platform
         idx = layer.fields().indexFromName("plateform")
         cfg = {}
