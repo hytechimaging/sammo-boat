@@ -61,6 +61,10 @@ class SammoSession:
         return (Path(self.db.directory) / "audio").as_posix()
 
     @property
+    def audioFolder(self) -> str:
+        return (Path(self.db.directory) / "audio").as_posix()
+
+    @property
     def environmentLayer(self) -> QgsVectorLayer:
         if self._environmentLayer:
             return self._environmentLayer.layer
