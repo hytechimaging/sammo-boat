@@ -27,7 +27,12 @@ class SammoAttributeTable:
         )
 
     @staticmethod
-    def attributeTable(iface, layer, filter_expr=""):
+    def attributeTable(
+        iface,
+        layer,
+        filterExpr="",
+        sortExpr='"dateTime"',
+    ):
         # hide some columns
         hiddens = [
             "copy",
@@ -44,12 +49,12 @@ class SammoAttributeTable:
             if column.name in hiddens:
                 column.hidden = True
         config.setColumns(columns)
-        config.setSortExpression('"dateTime"')
+        config.setSortExpression(sortExpr)
         config.setSortOrder(QtCore.Qt.DescendingOrder)
         layer.setAttributeTableConfig(config)
 
         # init attribute table
-        table = iface.showAttributeTable(layer, filter_expr)
+        table = iface.showAttributeTable(layer, filterExpr)
 
         # hide some items
         last = table.layout().rowCount() - 1

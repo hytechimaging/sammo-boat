@@ -86,7 +86,7 @@ class SammoFollowersLayer(SammoLayer):
             {"net_down": "net_down"},
             {"discard": "discard"},
             {"hauling": "hauling"},
-            {"NON_ACTIVE": "NON_ACTIVE"},
+            {"non_active": "non_active"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
