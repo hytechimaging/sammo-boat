@@ -53,11 +53,12 @@ class SammoFollowersTable(QDialog, FORM_CLASS):
 
         # the same datetime is used for all followers added in this session
         self.datetime = utils.now()
-        filter_expr = (
+        filterExpr = (
             f"epoch(\"dateTime\") = epoch(to_datetime('{self.datetime}'))"
         )
+        sortExpr = "fid"
         self.table = SammoAttributeTable.attributeTable(
-            iface, followerLayer, filter_expr
+            iface, followerLayer, filterExpr, sortExpr
         )
 
         self.verticalLayout.addWidget(self.table)

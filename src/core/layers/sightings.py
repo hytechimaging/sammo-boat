@@ -160,7 +160,7 @@ class SammoSightingsLayer(SammoLayer):
         cfg = {}
         cfg["map"] = [
             {"<NULL>": NULL},
-            {"attracting": "attracting"},
+            {"attraction": "attraction"},
             {"moving": "moving"},
             {"foraging": "foraging"},
             {"escape": "escape"},
@@ -205,16 +205,14 @@ class SammoSightingsLayer(SammoLayer):
         cfg = {}
         cfg["map"] = [
             {"<NULL>": NULL},
-            {"attaking": "attaking"},
+            {"attacked": "attacked"},
             {"with_prey": "with_prey"},
-            {"scavenger": "scavenger"},
             {"klepto": "klepto"},
             {"diving": "diving"},
             {"follow_boat": "follow_boat"},
             {"random_flight": "random_flight"},
             {"circular_flight": "circular_flight"},
-            {"direct_flight": "direct_flight"},
-            {"swimming": "swimming"},
+            {"straight_flight": "straight_flight"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
@@ -226,7 +224,7 @@ class SammoSightingsLayer(SammoLayer):
         cfg["map"] = [
             {"<NULL>": NULL},
             {"fishing": "fishing"},
-            {"go_ahead": "go_ahead"},
+            {"route": "route"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
