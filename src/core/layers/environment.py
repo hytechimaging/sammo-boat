@@ -298,6 +298,14 @@ class SammoEnvironmentLayer(SammoLayer):
             "soundEnd",
             "dateTime",
             "validated",
+            "survey",
+            "cycle",
+            "session",
+            "shipName",
+            "computer",
+            "transect",
+            "strate",
+            "length",
         ]:
             idx = layer.fields().indexFromName(field)
             form_config = layer.editFormConfig()

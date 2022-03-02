@@ -57,6 +57,10 @@ class SammoSession:
         self._observersLayer: SammoObserversLayer = None
         self._sightingsLayer: SammoSightingsLayer = None
         self._environmentLayer: SammoEnvironmentLayer = None
+        self._surveyLayer: SammoSurveyLayer = None
+        self._transectLayer: SammoTransectLayer = None
+        self._strateLayer: SammoStrateLayer = None
+        self._plateformLayer: SammoPlateformLayer = None
         self.lastGpsGeom: QgsGeometry = QgsGeometry()
         self.lastCaptureTime: datetime = datetime(1900, 1, 1, 0, 0, 0)
 
@@ -92,6 +96,30 @@ class SammoSession:
     def sightingsLayer(self) -> QgsVectorLayer:
         if self._sightingsLayer:
             return self._sightingsLayer.layer
+        return None
+
+    @property
+    def surveyLayer(self) -> QgsVectorLayer:
+        if self._surveyLayer:
+            return self._surveyLayer.layer
+        return None
+
+    @property
+    def strateLayer(self) -> QgsVectorLayer:
+        if self._strateLayer:
+            return self._strateLayer.layer
+        return None
+
+    @property
+    def plateformLayer(self) -> QgsVectorLayer:
+        if self._plateformLayer:
+            return self._plateformLayer.layer
+        return None
+
+    @property
+    def transectLayer(self) -> QgsVectorLayer:
+        if self._transectLayer:
+            return self._transectLayer.layer
         return None
 
     @property
@@ -275,6 +303,58 @@ class SammoSession:
             + self.sightingsLayer.selectedFeatureCount()
             + self.followersLayer.selectedFeatureCount()
         )
+        featuresIterator = (
+            self.environmentLayer.getSelectedFeatures()
+            if selectedMode
+            else self.environmentLayer.getFeatures()
+        )
+        survey = (
+            next(self.surveyLayer.getFeatures())
+            if self.surveyLayer.featureCount()
+            else None
+        )
+        transect = (
+            next(self.transectLayer.getFeatures())
+            if self.transectLayer.featureCount()
+            else None
+        )
+        plateform = (
+            next(self.plateformLayer.getFeatures())
+            if self.plateformLayer.featureCount()
+            else None
+        )
+        for feat in featuresIterator:
+            if feat["validated"]:
+                continue
+
+            if survey:
+                for attr in [
+                    "survey",
+                    "cycle",
+                    "session",
+                    "shipName",
+                    "computer",
+                ]:
+                    self.environmentLayer.changeAttributeValue(
+                        feat.id(),
+                        self.environmentLayer.fields().indexOf(attr),
+                        survey[attr],
+                    )
+            if transect:
+                for attr in ["transect", "strate", "length"]:
+                    self.environmentLayer.changeAttributeValue(
+                        feat.id(),
+                        self.environmentLayer.fields().indexOf(attr),
+                        transect[attr],
+                    )
+            if plateform:
+                for attr in ["plateform", "plateformHeight"]:
+                    self.environmentLayer.changeAttributeValue(
+                        feat.id(),
+                        self.environmentLayer.fields().indexOf(attr),
+                        plateform[attr],
+                    )
+
         for layer in [
             self.environmentLayer,
             self.sightingsLayer,

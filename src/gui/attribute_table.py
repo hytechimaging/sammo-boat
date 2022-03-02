@@ -53,6 +53,14 @@ class SammoAttributeTable:
             "soundStart",
             "soundEnd",
             "validated",
+            "survey",
+            "cycle",
+            "session",
+            "shipName",
+            "computer",
+            "transect",
+            "strate",
+            "length",
         ]
         config = layer.attributeTableConfig()
         columns = config.columns()

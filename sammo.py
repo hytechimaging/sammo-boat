@@ -32,6 +32,7 @@ from .src.gui.status import SammoStatusDock
 from .src.gui.export import SammoExportAction
 from .src.gui.session import SammoSessionAction
 from .src.gui.simu_gps import SammoSimuGpsAction
+from .src.gui.settings import SammoSettingsAction
 from .src.gui.sightings import SammoSightingsAction
 from .src.gui.environment import SammoEnvironmentAction
 from .src.gui.merge import SammoMergeAction, SammoMergeDialog
@@ -48,6 +49,7 @@ class Sammo:
         self.session = SammoSession()
 
         self.sessionAction = self.createSessionAction()
+        self.settingsAction = self.createSettingsAction()
         self.saveAction = self.createSaveAction()
         self.exportAction = self.createExportAction()
         self.mergeAction = self.createMergeAction()
@@ -139,6 +141,12 @@ class Sammo:
     def createSessionAction(self) -> SammoSessionAction:
         button = SammoSessionAction(self.mainWindow, self.toolbar)
         button.create.connect(self.onCreateSession)
+        return button
+
+    def createSettingsAction(self) -> SammoSettingsAction:
+        button = SammoSettingsAction(
+            self.mainWindow, self.toolbar, self.session
+        )
         return button
 
     def createMergeAction(self) -> SammoSessionAction:
@@ -372,6 +380,7 @@ class Sammo:
         if not sessionDir:
             self.session = SammoSession()
             self.statusDock.session = self.session
+            self.settingsAction.session = self.session
             return
 
         self.onCreateSession(sessionDir)
