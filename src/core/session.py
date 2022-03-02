@@ -303,11 +303,7 @@ class SammoSession:
             + self.sightingsLayer.selectedFeatureCount()
             + self.followersLayer.selectedFeatureCount()
         )
-        featuresIterator = (
-            self.environmentLayer.getSelectedFeatures()
-            if selectedMode
-            else self.environmentLayer.getFeatures()
-        )
+
         survey = (
             next(self.surveyLayer.getFeatures())
             if self.surveyLayer.featureCount()
@@ -323,6 +319,13 @@ class SammoSession:
             if self.plateformLayer.featureCount()
             else None
         )
+
+        featuresIterator = (
+            self.environmentLayer.getSelectedFeatures()
+            if selectedMode
+            else self.environmentLayer.getFeatures()
+        )
+        idx = self.environmentLayer.fields().indexOf("validated")
         for feat in featuresIterator:
             if feat["validated"]:
                 continue
@@ -354,24 +357,68 @@ class SammoSession:
                         self.environmentLayer.fields().indexOf(attr),
                         plateform[attr],
                     )
-
-        for layer in [
-            self.environmentLayer,
-            self.sightingsLayer,
-            self.followersLayer,
-        ]:
-            featuresIterator = (
-                layer.getSelectedFeatures()
-                if selectedMode
-                else layer.getFeatures()
+            self.environmentLayer.changeAttributeValue(
+                feat.id(),
+                idx,
+                True,
             )
-            idx = layer.fields().indexOf("validated")
-            for feat in featuresIterator:
-                layer.changeAttributeValue(
+
+        featuresIterator = (
+            self.sightingsLayer.getSelectedFeatures()
+            if selectedMode
+            else self.sightingsLayer.getFeatures()
+        )
+        idx = self.sightingsLayer.fields().indexOf("validated")
+        for feat in featuresIterator:
+            if feat["validated"]:
+                continue
+
+            strDateTime = feat["dateTime"].toPyDateTime().strftime(
+                "%Y-%m-%d %H:%M:%S"
+            )
+            request = QgsFeatureRequest().setFilterExpression(
+                f"dateTime < to_datetime('{strDateTime}') and status != 2"
+            )
+            request.addOrderBy("dateTime", False)
+            for envFeat in self.environmentLayer.getFeatures(request):
+                if feat["side"] == "L":
+                    feat["observer"] = envFeat["left"]
+                elif feat["side"] == "R":
+                    feat["observer"] = envFeat["right"]
+                elif feat["side"] == "C":
+                    feat["observer"] = envFeat["center"]
+                break
+
+            if survey:
+                self.sightingsLayer.changeAttributeValue(
                     feat.id(),
-                    idx,
-                    True,
+                    self.sightingsLayer.fields().indexOf("sightNum"),
+                    "-".join(
+                        [
+                            str(survey["survey"]),
+                            str(survey["session"]),
+                            str(survey["computer"]),
+                        ]
+                    ),
                 )
+            self.sightingsLayer.changeAttributeValue(
+                feat.id(),
+                idx,
+                True,
+            )
+
+        featuresIterator = (
+            self.followersLayer.getSelectedFeatures()
+            if selectedMode
+            else self.followersLayer.getFeatures()
+        )
+        idx = self.followersLayer.fields().indexOf("validated")
+        for feat in featuresIterator:
+            self.followersLayer.changeAttributeValue(
+                feat.id(),
+                idx,
+                True,
+            )
 
     def onStopSoundRecordingForEvent(
         self,
