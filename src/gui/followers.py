@@ -6,6 +6,7 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 import os
 
 from qgis.PyQt import uic
+from qgis.core import QgsSettings
 from qgis.PyQt.QtCore import pyqtSignal, QObject
 from qgis.PyQt.QtWidgets import QAction, QToolBar, QDialog, QTableView
 

@@ -6,6 +6,7 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 import os
 
 from qgis.PyQt import uic
+from qgis.core import QgsSettings
 from qgis.PyQt.QtCore import Qt, QSize
 from qgis.PyQt.QtWidgets import (
     QFrame,
@@ -64,7 +65,7 @@ class SammoTableDock(QDockWidget):
         self.iface.removeDockWidget(self)
 
         lastView = int(QgsSettings().value("qgis/attributeTableLastView"))
-        QgsSettings().setValue("qgis/attributeTableLastView", 1)
+        QgsSettings().setValue("qgis/attributeTableLastView", 0)
 
         self._widget = TableWidget(
             self.iface, environmentLayer, sightingsLayer
