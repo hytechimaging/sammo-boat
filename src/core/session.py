@@ -373,8 +373,8 @@ class SammoSession:
             if feat["validated"]:
                 continue
 
-            strDateTime = feat["dateTime"].toPyDateTime().strftime(
-                "%Y-%m-%d %H:%M:%S"
+            strDateTime = (
+                feat["dateTime"].toPyDateTime().strftime("%Y-%m-%d %H:%M:%S")
             )
             request = QgsFeatureRequest().setFilterExpression(
                 f"dateTime < to_datetime('{strDateTime}') and status != 2"
