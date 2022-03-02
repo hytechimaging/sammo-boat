@@ -33,7 +33,11 @@ from .database import (
 from .layers import (
     SammoGpsLayer,
     SammoWorldLayer,
+    SammoSurveyLayer,
+    SammoStrateLayer,
     SammoSpeciesLayer,
+    SammoTransectLayer,
+    SammoPlateformLayer,
     SammoFollowersLayer,
     SammoObserversLayer,
     SammoSightingsLayer,
@@ -105,10 +109,17 @@ class SammoSession:
         new = self.db.init(directory)
 
         self._worldLayer = SammoWorldLayer(self.db)
-        self._gpsLayer = SammoGpsLayer(self.db)
-        self._speciesLayer = SammoSpeciesLayer(self.db)
-        self._sightingsLayer = SammoSightingsLayer(self.db)
+
+        # Administrator table
+        self._surveyLayer = SammoSurveyLayer(self.db)
+        self._transectLayer = SammoTransectLayer(self.db)
+        self._strateLayer = SammoStrateLayer(self.db)
+        self._plateformLayer = SammoPlateformLayer(self.db)
         self._observersLayer = SammoObserversLayer(self.db)
+        self._speciesLayer = SammoSpeciesLayer(self.db)
+
+        self._gpsLayer = SammoGpsLayer(self.db)
+        self._sightingsLayer = SammoSightingsLayer(self.db)
         self._followersLayer = SammoFollowersLayer(
             self.db, self._observersLayer, self._speciesLayer
         )
@@ -122,6 +133,10 @@ class SammoSession:
 
             # add layers
             self._worldLayer.addToProject(project)
+            self._surveyLayer.addToProject(project)
+            self._transectLayer.addToProject(project)
+            self._strateLayer.addToProject(project)
+            self._plateformLayer.addToProject(project)
             self._gpsLayer.addToProject(project)
             self._speciesLayer.addToProject(project)
             self._sightingsLayer.addToProject(project)

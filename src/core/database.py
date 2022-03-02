@@ -31,6 +31,10 @@ FOLLOWERS_TABLE = "followers"
 SIGHTINGS_TABLE = "sightings"
 ENVIRONMENT_TABLE = "environment"
 WORLD_TABLE = "world"
+SURVEY_TABLE = "survey"
+TRANSECT_TABLE = "transect"
+STRATE_TABLE = "strate"
+PLATEFORM_TABLE = "plateform"
 
 
 class SammoDataBase:
@@ -76,6 +80,12 @@ class SammoDataBase:
         )
 
         self._createTable(self._fieldsObserver(), OBSERVERS_TABLE)
+
+        # administrator table
+        self._createTable(self._fieldsSurvey(), SURVEY_TABLE)
+        self._createTable(self._fieldsTransect(), TRANSECT_TABLE)
+        self._createTable(self._fieldsStrate(), STRATE_TABLE)
+        self._createTable(self._fieldsPlateform(), PLATEFORM_TABLE)
 
         self._copyWorldTable()
 
@@ -206,6 +216,41 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("lastName"))
         fields.append(self._createFieldShortText("organization"))
         fields.append(self._createFieldShortText("contact"))
+
+        return fields
+
+    def _fieldsSurvey(self) -> QgsFields:
+        fields = QgsFields()
+        fields.append(self._createFieldShortText("region"))
+        fields.append(self._createFieldShortText("survey"))
+        fields.append(self._createFieldShortText("computer"))
+        fields.append(self._createFieldShortText("shipName"))
+        fields.append(self._createFieldShortText("cycle"))
+        fields.append(self._createFieldShortText("session"))
+
+        return fields
+
+    def _fieldsTransect(self) -> QgsFields:
+        fields = QgsFields()
+        fields.append(self._createFieldShortText("transect"))
+        fields.append(self._createFieldShortText("strate"))
+        fields.append(QgsField("length", QVariant.Int))
+
+        return fields
+
+    def _fieldsStrate(self) -> QgsFields:
+        fields = QgsFields()
+        fields.append(self._createFieldShortText("state"))
+        fields.append(self._createFieldShortText("subRegion"))
+        fields.append(self._createFieldShortText("region"))
+
+        return fields
+
+    def _fieldsPlateform(self) -> QgsFields:
+        fields = QgsFields()
+        fields.append(self._createFieldShortText("ship"))
+        fields.append(self._createFieldShortText("plateform"))
+        fields.append(self._createFieldShortText("plateformHeight"))
 
         return fields
 
