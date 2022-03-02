@@ -306,7 +306,6 @@ class SammoSession:
             + self.sightingsLayer.selectedFeatureCount()
             + self.followersLayer.selectedFeatureCount()
         )
-
         survey = (
             next(self.surveyLayer.getFeatures())
             if self.surveyLayer.featureCount()
