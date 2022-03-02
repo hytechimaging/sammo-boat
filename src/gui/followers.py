@@ -51,6 +51,9 @@ class SammoFollowersTable(QDialog, FORM_CLASS):
         self.setupUi(self)
         self.addButton.setIcon(utils.icon("plus.png"))
 
+        lastView = int(QgsSettings().value("qgis/attributeTableLastView"))
+        QgsSettings().setValue("qgis/attributeTableLastView", 1)
+
         # the same datetime is used for all followers added in this session
         self.datetime = utils.now()
         filterExpr = (
@@ -60,6 +63,7 @@ class SammoFollowersTable(QDialog, FORM_CLASS):
         self.table = SammoAttributeTable.attributeTable(
             iface, followerLayer, filterExpr, sortExpr
         )
+        QgsSettings().setValue("qgis/attributeTableLastView", lastView)
 
         self.verticalLayout.addWidget(self.table)
 
