@@ -29,7 +29,15 @@ class SammoAttributeTable:
     @staticmethod
     def attributeTable(iface, layer, filter_expr=""):
         # hide some columns
-        hiddens = ["copy", "fid", "soundFile", "soundStart", "soundEnd"]
+        hiddens = [
+            "copy",
+            "fid",
+            "soundFile",
+            "soundStart",
+            "soundEnd",
+            "status",
+            "validated",
+        ]
         config = layer.attributeTableConfig()
         columns = config.columns()
         for column in columns:

@@ -113,7 +113,8 @@ class Sammo:
 
     def createSaveAction(self) -> SammoSaveAction:
         button = SammoSaveAction(self.mainWindow, self.toolbar)
-        button.triggered.connect(self.saveAll)
+        button.saveAction.triggered.connect(self.saveAll)
+        button.validateAction.triggered.connect(self.validate)
         return button
 
     def createExportAction(self) -> SammoExportAction:
@@ -201,6 +202,12 @@ class Sammo:
 
     def saveAll(self) -> None:
         self.session.saveAll()
+
+    def validate(self) -> None:
+        self.session.validate()
+        self.session.saveAll()
+        self.tableDock.refresh(self.session.environmentLayer)
+        self.tableDock.refresh(self.session.sightingsLayer)
 
     def onGpsFrame(self, longitude, latitude, h, m, s):
         self.session.lastGpsGeom = QgsGeometry.fromPointXY(

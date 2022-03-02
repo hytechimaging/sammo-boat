@@ -134,6 +134,7 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("soundFile", len=80))
         fields.append(self._createFieldShortText("soundStart"))
         fields.append(self._createFieldShortText("soundEnd"))
+        fields.append(QgsField("validated", QVariant.Bool))
 
         return fields
 
@@ -168,6 +169,7 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("soundFile", len=80))
         fields.append(self._createFieldShortText("soundStart"))
         fields.append(self._createFieldShortText("soundEnd"))
+        fields.append(QgsField("validated", QVariant.Bool))
 
         return fields
 
@@ -184,6 +186,7 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("soundFile", len=80))
         fields.append(self._createFieldShortText("soundStart"))
         fields.append(self._createFieldShortText("soundEnd"))
+        fields.append(QgsField("validated", QVariant.Bool))
 
         return fields
 
