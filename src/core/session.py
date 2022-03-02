@@ -253,6 +253,30 @@ class SammoSession:
             layer.commitChanges()
             layer.startEditing()
 
+    def validate(self):
+        selectedMode = bool(
+            self.environmentLayer.selectedFeatureCount()
+            + self.sightingsLayer.selectedFeatureCount()
+            + self.followersLayer.selectedFeatureCount()
+        )
+        for layer in [
+            self.environmentLayer,
+            self.sightingsLayer,
+            self.followersLayer,
+        ]:
+            featuresIterator = (
+                layer.getSelectedFeatures()
+                if selectedMode
+                else layer.getFeatures()
+            )
+            idx = layer.fields().indexOf("validated")
+            for feat in featuresIterator:
+                layer.changeAttributeValue(
+                    feat.id(),
+                    idx,
+                    True,
+                )
+
     def onStopSoundRecordingForEvent(
         self,
         recordType: RecordType,
@@ -309,7 +333,13 @@ class SammoSession:
                 feat["side"] = lastFeat["side"]
             if layer == self.environmentLayer or duplicate:
                 for name in lastFeat.fields().names():
-                    if name in ["fid", "dateTime", "speed", "courseAverage"]:
+                    if name in [
+                        "fid",
+                        "dateTime",
+                        "speed",
+                        "courseAverage",
+                        "validated",
+                    ]:
                         continue
                     feat[name] = lastFeat[name]
 

@@ -134,13 +134,21 @@ class SammoFollowersLayer(SammoLayer):
         layer.setDefaultValueDefinition(idx, QgsDefaultValue(NULL))
 
         # soundFile, soundStart, soundEnd, dateTime
-        for field in ["soundFile", "soundStart", "soundEnd", "dateTime"]:
+        for field in [
+            "soundFile",
+            "soundStart",
+            "soundEnd",
+            "dateTime",
+            "validated",
+        ]:
             idx = layer.fields().indexFromName(field)
             form_config = layer.editFormConfig()
             form_config.setReadOnly(idx, True)
             if field != "dateTime":
                 setup = QgsEditorWidgetSetup("Hidden", {})
                 layer.setEditorWidgetSetup(idx, setup)
+            if field == "validated":
+                layer.setDefaultValueDefinition(idx, QgsDefaultValue("false"))
             layer.setEditFormConfig(form_config)
 
         # comment
@@ -170,3 +178,8 @@ class SammoFollowersLayer(SammoLayer):
         style = QgsConditionalStyle("@value is NULL")
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("podSize", [style])
+
+        # validated
+        style = QgsConditionalStyle("validated is True")
+        style.setBackgroundColor(QColor(178, 223, 138))
+        layer.conditionalStyles().setRowStyles([style])

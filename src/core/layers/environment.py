@@ -292,13 +292,21 @@ class SammoEnvironmentLayer(SammoLayer):
         layer.setEditorWidgetSetup(idx, setup)
 
         # soundFile, soundStart, soundEnd, dateTime
-        for field in ["soundFile", "soundStart", "soundEnd", "dateTime"]:
+        for field in [
+            "soundFile",
+            "soundStart",
+            "soundEnd",
+            "dateTime",
+            "validated",
+        ]:
             idx = layer.fields().indexFromName(field)
             form_config = layer.editFormConfig()
             form_config.setReadOnly(idx, True)
             if field != "dateTime":
                 setup = QgsEditorWidgetSetup("Hidden", {})
                 layer.setEditorWidgetSetup(idx, setup)
+            if field == "validated":
+                layer.setDefaultValueDefinition(idx, QgsDefaultValue("false"))
             layer.setEditFormConfig(form_config)
 
         # comment
@@ -347,3 +355,8 @@ class SammoEnvironmentLayer(SammoLayer):
         style = QgsConditionalStyle(expr)
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("glareTo", [style])
+
+        # validated
+        style = QgsConditionalStyle("validated is True")
+        style.setBackgroundColor(QColor(178, 223, 138))
+        layer.conditionalStyles().setRowStyles([style])

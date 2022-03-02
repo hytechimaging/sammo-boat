@@ -20,6 +20,7 @@ from qgis.core import (
     QgsVectorLayer,
     QgsVectorFileWriter,
     QgsVectorLayerJoinInfo,
+    QgsCoordinateTransformContext,
 )
 
 from ..core import utils
@@ -98,13 +99,20 @@ class SammoExportAction(QDialog):
                     self.environmentLayerJoinInfo(joinLayer, "center")
                 )
 
-            QgsVectorFileWriter.writeAsVectorFormat(
+            options = QgsVectorFileWriter.SaveVectorOptions()
+            options.driverName = "CSV"
+            options.attributes = [
+                layer.fields().indexOf(field.name())
+                for field in layer.fields()
+                if field.name() != "validated"
+            ]
+            QgsVectorFileWriter.writeAsVectorFormatV3(
                 layer,
                 (
                     Path(self.saveFolderEdit.text()) / f"{layer.name()}.csv"
                 ).as_posix(),
-                "utf-8",
-                driverName="CSV",
+                QgsCoordinateTransformContext(),
+                options,
             )
             self.progressBar.setValue(int(100 / nb * (i + 1)))
         self.close()
