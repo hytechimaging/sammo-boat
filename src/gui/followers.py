@@ -52,7 +52,7 @@ class SammoFollowersTable(QDialog, FORM_CLASS):
         self.setupUi(self)
         self.addButton.setIcon(utils.icon("plus.png"))
 
-        lastView = int(QgsSettings().value("qgis/attributeTableLastView"))
+        lastView = int(QgsSettings().value("qgis/attributeTableLastView", 0))
         QgsSettings().setValue("qgis/attributeTableLastView", 1)
 
         # the same datetime is used for all followers added in this session

@@ -64,7 +64,7 @@ class SammoTableDock(QDockWidget):
     def init(self, environmentLayer, sightingsLayer):
         self.iface.removeDockWidget(self)
 
-        lastView = int(QgsSettings().value("qgis/attributeTableLastView"))
+        lastView = int(QgsSettings().value("qgis/attributeTableLastView", 0))
         QgsSettings().setValue("qgis/attributeTableLastView", 0)
 
         self._widget = TableWidget(
