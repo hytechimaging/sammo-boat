@@ -134,7 +134,7 @@ class SammoSession:
             self.surveyLayer,
             self.strateLayer,
             self.plateformLayer,
-            self.transectLayer
+            self.transectLayer,
         ]
 
     def init(self, directory: str, load: bool = True) -> None:
