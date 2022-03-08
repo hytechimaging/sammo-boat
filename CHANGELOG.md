@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v1.1.3]
 
+### Add
+
+- Add a button to stop sound acquisition
+
 ### Modified
 
 - Ressources as SVG and world map are saved into the db.
@@ -13,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Only one gps point per minut
 - Geometry is saved into Environment layer
 - Fix geometry in csv export
+- Reduce sound quality to reduce file size
+- Sound file are saved in a subfolder
 
 ## [v1.1.2] - 2022-01-07
 
