@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Add
 
 - Add a button to stop sound acquisition
+- Add validation process
 
 ### Modified
 
@@ -20,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reduce sound quality to reduce file size
 - Sound file are saved in a subfolder
 - Status routeType is handled automatically
+- Fix focus on following table
+- Change some label in sightings table
 
 ## [v1.1.2] - 2022-01-07
 
