@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix geometry in csv export
 - Reduce sound quality to reduce file size
 - Sound file are saved in a subfolder
+- Status routeType is handled automatically
 
 ## [v1.1.2] - 2022-01-07
 
