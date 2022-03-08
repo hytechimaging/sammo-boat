@@ -44,9 +44,15 @@ class WorkerGpsExtractor(WorkerForOtherThread):
                 port = "{}{}".format(self._serialPortPrefix(), str(i))
                 try:
                     self._gps = serial.Serial(port, baudrate=4800, timeout=0.5)
+                    time.sleep(1.0)
+                    self._gps.readline() # flush incomplete line 
+                    check = self._gps.readline()
+                    assert bool(
+                        self.isGpggaLine(check) or self.isGprmcLine(check)
+                    )
                     print("Port GPS ouvert sur " + port)
                     break
-                except (SerialException, OSError):
+                except (SerialException, OSError, AssertionError):
                     continue
 
         if not self._gps:
