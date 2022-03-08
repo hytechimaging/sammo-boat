@@ -131,6 +131,10 @@ class SammoSession:
             self.observersLayer,
             self.speciesLayer,
             self.sightingsLayer,
+            self.surveyLayer,
+            self.strateLayer,
+            self.plateformLayer,
+            self.transectLayer
         ]
 
     def init(self, directory: str, load: bool = True) -> None:
