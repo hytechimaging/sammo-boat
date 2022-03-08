@@ -217,7 +217,16 @@ class Sammo:
         self.tableDock.refresh(self.session.environmentLayer)
         self.tableDock.refresh(self.session.sightingsLayer)
 
-    def onGpsFrame(self, longitude, latitude, h, m, s):
+    def onGpsFrame(
+        self,
+        longitude: float,
+        latitude: float,
+        h: int,
+        m: int,
+        s: int,
+        speed: float = -9999.0,
+        course: float = -9999.0,
+    ):
         self.session.lastGpsGeom = QgsGeometry.fromPointXY(
             QgsPointXY(longitude, latitude)
         )
@@ -227,7 +236,7 @@ class Sammo:
             not self.session.lastCaptureTime
             or (gpsNow - self.session.lastCaptureTime).total_seconds() > 59
         ):
-            self.session.addGps(longitude, latitude, h, m, s)
+            self.session.addGps(longitude, latitude, h, m, s, speed, course)
             self.session.lastCaptureTime = gpsNow
         self.iface.mapCanvas().setCenter(QgsPointXY(longitude, latitude))
         self.statusDock.updateGpsInfo(longitude, latitude)

@@ -454,9 +454,16 @@ class SammoSession:
         self.saveAll()
 
     def addGps(
-        self, longitude: float, latitude: float, hour: int, minu: int, sec: int
+        self,
+        longitude: float,
+        latitude: float,
+        hour: int,
+        minu: int,
+        sec: int,
+        speed: Optional[float] = -9999.0,
+        course: Optional[float] = -9999.0,
     ):
-        self._gpsLayer.add(longitude, latitude, hour, minu, sec)
+        self._gpsLayer.add(longitude, latitude, hour, minu, sec, speed, course)
 
     def _addFeature(
         self,
