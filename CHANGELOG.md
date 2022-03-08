@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add a button to stop sound acquisition
 - Add validation process
+- Add administrator tables
 
 ### Modified
 
