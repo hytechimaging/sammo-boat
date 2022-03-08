@@ -36,7 +36,14 @@ class SammoGpsLayer(SammoLayer):
         layer.setAutoRefreshEnabled(True)
 
     def add(
-        self, longitude: float, latitude: float, hour: int, minu: int, sec: int
+        self,
+        longitude: float,
+        latitude: float,
+        hour: int,
+        minu: int,
+        sec: int,
+        speed: float = -9999.0,
+        course: float = -9999.0,
     ):
         layer = self.layer
         layer.startEditing()
@@ -53,6 +60,10 @@ class SammoGpsLayer(SammoLayer):
         feature.setAttribute(
             "gpsDateTime", gpsNow.strftime("%Y-%m-%d %H:%M:%S")
         )
+        if speed != -9999.0:
+            feature.setAttribute("speed", speed)
+        if course != -9999.0:
+            feature.setAttribute("course", course)
 
         layer.addFeature(feature)
         layer.commitChanges()
