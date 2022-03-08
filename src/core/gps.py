@@ -45,7 +45,7 @@ class WorkerGpsExtractor(WorkerForOtherThread):
                 try:
                     self._gps = serial.Serial(port, baudrate=4800, timeout=0.5)
                     time.sleep(1.0)
-                    self._gps.readline() # flush incomplete line 
+                    self._gps.readline()  # flush incomplete line
                     check = self._gps.readline()
                     assert bool(
                         self.isGpggaLine(check) or self.isGprmcLine(check)
