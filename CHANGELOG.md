@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Modified
 
 - Ressources as SVG and world map are saved into the db.
+- Merge process speed up
+- Only one gps point per minut
+- Geometry is saved into Environment layer
+- Fix geometry in csv export
 
 ## [v1.1.2] - 2022-01-07
 
