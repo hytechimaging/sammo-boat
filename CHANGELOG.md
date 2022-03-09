@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add validation process
 - Add administrator tables
 - Add support for GPS with speed and course
+- Add menu buttons to create shorcuts on Window Desktop for both admin and operator profile
 
 ### Modified
 
