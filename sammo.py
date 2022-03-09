@@ -21,7 +21,7 @@ from qgis.core import (
 
 from .src.core.gps import SammoGpsReader
 from .src.core.session import SammoSession
-from .src.utils.utils import shortcutCreation
+from .src.core.utils import shortcutCreation
 from .src.core.thread_simu_gps import ThreadSimuGps
 from .src.core.sound_recording_controller import (
     RecordType,
