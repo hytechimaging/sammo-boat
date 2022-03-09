@@ -90,7 +90,6 @@ class SammoFollowersLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue(NULL))
 
         # species
         idx = layer.fields().indexFromName("species")
@@ -115,7 +114,6 @@ class SammoFollowersLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue(NULL))
 
         # unlucky
         idx = layer.fields().indexFromName("unlucky")
@@ -131,7 +129,6 @@ class SammoFollowersLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue(NULL))
 
         # soundFile, soundStart, soundEnd, dateTime
         for field in [
