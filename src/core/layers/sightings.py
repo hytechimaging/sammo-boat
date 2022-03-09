@@ -46,6 +46,7 @@ class SammoSightingsLayer(SammoLayer):
         idx = layer.fields().indexFromName("side")
         cfg = {}
         cfg["map"] = [
+            {"<NULL>": NULL},
             {"L": "L"},
             {"R": "R"},
             {"C": "C"},
@@ -102,6 +103,7 @@ class SammoSightingsLayer(SammoLayer):
         idx = layer.fields().indexFromName("age")
         cfg = {}
         cfg["map"] = [
+            {"NULL": NULL},
             {"A": "A"},
             {"I": "I"},
             {"J": "J"},
@@ -111,7 +113,6 @@ class SammoSightingsLayer(SammoLayer):
             {"I3": "I3"},
             {"I4": "I4"},
             {"NA": "NA"},
-            {"NULL": None},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
@@ -168,7 +169,6 @@ class SammoSightingsLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue(NULL))
 
         # behavGroup
         idx = layer.fields().indexFromName("behavGroup")
@@ -182,7 +182,6 @@ class SammoSightingsLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue(NULL))
 
         # behavMam
         idx = layer.fields().indexFromName("behavMam")
@@ -198,7 +197,6 @@ class SammoSightingsLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue(NULL))
 
         # behavBird
         idx = layer.fields().indexFromName("behavBird")
@@ -216,7 +214,6 @@ class SammoSightingsLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue(NULL))
 
         # behavShip
         idx = layer.fields().indexFromName("behavShip")
@@ -228,7 +225,6 @@ class SammoSightingsLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue(NULL))
 
         # soundFile, soundStart, soundEnd, dateTime
         for field in [
