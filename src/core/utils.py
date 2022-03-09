@@ -6,6 +6,7 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 import os
 import platform
 from pathlib import Path
+from shutil import copytree
 from datetime import datetime
 
 from qgis.core import QgsApplication
@@ -13,16 +14,18 @@ from qgis.PyQt.QtCore import QSize, QFile
 from qgis.PyQt.QtGui import QIcon, QPixmap
 
 
+ROOT_DIR = Path(__file__).parent.parent.parent
+
 def path(name: str) -> str:
-    return str(Path(__file__).parent.parent.parent / "images" / name)
+    return str(ROOT_DIR / "images" / name)
 
 
 def script(name: str) -> str:
-    return str(Path(__file__).parent.parent.parent / "scripts" / name)
+    return str(ROOT_DIR / "scripts" / name)
 
 
 def profile(name: str) -> str:
-    return str(Path(__file__).parent.parent.parent / "profile" / name)
+    return str(ROOT_DIR / "profile" / name)
 
 
 def icon(name: str) -> QIcon:
@@ -59,9 +62,9 @@ def shortcutCreation():
             shortcut.save()
 
         # office splash screen
-        admin_template = script("template_admin_office.bat")
+        admin_template = script("template_admin.bat")
         admin_script = script("sammo_boat_admin.bat")
-        operator_template = script("template_operator_office.bat")
+        operator_template = script("template_operator.bat")
         operator_script = script("sammo_boat_operator.bat")
 
         lines = []
@@ -73,7 +76,7 @@ def shortcutCreation():
                     line = line.replace(
                         exe_tag, QgsApplication.applicationFilePath()
                     )
-                elif profile_tag in line:
+                if profile_tag in line:
                     line = line.replace(profile_tag, profile("admin"))
                 lines.append(line)
 
@@ -88,7 +91,7 @@ def shortcutCreation():
                     line = line.replace(
                         exe_tag, QgsApplication.applicationFilePath()
                     )
-                elif profile_tag in line:
+                if profile_tag in line:
                     line = line.replace(profile_tag, profile("operator"))
                 lines.append(line)
 
@@ -96,9 +99,16 @@ def shortcutCreation():
             for line in lines:
                 f.write(line)
 
+        adminPluginPath = (Path(QgsApplication.qgisSettingsDirPath()).parent / "admin" / "python" / "plugins" / "sammo-boat")
+        adminPluginPath.mkdir(parents=True, exist_ok=True)
+        operatorPluginPath = (Path(QgsApplication.qgisSettingsDirPath()).parent / "operator" / "python" / "plugins" / "sammo-boat")
+        operatorPluginPath.mkdir(parents=True, exist_ok=True)
+        copytree(ROOT_DIR.as_posix(), adminPluginPath, dirs_exist_ok=True)
+        copytree(ROOT_DIR.as_posix(), operatorPluginPath, dirs_exist_ok=True)
+
         # admin
         # operator
-        path = (
+        link_path = (
             Path(os.environ["HOMEDRIVE"])
             / os.environ["HOMEPATH"]
             / "Desktop"
@@ -106,10 +116,10 @@ def shortcutCreation():
         ).as_posix()
         ico = path("environment.ico")
         exe = admin_script
-        createShortcut(path, exe, ico)
+        createShortcut(link_path, exe, ico)
 
         # operator
-        path = (
+        link_path = (
             Path(os.environ["HOMEDRIVE"])
             / os.environ["HOMEPATH"]
             / "Desktop"
@@ -117,4 +127,4 @@ def shortcutCreation():
         ).as_posix()
         ico = path("environment.ico")
         exe = operator_script
-        createShortcut(path, exe, ico)
+        createShortcut(link_path, exe, ico)
