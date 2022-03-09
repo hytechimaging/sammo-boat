@@ -158,12 +158,9 @@ class Sammo:
 
     def initGui(self) -> None:
         if platform.system() == 'Windows':
-            self.menu = QMenu(u"&Sammo-Boat", self)
-            self.iface.mainWindow().menuBar().addMenu(self.menu)
-
-            self.menu.addAction("Create shorcuts").triggered.connect(
-                shortcutCreation
-            )
+            self.shortcutAction = QAction("Create shorcuts")
+            self.shortcutAction.triggered.connect(shortcutCreation)
+            self.iface.addPluginToMenu("Sammo-Boat", self.shortcutAction)
 
     def initShortcuts(self) -> None:
         self.environmentShortcut = QShortcut(
