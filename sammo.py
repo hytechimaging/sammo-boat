@@ -157,7 +157,7 @@ class Sammo:
         return button
 
     def initGui(self) -> None:
-        if platform.system() == 'Windows':
+        if platform.system() == "Windows":
             self.shortcutAction = QAction("Create shorcuts")
             self.shortcutAction.triggered.connect(shortcutCreation)
             self.iface.addPluginToMenu("Sammo-Boat", self.shortcutAction)
