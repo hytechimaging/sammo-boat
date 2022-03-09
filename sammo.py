@@ -159,19 +159,24 @@ class Sammo:
 
     def initShortcuts(self) -> None:
         self.environmentShortcut = QShortcut(
-            QKeySequence("Shift+E"), self.mainWindow
+            QKeySequence("E"), self.mainWindow
         )
         self.environmentShortcut.activated.connect(self.onEnvironmentAction)
 
         self.followersShortcut = QShortcut(
-            QKeySequence("Shift+F"), self.mainWindow
+            QKeySequence("F"), self.mainWindow
         )
         self.followersShortcut.activated.connect(self.onFollowersAction)
 
         self.sightingsShortcut = QShortcut(
-            QKeySequence("Shift+O"), self.mainWindow
+            QKeySequence("O"), self.mainWindow
         )
         self.sightingsShortcut.activated.connect(self.onSightingsAction)
+
+        self.endSoundShortcut = QShortcut(QKeySequence("A"), self.mainWindow)
+        self.endSoundShortcut.activated.connect(
+            self.soundRecordingController.interruptRecording
+        )
 
         # Avoid shorcut overload and recreate undo/redo shortcut
         self.iface.mainWindow().findChild(QAction, "mActionUndo").setShortcut(
