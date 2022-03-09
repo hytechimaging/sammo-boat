@@ -8,7 +8,7 @@ import platform
 from datetime import datetime
 
 from qgis.PyQt.QtGui import QKeySequence
-from qgis.PyQt.QtWidgets import QMenu, QToolBar, QShortcut, QTableView, QAction
+from qgis.PyQt.QtWidgets import QToolBar, QShortcut, QTableView, QAction
 
 from qgis.core import (
     QgsProject,

@@ -16,6 +16,7 @@ from qgis.PyQt.QtGui import QIcon, QPixmap
 
 ROOT_DIR = Path(__file__).parent.parent.parent
 
+
 def path(name: str) -> str:
     return str(ROOT_DIR / "images" / name)
 
@@ -99,9 +100,21 @@ def shortcutCreation():
             for line in lines:
                 f.write(line)
 
-        adminPluginPath = (Path(QgsApplication.qgisSettingsDirPath()).parent / "admin" / "python" / "plugins" / "sammo-boat")
+        adminPluginPath = (
+            Path(QgsApplication.qgisSettingsDirPath()).parent
+            / "admin"
+            / "python"
+            / "plugins"
+            / "sammo-boat"
+        )
         adminPluginPath.mkdir(parents=True, exist_ok=True)
-        operatorPluginPath = (Path(QgsApplication.qgisSettingsDirPath()).parent / "operator" / "python" / "plugins" / "sammo-boat")
+        operatorPluginPath = (
+            Path(QgsApplication.qgisSettingsDirPath()).parent
+            / "operator"
+            / "python"
+            / "plugins"
+            / "sammo-boat"
+        )
         operatorPluginPath.mkdir(parents=True, exist_ok=True)
         copytree(ROOT_DIR.as_posix(), adminPluginPath, dirs_exist_ok=True)
         copytree(ROOT_DIR.as_posix(), operatorPluginPath, dirs_exist_ok=True)
