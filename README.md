@@ -47,10 +47,11 @@ or add the following arguments in a shortcut configuration :
 
 Some keyboard shortcuts are available in SAMMO-Boat :
 
-- `Shift+S` : save all tables manually
-- `Shift+E` : add an entity in environment table 
-- `Shift+O` : add an entity in sighting table
-- `Shift+F` : open follower dialog to add entities in follower table
+- `S` : save all tables manually
+- `E` : add an entity in environment table 
+- `O` : add an entity in sighting table
+- `F` : open follower dialog to add entities in follower table
+- `A` : stop audio recording
 - `Ctrl+Z` : undo last operation
 - `Ctrl+Shift+Z` : redo last canceled operation
 
