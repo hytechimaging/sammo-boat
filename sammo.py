@@ -4,10 +4,11 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os.path
+import platform
 from datetime import datetime
 
 from qgis.PyQt.QtGui import QKeySequence
-from qgis.PyQt.QtWidgets import QToolBar, QShortcut, QTableView, QAction
+from qgis.PyQt.QtWidgets import QMenu, QToolBar, QShortcut, QTableView, QAction
 
 from qgis.core import (
     QgsProject,
@@ -20,6 +21,7 @@ from qgis.core import (
 
 from .src.core.gps import SammoGpsReader
 from .src.core.session import SammoSession
+from .src.utils.utils import shortcutCreation
 from .src.core.thread_simu_gps import ThreadSimuGps
 from .src.core.sound_recording_controller import (
     RecordType,
@@ -155,7 +157,13 @@ class Sammo:
         return button
 
     def initGui(self) -> None:
-        pass
+        if platform.system() == 'Windows':
+            self.menu = QMenu(u"&Sammo-Boat", self)
+            self.iface.mainWindow().menuBar().addMenu(self.menu)
+
+            self.menu.addAction("Create shorcuts").triggered.connect(
+                shortcutCreation
+            )
 
     def initShortcuts(self) -> None:
         self.environmentShortcut = QShortcut(
