@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Status routeType is handled automatically
 - Fix focus on following table
 - Change some label in sightings table
+- Prevent table to be closed
+- Shortcut changes
 
 ## [v1.1.2] - 2022-01-07
 
