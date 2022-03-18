@@ -14,6 +14,7 @@ from qgis.PyQt.QtWidgets import QProgressBar
 
 from qgis.core import (
     QgsProject,
+    QgsFeature,
     QgsGeometry,
     QgsMapLayer,
     QgsSettings,
@@ -169,13 +170,15 @@ class SammoSession:
             or idx != self.environmentLayer.fields().indexOf("routeType")
         ):
             return
-
+        self.environmentLayer.attributeValueChanged.disconnect(
+            self.updateRouteTypeStatus
+        )
         feat = self.environmentLayer.getFeature(fid)
         request = QgsFeatureRequest().addOrderBy("dateTime", False)
         for prevFeat in self.environmentLayer.getFeatures(request):
             if prevFeat["fid"] == feat["fid"]:
                 continue
-            elif prevFeat["status"] == 2:
+            elif prevFeat["status"] == 2 or feat["status"] == 2:
                 return
             elif (
                 prevFeat["status"] in [0, 1]
@@ -194,14 +197,18 @@ class SammoSession:
                     self.environmentLayer.fields().indexOf("routeType"),
                     prevFeat["routeType"],
                 )
-                self._addFeature(
-                    self.environmentLayer,
-                    feat["dateTime"],
-                    geom=feat.geometry(),
-                    status=0,
-                    routeType=routeType,
-                )
+                ft = QgsFeature(self.environmentLayer.fields())
+                ft.setGeometry(feat.geometry())
+                ft.setAttributes(feat.attributes())
+                ft['fid'] = ft['fid']+1
+                ft['routeType'] = routeType
+                ft['status'] = 0
+                self.environmentLayer.addFeature(ft)
             break
+        self.environmentLayer.attributeValueChanged.connect(
+            self.updateRouteTypeStatus
+        )
+
 
     def addSightingsFeature(self) -> QgsVectorLayer:
         layer = self.sightingsLayer
