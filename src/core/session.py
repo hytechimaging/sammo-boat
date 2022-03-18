@@ -10,11 +10,11 @@ from typing import List, Optional
 
 from qgis.PyQt.QtCore import QDate
 from qgis.PyQt.QtGui import QColor
+from qgis.PyQt.QtCore import QDateTime
 from qgis.PyQt.QtWidgets import QProgressBar
 
 from qgis.core import (
     QgsProject,
-    QgsFeature,
     QgsGeometry,
     QgsMapLayer,
     QgsSettings,
@@ -170,9 +170,7 @@ class SammoSession:
             or idx != self.environmentLayer.fields().indexOf("routeType")
         ):
             return
-        self.environmentLayer.attributeValueChanged.disconnect(
-            self.updateRouteTypeStatus
-        )
+
         feat = self.environmentLayer.getFeature(fid)
         request = QgsFeatureRequest().addOrderBy("dateTime", False)
         for prevFeat in self.environmentLayer.getFeatures(request):
@@ -189,6 +187,17 @@ class SammoSession:
                 )
             elif prevFeat["routeType"] != feat["routeType"]:
                 routeType = feat["routeType"]
+                ft = QgsVectorLayerUtils.createFeature(self.environmentLayer)
+                ft.setGeometry(feat.geometry())
+                for attr in feat.fields().names():
+                    if attr in ["fid", "routeType", "dateTime", "status"]:
+                        continue
+                    ft[attr] = feat[attr]
+                ft["routeType"] = routeType
+                ft["dateTime"] = QDateTime(feat["dateTime"].addSecs(1))
+                ft["status"] = 0
+                self.environmentLayer.addFeature(ft)
+
                 self.environmentLayer.changeAttributeValue(
                     fid, self.environmentLayer.fields().indexOf("status"), 2
                 )
@@ -197,18 +206,7 @@ class SammoSession:
                     self.environmentLayer.fields().indexOf("routeType"),
                     prevFeat["routeType"],
                 )
-                ft = QgsFeature(self.environmentLayer.fields())
-                ft.setGeometry(feat.geometry())
-                ft.setAttributes(feat.attributes())
-                ft['fid'] = ft['fid']+1
-                ft['routeType'] = routeType
-                ft['status'] = 0
-                self.environmentLayer.addFeature(ft)
             break
-        self.environmentLayer.attributeValueChanged.connect(
-            self.updateRouteTypeStatus
-        )
-
 
     def addSightingsFeature(self) -> QgsVectorLayer:
         layer = self.sightingsLayer
@@ -248,47 +246,6 @@ class SammoSession:
         return False
 
     def saveAll(self) -> None:
-        rmFeatures = []
-        lastFeature = None
-        request = QgsFeatureRequest().addOrderBy("dateTime").addOrderBy("fid")
-        for feat in self.environmentLayer.getFeatures(request):
-            if (
-                not lastFeature
-                or lastFeature["routeType"] != feat["routeType"]
-            ) and feat["status"] == 1:
-                self.environmentLayer.changeAttributeValue(
-                    feat.id(),
-                    self.environmentLayer.fields().indexOf("status"),
-                    0,
-                )
-                feat = self.environmentLayer.getFeature(feat.id())
-            elif (
-                not lastFeature
-                or lastFeature["routeType"] != feat["routeType"]
-            ) and feat["status"] == 2:
-                rmFeatures.append(feat.id())
-            elif not lastFeature:
-                lastFeature = feat
-                continue
-
-            if (
-                lastFeature["routeType"] != feat["routeType"]
-                and lastFeature["status"] == 1
-            ):
-                self.environmentLayer.changeAttributeValue(
-                    lastFeature.id(),
-                    self.environmentLayer.fields().indexOf("status"),
-                    2,
-                )
-            elif (
-                lastFeature["routeType"] != feat["routeType"]
-                and lastFeature["status"] == 0
-            ):
-                rmFeatures.append(feat.id())
-
-            lastFeature = feat
-        self.environmentLayer.deleteFeatures(rmFeatures)
-
         for layer in [
             self.environmentLayer,
             self.sightingsLayer,
