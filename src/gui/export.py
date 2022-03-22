@@ -106,7 +106,7 @@ class SammoExportAction(QDialog):
                 for field in layer.fields()
                 if field.name() != "validated"
             ]
-            QgsVectorFileWriter.writeAsVectorFormatV3(
+            QgsVectorFileWriter.writeAsVectorFormatV2(
                 layer,
                 (
                     Path(self.saveFolderEdit.text()) / f"{layer.name()}.csv"
