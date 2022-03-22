@@ -151,9 +151,9 @@ class SammoSession:
             self._sightingsLayer.addSoundAction(self.sightingsLayer)
             self._followersLayer.addSoundAction(self.followersLayer)
             QgsSettings().setValue("qgis/enableMacros", "SessionOnly")
-        self.environmentLayer.attributeValueChanged.connect(
-            self.updateRouteTypeStatus
-        )
+            self.environmentLayer.attributeValueChanged.connect(
+                self.updateRouteTypeStatus
+            )
 
     def addEnvironmentFeature(self) -> QgsVectorLayer:
         layer = self.environmentLayer
