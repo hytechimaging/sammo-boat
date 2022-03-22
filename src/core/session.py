@@ -5,9 +5,10 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import pathlib
 from shutil import copy
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 
+from qgis.PyQt.QtCore import QDate
 from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtWidgets import QProgressBar
 
@@ -284,6 +285,7 @@ class SammoSession:
         sessionBDir: str,
         sessionOutputDir: str,
         progressBar: QProgressBar,
+        date: Optional[QDate] = None,
     ) -> None:
         # open input session
         sessionA = SammoSession()
@@ -313,6 +315,13 @@ class SammoSession:
             "gpsLayer",
             "followersLayer",
         ]
+        dateRequest = QgsFeatureRequest()
+        if date:
+            dateString = date.toPyDate().strftime("%Y-%m-%d")
+            dateExpression = QgsExpression(
+                "to_date(datetime) >= " f"to_date('{dateString}')"
+            )
+            dateRequest = QgsFeatureRequest(dateExpression)
         for layer in dynamicLayers:
             out = getattr(sessionOutput, layer)
             nb = 0
@@ -327,7 +336,7 @@ class SammoSession:
                 + getattr(sessionB, layer).featureCount()
             )
             for vl in [getattr(sessionA, layer), getattr(sessionB, layer)]:
-                for feature in vl.getFeatures():
+                for feature in vl.getFeatures(dateRequest):
                     nb += 1
                     progressBar.setValue(int(100 / tot * (nb + 1)))
                     attrs = feature.attributes()[1:]
@@ -362,7 +371,7 @@ class SammoSession:
         datetimeSet = set(
             [
                 ft["datetime"].toPyDateTime().replace(second=0, microsecond=0)
-                for ft in out.getFeatures()
+                for ft in out.getFeatures(dateRequest)
             ]
         )
         nb = 0
@@ -373,14 +382,10 @@ class SammoSession:
         if lastFeature:
             newFid = lastFeature["fid"] + 1
         tot = (
-            getattr(sessionA, "gpsLayer").featureCount()
-            + getattr(sessionB, "gpsLayer").featureCount()
+            sessionA.gpsLayer.featureCount() + sessionB.gpsLayer.featureCount()
         )
-        for vl in [
-            getattr(sessionA, "gpsLayer"),
-            getattr(sessionB, "gpsLayer"),
-        ]:
-            for feature in vl.getFeatures():
+        for vl in [sessionA.gpsLayer, sessionB.gpsLayer]:
+            for feature in vl.getFeatures(dateRequest):
                 nb += 1
                 progressBar.setValue(int(100 / tot * (nb + 1)))
                 dateTimeAttr = (
@@ -407,6 +412,6 @@ class SammoSession:
 
             out.startEditing()
             vl = getattr(sessionA, layer)
-            for feature in vl.getFeatures():
+            for feature in vl.getFeatures(dateRequest):
                 out.addFeature(feature)
             out.commitChanges()

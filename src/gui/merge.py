@@ -6,7 +6,7 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 import os
 
 from qgis.PyQt import uic
-from qgis.PyQt.QtCore import pyqtSignal, QObject, QDir
+from qgis.PyQt.QtCore import pyqtSignal, QObject, QDir, QDate
 from qgis.PyQt.QtWidgets import QAction, QToolBar, QDialog, QFileDialog
 
 from ..core import utils
@@ -47,6 +47,7 @@ class SammoMergeDialog(QDialog, FORM_CLASS):
         super().__init__()
         self.setupUi(self)
 
+        self.dateEdit.setDate(QDate.currentDate())
         self.ok.clicked.connect(self.merge)
         self.cancel.clicked.connect(self.close)
         self.sessionAButton.clicked.connect(self.sessionA)
@@ -92,5 +93,6 @@ class SammoMergeDialog(QDialog, FORM_CLASS):
             self.sessionBDir.text(),
             self.sessionMergedDir.text(),
             self.progressBar,
+            self.dateEdit.date() if self.dateCheckBox.isChecked() else None,
         )
         self.close()

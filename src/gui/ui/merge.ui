@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>339</width>
-    <height>177</height>
+    <height>211</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -58,6 +58,20 @@
        </item>
        <item>
         <widget class="QLineEdit" name="sessionMergedDir"/>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <widget class="QCheckBox" name="dateCheckBox">
+         <property name="text">
+          <string>Merge from :</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QDateEdit" name="dateEdit"/>
        </item>
       </layout>
      </item>
