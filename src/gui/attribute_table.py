@@ -40,7 +40,6 @@ class SammoAttributeTable:
             "soundFile",
             "soundStart",
             "soundEnd",
-            "status",
             "validated",
         ]
         config = layer.attributeTableConfig()
