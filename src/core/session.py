@@ -401,6 +401,7 @@ class SammoSession:
                             str(survey["survey"]),
                             str(survey["session"]),
                             str(survey["computer"]),
+                            str(feat["fid"]),
                         ]
                     ),
                 )

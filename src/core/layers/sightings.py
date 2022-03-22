@@ -233,6 +233,7 @@ class SammoSightingsLayer(SammoLayer):
             "soundEnd",
             "dateTime",
             "validated",
+            "sightNum",
         ]:
             idx = layer.fields().indexFromName(field)
             form_config = layer.editFormConfig()
