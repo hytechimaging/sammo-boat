@@ -61,6 +61,7 @@ class SammoAttributeTable:
             "transect",
             "strate",
             "length",
+            "sightNum",
         ]
         config = layer.attributeTableConfig()
         columns = config.columns()

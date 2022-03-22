@@ -47,8 +47,10 @@ class SammoEnvironmentLayer(SammoLayer):
         idx = layer.fields().indexFromName("plateform")
         cfg = {}
         cfg["map"] = [
-            {"bridge": "bridge"},
-            {"upper_deck": "upper_deck"},
+            {"bridge_inside": "bridge_inside"},
+            {"bridge_outside": "bridge_outside"},
+            {"upper_bridge_outside": "upper_bridge_outside"},
+            {"upper_bridge_inside": "upper_bridge_inside"},
             {"deck": "deck"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
