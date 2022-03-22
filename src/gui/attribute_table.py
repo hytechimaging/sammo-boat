@@ -6,6 +6,8 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 from qgis.PyQt import QtCore
 from qgis.PyQt.QtWidgets import QFrame, QTableView, QAction, QToolBar
 
+from ..core.database import SIGHTINGS_TABLE, ENVIRONMENT_TABLE, FOLLOWERS_TABLE
+
 
 class SammoAttributeTable:
     @staticmethod
@@ -13,13 +15,23 @@ class SammoAttributeTable:
         return table.findChild(QToolBar, "mToolbar")
 
     @staticmethod
-    def refresh(table):
+    def refresh(table, layerName):
         table.findChild(QAction, "mActionReload").trigger()
         table.findChild(QAction, "mActionApplyFilter").trigger()
 
         view = table.findChild(QTableView, "mTableView")
         view.resizeColumnsToContents()
-        index = view.model().index(0, 1)
+        if layerName in [
+            SIGHTINGS_TABLE.capitalize(),
+            FOLLOWERS_TABLE.capitalize(),
+        ]:
+            for i in range(view.model().columnCount()):
+                if view.model().headerData(i, 1) == "species":
+                    index = view.model().index(0, i)
+        elif layerName == ENVIRONMENT_TABLE.capitalize():
+            for i in range(view.model().columnCount()):
+                if view.model().headerData(i, 1) == "routeType":
+                    index = view.model().index(0, i)
         view.selectionModel().setCurrentIndex(
             index,
             QtCore.QItemSelectionModel.ClearAndSelect
