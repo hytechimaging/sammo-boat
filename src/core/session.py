@@ -186,7 +186,6 @@ class SammoSession:
                     fid, self.environmentLayer.fields().indexOf("status"), 1
                 )
             elif prevFeat["routeType"] != feat["routeType"]:
-                routeType = feat["routeType"]
                 ft = QgsVectorLayerUtils.createFeature(self.environmentLayer)
                 ft.setGeometry(feat.geometry())
                 for attr in feat.fields().names():
@@ -204,7 +203,7 @@ class SammoSession:
                 self.environmentLayer.changeAttributeValue(
                     fid,
                     self.environmentLayer.fields().indexOf("dateTime"),
-                    ft["dateTime"].addSecs(1)
+                    ft["dateTime"].addSecs(1),
                 )
             break
 
