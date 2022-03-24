@@ -45,9 +45,10 @@ class SammoFollowersAction(QObject):
 
 
 class SammoFollowersTable(QDialog, FORM_CLASS):
-    def __init__(self, iface, followerLayer):
+    def __init__(self, iface, geom, followerLayer):
         super().__init__()
         self.iface = iface
+        self.geom = geom
 
         self.setupUi(self)
         self.addButton.setIcon(utils.icon("plus.png"))

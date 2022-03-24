@@ -301,14 +301,14 @@ class Sammo:
         self.soundRecordingController.onStartFollowers()
 
         self.followersTable = SammoFollowersTable(
-            self.iface, self.session.followersLayer
+            self.iface, self.session.lastGpsGeom, self.session.followersLayer
         )
         self.followersTable.addButton.clicked.connect(self.onFollowersAdd)
         self.followersTable.okButton.clicked.connect(self.onFollowersOk)
         self.followersTable.show()
 
         self.followersAddShortcut = QShortcut(
-            QKeySequence("Shift+A"), self.followersTable
+            QKeySequence("F"), self.followersTable
         )
         self.followersAddShortcut.activated.connect(self.onFollowersAdd)
 
@@ -319,7 +319,9 @@ class Sammo:
 
     def onFollowersAdd(self):
         self.session.addFollowersFeature(
-            self.followersTable.datetime, bool(self.followersTable.rowCount())
+            self.followersTable.datetime,
+            self.followersTable.geom,
+            bool(self.followersTable.rowCount()),
         )
         self.followersTable.refresh()
 

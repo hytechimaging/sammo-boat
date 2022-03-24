@@ -212,9 +212,11 @@ class SammoSession:
         self._addFeature(layer, geom=self.lastGpsGeom)
         return layer
 
-    def addFollowersFeature(self, dt: str, duplicate: bool) -> None:
+    def addFollowersFeature(
+        self, dt: str, geom: QgsGeometry, duplicate: bool
+    ) -> None:
         layer = self.followersLayer
-        self._addFeature(layer, dt, self.lastGpsGeom, duplicate)
+        self._addFeature(layer, dt, geom, duplicate)
 
     def needsSaving(self) -> None:
         for layer in [
