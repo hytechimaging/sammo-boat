@@ -82,4 +82,4 @@ class SammoFollowersTable(QDialog, FORM_CLASS):
         super().close()
 
     def refresh(self):
-        SammoAttributeTable.refresh(self.table)
+        SammoAttributeTable.refresh(self.table, "Followers")
