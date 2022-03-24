@@ -108,15 +108,15 @@ class SammoSoundRecordingController(QObject):
         dateTxt = dateTimeObj.strftime("%Y%m%d")
         if recordType == RecordType.SIGHTINGS:
             self._soundFile = (
-                f"audio/{dateTxt}/observation_sound_recording_{timeTxt}.wav"
+                f"audio/{dateTxt}/observation_sound_recording_{timeTxt}.ogg"
             )
         elif recordType == RecordType.ENVIRONMENT:
             self._soundFile = (
-                f"audio/{dateTxt}/environment_sound_recording_{timeTxt}.wav"
+                f"audio/{dateTxt}/environment_sound_recording_{timeTxt}.ogg"
             )
         elif recordType == RecordType.FOLLOWERS:
             self._soundFile = (
-                f"audio/{dateTxt}/followers_sound_recording_{timeTxt}.wav"
+                f"audio/{dateTxt}/followers_sound_recording_{timeTxt}.ogg"
             )
 
         folderPath = Path(self._workingDirectory) / "audio" / dateTxt

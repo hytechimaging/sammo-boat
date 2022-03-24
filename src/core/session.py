@@ -298,7 +298,7 @@ class SammoSession:
         sessionOutput = SammoSession()
         sessionOutput.init(sessionOutputDir, load=False)
 
-        # copy wav files to output session
+        # copy sound files to output session
         for session in [sessionA, sessionB]:
             copytree(
                 session.audioFolder,
