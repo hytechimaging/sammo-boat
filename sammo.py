@@ -166,7 +166,9 @@ class Sammo:
         self.followersShortcut = QShortcut(QKeySequence("F"), self.mainWindow)
         self.followersShortcut.activated.connect(self.onFollowersAction)
 
-        self.sightingsShortcut = QShortcut(QKeySequence("O"), self.mainWindow)
+        self.sightingsShortcut = QShortcut(
+            QKeySequence("Space"), self.mainWindow
+        )
         self.sightingsShortcut.activated.connect(self.onSightingsAction)
 
         self.endSoundShortcut = QShortcut(QKeySequence("A"), self.mainWindow)
