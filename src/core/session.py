@@ -193,18 +193,18 @@ class SammoSession:
                     if attr in ["fid", "routeType", "dateTime", "status"]:
                         continue
                     ft[attr] = feat[attr]
-                ft["routeType"] = routeType
-                ft["dateTime"] = QDateTime(feat["dateTime"].addSecs(1))
-                ft["status"] = 0
+                ft["routeType"] = prevFeat["routeType"]
+                ft["dateTime"] = QDateTime(feat["dateTime"])
+                ft["status"] = 2
                 self.environmentLayer.addFeature(ft)
 
                 self.environmentLayer.changeAttributeValue(
-                    fid, self.environmentLayer.fields().indexOf("status"), 2
+                    fid, self.environmentLayer.fields().indexOf("status"), 0
                 )
                 self.environmentLayer.changeAttributeValue(
                     fid,
-                    self.environmentLayer.fields().indexOf("routeType"),
-                    prevFeat["routeType"],
+                    self.environmentLayer.fields().indexOf("dateTime"),
+                    ft["dateTime"].addSecs(1)
                 )
             break
 
