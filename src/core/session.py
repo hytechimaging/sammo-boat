@@ -399,7 +399,8 @@ class SammoSession:
                 feat["dateTime"].toPyDateTime().strftime("%Y-%m-%d %H:%M:%S")
             )
             request = QgsFeatureRequest().setFilterExpression(
-                f"dateTime < to_datetime('{strDateTime}') and status != {str(StatusCode.END.value)}"
+                f"dateTime < to_datetime('{strDateTime}') "
+                f"and status != {str(StatusCode.END.value)}"
             )
             request.addOrderBy("dateTime", False)
             for envFeat in self.environmentLayer.getFeatures(request):
