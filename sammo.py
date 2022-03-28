@@ -1,7 +1,7 @@
 # coding: utf8
 
 __contact__ = "info@hytech-imaging.fr"
-__copyright__ = "Copyright (c) 2021 Hytech Imaging"
+__copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
 import os.path
 import platform
@@ -234,7 +234,7 @@ class Sammo:
         s: int,
         speed: float = -9999.0,
         course: float = -9999.0,
-    ):
+    ) -> None:
         self.session.lastGpsGeom = QgsGeometry.fromPointXY(
             QgsPointXY(longitude, latitude)
         )

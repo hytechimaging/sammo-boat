@@ -1,10 +1,11 @@
 # coding: utf8
 
 __contact__ = "info@hytech-imaging.fr"
-__copyright__ = "Copyright (c) 2021 Hytech Imaging"
+__copyright__ = "Copyright (c) 2022 Hytech Imaging"
+
+from enum import Enum
 
 from qgis.PyQt.QtGui import QColor
-
 from qgis.core import (
     QgsVectorLayer,
     QgsDefaultValue,
@@ -21,6 +22,12 @@ from ..database import (
 )
 
 from .layer import SammoLayer
+
+
+class StatusCode(Enum):
+    BEGIN = 0
+    ADD = 1
+    END = 2
 
 
 class SammoEnvironmentLayer(SammoLayer):
@@ -330,9 +337,9 @@ class SammoEnvironmentLayer(SammoLayer):
         idx = layer.fields().indexFromName("status")
         cfg = {}
         cfg["map"] = [
-            {"Begin": 0},
-            {"Add": 1},
-            {"End": 2},
+            {StatusCode(0).name.capitalize(): StatusCode(0)},
+            {StatusCode(1).name.capitalize(): StatusCode(1)},
+            {StatusCode(2).name.capitalize(): StatusCode(2)},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)

@@ -1,7 +1,7 @@
 # coding: utf8
 
 __contact__ = "info@hytech-imaging.fr"
-__copyright__ = "Copyright (c) 2021 Hytech Imaging"
+__copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
 from pathlib import Path
 from shutil import copytree
@@ -31,6 +31,7 @@ from .database import (
     SammoDataBase,
 )
 from .layers import (
+    StatusCode,
     SammoGpsLayer,
     SammoWorldLayer,
     SammoSurveyLayer,
@@ -210,7 +211,17 @@ class SammoSession:
         )
         return layer
 
-    def updateRouteTypeStatus(self, fid, idx, value) -> None:
+    def updateRouteTypeStatus(self, fid: int, idx: int, value: object) -> None:
+        # This method is triggered by an attribute change in the environnement
+        # layer. The signal attributeValueChanged send the fid of the concerned
+        # feature, the index of the modified attribute and the new value of
+        # this attribute.
+        # If the attribute changed is routeType, we will check the previous
+        # feature to check if the routeType change between the two feature.
+        # If it's so, the status of the feature that has been changed is set on
+        # StatusCode.BEGIN to start a new route, and a new feature is created
+        # with a StatusCode.END to end the previous route.
+
         if (
             not self.environmentLayer
             or idx != self.environmentLayer.fields().indexOf("routeType")
@@ -222,14 +233,19 @@ class SammoSession:
         for prevFeat in self.environmentLayer.getFeatures(request):
             if prevFeat["fid"] == feat["fid"]:
                 continue
-            elif prevFeat["status"] == 2 or feat["status"] == 2:
+            elif (
+                prevFeat["status"] == StatusCode.END
+                or feat["status"] == StatusCode.END
+            ):
                 return
             elif (
-                prevFeat["status"] in [0, 1]
+                prevFeat["status"] in [StatusCode.BEGIN, StatusCode.ADD]
                 and prevFeat["routeType"] == feat["routeType"]
             ):
                 self.environmentLayer.changeAttributeValue(
-                    fid, self.environmentLayer.fields().indexOf("status"), 1
+                    fid,
+                    self.environmentLayer.fields().indexOf("status"),
+                    StatusCode.ADD,
                 )
             elif prevFeat["routeType"] != feat["routeType"]:
                 ft = QgsVectorLayerUtils.createFeature(self.environmentLayer)
@@ -240,11 +256,13 @@ class SammoSession:
                     ft[attr] = feat[attr]
                 ft["routeType"] = prevFeat["routeType"]
                 ft["dateTime"] = QDateTime(feat["dateTime"])
-                ft["status"] = 2
+                ft["status"] = StatusCode.END
                 self.environmentLayer.addFeature(ft)
 
                 self.environmentLayer.changeAttributeValue(
-                    fid, self.environmentLayer.fields().indexOf("status"), 0
+                    fid,
+                    self.environmentLayer.fields().indexOf("status"),
+                    StatusCode.BEGIN,
                 )
                 self.environmentLayer.changeAttributeValue(
                     fid,
@@ -381,7 +399,7 @@ class SammoSession:
                 feat["dateTime"].toPyDateTime().strftime("%Y-%m-%d %H:%M:%S")
             )
             request = QgsFeatureRequest().setFilterExpression(
-                f"dateTime < to_datetime('{strDateTime}') and status != 2"
+                f"dateTime < to_datetime('{strDateTime}') and status != {str(StatusCode.END.value)}"
             )
             request.addOrderBy("dateTime", False)
             for envFeat in self.environmentLayer.getFeatures(request):

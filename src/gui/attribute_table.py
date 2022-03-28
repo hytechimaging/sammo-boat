@@ -21,14 +21,14 @@ class SammoAttributeTable:
 
         view = table.findChild(QTableView, "mTableView")
         view.resizeColumnsToContents()
-        if layerName in [
-            SIGHTINGS_TABLE.capitalize(),
-            FOLLOWERS_TABLE.capitalize(),
+        if layerName.casefold() in [
+            SIGHTINGS_TABLE,
+            FOLLOWERS_TABLE,
         ]:
             for i in range(view.model().columnCount()):
                 if view.model().headerData(i, 1) == "species":
                     index = view.model().index(0, i)
-        elif layerName == ENVIRONMENT_TABLE.capitalize():
+        elif layerName.casefold() == ENVIRONMENT_TABLE:
             for i in range(view.model().columnCount()):
                 if view.model().headerData(i, 1) == "routeType":
                     index = view.model().index(0, i)

@@ -1,7 +1,7 @@
 # coding: utf8
 
 __contact__ = "info@hytech-imaging.fr"
-__copyright__ = "Copyright (c) 2021 Hytech Imaging"
+__copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
 import os.path
 from pathlib import Path
@@ -21,6 +21,8 @@ from qgis.core import (
     QgsCoordinateReferenceSystem,
     QgsCoordinateTransformContext,
 )
+
+from .layers import StatusCode
 
 DB_NAME = "sammo-boat.gpkg"
 
@@ -102,8 +104,8 @@ class SammoDataBase:
             QgsFeatureRequest().addOrderBy("fid", False)
         ):
             if (
-                layer.name() == ENVIRONMENT_TABLE.capitalize()
-                and feature["status"] == 2
+                layer.name().casefold() == ENVIRONMENT_TABLE
+                and feature["status"] == StatusCode.END
             ):
                 continue
 
@@ -303,7 +305,7 @@ class SammoDataBase:
     def _createFieldShortText(fieldName, len=50) -> QgsField:
         return QgsField(fieldName, QVariant.String, len=len)
 
-    def _copyWorldTable(self):
+    def _copyWorldTable(self) -> None:
         """
         Copy world table from qgis data into gpkg file
         """

@@ -1,7 +1,7 @@
 # coding: utf8
 
 __contact__ = "info@hytech-imaging.fr"
-__copyright__ = "Copyright (c) 2021 Hytech Imaging"
+__copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
 import sys
 import time
@@ -64,19 +64,19 @@ class WorkerGpsExtractor(WorkerForOtherThread):
             line = line.decode("cp1250")
             if self.isGprmcLine(line):
                 self.isGPRMCMode = True
-                trame = SammoGprmcTrame(line)
+                frame = SammoGprmcFrame(line)
             elif self.isGpggaLine(line) and not self.isGPRMCMode:
-                trame = SammoGpggaTrame(line)
+                frame = SammoGpggaFrame(line)
             else:
                 self.toDoIfNotAGpggaLine()
                 return
-            position = trame.positionData
+            position = frame.positionData
             longitude_deg = position[0]
             if longitude_deg != sys.float_info.max:
                 self.timeOfLastContact = time.time()
                 latitude_deg = position[1]
-                h, m, s = trame.dateTime
-                speed, course = trame.track
+                h, m, s = frame.dateTime
+                speed, course = frame.track
                 self.addNewFeatureToGpsTableSignal.emit(
                     float(longitude_deg),
                     float(latitude_deg),
@@ -120,7 +120,7 @@ class SammoGpsReader(OtherThread):
         super().__init__()
         self.active = False
 
-    def start(self):
+    def start(self) -> None:
         self.worker = WorkerGpsExtractor()
         self.worker.addNewFeatureToGpsTableSignal.connect(self.newFrame)
         super()._start(self.worker)
@@ -141,8 +141,8 @@ class SammoGpsReader(OtherThread):
             )
 
 
-class SammoTrame:
-    def __init__(self, line):
+class SammoFrame:
+    def __init__(self, line: str):
         self.longitude: float = 0.0
         self.latitude: float = 0.0
         self.hour: int = 0
@@ -150,8 +150,8 @@ class SammoTrame:
         self.second: int = 0
         self.speed: float = -9999.0
         self.course: float = -9999.0
-        self.dateTime = line
-        self.positionData = line
+        self.dateTime: Tuple[int, int, int] = line
+        self.positionData: Tuple[float, float] = line
 
     @property
     def dateTime(self) -> Tuple[int, int, int]:
@@ -166,8 +166,8 @@ class SammoTrame:
         return self.speed, self.course
 
 
-class SammoGpggaTrame(SammoTrame):
-    def __init__(self, line):
+class SammoGpggaFrame(SammoFrame):
+    def __init__(self, line: str):
         super().__init__(line)
 
     @property
@@ -211,10 +211,10 @@ class SammoGpggaTrame(SammoTrame):
         return super().track
 
 
-class SammoGprmcTrame(SammoTrame):
-    def __init__(self, line):
+class SammoGprmcFrame(SammoFrame):
+    def __init__(self, line: str):
         super().__init__(line)
-        self.track = line
+        self.track: Tuple[float, float] = line
 
     @property
     def dateTime(self) -> Tuple[int, int, int]:

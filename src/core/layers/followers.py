@@ -1,7 +1,7 @@
 # coding: utf8
 
 __contact__ = "info@hytech-imaging.fr"
-__copyright__ = "Copyright (c) 2021 Hytech Imaging"
+__copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
 from qgis.PyQt.QtGui import QColor
 
@@ -29,7 +29,7 @@ class SammoFollowersLayer(SammoLayer):
         self.observersLayer = observersLayer
         self.speciesLayer = speciesLayer
 
-    def _init(self, layer: QgsVectorLayer):
+    def _init(self, layer: QgsVectorLayer) -> None:
         self._init_symbology(layer)
         self._init_widgets(layer)
         self._init_conditional_style(layer)

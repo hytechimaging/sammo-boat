@@ -1,12 +1,12 @@
 # coding: utf8
 
 __contact__ = "info@hytech-imaging.fr"
-__copyright__ = "Copyright (c) 2021 Hytech Imaging"
+__copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
 from qgis.core import QgsEditorWidgetSetup, QgsVectorLayer
 from ..database import (
-    SammoDataBase,
     SURVEY_TABLE,
+    SammoDataBase,
 )
 
 from .layer import SammoLayer
@@ -19,7 +19,7 @@ class SammoSurveyLayer(SammoLayer):
     def _init(self, layer: QgsVectorLayer) -> None:
         self._init_widgets(layer)
 
-    def _init_widgets(self, layer):
+    def _init_widgets(self, layer: QgsVectorLayer) -> None:
         # region
         idx = layer.fields().indexFromName("region")
         cfg = {}
