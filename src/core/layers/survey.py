@@ -4,11 +4,11 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
 from qgis.core import QgsEditorWidgetSetup, QgsVectorLayer
+
 from ..database import (
     SURVEY_TABLE,
     SammoDataBase,
 )
-
 from .layer import SammoLayer
 
 
