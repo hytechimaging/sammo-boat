@@ -308,6 +308,7 @@ class SammoEnvironmentLayer(SammoLayer):
             "transect",
             "strate",
             "length",
+            "plateformHeight",
         ]:
             idx = layer.fields().indexFromName(field)
             form_config = layer.editFormConfig()
