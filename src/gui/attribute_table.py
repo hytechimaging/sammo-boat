@@ -62,6 +62,7 @@ class SammoAttributeTable:
             "strate",
             "length",
             "sightNum",
+            "plateformHeight",
         ]
         config = layer.attributeTableConfig()
         columns = config.columns()

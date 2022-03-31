@@ -4,7 +4,7 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
 from pathlib import Path
-from shutil import copytree
+from shutil import copyfile
 from datetime import datetime
 from typing import List, Optional
 
@@ -66,8 +66,8 @@ class SammoSession:
         self.lastCaptureTime: datetime = datetime(1900, 1, 1, 0, 0, 0)
 
     @property
-    def audioFolder(self) -> str:
-        return (Path(self.db.directory) / "audio").as_posix()
+    def audioFolder(self) -> Path:
+        return (Path(self.db.directory) / "audio")
 
     @property
     def environmentLayer(self) -> QgsVectorLayer:
@@ -140,6 +140,8 @@ class SammoSession:
 
     def init(self, directory: str, load: bool = True) -> None:
         new = self.db.init(directory)
+        if not(Path(directory)/ "audio").exists():
+            (Path(directory)/ "audio").mkdir()
 
         self._worldLayer = SammoWorldLayer(self.db)
 
@@ -373,13 +375,6 @@ class SammoSession:
                         self.environmentLayer.fields().indexOf(attr),
                         transect[attr],
                     )
-            if plateform:
-                for attr in ["plateform", "plateformHeight"]:
-                    self.environmentLayer.changeAttributeValue(
-                        feat.id(),
-                        self.environmentLayer.fields().indexOf(attr),
-                        plateform[attr],
-                    )
             self.environmentLayer.changeAttributeValue(
                 feat.id(),
                 idx,
@@ -507,6 +502,11 @@ class SammoSession:
             if layer == self.sightingsLayer:
                 feat["side"] = lastFeat["side"]
             if layer == self.environmentLayer or duplicate:
+                plateform = (
+                    next(self.plateformLayer.getFeatures())
+                    if self.plateformLayer.featureCount()
+                    else None
+                )
                 for name in lastFeat.fields().names():
                     if name in [
                         "fid",
@@ -516,7 +516,12 @@ class SammoSession:
                         "validated",
                     ]:
                         continue
-                    feat[name] = lastFeat[name]
+                    elif (
+                        plateform and name in ["plateform", "plateformHeight"]
+                    ):
+                        feat[name] = plateform[name]
+                    else:
+                        feat[name] = lastFeat[name]
 
         for key, value in kwargs.items():
             if key in layer.fields().names():
@@ -561,12 +566,20 @@ class SammoSession:
 
         # copy sound files to output session
         progressBar.setFormat("Copying sound files")
+        dateInt = int(date.toPyDate().strftime("%Y%m%d")) if date else 0
         for session in [sessionA, sessionB]:
-            copytree(
-                session.audioFolder,
-                sessionOutput.audioFolder,
-                dirs_exist_ok=True,
-            )
+            # all this can be replace with shutil.copytree with dirs_exist_ok,
+            # after python3.8
+            for subdir in session.audioFolder.glob("*"):
+                if (not subdir.is_dir() or int(subdir.stem) < dateInt):
+                    continue
+                elif not (sessionOutput.audioFolder / subdir.name).exists():
+                    (sessionOutput.audioFolder / subdir.name).mkdir()
+                outputFolder = (sessionOutput.audioFolder / subdir.name)
+                for file in subdir.glob("*"):
+                    if (outputFolder / file.name).exists():
+                        os.remove(outputFolder / file.name)
+                    copyfile(file, outputFolder / file.name)
 
         # copy features from dynamic layers
         dynamicLayers = [

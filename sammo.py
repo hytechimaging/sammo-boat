@@ -164,11 +164,13 @@ class Sammo:
 
     def initShortcuts(self) -> None:
         self.environmentShortcut = QShortcut(
-            QKeySequence("E"), self.mainWindow
+            QKeySequence("Shift+E"), self.mainWindow
         )
         self.environmentShortcut.activated.connect(self.onEnvironmentAction)
 
-        self.followersShortcut = QShortcut(QKeySequence("F"), self.mainWindow)
+        self.followersShortcut = QShortcut(
+            QKeySequence("Shift+F"), self.mainWindow
+        )
         self.followersShortcut.activated.connect(self.onFollowersAction)
 
         self.sightingsShortcut = QShortcut(
@@ -204,6 +206,7 @@ class Sammo:
 
         if self.threadSimuGps is not None and self.threadSimuGps.isProceeding:
             self.threadSimuGps.stop()
+        self.soundRecordingController.interruptRecording()
         self.soundRecordingController.unload()
         self.sessionAction.unload()
         self.followersAction.unload()
@@ -213,6 +216,7 @@ class Sammo:
             self.simuGpsAction.unload()
 
         self.statusDock.unload()
+        self.tableDock.unload()
         del self.statusDock
         del self.toolbar
 
@@ -261,6 +265,7 @@ class Sammo:
 
         self.soundRecordingController.onNewSession(sessionDirectory)
 
+        self.tableDock.clean()
         self.tableDock.init(
             self.session.environmentLayer, self.session.sightingsLayer
         )
@@ -395,9 +400,12 @@ class Sammo:
         sessionDir = SammoSession.sessionDirectory(QgsProject.instance())
 
         if not sessionDir:
+            self.soundRecordingController.interruptRecording()
+            self.soundRecordingController.unload()
             self.session = SammoSession()
             self.statusDock.session = self.session
             self.settingsAction.session = self.session
+            self.tableDock.clean()
             return
 
         self.onCreateSession(sessionDir)
