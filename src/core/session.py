@@ -3,6 +3,7 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
+import os
 from pathlib import Path
 from shutil import copyfile
 from datetime import datetime
@@ -67,7 +68,7 @@ class SammoSession:
 
     @property
     def audioFolder(self) -> Path:
-        return (Path(self.db.directory) / "audio")
+        return Path(self.db.directory) / "audio"
 
     @property
     def environmentLayer(self) -> QgsVectorLayer:
@@ -140,8 +141,8 @@ class SammoSession:
 
     def init(self, directory: str, load: bool = True) -> None:
         new = self.db.init(directory)
-        if not(Path(directory)/ "audio").exists():
-            (Path(directory)/ "audio").mkdir()
+        if not (Path(directory) / "audio").exists():
+            (Path(directory) / "audio").mkdir()
 
         self._worldLayer = SammoWorldLayer(self.db)
 
@@ -339,11 +340,6 @@ class SammoSession:
             if self.transectLayer.featureCount()
             else None
         )
-        plateform = (
-            next(self.plateformLayer.getFeatures())
-            if self.plateformLayer.featureCount()
-            else None
-        )
 
         featuresIterator = (
             self.environmentLayer.getSelectedFeatures()
@@ -516,9 +512,10 @@ class SammoSession:
                         "validated",
                     ]:
                         continue
-                    elif (
-                        plateform and name in ["plateform", "plateformHeight"]
-                    ):
+                    elif plateform and name in [
+                        "plateform",
+                        "plateformHeight",
+                    ]:
                         feat[name] = plateform[name]
                     else:
                         feat[name] = lastFeat[name]
@@ -571,11 +568,11 @@ class SammoSession:
             # all this can be replace with shutil.copytree with dirs_exist_ok,
             # after python3.8
             for subdir in session.audioFolder.glob("*"):
-                if (not subdir.is_dir() or int(subdir.stem) < dateInt):
+                if not subdir.is_dir() or int(subdir.stem) < dateInt:
                     continue
                 elif not (sessionOutput.audioFolder / subdir.name).exists():
                     (sessionOutput.audioFolder / subdir.name).mkdir()
-                outputFolder = (sessionOutput.audioFolder / subdir.name)
+                outputFolder = sessionOutput.audioFolder / subdir.name
                 for file in subdir.glob("*"):
                     if (outputFolder / file.name).exists():
                         os.remove(outputFolder / file.name)

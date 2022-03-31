@@ -3,8 +3,6 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
-from enum import Enum
-
 from qgis.PyQt.QtGui import QColor
 from qgis.core import (
     QgsVectorLayer,
