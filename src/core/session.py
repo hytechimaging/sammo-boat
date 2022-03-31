@@ -198,7 +198,7 @@ class SammoSession:
             self._sightingsLayer.addSoundAction(self.sightingsLayer)
             self._followersLayer.addSoundAction(self.followersLayer)
             QgsSettings().setValue("qgis/enableMacros", "SessionOnly")
-            self._environmentLayer.attributeValueChanged.connect(
+            self.environmentLayer.attributeValueChanged.connect(
                 self.updateRouteTypeStatus
             )
 
@@ -234,18 +234,19 @@ class SammoSession:
             if prevFeat["fid"] == feat["fid"]:
                 continue
             elif (
-                prevFeat["status"] == StatusCode.END
-                or feat["status"] == StatusCode.END
+                prevFeat["status"] == StatusCode.END.value
+                or feat["status"] == StatusCode.END.value
             ):
                 return
             elif (
-                prevFeat["status"] in [StatusCode.BEGIN, StatusCode.ADD]
+                prevFeat["status"]
+                in [StatusCode.BEGIN.value, StatusCode.ADD.value]
                 and prevFeat["routeType"] == feat["routeType"]
             ):
                 self.environmentLayer.changeAttributeValue(
                     fid,
                     self.environmentLayer.fields().indexOf("status"),
-                    StatusCode.ADD,
+                    StatusCode.ADD.value,
                 )
             elif prevFeat["routeType"] != feat["routeType"]:
                 ft = QgsVectorLayerUtils.createFeature(self.environmentLayer)
@@ -256,13 +257,13 @@ class SammoSession:
                     ft[attr] = feat[attr]
                 ft["routeType"] = prevFeat["routeType"]
                 ft["dateTime"] = QDateTime(feat["dateTime"])
-                ft["status"] = StatusCode.END
+                ft["status"] = StatusCode.END.value
                 self.environmentLayer.addFeature(ft)
 
                 self.environmentLayer.changeAttributeValue(
                     fid,
                     self.environmentLayer.fields().indexOf("status"),
-                    StatusCode.BEGIN,
+                    StatusCode.BEGIN.value,
                 )
                 self.environmentLayer.changeAttributeValue(
                     fid,

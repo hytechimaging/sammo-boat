@@ -105,7 +105,7 @@ class SammoDataBase:
         ):
             if (
                 layer.name().casefold() == ENVIRONMENT_TABLE
-                and feature["status"] == StatusCode.END
+                and feature["status"] == StatusCode.END.value
             ):
                 continue
 

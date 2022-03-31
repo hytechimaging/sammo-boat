@@ -14,7 +14,6 @@ from qgis.core import (
     QgsSvgMarkerSymbolLayer,
 )
 
-from ..status import StatusCode
 from ..utils import path, base64File
 from ..database import (
     SammoDataBase,
@@ -331,9 +330,9 @@ class SammoEnvironmentLayer(SammoLayer):
         idx = layer.fields().indexFromName("status")
         cfg = {}
         cfg["map"] = [
-            {StatusCode(0).name.capitalize(): StatusCode(0)},
-            {StatusCode(1).name.capitalize(): StatusCode(1)},
-            {StatusCode(2).name.capitalize(): StatusCode(2)},
+            {"Begin": 0},
+            {"Add": 1},
+            {"End": 2},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
