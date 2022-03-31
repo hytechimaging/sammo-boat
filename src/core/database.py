@@ -22,7 +22,7 @@ from qgis.core import (
     QgsCoordinateTransformContext,
 )
 
-from .layers import StatusCode
+from .status import StatusCode
 
 DB_NAME = "sammo-boat.gpkg"
 

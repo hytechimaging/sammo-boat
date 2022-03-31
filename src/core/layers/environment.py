@@ -14,20 +14,14 @@ from qgis.core import (
     QgsSvgMarkerSymbolLayer,
 )
 
+from ..status import StatusCode
 from ..utils import path, base64File
-
 from ..database import (
     SammoDataBase,
     ENVIRONMENT_TABLE,
 )
 
 from .layer import SammoLayer
-
-
-class StatusCode(Enum):
-    BEGIN = 0
-    ADD = 1
-    END = 2
 
 
 class SammoEnvironmentLayer(SammoLayer):

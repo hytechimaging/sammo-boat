@@ -26,12 +26,12 @@ from qgis.core import (
 )
 
 from . import utils
+from .status import StatusCode
 from .database import (
     DB_NAME,
     SammoDataBase,
 )
 from .layers import (
-    StatusCode,
     SammoGpsLayer,
     SammoWorldLayer,
     SammoSurveyLayer,
@@ -198,7 +198,7 @@ class SammoSession:
             self._sightingsLayer.addSoundAction(self.sightingsLayer)
             self._followersLayer.addSoundAction(self.followersLayer)
             QgsSettings().setValue("qgis/enableMacros", "SessionOnly")
-            self.environmentLayer.attributeValueChanged.connect(
+            self._environmentLayer.attributeValueChanged.connect(
                 self.updateRouteTypeStatus
             )
 
