@@ -122,7 +122,6 @@ def shortcutCreation():
         copytree(ROOT_DIR.as_posix(), operatorPluginPath)
 
         # admin
-        # operator
         link_path = (
             Path(os.environ["HOMEDRIVE"])
             / os.environ["HOMEPATH"]
