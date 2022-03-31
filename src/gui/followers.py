@@ -7,7 +7,8 @@ import os
 
 from qgis.PyQt import uic
 from qgis.core import QgsSettings
-from qgis.PyQt.QtCore import pyqtSignal, QObject
+from qgis.PyQt.QtGui import QKeyEvent
+from qgis.PyQt.QtCore import pyqtSignal, QObject, Qt, QEvent
 from qgis.PyQt.QtWidgets import QAction, QToolBar, QDialog, QTableView
 
 from ..core import utils
@@ -65,6 +66,7 @@ class SammoFollowersTable(QDialog, FORM_CLASS):
         self.table = SammoAttributeTable.attributeTable(
             iface, followerLayer, filterExpr, sortExpr
         )
+        self.table.installEventFilter(self)
         QgsSettings().setValue("qgis/attributeTableLastView", lastView)
 
         self.verticalLayout.addWidget(self.table)
@@ -84,3 +86,19 @@ class SammoFollowersTable(QDialog, FORM_CLASS):
 
     def refresh(self):
         SammoAttributeTable.refresh(self.table, "Followers")
+
+    def eventFilter(self, obj, event):
+        if type(event) == QKeyEvent:
+            if event.key() == Qt.Key_Escape:
+                event.ignore()
+                return True
+        if event.type() == QEvent.Close:
+            event.ignore()
+            return True
+        return super().eventFilter(obj, event)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape:
+            event.accept()
+        else:
+            super().keyPressEvent(event)
