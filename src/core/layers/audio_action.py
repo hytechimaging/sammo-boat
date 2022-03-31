@@ -1,3 +1,8 @@
+# coding: utf8
+
+__contact__ = "info@hytech-imaging.fr"
+__copyright__ = "Copyright (c) 2022 Hytech Imaging"
+
 import queue
 import soundfile as sf
 import sounddevice as sd
@@ -15,7 +20,7 @@ from qgis.PyQt.QtWidgets import (
 
 BUFFERSIZE = 20
 BLOCKSIZE = 256
-SAMPLERATE = 44100
+SAMPLERATE = 22050
 
 
 def timeformat(seconds: int) -> str:
@@ -30,10 +35,10 @@ class AudioThread(QThread):
         self.player = AudioPlayer(filename, offset)
         self.player.time.connect(self.time)
 
-    def run(self):
+    def run(self) -> None:
         self.player.playSound()
 
-    def quit(self):
+    def quit(self) -> None:
         self.player.stop()
         super().quit()
 
@@ -48,7 +53,7 @@ class AudioPlayer(QObject):
         self.nbBlock = 0
         self.q = queue.Queue(maxsize=BUFFERSIZE)
 
-    def callback(self, outdata, frames, time, status):
+    def callback(self, outdata, frames, time, status) -> None:
         if frames != BLOCKSIZE:
             raise sd.CallbackAbort
         if status.output_underflow:
@@ -66,7 +71,7 @@ class AudioPlayer(QObject):
         else:
             outdata[:] = data
 
-    def playSound(self):
+    def playSound(self) -> None:
         self.playing = True
         self.nbBlock = 0
         try:
@@ -100,7 +105,7 @@ class AudioPlayer(QObject):
         except Exception as e:
             print(type(e).__name__ + ": " + str(e))
 
-    def stop(self):
+    def stop(self) -> None:
         if self.playing:
             self.stream.stop()
             self.playing = False
@@ -138,18 +143,18 @@ class AudioPlayerDialog(QDialog):
         self.Vlayout.addWidget(self.slider)
 
     @property
-    def playing(self):
+    def playing(self) -> bool:
         return self._playing
 
     @playing.setter
-    def playing(self, state: bool):
+    def playing(self, state: bool) -> None:
         if state:
             self.playButton.setIcon(QIcon("{}"))
         else:
             self.playButton.setIcon(QIcon("{}"))
         self._playing = state
 
-    def toggleSound(self):
+    def toggleSound(self) -> None:
         if self.playButton.isChecked():
             self.thread = AudioThread(
                 self.filename, self.slider.sliderPosition()
@@ -162,15 +167,15 @@ class AudioPlayerDialog(QDialog):
             self.thread.quit()
             self.playing = False
 
-    def updateSlider(self, value: int):
+    def updateSlider(self, value: int) -> None:
         self.slider.setSliderPosition(value)
 
-    def updateLabel(self, value: int):
+    def updateLabel(self, value: int) -> None:
         self.label.setText(
             timeformat(value) + " / " + timeformat(self.slider.maximum())
         )
 
-    def end(self):
+    def end(self) -> None:
         self.thread.time.disconnect(self.updateSlider)
         self.thread.quit()
         self.playButton.setChecked(False)

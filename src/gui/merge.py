@@ -3,18 +3,16 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-import os
+from pathlib import Path
 
 from qgis.PyQt import uic
-from qgis.PyQt.QtCore import pyqtSignal, QObject, QDir
+from qgis.PyQt.QtCore import pyqtSignal, QObject, QDir, QDate
 from qgis.PyQt.QtWidgets import QAction, QToolBar, QDialog, QFileDialog
 
 from ..core import utils
 from ..core.session import SammoSession
 
-FORM_CLASS, _ = uic.loadUiType(
-    os.path.join(os.path.dirname(__file__), "ui/merge.ui")
-)
+FORM_CLASS, _ = uic.loadUiType(Path(__file__).parent / "ui/merge.ui")
 
 
 class SammoMergeAction(QObject):
@@ -47,6 +45,7 @@ class SammoMergeDialog(QDialog, FORM_CLASS):
         super().__init__()
         self.setupUi(self)
 
+        self.dateEdit.setDate(QDate.currentDate())
         self.ok.clicked.connect(self.merge)
         self.cancel.clicked.connect(self.close)
         self.sessionAButton.clicked.connect(self.sessionA)
@@ -91,5 +90,7 @@ class SammoMergeDialog(QDialog, FORM_CLASS):
             self.sessionADir.text(),
             self.sessionBDir.text(),
             self.sessionMergedDir.text(),
+            self.progressBar,
+            self.dateEdit.date() if self.dateCheckBox.isChecked() else None,
         )
         self.close()

@@ -13,7 +13,7 @@ from qgis.core import (
     QgsSvgMarkerSymbolLayer,
 )
 
-from ..utils import path
+from ..utils import path, base64File
 
 from ..database import (
     SammoDataBase,
@@ -34,7 +34,8 @@ class SammoSightingsLayer(SammoLayer):
 
     def _init_symbology(self, layer: QgsVectorLayer) -> None:
         # symbology
-        symbol = QgsSvgMarkerSymbolLayer(path("observation_symbol.svg"))
+        svgBase64 = base64File(path("observation_symbol.svg"))
+        symbol = QgsSvgMarkerSymbolLayer(svgBase64)
         symbol.setSize(6)
         symbol.setFillColor(QColor("#a76dad"))
         symbol.setStrokeWidth(0)
@@ -45,6 +46,7 @@ class SammoSightingsLayer(SammoLayer):
         idx = layer.fields().indexFromName("side")
         cfg = {}
         cfg["map"] = [
+            {"<NULL>": NULL},
             {"L": "L"},
             {"R": "R"},
             {"C": "C"},
@@ -101,6 +103,7 @@ class SammoSightingsLayer(SammoLayer):
         idx = layer.fields().indexFromName("age")
         cfg = {}
         cfg["map"] = [
+            {"NULL": NULL},
             {"A": "A"},
             {"I": "I"},
             {"J": "J"},
@@ -110,7 +113,6 @@ class SammoSightingsLayer(SammoLayer):
             {"I3": "I3"},
             {"I4": "I4"},
             {"NA": "NA"},
-            {"NULL": None},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
@@ -159,7 +161,7 @@ class SammoSightingsLayer(SammoLayer):
         cfg = {}
         cfg["map"] = [
             {"<NULL>": NULL},
-            {"attracting": "attracting"},
+            {"attraction": "attraction"},
             {"moving": "moving"},
             {"foraging": "foraging"},
             {"escape": "escape"},
@@ -167,7 +169,6 @@ class SammoSightingsLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue(NULL))
 
         # behavGroup
         idx = layer.fields().indexFromName("behavGroup")
@@ -181,7 +182,6 @@ class SammoSightingsLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue(NULL))
 
         # behavMam
         idx = layer.fields().indexFromName("behavMam")
@@ -197,27 +197,23 @@ class SammoSightingsLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue(NULL))
 
         # behavBird
         idx = layer.fields().indexFromName("behavBird")
         cfg = {}
         cfg["map"] = [
             {"<NULL>": NULL},
-            {"attaking": "attaking"},
+            {"attacked": "attacked"},
             {"with_prey": "with_prey"},
-            {"scavenger": "scavenger"},
             {"klepto": "klepto"},
             {"diving": "diving"},
             {"follow_boat": "follow_boat"},
             {"random_flight": "random_flight"},
             {"circular_flight": "circular_flight"},
-            {"direct_flight": "direct_flight"},
-            {"swimming": "swimming"},
+            {"straight_flight": "straight_flight"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue(NULL))
 
         # behavShip
         idx = layer.fields().indexFromName("behavShip")
@@ -225,20 +221,28 @@ class SammoSightingsLayer(SammoLayer):
         cfg["map"] = [
             {"<NULL>": NULL},
             {"fishing": "fishing"},
-            {"go_ahead": "go_ahead"},
+            {"route": "route"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue(NULL))
 
         # soundFile, soundStart, soundEnd, dateTime
-        for field in ["soundFile", "soundStart", "soundEnd", "dateTime"]:
+        for field in [
+            "soundFile",
+            "soundStart",
+            "soundEnd",
+            "dateTime",
+            "validated",
+            "sightNum",
+        ]:
             idx = layer.fields().indexFromName(field)
             form_config = layer.editFormConfig()
             form_config.setReadOnly(idx, True)
             if field != "dateTime":
                 setup = QgsEditorWidgetSetup("Hidden", {})
                 layer.setEditorWidgetSetup(idx, setup)
+            if field == "validated":
+                layer.setDefaultValueDefinition(idx, QgsDefaultValue("false"))
             layer.setEditFormConfig(form_config)
 
         # comment
@@ -350,3 +354,8 @@ class SammoSightingsLayer(SammoLayer):
         style = QgsConditionalStyle(expr)
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("species", [style])
+
+        # validated
+        style = QgsConditionalStyle("validated is True")
+        style.setBackgroundColor(QColor(178, 223, 138))
+        layer.conditionalStyles().setRowStyles([style])

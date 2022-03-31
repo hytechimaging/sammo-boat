@@ -1,7 +1,7 @@
 # coding: utf8
 
 __contact__ = "info@hytech-imaging.fr"
-__copyright__ = "Copyright (c) 2021 Hytech Imaging"
+__copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
 from qgis.PyQt.QtGui import QColor
 
@@ -13,7 +13,7 @@ from qgis.core import (
     QgsSvgMarkerSymbolLayer,
 )
 
-from ..utils import path
+from ..utils import path, base64File
 
 from ..database import (
     SammoDataBase,
@@ -29,14 +29,15 @@ class SammoFollowersLayer(SammoLayer):
         self.observersLayer = observersLayer
         self.speciesLayer = speciesLayer
 
-    def _init(self, layer: QgsVectorLayer):
+    def _init(self, layer: QgsVectorLayer) -> None:
         self._init_symbology(layer)
         self._init_widgets(layer)
         self._init_conditional_style(layer)
 
     def _init_symbology(self, layer: QgsVectorLayer) -> None:
         # symbology
-        symbol = QgsSvgMarkerSymbolLayer(path("seabird_symbol.svg"))
+        svgBase64 = base64File(path("seabird_symbol.svg"))
+        symbol = QgsSvgMarkerSymbolLayer(svgBase64)
         symbol.setSize(6)
         symbol.setFillColor(QColor("#e89d34"))
         symbol.setStrokeWidth(0)
@@ -85,11 +86,10 @@ class SammoFollowersLayer(SammoLayer):
             {"net_down": "net_down"},
             {"discard": "discard"},
             {"hauling": "hauling"},
-            {"NON_ACTIVE": "NON_ACTIVE"},
+            {"non_active": "non_active"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue(NULL))
 
         # species
         idx = layer.fields().indexFromName("species")
@@ -114,7 +114,6 @@ class SammoFollowersLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue(NULL))
 
         # unlucky
         idx = layer.fields().indexFromName("unlucky")
@@ -130,16 +129,23 @@ class SammoFollowersLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setDefaultValueDefinition(idx, QgsDefaultValue(NULL))
 
         # soundFile, soundStart, soundEnd, dateTime
-        for field in ["soundFile", "soundStart", "soundEnd", "dateTime"]:
+        for field in [
+            "soundFile",
+            "soundStart",
+            "soundEnd",
+            "dateTime",
+            "validated",
+        ]:
             idx = layer.fields().indexFromName(field)
             form_config = layer.editFormConfig()
             form_config.setReadOnly(idx, True)
             if field != "dateTime":
                 setup = QgsEditorWidgetSetup("Hidden", {})
                 layer.setEditorWidgetSetup(idx, setup)
+            if field == "validated":
+                layer.setDefaultValueDefinition(idx, QgsDefaultValue("false"))
             layer.setEditFormConfig(form_config)
 
         # comment
@@ -169,3 +175,8 @@ class SammoFollowersLayer(SammoLayer):
         style = QgsConditionalStyle("@value is NULL")
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("podSize", [style])
+
+        # validated
+        style = QgsConditionalStyle("validated is True")
+        style.setBackgroundColor(QColor(178, 223, 138))
+        layer.conditionalStyles().setRowStyles([style])

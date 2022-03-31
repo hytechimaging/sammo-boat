@@ -1,20 +1,25 @@
 # coding: utf8
 
 __contact__ = "info@hytech-imaging.fr"
-__copyright__ = "Copyright (c) 2021 Hytech Imaging"
+__copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
-import pathlib
-from shutil import copy
-from typing import List
+from pathlib import Path
+from shutil import copytree
+from datetime import datetime
+from typing import List, Optional
 
 from qgis.PyQt.QtGui import QColor
+from qgis.PyQt.QtWidgets import QProgressBar
+from qgis.PyQt.QtCore import QDate, QDateTime
 
 from qgis.core import (
     QgsProject,
     QgsGeometry,
     QgsMapLayer,
     QgsSettings,
+    QgsExpression,
     QgsVectorLayer,
+    QgsFeatureRequest,
     QgsVectorLayerUtils,
     QgsReferencedRectangle,
     QgsCoordinateReferenceSystem,
@@ -26,9 +31,14 @@ from .database import (
     SammoDataBase,
 )
 from .layers import (
+    StatusCode,
     SammoGpsLayer,
     SammoWorldLayer,
+    SammoSurveyLayer,
+    SammoStrateLayer,
     SammoSpeciesLayer,
+    SammoTransectLayer,
+    SammoPlateformLayer,
     SammoFollowersLayer,
     SammoObserversLayer,
     SammoSightingsLayer,
@@ -48,6 +58,16 @@ class SammoSession:
         self._observersLayer: SammoObserversLayer = None
         self._sightingsLayer: SammoSightingsLayer = None
         self._environmentLayer: SammoEnvironmentLayer = None
+        self._surveyLayer: SammoSurveyLayer = None
+        self._transectLayer: SammoTransectLayer = None
+        self._strateLayer: SammoStrateLayer = None
+        self._plateformLayer: SammoPlateformLayer = None
+        self.lastGpsGeom: QgsGeometry = QgsGeometry()
+        self.lastCaptureTime: datetime = datetime(1900, 1, 1, 0, 0, 0)
+
+    @property
+    def audioFolder(self) -> str:
+        return (Path(self.db.directory) / "audio").as_posix()
 
     @property
     def environmentLayer(self) -> QgsVectorLayer:
@@ -80,6 +100,30 @@ class SammoSession:
         return None
 
     @property
+    def surveyLayer(self) -> QgsVectorLayer:
+        if self._surveyLayer:
+            return self._surveyLayer.layer
+        return None
+
+    @property
+    def strateLayer(self) -> QgsVectorLayer:
+        if self._strateLayer:
+            return self._strateLayer.layer
+        return None
+
+    @property
+    def plateformLayer(self) -> QgsVectorLayer:
+        if self._plateformLayer:
+            return self._plateformLayer.layer
+        return None
+
+    @property
+    def transectLayer(self) -> QgsVectorLayer:
+        if self._transectLayer:
+            return self._transectLayer.layer
+        return None
+
+    @property
     def allLayers(self) -> List[QgsVectorLayer]:
         return [
             self.environmentLayer,
@@ -88,20 +132,27 @@ class SammoSession:
             self.observersLayer,
             self.speciesLayer,
             self.sightingsLayer,
+            self.surveyLayer,
+            self.strateLayer,
+            self.plateformLayer,
+            self.transectLayer,
         ]
-
-    @property
-    def wavFiles(self) -> List[str]:
-        return list(pathlib.Path(self.db.directory).glob("*.wav"))
 
     def init(self, directory: str, load: bool = True) -> None:
         new = self.db.init(directory)
 
-        self._worldLayer = SammoWorldLayer()
-        self._gpsLayer = SammoGpsLayer(self.db)
-        self._speciesLayer = SammoSpeciesLayer(self.db)
-        self._sightingsLayer = SammoSightingsLayer(self.db)
+        self._worldLayer = SammoWorldLayer(self.db)
+
+        # Administrator table
+        self._surveyLayer = SammoSurveyLayer(self.db)
+        self._transectLayer = SammoTransectLayer(self.db)
+        self._strateLayer = SammoStrateLayer(self.db)
+        self._plateformLayer = SammoPlateformLayer(self.db)
         self._observersLayer = SammoObserversLayer(self.db)
+        self._speciesLayer = SammoSpeciesLayer(self.db)
+
+        self._gpsLayer = SammoGpsLayer(self.db)
+        self._sightingsLayer = SammoSightingsLayer(self.db)
         self._followersLayer = SammoFollowersLayer(
             self.db, self._observersLayer, self._speciesLayer
         )
@@ -115,6 +166,10 @@ class SammoSession:
 
             # add layers
             self._worldLayer.addToProject(project)
+            self._surveyLayer.addToProject(project)
+            self._transectLayer.addToProject(project)
+            self._strateLayer.addToProject(project)
+            self._plateformLayer.addToProject(project)
             self._gpsLayer.addToProject(project)
             self._speciesLayer.addToProject(project)
             self._sightingsLayer.addToProject(project)
@@ -139,21 +194,93 @@ class SammoSession:
         # read project
         if load:
             QgsProject.instance().read(self.db.projectUri)
+            self._environmentLayer.addSoundAction(self.environmentLayer)
+            self._sightingsLayer.addSoundAction(self.sightingsLayer)
+            self._followersLayer.addSoundAction(self.followersLayer)
             QgsSettings().setValue("qgis/enableMacros", "SessionOnly")
+            self.environmentLayer.attributeValueChanged.connect(
+                self.updateRouteTypeStatus
+            )
 
     def addEnvironmentFeature(self) -> QgsVectorLayer:
         layer = self.environmentLayer
-        self._addFeature(layer)
+        self._addFeature(
+            layer,
+            geom=self.lastGpsGeom,
+            status=int(bool(layer.featureCount())),
+        )
         return layer
+
+    def updateRouteTypeStatus(self, fid: int, idx: int, value: object) -> None:
+        # This method is triggered by an attribute change in the environnement
+        # layer. The signal attributeValueChanged send the fid of the concerned
+        # feature, the index of the modified attribute and the new value of
+        # this attribute.
+        # If the attribute changed is routeType, we will check the previous
+        # feature to check if the routeType change between the two feature.
+        # If it's so, the status of the feature that has been changed is set on
+        # StatusCode.BEGIN to start a new route, and a new feature is created
+        # with a StatusCode.END to end the previous route.
+
+        if (
+            not self.environmentLayer
+            or idx != self.environmentLayer.fields().indexOf("routeType")
+        ):
+            return
+
+        feat = self.environmentLayer.getFeature(fid)
+        request = QgsFeatureRequest().addOrderBy("dateTime", False)
+        for prevFeat in self.environmentLayer.getFeatures(request):
+            if prevFeat["fid"] == feat["fid"]:
+                continue
+            elif (
+                prevFeat["status"] == StatusCode.END
+                or feat["status"] == StatusCode.END
+            ):
+                return
+            elif (
+                prevFeat["status"] in [StatusCode.BEGIN, StatusCode.ADD]
+                and prevFeat["routeType"] == feat["routeType"]
+            ):
+                self.environmentLayer.changeAttributeValue(
+                    fid,
+                    self.environmentLayer.fields().indexOf("status"),
+                    StatusCode.ADD,
+                )
+            elif prevFeat["routeType"] != feat["routeType"]:
+                ft = QgsVectorLayerUtils.createFeature(self.environmentLayer)
+                ft.setGeometry(feat.geometry())
+                for attr in feat.fields().names():
+                    if attr in ["fid", "routeType", "dateTime", "status"]:
+                        continue
+                    ft[attr] = feat[attr]
+                ft["routeType"] = prevFeat["routeType"]
+                ft["dateTime"] = QDateTime(feat["dateTime"])
+                ft["status"] = StatusCode.END
+                self.environmentLayer.addFeature(ft)
+
+                self.environmentLayer.changeAttributeValue(
+                    fid,
+                    self.environmentLayer.fields().indexOf("status"),
+                    StatusCode.BEGIN,
+                )
+                self.environmentLayer.changeAttributeValue(
+                    fid,
+                    self.environmentLayer.fields().indexOf("dateTime"),
+                    ft["dateTime"].addSecs(1),
+                )
+            break
 
     def addSightingsFeature(self) -> QgsVectorLayer:
         layer = self.sightingsLayer
-        self._addFeature(layer, geom=self._gpsLayer.lastGpsGeom)
+        self._addFeature(layer, geom=self.lastGpsGeom)
         return layer
 
-    def addFollowersFeature(self, dt: str, duplicate: bool) -> None:
+    def addFollowersFeature(
+        self, dt: str, geom: QgsGeometry, duplicate: bool
+    ) -> None:
         layer = self.followersLayer
-        self._addFeature(layer, dt, self._gpsLayer.lastGpsGeom, duplicate)
+        self._addFeature(layer, dt, geom, duplicate)
 
     def needsSaving(self) -> None:
         for layer in [
@@ -192,6 +319,131 @@ class SammoSession:
             layer.commitChanges()
             layer.startEditing()
 
+    def validate(self):
+        selectedMode = bool(
+            self.environmentLayer.selectedFeatureCount()
+            + self.sightingsLayer.selectedFeatureCount()
+            + self.followersLayer.selectedFeatureCount()
+        )
+
+        survey = (
+            next(self.surveyLayer.getFeatures())
+            if self.surveyLayer.featureCount()
+            else None
+        )
+        transect = (
+            next(self.transectLayer.getFeatures())
+            if self.transectLayer.featureCount()
+            else None
+        )
+        plateform = (
+            next(self.plateformLayer.getFeatures())
+            if self.plateformLayer.featureCount()
+            else None
+        )
+
+        featuresIterator = (
+            self.environmentLayer.getSelectedFeatures()
+            if selectedMode
+            else self.environmentLayer.getFeatures()
+        )
+        idx = self.environmentLayer.fields().indexOf("validated")
+        for feat in featuresIterator:
+            if feat["validated"]:
+                continue
+
+            if survey:
+                for attr in [
+                    "survey",
+                    "cycle",
+                    "session",
+                    "shipName",
+                    "computer",
+                ]:
+                    self.environmentLayer.changeAttributeValue(
+                        feat.id(),
+                        self.environmentLayer.fields().indexOf(attr),
+                        survey[attr],
+                    )
+            if transect:
+                for attr in ["transect", "strate", "length"]:
+                    self.environmentLayer.changeAttributeValue(
+                        feat.id(),
+                        self.environmentLayer.fields().indexOf(attr),
+                        transect[attr],
+                    )
+            if plateform:
+                for attr in ["plateform", "plateformHeight"]:
+                    self.environmentLayer.changeAttributeValue(
+                        feat.id(),
+                        self.environmentLayer.fields().indexOf(attr),
+                        plateform[attr],
+                    )
+            self.environmentLayer.changeAttributeValue(
+                feat.id(),
+                idx,
+                True,
+            )
+
+        featuresIterator = (
+            self.sightingsLayer.getSelectedFeatures()
+            if selectedMode
+            else self.sightingsLayer.getFeatures()
+        )
+        idx = self.sightingsLayer.fields().indexOf("validated")
+        for feat in featuresIterator:
+            if feat["validated"]:
+                continue
+
+            strDateTime = (
+                feat["dateTime"].toPyDateTime().strftime("%Y-%m-%d %H:%M:%S")
+            )
+            request = QgsFeatureRequest().setFilterExpression(
+                f"dateTime < to_datetime('{strDateTime}') "
+                f"and status != {str(StatusCode.END.value)}"
+            )
+            request.addOrderBy("dateTime", False)
+            for envFeat in self.environmentLayer.getFeatures(request):
+                if feat["side"] == "L":
+                    feat["observer"] = envFeat["left"]
+                elif feat["side"] == "R":
+                    feat["observer"] = envFeat["right"]
+                elif feat["side"] == "C":
+                    feat["observer"] = envFeat["center"]
+                break
+
+            if survey:
+                self.sightingsLayer.changeAttributeValue(
+                    feat.id(),
+                    self.sightingsLayer.fields().indexOf("sightNum"),
+                    "-".join(
+                        [
+                            str(survey["survey"]),
+                            str(survey["session"]),
+                            str(survey["computer"]),
+                            str(feat["fid"]),
+                        ]
+                    ),
+                )
+            self.sightingsLayer.changeAttributeValue(
+                feat.id(),
+                idx,
+                True,
+            )
+
+        featuresIterator = (
+            self.followersLayer.getSelectedFeatures()
+            if selectedMode
+            else self.followersLayer.getFeatures()
+        )
+        idx = self.followersLayer.fields().indexOf("validated")
+        for feat in featuresIterator:
+            self.followersLayer.changeAttributeValue(
+                feat.id(),
+                idx,
+                True,
+            )
+
     def onStopSoundRecordingForEvent(
         self,
         recordType: RecordType,
@@ -222,9 +474,16 @@ class SammoSession:
         self.saveAll()
 
     def addGps(
-        self, longitude: float, latitude: float, hour: int, minu: int, sec: int
+        self,
+        longitude: float,
+        latitude: float,
+        hour: int,
+        minu: int,
+        sec: int,
+        speed: Optional[float] = -9999.0,
+        course: Optional[float] = -9999.0,
     ):
-        self._gpsLayer.add(longitude, latitude, hour, minu, sec)
+        self._gpsLayer.add(longitude, latitude, hour, minu, sec, speed, course)
 
     def _addFeature(
         self,
@@ -232,6 +491,7 @@ class SammoSession:
         dt: str = "",
         geom: QgsGeometry = QgsGeometry(),
         duplicate: bool = False,
+        **kwargs,
     ) -> None:
         feat = QgsVectorLayerUtils.createFeature(layer)
 
@@ -247,9 +507,19 @@ class SammoSession:
                 feat["side"] = lastFeat["side"]
             if layer == self.environmentLayer or duplicate:
                 for name in lastFeat.fields().names():
-                    if name in ["fid", "dateTime", "speed", "courseAverage"]:
+                    if name in [
+                        "fid",
+                        "dateTime",
+                        "speed",
+                        "courseAverage",
+                        "validated",
+                    ]:
                         continue
                     feat[name] = lastFeat[name]
+
+        for key, value in kwargs.items():
+            if key in layer.fields().names():
+                feat[key] = value
 
         if not layer.isEditable():
             layer.startEditing()
@@ -271,7 +541,11 @@ class SammoSession:
 
     @staticmethod
     def merge(
-        sessionADir: str, sessionBDir: str, sessionOutputDir: str
+        sessionADir: str,
+        sessionBDir: str,
+        sessionOutputDir: str,
+        progressBar: QProgressBar,
+        date: Optional[QDate] = None,
     ) -> None:
         # open input session
         sessionA = SammoSession()
@@ -280,14 +554,18 @@ class SammoSession:
         sessionB = SammoSession()
         sessionB.init(sessionBDir, load=False)
 
-        # copy wav files to output session
-        for session in [sessionA, sessionB]:
-            for wav in session.wavFiles:
-                copy(wav, sessionOutputDir)
-
         # create output session
         sessionOutput = SammoSession()
         sessionOutput.init(sessionOutputDir, load=False)
+
+        # copy sound files to output session
+        progressBar.setFormat("Copying sound files")
+        for session in [sessionA, sessionB]:
+            copytree(
+                session.audioFolder,
+                sessionOutput.audioFolder,
+                dirs_exist_ok=True,
+            )
 
         # copy features from dynamic layers
         dynamicLayers = [
@@ -296,20 +574,45 @@ class SammoSession:
             "gpsLayer",
             "followersLayer",
         ]
+        dateRequest = QgsFeatureRequest()
+        if date:
+            dateString = date.toPyDate().strftime("%Y-%m-%d")
+            dateExpression = QgsExpression(
+                "to_date(datetime) >= " f"to_date('{dateString}')"
+            )
+            dateRequest = QgsFeatureRequest(dateExpression)
         for layer in dynamicLayers:
             out = getattr(sessionOutput, layer)
+            nb = 0
+            progressBar.setFormat(f"Copy {layer}, Total : %p%")
 
             newFid = 0
             lastFeature = SammoDataBase.lastFeature(out)
             if lastFeature:
                 newFid = lastFeature["fid"] + 1
-
+            tot = (
+                getattr(sessionA, layer).featureCount()
+                + getattr(sessionB, layer).featureCount()
+            )
             for vl in [getattr(sessionA, layer), getattr(sessionB, layer)]:
-                for feature in vl.getFeatures():
+                for feature in vl.getFeatures(dateRequest):
+                    nb += 1
+                    progressBar.setValue(int(100 / tot * (nb + 1)))
                     attrs = feature.attributes()[1:]
 
                     exist = False
-                    for featureOut in out.getFeatures():
+                    ft_datetime = (
+                        feature["datetime"]
+                        .toPyDateTime()
+                        .strftime("%Y-%m-%dT%H:%M:%S")
+                    )
+                    request = QgsFeatureRequest(
+                        QgsExpression(
+                            "format_date(datetime, 'yyyy-MM-ddThh:mm:ss') = "
+                            f"'{ft_datetime}'"
+                        )
+                    )
+                    for featureOut in out.getFeatures(request):
                         if featureOut.attributes()[1:] == attrs:
                             exist = True
                             break
@@ -322,6 +625,43 @@ class SammoSession:
                         out.addFeature(feature)
                         out.commitChanges()
 
+        # gps layer
+        out = getattr(sessionOutput, "gpsLayer")
+        datetimeSet = set(
+            [
+                ft["datetime"].toPyDateTime().replace(second=0, microsecond=0)
+                for ft in out.getFeatures(dateRequest)
+            ]
+        )
+        nb = 0
+        progressBar.setFormat("Copy gpsLayer, Total : %p%")
+
+        newFid = 0
+        lastFeature = SammoDataBase.lastFeature(out)
+        if lastFeature:
+            newFid = lastFeature["fid"] + 1
+        tot = (
+            sessionA.gpsLayer.featureCount() + sessionB.gpsLayer.featureCount()
+        )
+        for vl in [sessionA.gpsLayer, sessionB.gpsLayer]:
+            for feature in vl.getFeatures(dateRequest):
+                nb += 1
+                progressBar.setValue(int(100 / tot * (nb + 1)))
+                dateTimeAttr = (
+                    feature["datetime"]
+                    .toPyDateTime()
+                    .replace(second=0, microsecond=0)
+                )
+                if dateTimeAttr in datetimeSet:
+                    continue
+                datetimeSet.add(dateTimeAttr)
+                feature["fid"] = newFid
+                newFid += 1
+
+                out.startEditing()
+                out.addFeature(feature)
+                out.commitChanges()
+
         # copy content of static layers only if output is empty
         staticLayers = ["speciesLayer", "observersLayer"]
         for layer in staticLayers:
@@ -331,6 +671,6 @@ class SammoSession:
 
             out.startEditing()
             vl = getattr(sessionA, layer)
-            for feature in vl.getFeatures():
+            for feature in vl.getFeatures(dateRequest):
                 out.addFeature(feature)
             out.commitChanges()

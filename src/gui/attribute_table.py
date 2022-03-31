@@ -6,6 +6,8 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 from qgis.PyQt import QtCore
 from qgis.PyQt.QtWidgets import QFrame, QTableView, QAction, QToolBar
 
+from ..core.database import SIGHTINGS_TABLE, ENVIRONMENT_TABLE, FOLLOWERS_TABLE
+
 
 class SammoAttributeTable:
     @staticmethod
@@ -13,13 +15,23 @@ class SammoAttributeTable:
         return table.findChild(QToolBar, "mToolbar")
 
     @staticmethod
-    def refresh(table):
+    def refresh(table, layerName):
         table.findChild(QAction, "mActionReload").trigger()
         table.findChild(QAction, "mActionApplyFilter").trigger()
 
         view = table.findChild(QTableView, "mTableView")
         view.resizeColumnsToContents()
-        index = view.model().index(0, 1)
+        if layerName.casefold() in [
+            SIGHTINGS_TABLE,
+            FOLLOWERS_TABLE,
+        ]:
+            for i in range(view.model().columnCount()):
+                if view.model().headerData(i, 1) == "species":
+                    index = view.model().index(0, i)
+        elif layerName.casefold() == ENVIRONMENT_TABLE:
+            for i in range(view.model().columnCount()):
+                if view.model().headerData(i, 1) == "routeType":
+                    index = view.model().index(0, i)
         view.selectionModel().setCurrentIndex(
             index,
             QtCore.QItemSelectionModel.ClearAndSelect
@@ -27,21 +39,42 @@ class SammoAttributeTable:
         )
 
     @staticmethod
-    def attributeTable(iface, layer, filter_expr=""):
+    def attributeTable(
+        iface,
+        layer,
+        filterExpr="",
+        sortExpr='"dateTime"',
+    ):
         # hide some columns
-        hiddens = ["copy", "fid", "soundFile", "soundStart", "soundEnd"]
+        hiddens = [
+            "copy",
+            "fid",
+            "soundFile",
+            "soundStart",
+            "soundEnd",
+            "validated",
+            "survey",
+            "cycle",
+            "session",
+            "shipName",
+            "computer",
+            "transect",
+            "strate",
+            "length",
+            "sightNum",
+        ]
         config = layer.attributeTableConfig()
         columns = config.columns()
         for column in columns:
             if column.name in hiddens:
                 column.hidden = True
         config.setColumns(columns)
-        config.setSortExpression('"dateTime"')
+        config.setSortExpression(sortExpr)
         config.setSortOrder(QtCore.Qt.DescendingOrder)
         layer.setAttributeTableConfig(config)
 
         # init attribute table
-        table = iface.showAttributeTable(layer, filter_expr)
+        table = iface.showAttributeTable(layer, filterExpr)
 
         # hide some items
         last = table.layout().rowCount() - 1

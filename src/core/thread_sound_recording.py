@@ -17,7 +17,7 @@ class WorkerForSoundRecording(WorkerForOtherThread):
     def __init__(self, soundFilePath: str):
         super().__init__()
         self._soundFilePath = soundFilePath
-        self._frameRate = 44100
+        self._frameRate = 22050
         self._queue = queue.Queue()
         self.startRecordingTime: datetime = None
         self._automaticStopTime: datetime = None

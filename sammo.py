@@ -1,9 +1,11 @@
 # coding: utf8
 
 __contact__ = "info@hytech-imaging.fr"
-__copyright__ = "Copyright (c) 2021 Hytech Imaging"
+__copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
 import os.path
+import platform
+from datetime import datetime
 
 from qgis.PyQt.QtGui import QKeySequence
 from qgis.PyQt.QtWidgets import QToolBar, QShortcut, QTableView, QAction
@@ -11,6 +13,7 @@ from qgis.PyQt.QtWidgets import QToolBar, QShortcut, QTableView, QAction
 from qgis.core import (
     QgsProject,
     QgsPointXY,
+    QgsGeometry,
     QgsExpression,
     QgsApplication,
     QgsFeatureRequest,
@@ -18,6 +21,7 @@ from qgis.core import (
 
 from .src.core.gps import SammoGpsReader
 from .src.core.session import SammoSession
+from .src.core.utils import shortcutCreation
 from .src.core.thread_simu_gps import ThreadSimuGps
 from .src.core.sound_recording_controller import (
     RecordType,
@@ -30,6 +34,7 @@ from .src.gui.status import SammoStatusDock
 from .src.gui.export import SammoExportAction
 from .src.gui.session import SammoSessionAction
 from .src.gui.simu_gps import SammoSimuGpsAction
+from .src.gui.settings import SammoSettingsAction
 from .src.gui.sightings import SammoSightingsAction
 from .src.gui.environment import SammoEnvironmentAction
 from .src.gui.merge import SammoMergeAction, SammoMergeDialog
@@ -46,6 +51,7 @@ class Sammo:
         self.session = SammoSession()
 
         self.sessionAction = self.createSessionAction()
+        self.settingsAction = self.createSettingsAction()
         self.saveAction = self.createSaveAction()
         self.exportAction = self.createExportAction()
         self.mergeAction = self.createMergeAction()
@@ -58,6 +64,9 @@ class Sammo:
         self.soundRecordingController = self.createSoundRecordingController()
         self.gpsReader = self.createGpsReader()
         self.statusDock = SammoStatusDock(iface, self.session)
+        self.statusDock.recordInterrupted.connect(
+            self.soundRecordingController.interruptRecording
+        )
         self.tableDock = SammoTableDock(iface)
 
         iface.projectRead.connect(self.onProjectLoaded)
@@ -108,7 +117,8 @@ class Sammo:
 
     def createSaveAction(self) -> SammoSaveAction:
         button = SammoSaveAction(self.mainWindow, self.toolbar)
-        button.triggered.connect(self.session.saveAll)
+        button.saveAction.triggered.connect(self.saveAll)
+        button.validateAction.triggered.connect(self.validate)
         return button
 
     def createExportAction(self) -> SammoExportAction:
@@ -135,29 +145,41 @@ class Sammo:
         button.create.connect(self.onCreateSession)
         return button
 
+    def createSettingsAction(self) -> SammoSettingsAction:
+        button = SammoSettingsAction(
+            self.mainWindow, self.toolbar, self.session
+        )
+        return button
+
     def createMergeAction(self) -> SammoSessionAction:
         button = SammoMergeAction(self.mainWindow, self.toolbar)
         button.triggered.connect(self.onMergeAction)
         return button
 
     def initGui(self) -> None:
-        pass
+        if platform.system() == "Windows":
+            self.shortcutAction = QAction("Create shorcuts")
+            self.shortcutAction.triggered.connect(shortcutCreation)
+            self.iface.addPluginToMenu("Sammo-Boat", self.shortcutAction)
 
     def initShortcuts(self) -> None:
         self.environmentShortcut = QShortcut(
-            QKeySequence("Shift+E"), self.mainWindow
+            QKeySequence("E"), self.mainWindow
         )
         self.environmentShortcut.activated.connect(self.onEnvironmentAction)
 
-        self.followersShortcut = QShortcut(
-            QKeySequence("Shift+F"), self.mainWindow
-        )
+        self.followersShortcut = QShortcut(QKeySequence("F"), self.mainWindow)
         self.followersShortcut.activated.connect(self.onFollowersAction)
 
         self.sightingsShortcut = QShortcut(
-            QKeySequence("Shift+O"), self.mainWindow
+            QKeySequence("Space"), self.mainWindow
         )
         self.sightingsShortcut.activated.connect(self.onSightingsAction)
+
+        self.endSoundShortcut = QShortcut(QKeySequence("A"), self.mainWindow)
+        self.endSoundShortcut.activated.connect(
+            self.soundRecordingController.interruptRecording
+        )
 
         # Avoid shorcut overload and recreate undo/redo shortcut
         self.iface.mainWindow().findChild(QAction, "mActionUndo").setShortcut(
@@ -175,7 +197,7 @@ class Sammo:
         self.redoShortcut.activated.connect(self.redo)
 
         self.saveShortcut = QShortcut(QKeySequence("Shift+S"), self.mainWindow)
-        self.saveShortcut.activated.connect(self.session.saveAll)
+        self.saveShortcut.activated.connect(self.saveAll)
 
     def unload(self):
         self.gpsReader.stop()
@@ -194,8 +216,36 @@ class Sammo:
         del self.statusDock
         del self.toolbar
 
-    def onGpsFrame(self, longitude, latitude, h, m, s):
-        self.session.addGps(longitude, latitude, h, m, s)
+    def saveAll(self) -> None:
+        self.session.saveAll()
+
+    def validate(self) -> None:
+        self.session.validate()
+        self.session.saveAll()
+        self.tableDock.refresh(self.session.environmentLayer)
+        self.tableDock.refresh(self.session.sightingsLayer)
+
+    def onGpsFrame(
+        self,
+        longitude: float,
+        latitude: float,
+        h: int,
+        m: int,
+        s: int,
+        speed: float = -9999.0,
+        course: float = -9999.0,
+    ) -> None:
+        self.session.lastGpsGeom = QgsGeometry.fromPointXY(
+            QgsPointXY(longitude, latitude)
+        )
+        now = datetime.now()
+        gpsNow = datetime(now.year, now.month, now.day, h, m, s)
+        if (
+            not self.session.lastCaptureTime
+            or (gpsNow - self.session.lastCaptureTime).total_seconds() > 59
+        ):
+            self.session.addGps(longitude, latitude, h, m, s, speed, course)
+            self.session.lastCaptureTime = gpsNow
         self.iface.mapCanvas().setCenter(QgsPointXY(longitude, latitude))
         self.statusDock.updateGpsInfo(longitude, latitude)
 
@@ -214,6 +264,7 @@ class Sammo:
         self.tableDock.init(
             self.session.environmentLayer, self.session.sightingsLayer
         )
+        self.exportAction.session = self.session
         QgsProject.instance().layerWillBeRemoved.connect(self.cleanTableDock)
 
         # init simu
@@ -275,14 +326,14 @@ class Sammo:
         self.soundRecordingController.onStartFollowers()
 
         self.followersTable = SammoFollowersTable(
-            self.iface, self.session.followersLayer
+            self.iface, self.session.lastGpsGeom, self.session.followersLayer
         )
         self.followersTable.addButton.clicked.connect(self.onFollowersAdd)
         self.followersTable.okButton.clicked.connect(self.onFollowersOk)
         self.followersTable.show()
 
         self.followersAddShortcut = QShortcut(
-            QKeySequence("Shift+A"), self.followersTable
+            QKeySequence("F"), self.followersTable
         )
         self.followersAddShortcut.activated.connect(self.onFollowersAdd)
 
@@ -293,7 +344,9 @@ class Sammo:
 
     def onFollowersAdd(self):
         self.session.addFollowersFeature(
-            self.followersTable.datetime, bool(self.followersTable.rowCount())
+            self.followersTable.datetime,
+            self.followersTable.geom,
+            bool(self.followersTable.rowCount()),
         )
         self.followersTable.refresh()
 
@@ -337,12 +390,14 @@ class Sammo:
     def onProjectLoaded(self) -> None:
         if self.loading:
             return
-
         self.gpsReader.active = False
         self.setEnabled(False)
         sessionDir = SammoSession.sessionDirectory(QgsProject.instance())
 
         if not sessionDir:
+            self.session = SammoSession()
+            self.statusDock.session = self.session
+            self.settingsAction.session = self.session
             return
 
         self.onCreateSession(sessionDir)

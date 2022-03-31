@@ -7,12 +7,12 @@ import os
 import sys
 
 from qgis.PyQt import uic
-from qgis.PyQt.QtCore import Qt, QSize
+from qgis.PyQt.QtCore import Qt, QSize, pyqtSignal
 from qgis.PyQt.QtWidgets import QFrame, QLabel, QDockWidget
 
 from qgis.core import QgsSettings, QgsFeatureRequest, QgsExpression
 
-from ..core.utils import pixmap
+from ..core.utils import pixmap, icon
 from ..core.thread_widget import ThreadWidget
 
 FORM_CLASS, _ = uic.loadUiType(
@@ -24,13 +24,17 @@ KO_COLOR = "rgb(242, 186, 195)"
 
 
 class StatusWidget(QFrame, FORM_CLASS):
+
+    recordInterrupted: pyqtSignal = pyqtSignal()
+
     def __init__(self, parent):
         super().__init__(parent)
         self.setupUi(self)
+        self.record.clicked.connect(self.interrupt)
         self.init()
 
     def updateNeedSave(self, status):
-        self.save.setStyleSheet(self._styleSheet(not status))
+        self.save.setStyleSheet(self._styleSheet(self.save, not status))
         self.save.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
 
         icon = "pen_ok.png"
@@ -41,18 +45,17 @@ class StatusWidget(QFrame, FORM_CLASS):
         self.save.setPixmap(px)
 
     def updateRecording(self, status):
-        self.record.setStyleSheet(self._styleSheet(status))
-        self.record.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+        self.record.setStyleSheet(self._styleSheet(self.record, status))
 
-        icon = "record_ko.png"
+        icon_path = "record_ko.png"
         if status:
-            icon = "record_ok.png"
+            icon_path = "record_ok.png"
 
-        px = pixmap(icon, QSize(64, 64))
-        self.record.setPixmap(px)
+        self.record.setIcon(icon(icon_path))
+        self.record.setEnabled(status)
 
     def updateEffort(self, status):
-        self.effort.setStyleSheet(self._styleSheet(status))
+        self.effort.setStyleSheet(self._styleSheet(self.effort, status))
         self.effort.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
 
         icon = "effort_ko.png"
@@ -63,8 +66,8 @@ class StatusWidget(QFrame, FORM_CLASS):
         self.effort.setPixmap(px)
 
     def updateGps(self, status, latitude="", longitude=""):
-        self.gps.setStyleSheet(self._styleSheet(status, True))
-        self.gpsFrame.setStyleSheet(self._styleSheet(status, True))
+        self.gps.setStyleSheet(self._styleSheet(self.gps, status))
+        self.gpsFrame.setStyleSheet(self._styleSheet(self.gpsFrame, status))
         self.gps.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
 
         icon = "gps_ko.png"
@@ -83,14 +86,12 @@ class StatusWidget(QFrame, FORM_CLASS):
         self.updateEffort(False)
         self.updateGps(False)
 
-    def _styleSheet(self, status, frame=False):
+    def _styleSheet(self, widget, status):
         color = KO_COLOR
         if status:
             color = OK_COLOR
 
-        widget = "QLabel"
-        if frame:
-            widget = "QFrame"
+        widget = type(widget).__name__
 
         return f"""
         {widget} {{
@@ -99,8 +100,15 @@ class StatusWidget(QFrame, FORM_CLASS):
         }}
         """
 
+    def interrupt(self):
+        self.updateRecording(False)
+        self.recordInterrupted.emit()
+
 
 class SammoStatusDock(QDockWidget):
+
+    recordInterrupted: pyqtSignal = pyqtSignal()
+
     def __init__(self, iface, session):
         super().__init__("Sammo Status", iface.mainWindow())
         self.setObjectName("Sammo Status")
@@ -170,16 +178,9 @@ class SammoStatusDock(QDockWidget):
         request = QgsFeatureRequest(QgsExpression("routeType = 'prospection'"))
         request.addOrderBy("fid", False)
         for feat in layer.getFeatures(request):
+            if feat["routeType"] == "prospection" and feat["status"] in [0, 1]:
+                return True
             break
-
-        if not feat:
-            return False
-
-        idx = layer.fields().indexFromName("status")
-        if feat[idx] == "B" or feat[idx] == "A":
-            return True
-
-        return False
 
     def _onGpsOffline(self):
         self._isGpsOffline = True
@@ -204,6 +205,7 @@ class SammoStatusDock(QDockWidget):
 
     def _init(self, parent):
         self._widget = StatusWidget(self)
+        self._widget.recordInterrupted.connect(self.recordInterrupted)
 
         self.setVisible(False)
         self.dockLocationChanged.connect(self._saveLastLocation)

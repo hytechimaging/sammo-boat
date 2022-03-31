@@ -1,0 +1,2 @@
+@echo off
+start "QGIS" /B "{{ QGIS_EXECUTABLE }}" --profile operator --customizationfile "{{ PROFILE_PATH }}\QGISCUSTOMIZATION3_operator.ini" --globalsettingsfile "{{ PROFILE_PATH }}\QGIS3_operator.ini"

@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v1.1.3]
+
+### Add
+
+- Add a button to stop sound acquisition
+- Add validation process
+- Add administrator tables
+- Add support for GPS with speed and course
+- Add menu buttons to create shorcuts on Window Desktop for both admin and operator profile
+
+### Modified
+
+- Ressources as SVG and world map are saved into the db.
+- Merge process speed up
+- Only one gps point per minut
+- Geometry is saved into Environment layer
+- Fix geometry in csv export
+- Reduce sound quality to reduce file size
+- Sound file are saved in a subfolder
+- Status routeType is handled automatically
+- Fix focus on following table
+- Change some label in sightings table
+- Prevent table to be closed
+- Shortcut changes
 
 ## [v1.1.2] - 2022-01-07
 

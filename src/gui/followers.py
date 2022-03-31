@@ -6,6 +6,7 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 import os
 
 from qgis.PyQt import uic
+from qgis.core import QgsSettings
 from qgis.PyQt.QtCore import pyqtSignal, QObject
 from qgis.PyQt.QtWidgets import QAction, QToolBar, QDialog, QTableView
 
@@ -44,21 +45,27 @@ class SammoFollowersAction(QObject):
 
 
 class SammoFollowersTable(QDialog, FORM_CLASS):
-    def __init__(self, iface, followerLayer):
+    def __init__(self, iface, geom, followerLayer):
         super().__init__()
         self.iface = iface
+        self.geom = geom
 
         self.setupUi(self)
         self.addButton.setIcon(utils.icon("plus.png"))
 
+        lastView = int(QgsSettings().value("qgis/attributeTableLastView", 0))
+        QgsSettings().setValue("qgis/attributeTableLastView", 0)
+
         # the same datetime is used for all followers added in this session
         self.datetime = utils.now()
-        filter_expr = (
+        filterExpr = (
             f"epoch(\"dateTime\") = epoch(to_datetime('{self.datetime}'))"
         )
+        sortExpr = "fid"
         self.table = SammoAttributeTable.attributeTable(
-            iface, followerLayer, filter_expr
+            iface, followerLayer, filterExpr, sortExpr
         )
+        QgsSettings().setValue("qgis/attributeTableLastView", lastView)
 
         self.verticalLayout.addWidget(self.table)
 
@@ -76,4 +83,4 @@ class SammoFollowersTable(QDialog, FORM_CLASS):
         super().close()
 
     def refresh(self):
-        SammoAttributeTable.refresh(self.table)
+        SammoAttributeTable.refresh(self.table, "Followers")

@@ -1,16 +1,20 @@
 # coding: utf8
 
 __contact__ = "info@hytech-imaging.fr"
-__copyright__ = "Copyright (c) 2021 Hytech Imaging"
+__copyright__ = "Copyright (c) 2022 Hytech Imaging"
+
+from enum import Enum
 
 from qgis.PyQt.QtGui import QColor
-
 from qgis.core import (
     QgsVectorLayer,
     QgsDefaultValue,
     QgsConditionalStyle,
     QgsEditorWidgetSetup,
+    QgsSvgMarkerSymbolLayer,
 )
+
+from ..utils import path, base64File
 
 from ..database import (
     SammoDataBase,
@@ -20,33 +24,40 @@ from ..database import (
 from .layer import SammoLayer
 
 
+class StatusCode(Enum):
+    BEGIN = 0
+    ADD = 1
+    END = 2
+
+
 class SammoEnvironmentLayer(SammoLayer):
     def __init__(self, db: SammoDataBase, observersLayer: SammoLayer):
         super().__init__(db, ENVIRONMENT_TABLE, "Environment", True)
         self.observersLayer = observersLayer
 
     def _init(self, layer: QgsVectorLayer):
+        self._init_symbology(layer)
         self._init_widgets(layer)
         self._init_conditional_style(layer)
 
-    def _init_widgets(self, layer: QgsVectorLayer) -> None:
-        # status
-        idx = layer.fields().indexFromName("status")
-        cfg = {}
-        cfg["map"] = [
-            {"B": "B"},
-            {"A": "A"},
-            {"E": "E"},
-        ]
-        setup = QgsEditorWidgetSetup("ValueMap", cfg)
-        layer.setEditorWidgetSetup(idx, setup)
+    def _init_symbology(self, layer: QgsVectorLayer) -> None:
+        # symbology
+        svgBase64 = base64File(path("environment_symbol.svg"))
+        symbol = QgsSvgMarkerSymbolLayer(svgBase64)
+        symbol.setSize(6)
+        symbol.setFillColor(QColor("#a76dad"))
+        symbol.setStrokeWidth(0)
+        layer.renderer().symbol().changeSymbolLayer(0, symbol)
 
+    def _init_widgets(self, layer: QgsVectorLayer) -> None:
         # platform
         idx = layer.fields().indexFromName("plateform")
         cfg = {}
         cfg["map"] = [
-            {"bridge": "bridge"},
-            {"upper_deck": "upper_deck"},
+            {"bridge_inside": "bridge_inside"},
+            {"bridge_outside": "bridge_outside"},
+            {"upper_bridge_outside": "upper_bridge_outside"},
+            {"upper_bridge_inside": "upper_bridge_inside"},
             {"deck": "deck"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
@@ -290,13 +301,29 @@ class SammoEnvironmentLayer(SammoLayer):
         layer.setEditorWidgetSetup(idx, setup)
 
         # soundFile, soundStart, soundEnd, dateTime
-        for field in ["soundFile", "soundStart", "soundEnd", "dateTime"]:
+        for field in [
+            "soundFile",
+            "soundStart",
+            "soundEnd",
+            "dateTime",
+            "validated",
+            "survey",
+            "cycle",
+            "session",
+            "shipName",
+            "computer",
+            "transect",
+            "strate",
+            "length",
+        ]:
             idx = layer.fields().indexFromName(field)
             form_config = layer.editFormConfig()
             form_config.setReadOnly(idx, True)
             if field != "dateTime":
                 setup = QgsEditorWidgetSetup("Hidden", {})
                 layer.setEditorWidgetSetup(idx, setup)
+            if field == "validated":
+                layer.setDefaultValueDefinition(idx, QgsDefaultValue("false"))
             layer.setEditFormConfig(form_config)
 
         # comment
@@ -305,6 +332,17 @@ class SammoEnvironmentLayer(SammoLayer):
         setup = QgsEditorWidgetSetup("TextEdit", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
+
+        # glare severity
+        idx = layer.fields().indexFromName("status")
+        cfg = {}
+        cfg["map"] = [
+            {StatusCode(0).name.capitalize(): StatusCode(0)},
+            {StatusCode(1).name.capitalize(): StatusCode(1)},
+            {StatusCode(2).name.capitalize(): StatusCode(2)},
+        ]
+        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
 
         # left/right/center
         for field in ["left", "right", "center"]:
@@ -345,3 +383,8 @@ class SammoEnvironmentLayer(SammoLayer):
         style = QgsConditionalStyle(expr)
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("glareTo", [style])
+
+        # validated
+        style = QgsConditionalStyle("validated is True")
+        style.setBackgroundColor(QColor(178, 223, 138))
+        layer.conditionalStyles().setRowStyles([style])

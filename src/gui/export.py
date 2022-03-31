@@ -20,6 +20,7 @@ from qgis.core import (
     QgsVectorLayer,
     QgsVectorFileWriter,
     QgsVectorLayerJoinInfo,
+    QgsCoordinateTransformContext,
 )
 
 from ..core import utils
@@ -71,7 +72,7 @@ class SammoExportAction(QDialog):
             layer = QgsVectorLayer(layer.source(), layer.name())
 
             # Add Lon/Lat field
-            if layer.geometryType() == QgsWkbTypes.NullGeometry:
+            if layer.geometryType() == QgsWkbTypes.PointGeometry:
                 field = QgsField("lat", QVariant.Double)
                 layer.addExpressionField("x($geometry) ", field)
                 field = QgsField("lon", QVariant.Double)
@@ -98,13 +99,20 @@ class SammoExportAction(QDialog):
                     self.environmentLayerJoinInfo(joinLayer, "center")
                 )
 
-            QgsVectorFileWriter.writeAsVectorFormat(
+            options = QgsVectorFileWriter.SaveVectorOptions()
+            options.driverName = "CSV"
+            options.attributes = [
+                layer.fields().indexOf(field.name())
+                for field in layer.fields()
+                if field.name() != "validated"
+            ]
+            QgsVectorFileWriter.writeAsVectorFormatV2(
                 layer,
                 (
                     Path(self.saveFolderEdit.text()) / f"{layer.name()}.csv"
                 ).as_posix(),
-                "utf-8",
-                driverName="CSV",
+                QgsCoordinateTransformContext(),
+                options,
             )
             self.progressBar.setValue(int(100 / nb * (i + 1)))
         self.close()
