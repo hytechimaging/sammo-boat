@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 from shutil import copyfile
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtWidgets import QProgressBar
@@ -63,7 +63,10 @@ class SammoSession:
         self._transectLayer: SammoTransectLayer = None
         self._strateLayer: SammoStrateLayer = None
         self._plateformLayer: SammoPlateformLayer = None
-        self.lastGpsGeom: QgsGeometry = QgsGeometry()
+        self.lastGpsInfo: Tuple[QgsGeometry, Tuple[float, float]] = (
+            QgsGeometry(),
+            (-9999.0, -9999.0),
+        )
         self.lastCaptureTime: datetime = datetime(1900, 1, 1, 0, 0, 0)
 
     @property
@@ -209,8 +212,10 @@ class SammoSession:
         layer = self.environmentLayer
         self._addFeature(
             layer,
-            geom=self.lastGpsGeom,
+            geom=self.lastGpsInfo[0],
             status=int(bool(layer.featureCount())),
+            speed=self.lastGpsInfo[1][0],
+            course=self.lastGpsInfo[1][1],
         )
         return layer
 
@@ -521,7 +526,9 @@ class SammoSession:
                         feat[name] = lastFeat[name]
 
         for key, value in kwargs.items():
-            if key in layer.fields().names():
+            if key in ["speed", "course"] and value == -9999.0:
+                continue
+            elif key in layer.fields().names():
                 feat[key] = value
 
         if not layer.isEditable():

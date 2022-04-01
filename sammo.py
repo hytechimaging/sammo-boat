@@ -239,8 +239,9 @@ class Sammo:
         speed: float = -9999.0,
         course: float = -9999.0,
     ) -> None:
-        self.session.lastGpsGeom = QgsGeometry.fromPointXY(
-            QgsPointXY(longitude, latitude)
+        self.session.lastGpsInfo = (
+            QgsGeometry.fromPointXY(QgsPointXY(longitude, latitude)),
+            (speed, course),
         )
         now = datetime.now()
         gpsNow = datetime(now.year, now.month, now.day, h, m, s)
@@ -331,7 +332,9 @@ class Sammo:
         self.soundRecordingController.onStartFollowers()
 
         self.followersTable = SammoFollowersTable(
-            self.iface, self.session.lastGpsGeom, self.session.followersLayer
+            self.iface,
+            self.session.lastGpsInfo[0],
+            self.session.followersLayer,
         )
         self.followersTable.addButton.clicked.connect(self.onFollowersAdd)
         self.followersTable.okButton.clicked.connect(self.onFollowersOk)
