@@ -252,7 +252,7 @@ class Sammo:
             self.session.addGps(longitude, latitude, h, m, s, speed, course)
             self.session.lastCaptureTime = gpsNow
         self.iface.mapCanvas().setCenter(QgsPointXY(longitude, latitude))
-        self.statusDock.updateGpsInfo(longitude, latitude)
+        self.statusDock.updateGpsInfo(longitude, latitude, speed, course)
 
     def onCreateSession(self, sessionDirectory: str) -> None:
         # init session
