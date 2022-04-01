@@ -282,7 +282,7 @@ class SammoSession:
 
     def addSightingsFeature(self) -> QgsVectorLayer:
         layer = self.sightingsLayer
-        self._addFeature(layer, geom=self.lastGpsGeom)
+        self._addFeature(layer, geom=self.lastGpsInfo[0])
         return layer
 
     def addFollowersFeature(
