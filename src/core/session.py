@@ -215,7 +215,7 @@ class SammoSession:
             geom=self.lastGpsInfo[0],
             status=int(bool(layer.featureCount())),
             speed=self.lastGpsInfo[1][0],
-            course=self.lastGpsInfo[1][1],
+            courseAverage=self.lastGpsInfo[1][1],
         )
         return layer
 
