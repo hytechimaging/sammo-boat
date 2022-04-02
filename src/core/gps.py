@@ -47,13 +47,16 @@ class WorkerGpsExtractor(WorkerForOtherThread):
                     time.sleep(1.0)
                     self._gps.readline()  # flush incomplete line
                     check = self._gps.readline()
-                    assert bool(
-                        self.isGpggaLine(check) or self.isGprmcLine(check)
-                    )
+                    assert(check[0] != '$')
                     print("Port GPS ouvert sur " + port)
-                    break
                 except (SerialException, OSError, AssertionError):
+                    if self._gps:
+                        self._gps.close()
+                        self._gps = None
                     continue
+
+                if self._gps:
+                    break
 
         if not self._gps:
             time.sleep(1.0)
@@ -91,7 +94,9 @@ class WorkerGpsExtractor(WorkerForOtherThread):
                 print("GPS offline - position not valid")
                 self.isGpsOnline = False
         except Exception:
-            self._gps = None
+            if self._gps:
+                self._gps.close()
+                self._gps = None
             print("GPS offline - exception when trying to read")
             self.isGpsOnline = False
 
