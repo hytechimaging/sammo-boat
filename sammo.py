@@ -47,6 +47,7 @@ class Sammo:
         self.toolbar: QToolBar = self.iface.addToolBar("Sammo ToolBar")
         self.toolbar.setObjectName("Sammo ToolBar")
 
+        self.gps_wait = False
         self.loading = False
         self.session = SammoSession()
 
@@ -239,20 +240,67 @@ class Sammo:
         speed: float = -9999.0,
         course: float = -9999.0,
     ) -> None:
-        self.session.lastGpsInfo = (
-            QgsGeometry.fromPointXY(QgsPointXY(longitude, latitude)),
-            (speed, course),
-        )
+        updated = True
         now = datetime.now()
         gpsNow = datetime(now.year, now.month, now.day, h, m, s)
+
+        if self.session.lastGpsInfo[2] == gpsNow and (
+            speed != -9999.0 or course != -9999.0
+        ):
+            # a GPRMC frame is coming after a GPGGA frame with the same
+            # datetime but speed/course are valid
+            self.session.lastGpsInfo[1] = (speed, course)
+        elif self.session.lastGpsInfo[2] != gpsNow:
+            # a newer GPRMC/GPGGA frame is coming
+            self.session.lastGpsInfo = (
+                QgsGeometry.fromPointXY(QgsPointXY(longitude, latitude)),
+                (speed, course),
+                gpsNow,
+            )
+        else:
+            # we don't need to update GPS info in status panel (offline status
+            # is managed internally by the panel)
+            updated = False
+
         if (
             not self.session.lastCaptureTime
             or (gpsNow - self.session.lastCaptureTime).total_seconds() > 59
         ):
-            self.session.addGps(longitude, latitude, h, m, s, speed, course)
-            self.session.lastCaptureTime = gpsNow
-        self.iface.mapCanvas().setCenter(QgsPointXY(longitude, latitude))
-        self.statusDock.updateGpsInfo(longitude, latitude, speed, course)
+            # Wait for one more frame in case we retrieve the speed/course at
+            # the next frame. Worst case scenario: we lose 1 frame in database
+            if (
+                self.session.lastGpsInfo[1][0] == -9999.0
+                and self.session.lastGpsInfo[1][1] == -9999.0
+            ):
+                # False -> True: speed/course are invalid so we want to wait 1
+                # more frame
+                # True -> False: speed/course are invalid but we already waited
+                # for another frame.
+                self.gps_wait = not self.gps_wait
+            else:
+                # speed/course are valid so we don't need to wait for another
+                # frame to come
+                self.gps_wait = False
+
+            # we udpate the database if we don't need to wait for speed/course
+            if not self.gps_wait:
+                self.session.addGps(
+                    longitude, latitude, h, m, s, speed, course
+                )
+                self.session.lastCaptureTime = gpsNow
+
+        # Panel status is updated only if neccessary. This check is necessary
+        # because if we receive a GPGGA after a GPRMC for the same datetime,
+        # then speed/course are not valid in this call (so we don't want to
+        # update the panel).
+        if updated:
+            self.iface.mapCanvas().setCenter(QgsPointXY(longitude, latitude))
+            self.statusDock.updateGpsInfo(
+                longitude,
+                latitude,
+                self.session.lastGpsInfo[1][0],
+                self.session.lastGpsInfo[1][1],
+            )
 
     def onCreateSession(self, sessionDirectory: str) -> None:
         # init session
