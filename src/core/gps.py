@@ -103,6 +103,7 @@ class WorkerGpsExtractor(WorkerForOtherThread):
                 assert(check[0] != '$')
                 print("Port GPS ouvert sur " + port)
             except (SerialException, OSError, AssertionError):
+                self.isGpsOnline = False
                 if self._gps:
                     self._gps.close()
                     self._gps = None
