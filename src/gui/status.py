@@ -66,7 +66,7 @@ class StatusWidget(QFrame, FORM_CLASS):
         self.effort.setPixmap(px)
 
     def updateGps(
-        self, status, latitude="", longitude="", speed="", course=""
+        self, status, latitude="", longitude="", speed=-9999.0, course=-9999.0
     ):
         self.gps.setStyleSheet(self._styleSheet(self.gps, status))
         self.gpsFrame.setStyleSheet(self._styleSheet(self.gpsFrame, status))
@@ -84,11 +84,11 @@ class StatusWidget(QFrame, FORM_CLASS):
             self.longitude.setText(f"{longitude:.4f}")
 
         self.speed.setText("")
-        if speed and speed != -9999.0:
+        if speed != -9999.0:
             self.speed.setText(f"{speed:.1f}")
 
         self.course.setText("")
-        if course and course != -9999.0:
+        if course != -9999.0:
             self.course.setText(f"{course:.1f}")
 
     def init(self):
