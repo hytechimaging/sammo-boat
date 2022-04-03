@@ -43,7 +43,8 @@ class WorkerGpsExtractor(WorkerForOtherThread):
         if not self._gps:
             self.autodetect()
             if not self._gps:
-                time.sleep(1.)
+                time.sleep(1.0)
+                print("autodetect failed")
                 return
 
         # read frame from serial port
@@ -100,13 +101,14 @@ class WorkerGpsExtractor(WorkerForOtherThread):
                 time.sleep(1.0)
                 self._gps.readlines()  # flush incomplete line
                 check = self._gps.readline()
-                assert(check[0] != '$')
+                assert check[0] != "$"
                 print("Port GPS ouvert sur " + port)
-            except (SerialException, OSError, AssertionError):
+            except (SerialException, OSError, AssertionError, Exception) as e:
+                print(e)
                 self.isGpsOnline = False
                 if self._gps:
                     self._gps.close()
-                    self._gps = None
+                self._gps = None
                 continue
 
             # don't test other serial port if everyhing looks good
