@@ -82,14 +82,14 @@ class StatusWidget(QFrame, FORM_CLASS):
         if latitude and longitude:
             self.latitude.setText(f"{latitude:.4f}")
             self.longitude.setText(f"{longitude:.4f}")
-        if speed:
+
+        self.speed.setText("")
+        if speed and speed != -9999.0:
             self.speed.setText(f"{speed:.1f}")
-        elif speed == -9999.0:
-            self.speed.setText("")
-        if course:
+
+        self.course.setText("")
+        if course and course != -9999.0:
             self.course.setText(f"{course:.1f}")
-        elif course == -9999.0:
-            self.course.setText("")
 
     def init(self):
         self.updateRecording(False)
