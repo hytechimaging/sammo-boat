@@ -89,7 +89,7 @@ class WorkerGpsExtractor(WorkerForOtherThread):
                 print("GPS offline - position not valid")
                 self.isGpsOnline = False
         except Exception:
-            print("GPS online but invalid frame (no singal?)")
+            print("GPS online but invalid frame (no signal?)")
             self.isGpsOnline = False
 
     def autodetect(self):
