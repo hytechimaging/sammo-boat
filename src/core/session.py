@@ -66,6 +66,7 @@ class SammoSession:
         self.lastGpsInfo: Tuple[QgsGeometry, Tuple[float, float]] = (
             QgsGeometry(),
             (-9999.0, -9999.0),
+            None,
         )
         self.lastCaptureTime: datetime = datetime(1900, 1, 1, 0, 0, 0)
 
