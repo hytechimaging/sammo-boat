@@ -161,7 +161,11 @@ class SammoStatusDock(QDockWidget):
             self._onGpsOffline()
 
         # upate widget
-        self._widget.updateGps(not self._isGpsOffline)
+        self._widget.updateGps(
+            not self._isGpsOffline,
+            speed=self.session.lastGpsInfo["gprmc"]["speed"],
+            course=self.session.lastGpsInfo["gprmc"]["course"],
+        )
         self._widget.updateEffort(self._isEffortOn)
         self._widget.updateRecording(self.isSoundRecordingOn)
         self._widget.updateNeedSave(self.session.needsSaving())

@@ -7,7 +7,7 @@ import os
 from pathlib import Path
 from shutil import copyfile
 from datetime import datetime
-from typing import List, Optional, Tuple
+from typing import List, Optional, Dict, Union
 
 from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtWidgets import QProgressBar
@@ -63,11 +63,18 @@ class SammoSession:
         self._transectLayer: SammoTransectLayer = None
         self._strateLayer: SammoStrateLayer = None
         self._plateformLayer: SammoPlateformLayer = None
-        self.lastGpsInfo: Tuple[QgsGeometry, Tuple[float, float]] = (
-            QgsGeometry(),
-            (-9999.0, -9999.0),
-            None,
-        )
+        self.lastGpsInfo: Dict[
+            str,
+            Union[QgsGeometry, Dict[str, Union[float, datetime], datetime]],
+        ] = {
+            "geometry": QgsGeometry(),
+            "gprmc": {
+                "speed": -9999.0,
+                "course": -9999.0,
+                "datetime": datetime(1900, 1, 1, 0, 0, 0),
+            },
+            "datetime": None,
+        }
         self.lastCaptureTime: datetime = datetime(1900, 1, 1, 0, 0, 0)
 
     @property
@@ -213,10 +220,10 @@ class SammoSession:
         layer = self.environmentLayer
         self._addFeature(
             layer,
-            geom=self.lastGpsInfo[0],
+            geom=self.lastGpsInfo["geometry"],
             status=int(bool(layer.featureCount())),
-            speed=self.lastGpsInfo[1][0],
-            courseAverage=self.lastGpsInfo[1][1],
+            speed=self.lastGpsInfo["speed"],
+            courseAverage=self.lastGpsInfo["course"],
         )
         return layer
 
@@ -283,7 +290,7 @@ class SammoSession:
 
     def addSightingsFeature(self) -> QgsVectorLayer:
         layer = self.sightingsLayer
-        self._addFeature(layer, geom=self.lastGpsInfo[0])
+        self._addFeature(layer, geom=self.lastGpsInfo["geometry"])
         return layer
 
     def addFollowersFeature(

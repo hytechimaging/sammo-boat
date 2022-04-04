@@ -244,19 +244,31 @@ class Sammo:
         now = datetime.now()
         gpsNow = datetime(now.year, now.month, now.day, h, m, s)
 
-        if self.session.lastGpsInfo[2] == gpsNow and (
+        if self.session.lastGpsInfo["datetime"] == gpsNow and (
             speed != -9999.0 or course != -9999.0
         ):
             # a GPRMC frame is coming after a GPGGA frame with the same
             # datetime but speed/course are valid
-            self.session.lastGpsInfo[1] = (speed, course)
-        elif self.session.lastGpsInfo[2] != gpsNow:
+            self.session.lastGpsInfo["gprmc"]["speed"] = speed
+            self.session.lastGpsInfo["gprmc"]["course"] = course
+            self.session.lastGpsInfo["gprmc"]["datetime"] = now
+        elif self.session.lastGpsInfo["datetime"] != gpsNow:
             # a newer GPRMC/GPGGA frame is coming
-            self.session.lastGpsInfo = (
-                QgsGeometry.fromPointXY(QgsPointXY(longitude, latitude)),
-                (speed, course),
-                gpsNow,
+            self.session.lastGpsInfo["geometry"] = QgsGeometry.fromPointXY(
+                QgsPointXY(longitude, latitude)
             )
+            self.session.lastGpsInfo["datetime"] = gpsNow
+            if (
+                speed != -9999.0
+                or course != -9999.0
+                or (
+                    gpsNow - self.session.lastGpsInfo["gprmc"]["datetime"]
+                ).total_seconds()
+                > 59
+            ):
+                self.session.lastGpsInfo["gprmc"]["speed"] = speed
+                self.session.lastGpsInfo["gprmc"]["course"] = course
+                self.session.lastGpsInfo["gprmc"]["datetime"] = now
         else:
             # we don't need to update GPS info in status panel (offline status
             # is managed internally by the panel)
@@ -269,8 +281,8 @@ class Sammo:
             # Wait for one more frame in case we retrieve the speed/course at
             # the next frame. Worst case scenario: we lose 1 frame in database
             if (
-                self.session.lastGpsInfo[1][0] == -9999.0
-                and self.session.lastGpsInfo[1][1] == -9999.0
+                self.session.lastGpsInfo["gprmc"]["speed"] == -9999.0
+                and self.session.lastGpsInfo["gprmc"]["course"] == -9999.0
             ):
                 # False -> True: speed/course are invalid so we want to wait 1
                 # more frame
@@ -298,8 +310,8 @@ class Sammo:
             self.statusDock.updateGpsInfo(
                 longitude,
                 latitude,
-                self.session.lastGpsInfo[1][0],
-                self.session.lastGpsInfo[1][1],
+                self.session.lastGpsInfo["gprmc"]["speed"],
+                self.session.lastGpsInfo["gprmc"]["course"],
             )
 
     def onCreateSession(self, sessionDirectory: str) -> None:
@@ -381,7 +393,7 @@ class Sammo:
 
         self.followersTable = SammoFollowersTable(
             self.iface,
-            self.session.lastGpsInfo[0],
+            self.session.lastGpsInfo["geometry"],
             self.session.followersLayer,
         )
         self.followersTable.addButton.clicked.connect(self.onFollowersAdd)
