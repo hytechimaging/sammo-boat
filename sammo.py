@@ -60,7 +60,11 @@ class Sammo:
         self.environmentAction = self.createEnvironmentAction()
         self.sightingsAction = self.createSightingsAction()
         self.followersAction = self.createFollowersAction()
-        self.simuGpsAction, self.threadSimuGps = self.createSimuGps()
+        (
+            self.simuGpsSerialAction,
+            self.threadSerialSimuGps,
+        ) = self.createSimuGps(True)
+        self.simuGpsAction, self.threadSimuGps = self.createSimuGps(False)
 
         self.soundRecordingController = self.createSoundRecordingController()
         self.gpsReader = self.createGpsReader()
@@ -99,14 +103,28 @@ class Sammo:
         )
         return controller
 
-    def createSimuGps(self) -> [SammoSimuGpsAction, ThreadSimuGps]:
+    def createSimuGps(
+        self, serial: bool
+    ) -> [SammoSimuGpsAction, ThreadSimuGps]:
         if not os.environ.get("SAMMO_DEBUG"):
             return [None, None]
-        button = SammoSimuGpsAction(self.mainWindow, self.toolbar)
-        button.onChangeSimuGpsStatusSignal.connect(self.onChangeSimuGpsStatus)
-        testFilePath = os.path.join(
-            self.pluginFolder(), "src", "core", "gps_simu.csv"
-        )
+        button = SammoSimuGpsAction(self.mainWindow, self.toolbar, serial)
+        if serial:
+            button.onChangeSimuGpsStatusSignal.connect(
+                self.onChangeSimuGpsSerialStatus
+            )
+        else:
+            button.onChangeSimuGpsStatusSignal.connect(
+                self.onChangeSimuGpsStatus
+            )
+        if serial:
+            testFilePath = os.path.join(
+                self.pluginFolder(), "src", "core", "gps_serial_simu.csv"
+            )
+        else:
+            testFilePath = os.path.join(
+                self.pluginFolder(), "src", "core", "gps_simu.csv"
+            )
         threadGps = ThreadSimuGps(self.session, testFilePath)
         threadGps.frame.connect(self.onGpsFrame)
         return [button, threadGps]
@@ -210,6 +228,11 @@ class Sammo:
 
         if self.threadSimuGps is not None and self.threadSimuGps.isProceeding:
             self.threadSimuGps.stop()
+        if (
+            self.threadSerialSimuGps is not None
+            and self.threadSerialSimuGps.isProceeding
+        ):
+            self.threadSerialSimuGps.stop()
         self.soundRecordingController.interruptRecording()
         self.soundRecordingController.unload()
         self.sessionAction.unload()
@@ -217,6 +240,7 @@ class Sammo:
         self.environmentAction.unload()
         self.sightingsAction.unload()
         if self.simuGpsAction is not None:
+            self.simuGpsSerialAction.unload()
             self.simuGpsAction.unload()
 
         self.statusDock.unload()
@@ -338,6 +362,7 @@ class Sammo:
 
         # init simu
         if self.simuGpsAction:
+            self.simuGpsSerialAction.onNewSession()
             self.simuGpsAction.onNewSession()
 
     def cleanTableDock(self, layerId):
@@ -426,6 +451,12 @@ class Sammo:
             self.threadSimuGps.start()
         else:
             self.threadSimuGps.stop()
+
+    def onChangeSimuGpsSerialStatus(self, isOn: bool):
+        if isOn:
+            self.threadSerialSimuGps.start()
+        else:
+            self.threadSerialSimuGps.stop()
 
     def onStopSoundRecordingForEvent(
         self,

@@ -12,15 +12,15 @@ class SammoSimuGpsAction(QObject):
     # the parameter value is true if GPS simulation is ON
     onChangeSimuGpsStatusSignal = pyqtSignal(bool)
 
-    def __init__(self, parent: QObject, toolbar: QToolBar):
+    def __init__(self, parent: QObject, toolbar: QToolBar, serial: bool):
         super().__init__()
         self.parent = parent
         self.button: QPushButton = None
-        self.initGui(parent, toolbar)
+        self.initGui(parent, toolbar, serial)
 
-    def initGui(self, parent: QObject, toolbar: QToolBar):
+    def initGui(self, parent: QObject, toolbar: QToolBar, serial: bool):
         self.button = QPushButton(parent)
-        self.button.setText("Simu GPS")
+        self.button.setText("Simu Serial GPS" if serial else "Simu GPS")
         self.button.clicked.connect(self.onClick)
         self.button.setEnabled(False)
         self.button.setCheckable(True)
