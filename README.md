@@ -36,7 +36,7 @@ SAMMO-Boat is designed to work with a clean interface. We provide some QGIS cust
 
 The `admin` profile provides a full QGIS interface while the operator profile removes allmost all QGIS toolbar and menu.
 
-To use it, you can use the following commandline :
+On Linux, you can use the following commandline :
 
 ```
 --customizationfile path/to/QGISCUSTOMIZATION3_operator.ini --globalsettingsfile path/to/QGIS3_operator.ini
@@ -48,6 +48,8 @@ or add the following arguments in a shortcut configuration :
 --customizationfile path/to/QGISCUSTOMIZATION3_operator.ini --globalsettingsfile path/to/QGIS3_operator.ini
 ```
 
+On Windows, a menu has been added to configure shorcut on the user desktop:
+
 ![](https://github.com/hytechimaging/sammo-boat/blob/main/images/profile.png?raw=true)
 
 ## User Manual
@@ -56,11 +58,11 @@ or add the following arguments in a shortcut configuration :
 
 Some keyboard shortcuts are available in SAMMO-Boat :
 
-- `S` : save all tables manually
-- `E` : add an entity in environment table 
+- `Shift+S` : save all tables manually
+- `Shift+E` : add an entity in environment table 
 - `Space` : add an entity in sighting table
-- `F` : open follower dialog to add entities in follower table
-- `A` : stop audio recording
+- `Shift+F` : open follower dialog to add entities in follower table
+- `Shift+A` : stop audio recording
 - `Ctrl+Z` : undo last operation
 - `Ctrl+Shift+Z` : redo last canceled operation
 

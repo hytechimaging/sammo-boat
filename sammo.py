@@ -180,7 +180,9 @@ class Sammo:
         )
         self.sightingsShortcut.activated.connect(self.onSightingsAction)
 
-        self.endSoundShortcut = QShortcut(QKeySequence("A"), self.mainWindow)
+        self.endSoundShortcut = QShortcut(
+            QKeySequence("Shift+A"), self.mainWindow
+        )
         self.endSoundShortcut.activated.connect(
             self.soundRecordingController.interruptRecording
         )
