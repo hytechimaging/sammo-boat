@@ -86,6 +86,12 @@ class SammoTableDock(QDockWidget):
         )
         self.setWidget(self._widget)
         self.iface.addDockWidget(Qt.BottomDockWidgetArea, self)
+        self.iface.mainWindow().setCorner(
+            Qt.BottomLeftCorner, Qt.BottomDockWidgetArea
+        )
+        self.iface.mainWindow().setCorner(
+            Qt.BottomRightCorner, Qt.BottomDockWidgetArea
+        )
         QgsSettings().setValue("qgis/attributeTableLastView", lastView)
 
     def unload(self):
@@ -106,3 +112,9 @@ class SammoTableDock(QDockWidget):
             for name in tableKeys:
                 self.removeTable(name)
         self.iface.removeDockWidget(self)
+        self.iface.mainWindow().setCorner(
+            Qt.BottomLeftCorner, Qt.LeftDockWidgetArea
+        )
+        self.iface.mainWindow().setCorner(
+            Qt.BottomRightCorner, Qt.RightDockWidgetArea
+        )
