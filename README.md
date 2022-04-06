@@ -10,13 +10,22 @@ SAMMO-Boat is a QGIS extension that redesigns interface and handles GPS and micr
 ## Dependencies
 
 Some dependencies are necessary for the plugin to properly work and may be
-installed through the `Python Console` of QGIS Desktop:
+installed through the `Python Console` of QGIS Desktop with `pip`. If pip is not installed :
+
+```` python
+>>> import subprocess
+>>> cmd="python -m ensurepip --upgrade".split(" ")
+>>> subprocess.run(cmd)
+````
+
+And to install the plugin dependencies :
 
 ```` python
 >>> import pip
 >>> pip.main(['install', 'sounddevice'])
 >>> pip.main(['install', 'soundfile'])
 >>> pip.main(['install', 'pyserial'])
+>>> pip.main(['install', 'pywin32']) # Windows exclusively
 ````
 
 QGIS Desktop needs to be restarted after installing these dependencies.

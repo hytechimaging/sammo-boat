@@ -6,8 +6,8 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 import os
 import platform
 from pathlib import Path
-from shutil import copytree
 from datetime import datetime
+from shutil import copytree, rmtree
 
 from qgis.core import QgsApplication
 from qgis.PyQt.QtCore import QSize, QFile
@@ -107,7 +107,7 @@ def shortcutCreation():
             / "plugins"
             / "sammo-boat"
         )
-        adminPluginPath.mkdir(parents=True, exist_ok=True)
+        adminPluginPath.parent.mkdir(parents=True, exist_ok=True)
         operatorPluginPath = (
             Path(QgsApplication.qgisSettingsDirPath()).parent
             / "operator"
@@ -116,11 +116,12 @@ def shortcutCreation():
             / "sammo-boat"
         )
         operatorPluginPath.mkdir(parents=True, exist_ok=True)
-        copytree(ROOT_DIR.as_posix(), adminPluginPath, dirs_exist_ok=True)
-        copytree(ROOT_DIR.as_posix(), operatorPluginPath, dirs_exist_ok=True)
+        rmtree(adminPluginPath, ignore_errors=True)
+        copytree(ROOT_DIR.as_posix(), adminPluginPath)
+        rmtree(operatorPluginPath, ignore_errors=True)
+        copytree(ROOT_DIR.as_posix(), operatorPluginPath)
 
         # admin
-        # operator
         link_path = (
             Path(os.environ["HOMEDRIVE"])
             / os.environ["HOMEPATH"]

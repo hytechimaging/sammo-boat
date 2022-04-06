@@ -38,7 +38,9 @@ class SammoExportAction(QDialog):
         self.initGui(parent, toolbar)
 
         self.searchDirButton.clicked.connect(self.updateSaveFolder)
+        self.cancelButton.clicked.connect(self.close)
         self.exportButton.clicked.connect(self.export)
+        self.exportButton.setEnabled(False)
 
     def setEnabled(self, status):
         self.action.setEnabled(status)
@@ -58,7 +60,9 @@ class SammoExportAction(QDialog):
             self.session.db.directory,
             options=QFileDialog.ShowDirsOnly,
         )
-        self.saveFolderEdit.setText(path)
+        if path:
+            self.saveFolderEdit.setText(path)
+            self.exportButton.setEnabled(True)
 
     def export(self):
         nb = len(self.session.allLayers)

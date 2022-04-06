@@ -22,7 +22,7 @@ from qgis.core import (
     QgsCoordinateTransformContext,
 )
 
-from .layers import StatusCode
+from .status import StatusCode
 
 DB_NAME = "sammo-boat.gpkg"
 
@@ -103,10 +103,9 @@ class SammoDataBase:
         for feature in layer.getFeatures(
             QgsFeatureRequest().addOrderBy("fid", False)
         ):
-            if (
-                layer.name().casefold() == ENVIRONMENT_TABLE
-                and feature["status"] == StatusCode.END
-            ):
+            if layer.name().casefold() == ENVIRONMENT_TABLE and feature[
+                "status"
+            ] == StatusCode.display(StatusCode.END):
                 continue
 
             if not feat:
@@ -150,7 +149,7 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("transect"))
         fields.append(self._createFieldShortText("strate"))
         fields.append(self._createFieldShortText("length"))
-        fields.append(QgsField("status", QVariant.Int))
+        fields.append(self._createFieldShortText("status", len=5))
 
         fields.append(self._createFieldShortText("soundFile", len=80))
         fields.append(self._createFieldShortText("soundStart"))

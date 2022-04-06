@@ -77,11 +77,10 @@ class SammoTableDock(QDockWidget):
         self._widget = None
 
     def init(self, environmentLayer, sightingsLayer):
-        self.iface.removeDockWidget(self)
-
         lastView = int(QgsSettings().value("qgis/attributeTableLastView", 0))
         QgsSettings().setValue("qgis/attributeTableLastView", 0)
 
+        self.clean()
         self._widget = TableWidget(
             self.iface, environmentLayer, sightingsLayer
         )
@@ -89,11 +88,21 @@ class SammoTableDock(QDockWidget):
         self.iface.addDockWidget(Qt.BottomDockWidgetArea, self)
         QgsSettings().setValue("qgis/attributeTableLastView", lastView)
 
+    def unload(self):
+        self.clean()
+
     def refresh(self, layer):
         table = self._widget.tables[layer.name()]
         SammoAttributeTable.refresh(table, layer.name())
 
     def removeTable(self, name):
         if name in self._widget.tables:
-            self._widget.tables[name].close()
+            self._widget.tables[name].accept()
             self._widget.tables.pop(name, None)
+
+    def clean(self):
+        if self._widget:
+            tableKeys = [k for k in self._widget.tables.keys()]
+            for name in tableKeys:
+                self.removeTable(name)
+        self.iface.removeDockWidget(self)

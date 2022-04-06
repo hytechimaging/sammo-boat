@@ -39,37 +39,36 @@ class WorkerGpsExtractor(WorkerForOtherThread):
             return "/dev/ttyUSB"
 
     def _toDoInsideLoop(self):
+        # open serial port if necessary
         if not self._gps:
-            for i in range(0, 9):
-                port = "{}{}".format(self._serialPortPrefix(), str(i))
-                try:
-                    self._gps = serial.Serial(port, baudrate=4800, timeout=0.5)
-                    time.sleep(1.0)
-                    self._gps.readline()  # flush incomplete line
-                    check = self._gps.readline()
-                    assert bool(
-                        self.isGpggaLine(check) or self.isGprmcLine(check)
-                    )
-                    print("Port GPS ouvert sur " + port)
-                    break
-                except (SerialException, OSError, AssertionError):
-                    continue
+            self.autodetect()
+            if not self._gps:
+                time.sleep(1.0)
+                print("autodetect failed")
+                return
 
-        if not self._gps:
-            time.sleep(1.0)
-            return
-
+        # read frame from serial port
         try:
             line = self._gps.readline()
             line = line.decode("cp1250")
+        except Exception:
+            if self._gps:
+                self._gps.close()
+                self._gps = None
+            print("GPS offline - exception when trying to read")
+            self.isGpsOnline = False
+            return
+
+        # check frame type
+        try:
             if self.isGprmcLine(line):
-                self.isGPRMCMode = True
                 frame = SammoGprmcFrame(line)
-            elif self.isGpggaLine(line) and not self.isGPRMCMode:
+            elif self.isGpggaLine(line):
                 frame = SammoGpggaFrame(line)
             else:
                 self.toDoIfNotAGpggaLine()
                 return
+
             position = frame.positionData
             longitude_deg = position[0]
             if longitude_deg != sys.float_info.max:
@@ -91,9 +90,30 @@ class WorkerGpsExtractor(WorkerForOtherThread):
                 print("GPS offline - position not valid")
                 self.isGpsOnline = False
         except Exception:
-            self._gps = None
-            print("GPS offline - exception when trying to read")
+            print("GPS online but invalid frame (no signal?)")
             self.isGpsOnline = False
+
+    def autodetect(self):
+        for i in range(0, 9):
+            port = "{}{}".format(self._serialPortPrefix(), str(i))
+            try:
+                self._gps = serial.Serial(port, baudrate=4800, timeout=0.5)
+                time.sleep(1.0)
+                self._gps.readlines()  # flush incomplete line
+                check = self._gps.readline()
+                assert check[0] != "$"
+                print("Port GPS ouvert sur " + port)
+            except (SerialException, OSError, AssertionError, Exception) as e:
+                print(e)
+                self.isGpsOnline = False
+                if self._gps:
+                    self._gps.close()
+                self._gps = None
+                continue
+
+            # don't test other serial port if everyhing looks good
+            if self._gps:
+                break
 
     def toDoIfNotAGpggaLine(self):
         if self.isGpsOnline and (time.time() - self.timeOfLastContact) > 5:

@@ -65,7 +65,9 @@ class StatusWidget(QFrame, FORM_CLASS):
         px = pixmap(icon, QSize(64, 64))
         self.effort.setPixmap(px)
 
-    def updateGps(self, status, latitude="", longitude=""):
+    def updateGps(
+        self, status, latitude="", longitude="", speed=-9999.0, course=-9999.0
+    ):
         self.gps.setStyleSheet(self._styleSheet(self.gps, status))
         self.gpsFrame.setStyleSheet(self._styleSheet(self.gpsFrame, status))
         self.gps.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
@@ -80,6 +82,14 @@ class StatusWidget(QFrame, FORM_CLASS):
         if latitude and longitude:
             self.latitude.setText(f"{latitude:.4f}")
             self.longitude.setText(f"{longitude:.4f}")
+
+        self.speed.setText("")
+        if speed != -9999.0:
+            self.speed.setText(f"{speed:.1f}")
+
+        self.course.setText("")
+        if course != -9999.0:
+            self.course.setText(f"{course:.1f}")
 
     def init(self):
         self.updateRecording(False)
@@ -151,19 +161,25 @@ class SammoStatusDock(QDockWidget):
             self._onGpsOffline()
 
         # upate widget
-        self._widget.updateGps(not self._isGpsOffline)
+        self._widget.updateGps(
+            not self._isGpsOffline,
+            speed=self.session.lastGpsInfo["gprmc"]["speed"],
+            course=self.session.lastGpsInfo["gprmc"]["course"],
+        )
         self._widget.updateEffort(self._isEffortOn)
         self._widget.updateRecording(self.isSoundRecordingOn)
         self._widget.updateNeedSave(self.session.needsSaving())
 
-    def updateGpsInfo(self, longitude: float, latitude: float):
+    def updateGpsInfo(
+        self, longitude: float, latitude: float, speed: float, course: float
+    ):
         self._counter500msWithoutGpsInfo = 0
 
         if longitude == sys.float_info.max:
             self._onGpsOffline()
         else:
             self._isGpsOffline = False
-            self._widget.updateGps(True, latitude, longitude)
+            self._widget.updateGps(True, latitude, longitude, speed, course)
 
     def unload(self):
         self._endThread()

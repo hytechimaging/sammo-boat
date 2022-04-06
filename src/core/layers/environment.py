@@ -3,8 +3,6 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
-from enum import Enum
-
 from qgis.PyQt.QtGui import QColor
 from qgis.core import (
     QgsVectorLayer,
@@ -15,19 +13,12 @@ from qgis.core import (
 )
 
 from ..utils import path, base64File
-
 from ..database import (
     SammoDataBase,
     ENVIRONMENT_TABLE,
 )
 
 from .layer import SammoLayer
-
-
-class StatusCode(Enum):
-    BEGIN = 0
-    ADD = 1
-    END = 2
 
 
 class SammoEnvironmentLayer(SammoLayer):
@@ -62,6 +53,9 @@ class SammoEnvironmentLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
+        form_config = layer.editFormConfig()
+        form_config.setReadOnly(idx, True)
+        layer.setEditFormConfig(form_config)
 
         # route type
         idx = layer.fields().indexFromName("routeType")
@@ -315,6 +309,7 @@ class SammoEnvironmentLayer(SammoLayer):
             "transect",
             "strate",
             "length",
+            "plateformHeight",
         ]:
             idx = layer.fields().indexFromName(field)
             form_config = layer.editFormConfig()
@@ -337,9 +332,9 @@ class SammoEnvironmentLayer(SammoLayer):
         idx = layer.fields().indexFromName("status")
         cfg = {}
         cfg["map"] = [
-            {StatusCode(0).name.capitalize(): StatusCode(0)},
-            {StatusCode(1).name.capitalize(): StatusCode(1)},
-            {StatusCode(2).name.capitalize(): StatusCode(2)},
+            {"Begin": "Begin"},
+            {"Add": "Add"},
+            {"End": "End"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)

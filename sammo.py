@@ -47,6 +47,7 @@ class Sammo:
         self.toolbar: QToolBar = self.iface.addToolBar("Sammo ToolBar")
         self.toolbar.setObjectName("Sammo ToolBar")
 
+        self.gps_wait = False
         self.loading = False
         self.session = SammoSession()
 
@@ -80,6 +81,7 @@ class Sammo:
         return self.iface.mainWindow()
 
     def setEnabled(self, status):
+        self.settingsAction.setEnabled(status)
         self.exportAction.setEnabled(status)
         self.statusDock.setEnabled(status)
         self.environmentAction.setEnabled(status)
@@ -164,11 +166,13 @@ class Sammo:
 
     def initShortcuts(self) -> None:
         self.environmentShortcut = QShortcut(
-            QKeySequence("E"), self.mainWindow
+            QKeySequence("Shift+E"), self.mainWindow
         )
         self.environmentShortcut.activated.connect(self.onEnvironmentAction)
 
-        self.followersShortcut = QShortcut(QKeySequence("F"), self.mainWindow)
+        self.followersShortcut = QShortcut(
+            QKeySequence("Shift+F"), self.mainWindow
+        )
         self.followersShortcut.activated.connect(self.onFollowersAction)
 
         self.sightingsShortcut = QShortcut(
@@ -204,6 +208,7 @@ class Sammo:
 
         if self.threadSimuGps is not None and self.threadSimuGps.isProceeding:
             self.threadSimuGps.stop()
+        self.soundRecordingController.interruptRecording()
         self.soundRecordingController.unload()
         self.sessionAction.unload()
         self.followersAction.unload()
@@ -213,6 +218,7 @@ class Sammo:
             self.simuGpsAction.unload()
 
         self.statusDock.unload()
+        self.tableDock.unload()
         del self.statusDock
         del self.toolbar
 
@@ -235,19 +241,79 @@ class Sammo:
         speed: float = -9999.0,
         course: float = -9999.0,
     ) -> None:
-        self.session.lastGpsGeom = QgsGeometry.fromPointXY(
-            QgsPointXY(longitude, latitude)
-        )
+        updated = True
         now = datetime.now()
         gpsNow = datetime(now.year, now.month, now.day, h, m, s)
+
+        if self.session.lastGpsInfo["datetime"] == gpsNow and (
+            speed != -9999.0 or course != -9999.0
+        ):
+            # a GPRMC frame is coming after a GPGGA frame with the same
+            # datetime but speed/course are valid
+            self.session.lastGpsInfo["gprmc"]["speed"] = speed
+            self.session.lastGpsInfo["gprmc"]["course"] = course
+            self.session.lastGpsInfo["gprmc"]["datetime"] = now
+        elif self.session.lastGpsInfo["datetime"] != gpsNow:
+            # a newer GPRMC/GPGGA frame is coming
+            self.session.lastGpsInfo["geometry"] = QgsGeometry.fromPointXY(
+                QgsPointXY(longitude, latitude)
+            )
+            self.session.lastGpsInfo["datetime"] = gpsNow
+            if (
+                speed != -9999.0
+                or course != -9999.0
+                or (
+                    gpsNow - self.session.lastGpsInfo["gprmc"]["datetime"]
+                ).total_seconds()
+                > 59
+            ):
+                self.session.lastGpsInfo["gprmc"]["speed"] = speed
+                self.session.lastGpsInfo["gprmc"]["course"] = course
+                self.session.lastGpsInfo["gprmc"]["datetime"] = now
+        else:
+            # we don't need to update GPS info in status panel (offline status
+            # is managed internally by the panel)
+            updated = False
+
         if (
             not self.session.lastCaptureTime
             or (gpsNow - self.session.lastCaptureTime).total_seconds() > 59
         ):
-            self.session.addGps(longitude, latitude, h, m, s, speed, course)
-            self.session.lastCaptureTime = gpsNow
-        self.iface.mapCanvas().setCenter(QgsPointXY(longitude, latitude))
-        self.statusDock.updateGpsInfo(longitude, latitude)
+            # Wait for one more frame in case we retrieve the speed/course at
+            # the next frame. Worst case scenario: we lose 1 frame in database
+            if (
+                self.session.lastGpsInfo["gprmc"]["speed"] == -9999.0
+                and self.session.lastGpsInfo["gprmc"]["course"] == -9999.0
+            ):
+                # False -> True: speed/course are invalid so we want to wait 1
+                # more frame
+                # True -> False: speed/course are invalid but we already waited
+                # for another frame.
+                self.gps_wait = not self.gps_wait
+            else:
+                # speed/course are valid so we don't need to wait for another
+                # frame to come
+                self.gps_wait = False
+
+            # we udpate the database if we don't need to wait for speed/course
+            if not self.gps_wait:
+                self.session.addGps(
+                    longitude, latitude, h, m, s, speed, course
+                )
+                self.session.lastCaptureTime = gpsNow
+
+        # Panel status is updated only if neccessary. This check is necessary
+        # because if we receive a GPGGA after a GPRMC for the same datetime,
+        # then speed/course are not valid in this call (so we don't want to
+        # update the panel).
+        if updated:
+            self.iface.mapCanvas().setCenter(QgsPointXY(longitude, latitude))
+            self.statusDock.updateGpsInfo(
+                longitude,
+                latitude,
+                self.session.lastGpsInfo["gprmc"]["speed"],
+                self.session.lastGpsInfo["gprmc"]["course"],
+            )
 
     def onCreateSession(self, sessionDirectory: str) -> None:
         # init session
@@ -261,6 +327,7 @@ class Sammo:
 
         self.soundRecordingController.onNewSession(sessionDirectory)
 
+        self.tableDock.clean()
         self.tableDock.init(
             self.session.environmentLayer, self.session.sightingsLayer
         )
@@ -326,7 +393,9 @@ class Sammo:
         self.soundRecordingController.onStartFollowers()
 
         self.followersTable = SammoFollowersTable(
-            self.iface, self.session.lastGpsGeom, self.session.followersLayer
+            self.iface,
+            self.session.lastGpsInfo["geometry"],
+            self.session.followersLayer,
         )
         self.followersTable.addButton.clicked.connect(self.onFollowersAdd)
         self.followersTable.okButton.clicked.connect(self.onFollowersOk)
@@ -395,9 +464,12 @@ class Sammo:
         sessionDir = SammoSession.sessionDirectory(QgsProject.instance())
 
         if not sessionDir:
+            self.soundRecordingController.interruptRecording()
+            self.soundRecordingController.unload()
             self.session = SammoSession()
             self.statusDock.session = self.session
             self.settingsAction.session = self.session
+            self.tableDock.clean()
             return
 
         self.onCreateSession(sessionDir)
