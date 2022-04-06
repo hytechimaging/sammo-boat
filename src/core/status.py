@@ -10,3 +10,7 @@ class StatusCode(Enum):
     BEGIN = 0
     ADD = 1
     END = 2
+
+    @staticmethod
+    def display(status: "StatusCode") -> str:
+        return status.name.capitalize()

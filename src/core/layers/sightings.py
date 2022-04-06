@@ -234,6 +234,7 @@ class SammoSightingsLayer(SammoLayer):
             "dateTime",
             "validated",
             "sightNum",
+            "observer",
         ]:
             idx = layer.fields().indexFromName(field)
             form_config = layer.editFormConfig()

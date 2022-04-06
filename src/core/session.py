@@ -221,9 +221,11 @@ class SammoSession:
         self._addFeature(
             layer,
             geom=self.lastGpsInfo["geometry"],
-            status=int(bool(layer.featureCount())),
-            speed=self.lastGpsInfo["speed"],
-            courseAverage=self.lastGpsInfo["course"],
+            status=StatusCode.display(
+                StatusCode(int(bool(layer.featureCount())))
+            ),
+            speed=self.lastGpsInfo["gprmc"]["speed"],
+            courseAverage=self.lastGpsInfo["gprmc"]["course"],
         )
         return layer
 
@@ -249,20 +251,22 @@ class SammoSession:
         for prevFeat in self.environmentLayer.getFeatures(request):
             if prevFeat["fid"] == feat["fid"]:
                 continue
-            elif (
-                prevFeat["status"] == StatusCode.END.value
-                or feat["status"] == StatusCode.END.value
-            ):
+            elif prevFeat["status"] == StatusCode.display(
+                StatusCode.END
+            ) or feat["status"] == StatusCode.display(StatusCode.END):
                 return
             elif (
                 prevFeat["status"]
-                in [StatusCode.BEGIN.value, StatusCode.ADD.value]
+                in [
+                    StatusCode.display(StatusCode.BEGIN),
+                    StatusCode.display(StatusCode.ADD),
+                ]
                 and prevFeat["routeType"] == feat["routeType"]
             ):
                 self.environmentLayer.changeAttributeValue(
                     fid,
                     self.environmentLayer.fields().indexOf("status"),
-                    StatusCode.ADD.value,
+                    StatusCode.display(StatusCode.ADD),
                 )
             elif prevFeat["routeType"] != feat["routeType"]:
                 ft = QgsVectorLayerUtils.createFeature(self.environmentLayer)
@@ -273,13 +277,13 @@ class SammoSession:
                     ft[attr] = feat[attr]
                 ft["routeType"] = prevFeat["routeType"]
                 ft["dateTime"] = QDateTime(feat["dateTime"])
-                ft["status"] = StatusCode.END.value
+                ft["status"] = StatusCode.display(StatusCode.END)
                 self.environmentLayer.addFeature(ft)
 
                 self.environmentLayer.changeAttributeValue(
                     fid,
                     self.environmentLayer.fields().indexOf("status"),
-                    StatusCode.BEGIN.value,
+                    StatusCode.display(StatusCode.BEGIN),
                 )
                 self.environmentLayer.changeAttributeValue(
                     fid,
@@ -405,7 +409,7 @@ class SammoSession:
             )
             request = QgsFeatureRequest().setFilterExpression(
                 f"dateTime < to_datetime('{strDateTime}') "
-                f"and status != {str(StatusCode.END.value)}"
+                f"and status != {StatusCode.display(StatusCode.END)}"
             )
             request.addOrderBy("dateTime", False)
             for envFeat in self.environmentLayer.getFeatures(request):
@@ -534,7 +538,7 @@ class SammoSession:
                         feat[name] = lastFeat[name]
 
         for key, value in kwargs.items():
-            if key in ["speed", "course"] and value == -9999.0:
+            if key in ["speed", "courseAverage"] and value == -9999.0:
                 continue
             elif key in layer.fields().names():
                 feat[key] = value

@@ -53,6 +53,9 @@ class SammoEnvironmentLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
+        form_config = layer.editFormConfig()
+        form_config.setReadOnly(idx, True)
+        layer.setEditFormConfig(form_config)
 
         # route type
         idx = layer.fields().indexFromName("routeType")
@@ -329,9 +332,9 @@ class SammoEnvironmentLayer(SammoLayer):
         idx = layer.fields().indexFromName("status")
         cfg = {}
         cfg["map"] = [
-            {"Begin": 0},
-            {"Add": 1},
-            {"End": 2},
+            {"Begin": "Begin"},
+            {"Add": "Add"},
+            {"End": "End"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
