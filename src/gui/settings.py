@@ -51,6 +51,7 @@ class SammoSettingsDialog(QDialog, FORM_CLASS):
         self.transectButton.clicked.connect(self.surveyEdit)
         self.strateButton.clicked.connect(self.surveyEdit)
         self.plateformButton.clicked.connect(self.surveyEdit)
+        self.closeButton.clicked.connect(self.close)
 
     def surveyEdit(self):
         if self.sender() == self.surveyButton:

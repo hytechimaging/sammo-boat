@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>137</height>
+    <height>193</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,30 +15,46 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QPushButton" name="surveyButton">
-     <property name="text">
-      <string>Survey</string>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Administrator tables</string>
      </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QPushButton" name="surveyButton">
+        <property name="text">
+         <string>Survey</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="transectButton">
+        <property name="text">
+         <string>Transect</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="strateButton">
+        <property name="text">
+         <string>Strate</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="plateformButton">
+        <property name="text">
+         <string>Plateform</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="transectButton">
+    <widget class="QPushButton" name="closeButton">
      <property name="text">
-      <string>Transect</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="strateButton">
-     <property name="text">
-      <string>Strate</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="plateformButton">
-     <property name="text">
-      <string>Plateform</string>
+      <string>Close</string>
      </property>
     </widget>
    </item>

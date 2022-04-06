@@ -81,6 +81,7 @@ class Sammo:
         return self.iface.mainWindow()
 
     def setEnabled(self, status):
+        self.settingsAction.setEnabled(status)
         self.exportAction.setEnabled(status)
         self.statusDock.setEnabled(status)
         self.environmentAction.setEnabled(status)
