@@ -344,6 +344,7 @@ class Sammo:
     def onCreateSession(self, sessionDirectory: str) -> None:
         # init session
         self.loading = True
+        QgsProject.instance().clear()
         self.session.init(sessionDirectory)
         self.session.saveAll()
         self.loading = False
