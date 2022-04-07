@@ -402,6 +402,7 @@ class Sammo:
 
     def onMergeAction(self) -> None:
         self.mergeDialog = SammoMergeDialog()
+        self.mergeDialog.mergeEnded.connect(self.onCreateSession)
         self.mergeDialog.show()
 
     def onEnvironmentAction(self) -> None:
