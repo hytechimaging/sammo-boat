@@ -3,6 +3,7 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
+import os
 import sys
 import time
 import serial
@@ -44,7 +45,8 @@ class WorkerGpsExtractor(WorkerForOtherThread):
             self.autodetect()
             if not self._gps:
                 time.sleep(1.0)
-                print("autodetect failed")
+                if os.environ.get("SAMMO_DEBUG"):
+                    print("autodetect failed")
                 return
 
         # read frame from serial port
@@ -55,7 +57,8 @@ class WorkerGpsExtractor(WorkerForOtherThread):
             if self._gps:
                 self._gps.close()
                 self._gps = None
-            print("GPS offline - exception when trying to read")
+            if not os.environ.get("SAMMO_DEBUG"):
+                print("GPS offline - exception when trying to read")
             self.isGpsOnline = False
             return
 
@@ -87,10 +90,12 @@ class WorkerGpsExtractor(WorkerForOtherThread):
                 )
                 self.isGpsOnline = True
             else:
-                print("GPS offline - position not valid")
+                if not os.environ.get("SAMMO_DEBUG"):
+                    print("GPS offline - position not valid")
                 self.isGpsOnline = False
         except Exception:
-            print("GPS online but invalid frame (no signal?)")
+            if not os.environ.get("SAMMO_DEBUG"):
+                print("GPS online but invalid frame (no signal?)")
             self.isGpsOnline = False
 
     def autodetect(self):
@@ -120,7 +125,8 @@ class WorkerGpsExtractor(WorkerForOtherThread):
             # if no contact with the GPS after 5 secondes,
             # we consider that it is offline
             self.isGpsOnline = False
-            print("GPS offline - time with no contact too long")
+            if not os.environ.get("SAMMO_DEBUG"):
+                print("GPS offline - time with no contact too long")
 
     @staticmethod
     def isGpggaLine(line: str) -> bool:
