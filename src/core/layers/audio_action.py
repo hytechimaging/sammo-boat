@@ -49,6 +49,7 @@ class AudioPlayer(QObject):
     def __init__(self, filename, offset):
         super().__init__()
         self.sound = filename
+        self.stream = None
         self.offset = offset
         self.nbBlock = 0
         self.q = queue.Queue(maxsize=BUFFERSIZE)
@@ -106,7 +107,7 @@ class AudioPlayer(QObject):
             print(type(e).__name__ + ": " + str(e))
 
     def stop(self) -> None:
-        if self.playing:
+        if self.playing and self.stream:
             self.stream.stop()
             self.playing = False
 
