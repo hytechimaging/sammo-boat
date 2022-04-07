@@ -344,6 +344,7 @@ class Sammo:
     def onCreateSession(self, sessionDirectory: str) -> None:
         # init session
         self.loading = True
+        QgsProject.instance().clear()
         self.session.init(sessionDirectory)
         self.session.saveAll()
         self.loading = False
@@ -402,6 +403,7 @@ class Sammo:
 
     def onMergeAction(self) -> None:
         self.mergeDialog = SammoMergeDialog()
+        self.mergeDialog.mergeEnded.connect(self.onCreateSession)
         self.mergeDialog.show()
 
     def onEnvironmentAction(self) -> None:
