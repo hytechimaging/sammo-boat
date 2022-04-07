@@ -11,7 +11,7 @@ from datetime import datetime
 
 
 class WorkerSimuGps(WorkerForOtherThread):
-    addNewFeatureToGpsTableSignal = pyqtSignal(float, float, str)
+    addNewFeatureToGpsTableSignal = pyqtSignal(float, float, str, float, float)
 
     def __init__(
         self,
@@ -32,13 +32,23 @@ class WorkerSimuGps(WorkerForOtherThread):
             if self._isNeedToStop:
                 return
 
-            coordinates = self._lines[i].strip().split(",")
-            latitude_deg = coordinates[0]
-            longitude_deg = coordinates[1]
+            infos = self._lines[i].strip().split(",")
+            latitude_deg = infos[0]
+            longitude_deg = infos[1]
             formattedDateTime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+            speed = -9999.0
+            course = -9999.0
+            if len(infos) == 6 and infos[4] and infos[5]:
+                speed = infos[4]
+                course = infos[5]
+
             self.addNewFeatureToGpsTableSignal.emit(
-                float(longitude_deg), float(latitude_deg), formattedDateTime
+                float(longitude_deg),
+                float(latitude_deg),
+                formattedDateTime,
+                float(speed),
+                float(course),
             )
             self._log(
                 "GPS : longitude = {}°"
@@ -64,7 +74,7 @@ class WorkerSimuGps(WorkerForOtherThread):
 
 
 class ThreadSimuGps(OtherThread):
-    frame = pyqtSignal(float, float, int, int, int)
+    frame = pyqtSignal(float, float, int, int, int, float, float)
 
     def __init__(self, session: SammoSession, testFilePath: str):
         super().__init__()
@@ -75,7 +85,9 @@ class ThreadSimuGps(OtherThread):
 
     def start(self):
         self.worker = WorkerSimuGps(
-            self._testFilePath, self._session, self.indexOfNextGpsPoint
+            self._testFilePath,
+            self._session,
+            self.indexOfNextGpsPoint,
         )
         self.worker.addNewFeatureToGpsTableSignal.connect(self.newFrame)
         super()._start(self.worker)
@@ -95,10 +107,19 @@ class ThreadSimuGps(OtherThread):
         return hour, minutes, secondes
 
     def newFrame(
-        self, longitude_deg: float, latitude_deg: float, formattedDateTime: str
+        self,
+        longitude_deg: float,
+        latitude_deg: float,
+        formattedDateTime: str,
+        speed: float,
+        course: float,
     ):
         self.frame.emit(
-            longitude_deg, latitude_deg, *self.getDatetime(formattedDateTime)
+            longitude_deg,
+            latitude_deg,
+            *self.getDatetime(formattedDateTime),
+            speed,
+            course
         )
 
     @staticmethod
