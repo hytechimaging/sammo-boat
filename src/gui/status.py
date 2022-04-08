@@ -12,6 +12,7 @@ from qgis.PyQt.QtWidgets import QFrame, QLabel, QDockWidget
 
 from qgis.core import QgsSettings, QgsFeatureRequest, QgsExpression
 
+from ..core.status import StatusCode
 from ..core.utils import pixmap, icon
 from ..core.thread_widget import ThreadWidget
 
@@ -194,7 +195,10 @@ class SammoStatusDock(QDockWidget):
         request = QgsFeatureRequest(QgsExpression("routeType = 'prospection'"))
         request.addOrderBy("fid", False)
         for feat in layer.getFeatures(request):
-            if feat["routeType"] == "prospection" and feat["status"] in [0, 1]:
+            if feat["routeType"] == "prospection" and feat["status"] in [
+                StatusCode.display(StatusCode.BEGIN),
+                StatusCode.display(StatusCode.ADD),
+            ]:
                 return True
             break
 
