@@ -515,11 +515,6 @@ class SammoSession:
             if layer == self.sightingsLayer:
                 feat["side"] = lastFeat["side"]
             if layer == self.environmentLayer or duplicate:
-                plateform = (
-                    next(self.plateformLayer.getFeatures())
-                    if self.plateformLayer.featureCount()
-                    else None
-                )
                 for name in lastFeat.fields().names():
                     if name in [
                         "fid",
@@ -527,15 +522,21 @@ class SammoSession:
                         "speed",
                         "courseAverage",
                         "validated",
-                    ]:
-                        continue
-                    elif plateform and name in [
                         "plateform",
                         "plateformHeight",
                     ]:
-                        feat[name] = plateform[name]
+                        continue
                     else:
                         feat[name] = lastFeat[name]
+        if layer == self.environmentLayer:
+            plateform = (
+                next(self.plateformLayer.getFeatures())
+                if self.plateformLayer.featureCount()
+                else None
+            )
+            if plateform:
+                feat["plateform"] = plateform["plateform"]
+                feat["plateformHeight"] = plateform["plateformHeight"]
 
         for key, value in kwargs.items():
             if key in ["speed", "courseAverage"] and value == -9999.0:
