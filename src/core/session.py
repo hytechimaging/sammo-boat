@@ -409,16 +409,28 @@ class SammoSession:
             )
             request = QgsFeatureRequest().setFilterExpression(
                 f"dateTime < to_datetime('{strDateTime}') "
-                f"and status != {StatusCode.display(StatusCode.END)}"
+                f"and status != '{StatusCode.display(StatusCode.END)}'"
             )
             request.addOrderBy("dateTime", False)
             for envFeat in self.environmentLayer.getFeatures(request):
                 if feat["side"] == "L":
-                    feat["observer"] = envFeat["left"]
+                    self.sightingsLayer.changeAttributeValue(
+                        feat.id(),
+                        self.sightingsLayer.fields().indexOf("observer"),
+                        envFeat["left"],
+                    )
                 elif feat["side"] == "R":
-                    feat["observer"] = envFeat["right"]
+                    self.sightingsLayer.changeAttributeValue(
+                        feat.id(),
+                        self.sightingsLayer.fields().indexOf("observer"),
+                        envFeat["right"],
+                    )
                 elif feat["side"] == "C":
-                    feat["observer"] = envFeat["center"]
+                    self.sightingsLayer.changeAttributeValue(
+                        feat.id(),
+                        self.sightingsLayer.fields().indexOf("observer"),
+                        envFeat["center"],
+                    )
                 break
 
             if survey:
