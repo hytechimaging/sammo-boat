@@ -33,8 +33,7 @@ class SammoLayer:
     def layer(self) -> QgsVectorLayer:
         if QgsProject.instance().mapLayersByName(self.name):
             return QgsProject.instance().mapLayersByName(self.name)[0]
-
-        return QgsVectorLayer(self.db.tableUri(self.table))
+        return QgsVectorLayer(self.db.tableUri(self.table), baseName=self.name)
 
     @property
     def uri(self) -> str:
