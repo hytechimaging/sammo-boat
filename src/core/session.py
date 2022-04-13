@@ -340,7 +340,7 @@ class SammoSession:
             layer.commitChanges()
             layer.startEditing()
 
-    def validate(self):
+    def validate(self, merge=False):
         selectedMode = bool(
             self.environmentLayer.selectedFeatureCount()
             + self.sightingsLayer.selectedFeatureCount()
@@ -357,17 +357,16 @@ class SammoSession:
             if self.transectLayer.featureCount()
             else None
         )
-
+        environmentLayer = self.environmentLayer
+        environmentLayer.startEditing()
         featuresIterator = (
-            self.environmentLayer.getSelectedFeatures()
+            environmentLayer.getSelectedFeatures()
             if selectedMode
-            else self.environmentLayer.getFeatures()
+            else environmentLayer.getFeatures()
         )
-        idx = self.environmentLayer.fields().indexOf("validated")
         for feat in featuresIterator:
             if feat["validated"]:
                 continue
-
             if survey:
                 for attr in [
                     "survey",
@@ -376,30 +375,36 @@ class SammoSession:
                     "shipName",
                     "computer",
                 ]:
-                    self.environmentLayer.changeAttributeValue(
+                    if attr == "computer" and feat["computer"]:
+                        continue
+                    environmentLayer.changeAttributeValue(
                         feat.id(),
-                        self.environmentLayer.fields().indexOf(attr),
+                        environmentLayer.fields().indexOf(attr),
                         survey[attr],
                     )
             if transect:
                 for attr in ["transect", "strate", "length"]:
-                    self.environmentLayer.changeAttributeValue(
+                    environmentLayer.changeAttributeValue(
                         feat.id(),
-                        self.environmentLayer.fields().indexOf(attr),
+                        environmentLayer.fields().indexOf(attr),
                         transect[attr],
                     )
-            self.environmentLayer.changeAttributeValue(
+            idx = environmentLayer.fields().indexOf("validated")
+            environmentLayer.changeAttributeValue(
                 feat.id(),
                 idx,
-                True,
+                not merge,
             )
+        environmentLayer.commitChanges()
+        environmentLayer.startEditing()
 
+        sightingsLayer = self.sightingsLayer
+        sightingsLayer.startEditing()
         featuresIterator = (
-            self.sightingsLayer.getSelectedFeatures()
+            sightingsLayer.getSelectedFeatures()
             if selectedMode
-            else self.sightingsLayer.getFeatures()
+            else sightingsLayer.getFeatures()
         )
-        idx = self.sightingsLayer.fields().indexOf("validated")
         for feat in featuresIterator:
             if feat["validated"]:
                 continue
@@ -409,22 +414,34 @@ class SammoSession:
             )
             request = QgsFeatureRequest().setFilterExpression(
                 f"dateTime < to_datetime('{strDateTime}') "
-                f"and status != {StatusCode.display(StatusCode.END)}"
+                f"and status != '{StatusCode.display(StatusCode.END)}'"
             )
             request.addOrderBy("dateTime", False)
-            for envFeat in self.environmentLayer.getFeatures(request):
+            for envFeat in environmentLayer.getFeatures(request):
                 if feat["side"] == "L":
-                    feat["observer"] = envFeat["left"]
+                    sightingsLayer.changeAttributeValue(
+                        feat.id(),
+                        sightingsLayer.fields().indexOf("observer"),
+                        envFeat["left"],
+                    )
                 elif feat["side"] == "R":
-                    feat["observer"] = envFeat["right"]
+                    sightingsLayer.changeAttributeValue(
+                        feat.id(),
+                        sightingsLayer.fields().indexOf("observer"),
+                        envFeat["right"],
+                    )
                 elif feat["side"] == "C":
-                    feat["observer"] = envFeat["center"]
+                    sightingsLayer.changeAttributeValue(
+                        feat.id(),
+                        sightingsLayer.fields().indexOf("observer"),
+                        envFeat["center"],
+                    )
                 break
 
             if survey:
-                self.sightingsLayer.changeAttributeValue(
+                sightingsLayer.changeAttributeValue(
                     feat.id(),
-                    self.sightingsLayer.fields().indexOf("sightNum"),
+                    sightingsLayer.fields().indexOf("sightNum"),
                     "-".join(
                         [
                             str(survey["survey"]),
@@ -434,24 +451,31 @@ class SammoSession:
                         ]
                     ),
                 )
-            self.sightingsLayer.changeAttributeValue(
+            idx = sightingsLayer.fields().indexOf("validated")
+            sightingsLayer.changeAttributeValue(
                 feat.id(),
                 idx,
-                True,
+                not merge,
             )
+        sightingsLayer.commitChanges()
+        sightingsLayer.startEditing()
 
+        followersLayer = self.followersLayer
+        followersLayer.startEditing()
         featuresIterator = (
-            self.followersLayer.getSelectedFeatures()
+            followersLayer.getSelectedFeatures()
             if selectedMode
-            else self.followersLayer.getFeatures()
+            else followersLayer.getFeatures()
         )
-        idx = self.followersLayer.fields().indexOf("validated")
+        idx = followersLayer.fields().indexOf("validated")
         for feat in featuresIterator:
-            self.followersLayer.changeAttributeValue(
+            followersLayer.changeAttributeValue(
                 feat.id(),
                 idx,
-                True,
+                not merge,
             )
+        followersLayer.commitChanges()
+        followersLayer.startEditing()
 
     def onStopSoundRecordingForEvent(
         self,
@@ -524,6 +548,14 @@ class SammoSession:
                         "validated",
                         "plateform",
                         "plateformHeight",
+                        "survey",
+                        "cycle",
+                        "session",
+                        "shipName",
+                        "computer",
+                        "transect",
+                        "strate",
+                        "length",
                     ]:
                         continue
                     else:
@@ -573,9 +605,11 @@ class SammoSession:
         # open input session
         sessionA = SammoSession()
         sessionA.init(sessionADir, load=False)
+        sessionA.validate(True)
 
         sessionB = SammoSession()
         sessionB.init(sessionBDir, load=False)
+        sessionB.validate(True)
 
         # create output session
         sessionOutput = SammoSession()
@@ -694,7 +728,14 @@ class SammoSession:
                 out.commitChanges()
 
         # copy content of static layers only if output is empty
-        staticLayers = ["speciesLayer", "observersLayer"]
+        staticLayers = [
+            "speciesLayer",
+            "observersLayer",
+            "surveyLayer",
+            "strateLayer",
+            "transectLayer",
+            "plateformLayer",
+        ]
         for layer in staticLayers:
             out = getattr(sessionOutput, layer)
             if out.featureCount() != 0:

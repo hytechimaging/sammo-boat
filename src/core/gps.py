@@ -57,7 +57,7 @@ class WorkerGpsExtractor(WorkerForOtherThread):
             if self._gps:
                 self._gps.close()
                 self._gps = None
-            if not os.environ.get("SAMMO_DEBUG"):
+            if os.environ.get("SAMMO_DEBUG"):
                 print("GPS offline - exception when trying to read")
             self.isGpsOnline = False
             return
@@ -90,11 +90,11 @@ class WorkerGpsExtractor(WorkerForOtherThread):
                 )
                 self.isGpsOnline = True
             else:
-                if not os.environ.get("SAMMO_DEBUG"):
+                if os.environ.get("SAMMO_DEBUG"):
                     print("GPS offline - position not valid")
                 self.isGpsOnline = False
         except Exception:
-            if not os.environ.get("SAMMO_DEBUG"):
+            if os.environ.get("SAMMO_DEBUG"):
                 print("GPS online but invalid frame (no signal?)")
             self.isGpsOnline = False
 
@@ -109,7 +109,8 @@ class WorkerGpsExtractor(WorkerForOtherThread):
                 assert check[0] != "$"
                 print("Port GPS ouvert sur " + port)
             except (SerialException, OSError, AssertionError, Exception) as e:
-                print(e)
+                if os.environ.get("SAMMO_DEBUG"):
+                    print(e)
                 self.isGpsOnline = False
                 if self._gps:
                     self._gps.close()
@@ -125,7 +126,7 @@ class WorkerGpsExtractor(WorkerForOtherThread):
             # if no contact with the GPS after 5 secondes,
             # we consider that it is offline
             self.isGpsOnline = False
-            if not os.environ.get("SAMMO_DEBUG"):
+            if os.environ.get("SAMMO_DEBUG"):
                 print("GPS offline - time with no contact too long")
 
     @staticmethod
