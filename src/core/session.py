@@ -208,6 +208,20 @@ class SammoSession:
         # read project
         if load:
             QgsProject.instance().read(self.db.projectUri)
+            for layer in [
+                self._gpsLayer,
+                self._worldLayer,
+                self._speciesLayer,
+                self._followersLayer,
+                self._observersLayer,
+                self._sightingsLayer,
+                self._environmentLayer,
+                self._surveyLayer,
+                self._transectLayer,
+                self._strateLayer,
+                self._plateformLayer,
+            ]:
+                layer._init(layer.layer)
             self._environmentLayer.addSoundAction(self.environmentLayer)
             self._sightingsLayer.addSoundAction(self.sightingsLayer)
             self._followersLayer.addSoundAction(self.followersLayer)

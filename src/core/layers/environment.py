@@ -54,7 +54,7 @@ class SammoEnvironmentLayer(SammoLayer):
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         form_config = layer.editFormConfig()
-        form_config.setReadOnly(idx, True)
+        form_config.setReadOnly(idx, False)
         layer.setEditFormConfig(form_config)
 
         # route type
