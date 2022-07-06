@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+-----
+
+## [v1.2.3] - 2002-07-06
+
+## Modified
+
+- Plateform (environment table) is not a read-only column anymore.
+
+-----
+
 ## [v1.2.2] - 2022-04-21
 
 ### Modified
@@ -16,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Modified
 
 - Fix status icon in dock status
+
+-----
 
 ## [v1.2.0] - 2022-04-07
 
@@ -41,6 +53,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Change some label in sightings table
 - Prevent table to be closed
 - Shortcut changes
+
+-----
 
 ## [v1.1.2] - 2022-01-07
 
@@ -137,6 +151,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+[v1.2.3]: https://github.com/hytechimaging/sammo-boat/releases/tag/v1.2.3
 [v1.2.2]: https://github.com/hytechimaging/sammo-boat/releases/tag/v1.2.2
 [v1.2.1]: https://github.com/hytechimaging/sammo-boat/releases/tag/v1.2.1
 [v1.2.0]: https://github.com/hytechimaging/sammo-boat/releases/tag/v1.2.0

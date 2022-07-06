@@ -2,7 +2,7 @@
 name=Sammo-Boat
 description=Tool for megafauna observations from halieutic boats
 about=Tool for megafauna observations
-version=1.2.2
+version=1.2.3
 qgisMinimumVersion=3.16
 author=Paul Blottière
 email=info@hytech-imaging.fr
