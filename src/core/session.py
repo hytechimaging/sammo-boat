@@ -570,6 +570,7 @@ class SammoSession:
                         "transect",
                         "strate",
                         "length",
+                        "comment"
                     ]:
                         continue
                     else:
