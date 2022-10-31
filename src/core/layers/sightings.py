@@ -64,7 +64,7 @@ class SammoSightingsLayer(SammoLayer):
         idx = layer.fields().indexFromName("podSize")
         cfg = {
             "AllowNull": False,
-            "Max": 1000,
+            "Max": 9999,
             "Min": 1,
             "Precision": 0,
             "Step": 1,
@@ -77,7 +77,7 @@ class SammoSightingsLayer(SammoLayer):
         idx = layer.fields().indexFromName("podSizeMin")
         cfg = {
             "AllowNull": True,
-            "Max": 1000,
+            "Max": 9999,
             "Min": 1,
             "Precision": 0,
             "Step": 1,
@@ -90,7 +90,7 @@ class SammoSightingsLayer(SammoLayer):
         idx = layer.fields().indexFromName("podSizeMax")
         cfg = {
             "AllowNull": True,
-            "Max": 1000,
+            "Max": 9999,
             "Min": 1,
             "Precision": 0,
             "Step": 1,
