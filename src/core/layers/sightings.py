@@ -63,7 +63,7 @@ class SammoSightingsLayer(SammoLayer):
         # podSize
         idx = layer.fields().indexFromName("podSize")
         cfg = {
-            "AllowNull": False,
+            "AllowNull": True,
             "Max": 9999,
             "Min": 1,
             "Precision": 0,
@@ -85,6 +85,7 @@ class SammoSightingsLayer(SammoLayer):
         }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
+        layer.setFieldAlias(idx, "min")
 
         # podSizeMax
         idx = layer.fields().indexFromName("podSizeMax")
@@ -98,6 +99,7 @@ class SammoSightingsLayer(SammoLayer):
         }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
+        layer.setFieldAlias(idx, "max")
 
         # age
         idx = layer.fields().indexFromName("age")
@@ -120,7 +122,7 @@ class SammoSightingsLayer(SammoLayer):
         # distance
         idx = layer.fields().indexFromName("distance")
         cfg = {
-            "AllowNull": False,
+            "AllowNull": True,
             "Max": 20000,
             "Min": 1,
             "Precision": 0,
@@ -133,7 +135,7 @@ class SammoSightingsLayer(SammoLayer):
         # angle
         idx = layer.fields().indexFromName("angle")
         cfg = {
-            "AllowNull": False,
+            "AllowNull": True,
             "Max": 360,
             "Min": 1,
             "Precision": 0,

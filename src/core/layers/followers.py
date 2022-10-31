@@ -55,6 +55,7 @@ class SammoFollowersLayer(SammoLayer):
             "Style": "SpinBox",
         }
         setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("0"))
         layer.setEditorWidgetSetup(idx, setup)
 
         # back
