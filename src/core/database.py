@@ -139,7 +139,7 @@ class SammoDataBase:
         fields.append(QgsField("glareTo", QVariant.Int))
         fields.append(self._createFieldShortText("glareSever"))
         fields.append(QgsField("cloudCover", QVariant.Int))
-        fields.append(QgsField("visibility", QVariant.Int))
+        fields.append(self._createFieldShortText("visibility", 3))
         fields.append(QgsField("subjectiveMam", QVariant.String, len=2))
         fields.append(QgsField("subjectiveBirds", QVariant.String, len=2))
         fields.append(QgsField("nObservers", QVariant.Int))
