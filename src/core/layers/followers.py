@@ -171,10 +171,11 @@ class SammoFollowersLayer(SammoLayer):
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("species", [style])
 
-        # podSize
-        style = QgsConditionalStyle("@value is NULL")
-        style.setBackgroundColor(QColor("orange"))
-        layer.conditionalStyles().setFieldStyles("podSize", [style])
+        # podSize, back, fishActivity
+        for fieldName in ["podSize", "back", "fishActivity"]:
+            style = QgsConditionalStyle("@value is NULL")
+            style.setBackgroundColor(QColor("orange"))
+            layer.conditionalStyles().setFieldStyles(fieldName, [style])
 
         # validated
         style = QgsConditionalStyle("validated is True")
