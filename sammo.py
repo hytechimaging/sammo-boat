@@ -160,7 +160,9 @@ class Sammo:
             ft = self.session.environmentLayer.getFeature(
                 self.session.environmentLayer.maximumValue(0) or -1
             )
-            if ft.isValid() and ft["status"] != StatusCode.display(StatusCode.END):
+            if ft.isValid() and ft["status"] != StatusCode.display(
+                StatusCode.END
+            ):
                 self.session.addEnvironmentFeature(StatusCode.END)
         else:
             reader.frame.connect(self.onGpsFrame)
@@ -216,9 +218,7 @@ class Sammo:
             self.iface.addPluginToMenu("Sammo-Boat", self.shortcutAction)
 
     def initShortcuts(self) -> None:
-        self.gpsShortcut = QShortcut(
-            QKeySequence("Shift+G"), self.mainWindow
-        )
+        self.gpsShortcut = QShortcut(QKeySequence("Shift+G"), self.mainWindow)
         self.gpsShortcut.activated.connect(self.activateGPS)
         self.environmentShortcut = QShortcut(
             QKeySequence("Shift+E"), self.mainWindow
@@ -270,7 +270,7 @@ class Sammo:
         self.zoomOutShortcut.activated.connect(self.iface.mapCanvas().zoomOut)
 
     def unload(self):
-        self.activateGPS() # add End environment Status if needed
+        self.activateGPS()  # add End environment Status if needed
         self.gpsReader.stop()
 
         if self.threadSimuGps is not None and self.threadSimuGps.isProceeding:

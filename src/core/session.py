@@ -232,7 +232,7 @@ class SammoSession:
             )
 
     def addEnvironmentFeature(
-        self, status: Optional[StatusCode]=None
+        self, status: Optional[StatusCode] = None
     ) -> QgsVectorLayer:
         layer = self.environmentLayer
         self._addFeature(
