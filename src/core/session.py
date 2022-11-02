@@ -550,7 +550,6 @@ class SammoSession:
             feat.setGeometry(geom)
 
         lastFeat = SammoDataBase.lastFeature(layer)
-        lastFid = lastFeat.id()
         if lastFeat:
             if layer == self.sightingsLayer:
                 feat["side"] = lastFeat["side"]
@@ -603,6 +602,7 @@ class SammoSession:
         # back attr changes without explanation in the duplicated feature...
         # this fixe it after the processEvents()
         if lastFeat and layer == self.followersLayer:
+            lastFid = lastFeat.id()
             QgsApplication.processEvents()
             layer.changeAttributeValue(
                 lastFid,
