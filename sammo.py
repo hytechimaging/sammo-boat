@@ -130,7 +130,6 @@ class Sammo:
                 self.pluginFolder(), "src", "core", "gps_simu.csv"
             )
         threadGps = ThreadSimuGps(self.session, testFilePath)
-        # threadGps.frame.connect(self.onGpsFrame)
         return [button, threadGps]
 
     def createGpsReader(self) -> SammoGpsReader:
