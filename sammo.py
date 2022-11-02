@@ -74,6 +74,7 @@ class Sammo:
         self.statusDock.recordInterrupted.connect(
             self.soundRecordingController.interruptRecording
         )
+        self.statusDock.activateGPS.connect(self.activateGPS)
         self.tableDock = SammoTableDock(iface)
 
         iface.projectRead.connect(self.onProjectLoaded)
@@ -128,14 +129,33 @@ class Sammo:
                 self.pluginFolder(), "src", "core", "gps_simu.csv"
             )
         threadGps = ThreadSimuGps(self.session, testFilePath)
-        threadGps.frame.connect(self.onGpsFrame)
+        # threadGps.frame.connect(self.onGpsFrame)
         return [button, threadGps]
 
     def createGpsReader(self) -> SammoGpsReader:
         gps = SammoGpsReader()
-        gps.frame.connect(self.onGpsFrame)
         gps.start()
         return gps
+
+    def activateGPS(self) -> None:
+        reader = self.gpsReader
+        if (
+            os.environ.get("SAMMO_DEBUG")
+            and self.threadSerialSimuGps
+            and self.simuGpsSerialAction.button.isChecked()
+        ):
+            reader = self.threadSerialSimuGps
+        elif (
+            os.environ.get("SAMMO_DEBUG")
+            and self.threadSimuGps
+            and self.simuGpsAction.button.isChecked()
+        ):
+            reader = self.threadSimuGps
+
+        if reader.receivers(reader.frame):
+            reader.frame.disconnect(self.onGpsFrame)
+        else:
+            reader.frame.connect(self.onGpsFrame)
 
     def createSaveAction(self) -> SammoSaveAction:
         button = SammoSaveAction(self.mainWindow, self.toolbar)
