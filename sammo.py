@@ -417,12 +417,14 @@ class Sammo:
 
     def onEnvironmentAction(self) -> None:
         self.soundRecordingController.onStartEnvironment()
+        self.iface.mapCanvas().setFocus()
         layer = self.session.addEnvironmentFeature()
         self.tableDock.refresh(layer)
         self.soundRecordingController.onStopEventWhichNeedSoundRecord(60)
 
     def onSightingsAction(self):
         self.soundRecordingController.onStartSightings()
+        self.iface.mapCanvas().setFocus()
         layer = self.session.addSightingsFeature()
         self.tableDock.refresh(layer)
         self.soundRecordingController.onStopEventWhichNeedSoundRecord(60)
