@@ -279,7 +279,7 @@ class SammoEnvironmentLayer(SammoLayer):
         cfg = {
             "AllowNull": False,
             "Max": 4,
-            "Min": 1,
+            "Min": 0,
             "Precision": 0,
             "Step": 1,
             "Style": "SpinBox",
