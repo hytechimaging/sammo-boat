@@ -231,13 +231,17 @@ class SammoSession:
                 self.updateRouteTypeStatus
             )
 
-    def addEnvironmentFeature(self) -> QgsVectorLayer:
+    def addEnvironmentFeature(
+        self, status: Optional[StatusCode]=None
+    ) -> QgsVectorLayer:
         layer = self.environmentLayer
         self._addFeature(
             layer,
             geom=self.lastGpsInfo["geometry"],
             status=StatusCode.display(
-                StatusCode(int(bool(layer.featureCount())))
+                status
+                if status
+                else StatusCode(int(bool(layer.featureCount())))
             ),
             speed=self.lastGpsInfo["gprmc"]["speed"],
             courseAverage=self.lastGpsInfo["gprmc"]["course"],

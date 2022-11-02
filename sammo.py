@@ -19,6 +19,7 @@ from qgis.core import (
     QgsFeatureRequest,
 )
 
+from .src.core.status import StatusCode
 from .src.core.gps import SammoGpsReader
 from .src.core.session import SammoSession
 from .src.core.utils import shortcutCreation
@@ -138,6 +139,7 @@ class Sammo:
         return gps
 
     def activateGPS(self) -> None:
+        self.saveAll()
         reader = self.gpsReader
         if (
             os.environ.get("SAMMO_DEBUG")
@@ -154,8 +156,15 @@ class Sammo:
 
         if reader.receivers(reader.frame):
             reader.frame.disconnect(self.onGpsFrame)
+            self.statusDock.desactivateGPS()
+            ft = self.session.environmentLayer.getFeature(
+                self.session.environmentLayer.maximumValue(0) or -1
+            )
+            if ft.isValid() and ft["status"] != StatusCode.display(StatusCode.END):
+                self.session.addEnvironmentFeature(StatusCode.END)
         else:
             reader.frame.connect(self.onGpsFrame)
+        self.saveAll()
 
     def createSaveAction(self) -> SammoSaveAction:
         button = SammoSaveAction(self.mainWindow, self.toolbar)
@@ -207,6 +216,10 @@ class Sammo:
             self.iface.addPluginToMenu("Sammo-Boat", self.shortcutAction)
 
     def initShortcuts(self) -> None:
+        self.gpsShortcut = QShortcut(
+            QKeySequence("Shift+G"), self.mainWindow
+        )
+        self.gpsShortcut.activated.connect(self.activateGPS)
         self.environmentShortcut = QShortcut(
             QKeySequence("Shift+E"), self.mainWindow
         )
@@ -257,6 +270,7 @@ class Sammo:
         self.zoomOutShortcut.activated.connect(self.iface.mapCanvas().zoomOut)
 
     def unload(self):
+        self.activateGPS() # add End environment Status if needed
         self.gpsReader.stop()
 
         if self.threadSimuGps is not None and self.threadSimuGps.isProceeding:

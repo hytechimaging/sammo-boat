@@ -153,6 +153,9 @@ class SammoStatusDock(QDockWidget):
             self.iface.removeDockWidget(self)
             self.setVisible(False)
 
+    def desactivateGPS(self):
+        self._counter500msWithoutGpsInfo = 4
+
     def refresh(self):
         if not self._widget:
             return
