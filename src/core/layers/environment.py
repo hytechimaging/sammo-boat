@@ -313,6 +313,7 @@ class SammoEnvironmentLayer(SammoLayer):
             "strate",
             "length",
             "plateformHeight",
+            "effortGroup",
         ]:
             idx = layer.fields().indexFromName(field)
             form_config = layer.editFormConfig()

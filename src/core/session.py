@@ -10,7 +10,7 @@ from datetime import datetime
 from typing import List, Optional, Dict, Union
 
 from qgis.PyQt.QtGui import QColor
-from qgis.PyQt.QtWidgets import QProgressBar
+from qgis.PyQt.QtWidgets import QProgressBar, QMessageBox
 from qgis.PyQt.QtCore import QDate, QDateTime
 
 from qgis.core import (
@@ -235,14 +235,31 @@ class SammoSession:
         self, status: Optional[StatusCode] = None
     ) -> QgsVectorLayer:
         layer = self.environmentLayer
+        statusCode = StatusCode.display(
+            status
+            if status
+            else (
+                StatusCode.BEGIN
+                if (
+                    layer.featureCount()
+                    and next(
+                        layer.getFeatures(
+                            QgsFeatureRequest().addOrderBy("dateTime", False)
+                        )
+                    )["status"]
+                    == StatusCode.display(StatusCode.END)
+                )
+                else StatusCode(int(bool(layer.featureCount())))
+            )
+        )
+        effortGroup = layer.maximumValue(layer.fields().indexOf("effortGroup"))
+        if effortGroup and statusCode == StatusCode.display(StatusCode.BEGIN):
+            effortGroup += 1
         self._addFeature(
             layer,
             geom=self.lastGpsInfo["geometry"],
-            status=StatusCode.display(
-                status
-                if status
-                else StatusCode(int(bool(layer.featureCount())))
-            ),
+            status=statusCode,
+            effortGroup=effortGroup or 1,
             speed=self.lastGpsInfo["gprmc"]["speed"],
             courseAverage=self.lastGpsInfo["gprmc"]["course"],
         )
@@ -287,6 +304,11 @@ class SammoSession:
                     self.environmentLayer.fields().indexOf("status"),
                     StatusCode.display(StatusCode.ADD),
                 )
+                self.environmentLayer.changeAttributeValue(
+                    fid,
+                    self.environmentLayer.fields().indexOf("effortGroup"),
+                    prevFeat["effortGroup"],
+                )
             elif prevFeat["routeType"] != feat["routeType"]:
                 ft = QgsVectorLayerUtils.createFeature(self.environmentLayer)
                 ft.setGeometry(feat.geometry())
@@ -303,6 +325,11 @@ class SammoSession:
                     fid,
                     self.environmentLayer.fields().indexOf("status"),
                     StatusCode.display(StatusCode.BEGIN),
+                )
+                self.environmentLayer.changeAttributeValue(
+                    fid,
+                    self.environmentLayer.fields().indexOf("effortGroup"),
+                    prevFeat["effortGroup"] + 1,
                 )
                 self.environmentLayer.changeAttributeValue(
                     fid,
@@ -378,6 +405,41 @@ class SammoSession:
         )
         environmentLayer = self.environmentLayer
         environmentLayer.startEditing()
+
+        # effort status check
+        effortIds = environmentLayer.uniqueValues(
+            environmentLayer.fields().indexOf("effortGroup")
+        )
+        errors = []
+        for effortId in effortIds:
+            effortIt = environmentLayer.getFeatures(
+                QgsFeatureRequest().setFilterExpression(
+                    f"effortGroup = {effortId}"
+                )
+            )
+            statusCodes = {ft["datetime"]: ft["status"] for ft in effortIt}
+            if (
+                StatusCode.display(StatusCode.BEGIN)
+                not in statusCodes.values()
+            ):
+                errors.append(
+                    f"Missing BEGIN code for effortGroup {effortId} (before "
+                    f"{min(statusCodes).toPyDateTime().isoformat()} record)"
+                )
+            elif (
+                StatusCode.display(StatusCode.END) not in statusCodes.values()
+            ):
+                errors.append(
+                    f"Missing END code for effortGroup {effortId} (after "
+                    f"{max(statusCodes).toPyDateTime().isoformat()} record)"
+                )
+        if errors:
+            errors.append("Please, resolve errors before validation")
+            QMessageBox.warning(
+                None, "Errors detected in effort status", "\n".join(errors)
+            )
+            return
+
         featuresIterator = (
             environmentLayer.getSelectedFeatures()
             if selectedMode
