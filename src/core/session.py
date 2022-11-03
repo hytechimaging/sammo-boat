@@ -223,8 +223,13 @@ class SammoSession:
                 self._plateformLayer,
             ]:
                 layer._init(layer.layer)
+            self.environmentLayer.actions().clearActions()
             self._environmentLayer.addSoundAction(self.environmentLayer)
+            self._environmentLayer.addDuplicateAction(self.environmentLayer)
+            self.sightingsLayer.actions().clearActions()
             self._sightingsLayer.addSoundAction(self.sightingsLayer)
+            self._sightingsLayer.addDuplicateAction(self.sightingsLayer)
+            self.followersLayer.actions().clearActions()
             self._followersLayer.addSoundAction(self.followersLayer)
             QgsSettings().setValue("qgis/enableMacros", "SessionOnly")
             self.environmentLayer.attributeValueChanged.connect(

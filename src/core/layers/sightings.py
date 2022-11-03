@@ -25,7 +25,13 @@ from .layer import SammoLayer, NULL
 
 class SammoSightingsLayer(SammoLayer):
     def __init__(self, db: SammoDataBase):
-        super().__init__(db, SIGHTINGS_TABLE, "Sightings", True)
+        super().__init__(
+            db,
+            SIGHTINGS_TABLE,
+            "Sightings",
+            soundAction=True,
+            duplicateAction=True,
+        )
 
     def _init(self, layer: QgsVectorLayer) -> None:
         self._init_symbology(layer)

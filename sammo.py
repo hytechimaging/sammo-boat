@@ -156,12 +156,11 @@ class Sammo:
         if reader.receivers(reader.frame):
             reader.frame.disconnect(self.onGpsFrame)
             self.statusDock.desactivateGPS()
-            ft = self.session.environmentLayer.getFeature(
-                self.session.environmentLayer.maximumValue(0) or -1
-            )
-            if ft.isValid() and ft["status"] != StatusCode.display(
-                StatusCode.END
-            ):
+            if self.session.environmentLayer.featureCount() and next(
+                self.session.environmentLayer.getFeatures(
+                    QgsFeatureRequest().addOrderBy("dateTime", False)
+                )
+            )["status"] != StatusCode.display(StatusCode.END):
                 self.session.addEnvironmentFeature(StatusCode.END)
         else:
             reader.frame.connect(self.onGpsFrame)
