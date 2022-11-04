@@ -4,7 +4,13 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 from qgis.PyQt import QtCore
-from qgis.PyQt.QtWidgets import QFrame, QTableView, QAction, QToolBar
+from qgis.PyQt.QtWidgets import (
+    QFrame,
+    QAction,
+    QToolBar,
+    QLineEdit,
+    QTableView,
+)
 
 from ..core.database import SIGHTINGS_TABLE, ENVIRONMENT_TABLE, FOLLOWERS_TABLE
 
@@ -15,9 +21,10 @@ class SammoAttributeTable:
         return table.findChild(QToolBar, "mToolbar")
 
     @staticmethod
-    def refresh(table, layerName):
-        table.findChild(QAction, "mActionReload").trigger()
+    def refresh(table, layerName, filterExpr="True"):
+        table.findChild(QLineEdit, "mFilterQuery").setValue(filterExpr)
         table.findChild(QAction, "mActionApplyFilter").trigger()
+        table.findChild(QAction, "mActionReload").trigger()
 
         view = table.findChild(QTableView, "mTableView")
         view.resizeColumnsToContents()
@@ -76,7 +83,7 @@ class SammoAttributeTable:
         layer.setAttributeTableConfig(config)
 
         # init attribute table
-        table = iface.showAttributeTable(layer, filterExpr)
+        table = iface.showAttributeTable(layer, filterExpr or "True")
 
         # hide some items
         last = table.layout().rowCount() - 1

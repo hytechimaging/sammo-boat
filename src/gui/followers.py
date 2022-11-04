@@ -8,8 +8,15 @@ import os
 from qgis.PyQt import uic
 from qgis.core import QgsSettings
 from qgis.PyQt.QtGui import QKeyEvent
-from qgis.PyQt.QtCore import pyqtSignal, QObject, Qt, QEvent
-from qgis.PyQt.QtWidgets import QAction, QToolBar, QDialog, QTableView
+from qgis.PyQt.QtCore import QObject, Qt, QEvent
+from qgis.PyQt.QtWidgets import (
+    QMenu,
+    QAction,
+    QDialog,
+    QToolBar,
+    QTableView,
+    QToolButton,
+)
 
 from ..core import utils
 from .attribute_table import SammoAttributeTable
@@ -20,8 +27,6 @@ FORM_CLASS, _ = uic.loadUiType(
 
 
 class SammoFollowersAction(QObject):
-    triggered = pyqtSignal()
-
     def __init__(self, parent: QObject, toolbar: QToolBar):
         super().__init__()
         self.action: QAction = None
@@ -31,18 +36,28 @@ class SammoFollowersAction(QObject):
         self.action.setEnabled(status)
 
     def initGui(self, parent: QObject, toolbar: QToolBar):
-        self.action = QAction(parent)
-        self.action.setIcon(utils.icon("seabird.png"))
-        self.action.setToolTip("New follower")
-        self.action.triggered.connect(self.onClick)
+        self.action = QToolButton(parent)
+        self.action.setPopupMode(QToolButton.MenuButtonPopup)
+        self.action.setToolButtonStyle(Qt.ToolButtonIconOnly)
+        menu = QMenu()
+
+        self.follower = QAction(parent)
+        self.follower.setIcon(utils.icon("seabird.png"))
+        self.follower.setText("New follower")
+        self.follower.setToolTip("New follower")
+        menu.addAction(self.follower)
+        self.followerTable = QAction(parent)
+        self.followerTable.setIcon(utils.icon("pen.png"))
+        self.followerTable.setText("Open followers table")
+        self.followerTable.setToolTip("Followers table")
+        menu.addAction(self.followerTable)
+        self.action.setMenu(menu)
+        self.action.setDefaultAction(self.follower)
         self.action.setEnabled(False)
-        toolbar.addAction(self.action)
+        toolbar.addWidget(self.action)
 
     def unload(self):
         del self.action
-
-    def onClick(self):
-        self.triggered.emit()
 
 
 class SammoFollowersTable(QDialog, FORM_CLASS):
@@ -89,7 +104,10 @@ class SammoFollowersTable(QDialog, FORM_CLASS):
         super().close()
 
     def refresh(self):
-        SammoAttributeTable.refresh(self.table, "Followers")
+        filterExpr = (
+            f"epoch(\"dateTime\") = epoch(to_datetime('{self.datetime}'))"
+        )
+        SammoAttributeTable.refresh(self.table, "Followers", filterExpr)
 
     def eventFilter(self, obj, event):
         if type(event) == QKeyEvent:
