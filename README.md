@@ -58,6 +58,8 @@ On Windows, a menu has been added to configure shorcut on the user desktop:
 
 Some keyboard shortcuts are available in SAMMO-Boat :
 
+- `Ctrl+<` : zoom in canvas
+- `Ctrl+>` : zoom out canvas
 - `Shift+S` : save all tables manually
 - `Shift+E` : add an entity in environment table 
 - `Space` : add an entity in sighting table
