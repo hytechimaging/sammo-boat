@@ -100,6 +100,8 @@ class SammoTableDock(QDockWidget):
         self.iface.mainWindow().setCorner(
             Qt.BottomRightCorner, Qt.BottomDockWidgetArea
         )
+        self.refresh(environmentLayer)
+        self.refresh(sightingsLayer)
         QgsSettings().setValue("qgis/attributeTableLastView", lastView)
 
     def unload(self):

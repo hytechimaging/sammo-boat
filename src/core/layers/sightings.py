@@ -184,6 +184,7 @@ class SammoSightingsLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
+        layer.setFieldAlias(idx, "group")
 
         # behavMam
         idx = layer.fields().indexFromName("behavMam")
@@ -199,6 +200,7 @@ class SammoSightingsLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
+        layer.setFieldAlias(idx, "mam")
 
         # behavBird
         idx = layer.fields().indexFromName("behavBird")
@@ -216,6 +218,7 @@ class SammoSightingsLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
+        layer.setFieldAlias(idx, "bird")
 
         # behavShip
         idx = layer.fields().indexFromName("behavShip")
@@ -227,6 +230,7 @@ class SammoSightingsLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
+        layer.setFieldAlias(idx, "ship")
 
         # soundFile, soundStart, soundEnd, dateTime
         for field in [

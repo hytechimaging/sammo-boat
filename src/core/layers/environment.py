@@ -119,6 +119,7 @@ class SammoEnvironmentLayer(SammoLayer):
         }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
+        layer.setFieldAlias(idx, "windDir")
 
         # wind force
         idx = layer.fields().indexFromName("windForce")
@@ -145,6 +146,7 @@ class SammoEnvironmentLayer(SammoLayer):
         }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
+        layer.setFieldAlias(idx, "swellDir")
 
         # swell height
         idx = layer.fields().indexFromName("swellHeight")
@@ -212,6 +214,7 @@ class SammoEnvironmentLayer(SammoLayer):
         }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
+        layer.setFieldAlias(idx, "cloud")
 
         # visibility
         idx = layer.fields().indexFromName("visibility")

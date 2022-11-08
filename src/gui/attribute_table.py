@@ -4,7 +4,7 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 from qgis.PyQt import QtCore
-from qgis.PyQt.QtWidgets import QFrame, QTableView, QAction, QToolBar
+from qgis.PyQt.QtWidgets import QFrame, QTableView, QAction, QToolBar, QLabel
 
 from ..core.database import SIGHTINGS_TABLE, ENVIRONMENT_TABLE, FOLLOWERS_TABLE
 
@@ -21,6 +21,48 @@ class SammoAttributeTable:
 
         view = table.findChild(QTableView, "mTableView")
         view.resizeColumnsToContents()
+        for i in range(view.model().columnCount()):
+            if view.model().headerData(i, 1) in [
+                "side",
+                "min",
+                "max",
+                "age",
+                "angle",
+                "status",
+            ]:
+                view.setColumnWidth(
+                    i,
+                    QLabel("")
+                    .fontMetrics()
+                    .boundingRect(view.model().headerData(i, 1))
+                    .width(),
+                )
+            elif view.model().headerData(i, 1) in [
+                "podSize",
+                "distance",
+                "angle",
+                "direction",
+                "visibility",
+                "subjectiveMam",
+                "subjectiveBirds",
+                "nObservers",
+                "glareSever",
+                "seaState",
+                "windDir",
+                "windForce",
+                "swellDir",
+                "swellHeight",
+                "glareFrom",
+                "glareTo",
+            ]:
+                view.setColumnWidth(
+                    i,
+                    QLabel("")
+                    .fontMetrics()
+                    .boundingRect(view.model().headerData(i, 1))
+                    .width()
+                    + 5,
+                )
         if layerName.casefold() in [
             SIGHTINGS_TABLE,
             FOLLOWERS_TABLE,
