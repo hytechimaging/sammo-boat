@@ -68,6 +68,9 @@
          <property name="text">
           <string>Merge from :</string>
          </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
        <item>
