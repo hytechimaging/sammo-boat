@@ -67,7 +67,7 @@ class SammoExportAction(QDialog):
     def export(self):
         driver = self.driverComboBox.currentText()
         if driver not in ["CSV", "GPKG"]:
-            self.progressBar.setFormat(f"Unknown driver: aborting export")
+            self.progressBar.setFormat("Unknown driver: aborting export")
             return
 
         nb = len(self.session.allLayers)
