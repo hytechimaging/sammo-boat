@@ -577,7 +577,7 @@ class SammoSession:
         if layer == self.environmentLayer:
             plateform = (
                 next(self.plateformLayer.getFeatures())
-                if self.plateformLayer.featureCount()
+                if self.plateformLayer.featureCount() > 0
                 else None
             )
             if plateform:
