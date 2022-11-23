@@ -223,6 +223,15 @@ class Sammo:
         self.saveShortcut = QShortcut(QKeySequence("Shift+S"), self.mainWindow)
         self.saveShortcut.activated.connect(self.saveAll)
 
+        self.zoomInShortcut = QShortcut(
+            QKeySequence("Ctrl+<"), self.mainWindow
+        )
+        self.zoomInShortcut.activated.connect(self.iface.mapCanvas().zoomIn)
+        self.zoomOutShortcut = QShortcut(
+            QKeySequence("Ctrl+>"), self.mainWindow
+        )
+        self.zoomOutShortcut.activated.connect(self.iface.mapCanvas().zoomOut)
+
     def unload(self):
         self.gpsReader.stop()
 
