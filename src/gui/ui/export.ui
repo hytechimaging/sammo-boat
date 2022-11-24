@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>417</width>
-    <height>107</height>
+    <height>138</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>CSV export</string>
+   <string>Export</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

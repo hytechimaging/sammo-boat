@@ -50,7 +50,7 @@ class SammoExportAction(QDialog):
         self.action = QAction(parent)
         self.action.triggered.connect(self.show)
         self.action.setIcon(utils.icon("export.png"))
-        self.action.setToolTip("Export session as CSV")
+        self.action.setToolTip("Export session")
         toolbar.addAction(self.action)
 
     def updateSaveFolder(self):
