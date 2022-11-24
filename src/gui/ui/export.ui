@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>417</width>
-    <height>107</height>
+    <height>138</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>CSV export</string>
+   <string>Export</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -57,6 +57,27 @@
       <widget class="QPushButton" name="cancelButton">
        <property name="text">
         <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1" colspan="2">
+      <widget class="QComboBox" name="driverComboBox">
+       <item>
+        <property name="text">
+         <string>CSV</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>GPKG</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Driver :</string>
        </property>
       </widget>
      </item>

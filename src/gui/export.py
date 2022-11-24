@@ -50,13 +50,13 @@ class SammoExportAction(QDialog):
         self.action = QAction(parent)
         self.action.triggered.connect(self.show)
         self.action.setIcon(utils.icon("export.png"))
-        self.action.setToolTip("Export session as CSV")
+        self.action.setToolTip("Export session")
         toolbar.addAction(self.action)
 
     def updateSaveFolder(self):
         path = QFileDialog.getExistingDirectory(
             self,
-            "Dossier d'export",
+            "Export folder",
             self.session.db.directory,
             options=QFileDialog.ShowDirsOnly,
         )
@@ -65,10 +65,15 @@ class SammoExportAction(QDialog):
             self.exportButton.setEnabled(True)
 
     def export(self):
+        driver = self.driverComboBox.currentText()
+        if driver not in ["CSV", "GPKG"]:
+            self.progressBar.setFormat("Unknown driver: aborting export")
+            return
+
         nb = len(self.session.allLayers)
         for i, layer in enumerate(self.session.allLayers):
             self.progressBar.setFormat(
-                f"Export de la couche {layer.name()}, Total : %p%"
+                f"Export layer {layer.name()}, Total : %p%"
             )
 
             # Export is done from copy to avoid bug with join field, due to
@@ -104,7 +109,7 @@ class SammoExportAction(QDialog):
                 )
 
             options = QgsVectorFileWriter.SaveVectorOptions()
-            options.driverName = "CSV"
+            options.driverName = driver
             options.attributes = [
                 layer.fields().indexOf(field.name())
                 for field in layer.fields()
@@ -113,7 +118,8 @@ class SammoExportAction(QDialog):
             QgsVectorFileWriter.writeAsVectorFormatV2(
                 layer,
                 (
-                    Path(self.saveFolderEdit.text()) / f"{layer.name()}.csv"
+                    Path(self.saveFolderEdit.text())
+                    / f"{layer.name()}.{driver.lower()}"
                 ).as_posix(),
                 QgsCoordinateTransformContext(),
                 options,
