@@ -63,8 +63,8 @@ class SammoSightingsLayer(SammoLayer):
         # podSize
         idx = layer.fields().indexFromName("podSize")
         cfg = {
-            "AllowNull": False,
-            "Max": 1000,
+            "AllowNull": True,
+            "Max": 9999,
             "Min": 1,
             "Precision": 0,
             "Step": 1,
@@ -77,7 +77,7 @@ class SammoSightingsLayer(SammoLayer):
         idx = layer.fields().indexFromName("podSizeMin")
         cfg = {
             "AllowNull": True,
-            "Max": 1000,
+            "Max": 9999,
             "Min": 1,
             "Precision": 0,
             "Step": 1,
@@ -85,12 +85,13 @@ class SammoSightingsLayer(SammoLayer):
         }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
+        layer.setFieldAlias(idx, "min")
 
         # podSizeMax
         idx = layer.fields().indexFromName("podSizeMax")
         cfg = {
             "AllowNull": True,
-            "Max": 1000,
+            "Max": 9999,
             "Min": 1,
             "Precision": 0,
             "Step": 1,
@@ -98,6 +99,7 @@ class SammoSightingsLayer(SammoLayer):
         }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
+        layer.setFieldAlias(idx, "max")
 
         # age
         idx = layer.fields().indexFromName("age")
@@ -120,7 +122,7 @@ class SammoSightingsLayer(SammoLayer):
         # distance
         idx = layer.fields().indexFromName("distance")
         cfg = {
-            "AllowNull": False,
+            "AllowNull": True,
             "Max": 20000,
             "Min": 1,
             "Precision": 0,
@@ -133,7 +135,7 @@ class SammoSightingsLayer(SammoLayer):
         # angle
         idx = layer.fields().indexFromName("angle")
         cfg = {
-            "AllowNull": False,
+            "AllowNull": True,
             "Max": 360,
             "Min": 1,
             "Precision": 0,
@@ -182,6 +184,7 @@ class SammoSightingsLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
+        layer.setFieldAlias(idx, "group")
 
         # behavMam
         idx = layer.fields().indexFromName("behavMam")
@@ -197,6 +200,7 @@ class SammoSightingsLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
+        layer.setFieldAlias(idx, "mam")
 
         # behavBird
         idx = layer.fields().indexFromName("behavBird")
@@ -214,6 +218,7 @@ class SammoSightingsLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
+        layer.setFieldAlias(idx, "bird")
 
         # behavShip
         idx = layer.fields().indexFromName("behavShip")
@@ -225,6 +230,7 @@ class SammoSightingsLayer(SammoLayer):
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
+        layer.setFieldAlias(idx, "ship")
 
         # soundFile, soundStart, soundEnd, dateTime
         for field in [

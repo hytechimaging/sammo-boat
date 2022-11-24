@@ -45,12 +45,20 @@ class TableWidget(QFrame, FORM_CLASS):
 
         widget1 = QWidget()
         verticalLayout1 = QVBoxLayout()
+        originDlg = self.tables[environmentLayer.name()].parent()
+        self.tables[environmentLayer.name()].setParent(widget1)
         verticalLayout1.addWidget(self.tables[environmentLayer.name()])
+        if originDlg:  # version < 3.28 compatibility
+            originDlg.hide()
         widget1.setLayout(verticalLayout1)
         widget2 = QWidget()
         verticalLayout2 = QVBoxLayout()
         verticalLayout2.addWidget(QLabel("Sightings"))
+        originDlg = self.tables[sightingLayer.name()].parent()
+        self.tables[sightingLayer.name()].setParent(widget2)
         verticalLayout2.addWidget(self.tables[sightingLayer.name()])
+        if originDlg:  # version < 3.28 compatibility
+            originDlg.hide()
         widget2.setLayout(verticalLayout2)
         splitter = QSplitter(Qt.Vertical)
         splitter.addWidget(widget1)
@@ -92,6 +100,8 @@ class SammoTableDock(QDockWidget):
         self.iface.mainWindow().setCorner(
             Qt.BottomRightCorner, Qt.BottomDockWidgetArea
         )
+        self.refresh(environmentLayer)
+        self.refresh(sightingsLayer)
         QgsSettings().setValue("qgis/attributeTableLastView", lastView)
 
     def unload(self):

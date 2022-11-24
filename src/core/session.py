@@ -19,6 +19,7 @@ from qgis.core import (
     QgsMapLayer,
     QgsSettings,
     QgsExpression,
+    QgsApplication,
     QgsVectorLayer,
     QgsFeatureRequest,
     QgsVectorLayerUtils,
@@ -570,6 +571,7 @@ class SammoSession:
                         "transect",
                         "strate",
                         "length",
+                        "comment",
                     ]:
                         continue
                     else:
@@ -595,6 +597,19 @@ class SammoSession:
         layer.addFeature(feat)
 
         self.saveAll()
+
+        # Bug for the first duplicate line in a follower table,
+        # back attr changes without explanation in the duplicated feature...
+        # this fixe it after the processEvents()
+        if lastFeat and layer == self.followersLayer:
+            lastFid = lastFeat.id()
+            QgsApplication.processEvents()
+            layer.changeAttributeValue(
+                lastFid,
+                layer.fields().indexOf("back"),
+                lastFeat.attribute("back"),
+            )
+            self.saveAll()
 
     @staticmethod
     def sessionDirectory(project: QgsProject) -> str:

@@ -66,10 +66,14 @@ class SammoFollowersTable(QDialog, FORM_CLASS):
         self.table = SammoAttributeTable.attributeTable(
             iface, followerLayer, filterExpr, sortExpr
         )
+        originDlg = self.table.parent()
         self.table.installEventFilter(self)
         QgsSettings().setValue("qgis/attributeTableLastView", lastView)
 
+        self.table.setParent(self)
         self.verticalLayout.addWidget(self.table)
+        if originDlg:  # version < 3.28 compatibility
+            originDlg.hide()
 
     def rowCount(self):
         return (

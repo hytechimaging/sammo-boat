@@ -48,13 +48,14 @@ class SammoFollowersLayer(SammoLayer):
         idx = layer.fields().indexFromName("podSize")
         cfg = {
             "AllowNull": False,
-            "Max": 1000,
-            "Min": 1,
+            "Max": 9999,
+            "Min": 0,
             "Precision": 0,
             "Step": 1,
             "Style": "SpinBox",
         }
         setup = QgsEditorWidgetSetup("Range", cfg)
+        layer.setDefaultValueDefinition(idx, QgsDefaultValue("0"))
         layer.setEditorWidgetSetup(idx, setup)
 
         # back
@@ -171,10 +172,11 @@ class SammoFollowersLayer(SammoLayer):
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("species", [style])
 
-        # podSize
-        style = QgsConditionalStyle("@value is NULL")
-        style.setBackgroundColor(QColor("orange"))
-        layer.conditionalStyles().setFieldStyles("podSize", [style])
+        # podSize, back, fishActivity
+        for fieldName in ["podSize", "back", "fishActivity"]:
+            style = QgsConditionalStyle("@value is NULL")
+            style.setBackgroundColor(QColor("orange"))
+            layer.conditionalStyles().setFieldStyles(fieldName, [style])
 
         # validated
         style = QgsConditionalStyle("validated is True")
