@@ -280,7 +280,7 @@ class Sammo:
             self.filterExpr += " and validated is False"
 
         self.tableDock.refresh(self.session.environmentLayer, self.filterExpr)
-        self.tableDock.refresh(self.session.environmentLayer, self.filterExpr)
+        self.tableDock.refresh(self.session.sightingsLayer, self.filterExpr)
 
     def saveAll(self) -> None:
         self.session.saveAll()
