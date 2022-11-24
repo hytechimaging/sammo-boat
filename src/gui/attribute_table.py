@@ -4,7 +4,7 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 from qgis.PyQt import QtCore
-from qgis.PyQt.QtWidgets import QFrame, QTableView, QAction, QToolBar, QLabel
+from qgis.PyQt.QtWidgets import QFrame, QTableView, QAction, QToolBar
 
 from ..core.database import SIGHTINGS_TABLE, ENVIRONMENT_TABLE, FOLLOWERS_TABLE
 
