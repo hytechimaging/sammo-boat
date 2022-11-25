@@ -29,6 +29,7 @@ class DuplicateDialog(QDialog):
     ):
         super().__init__()
         self.layer: QgsVectorLayer = QgsProject.instance().mapLayer(layerId)
+        self.setWindowTitle(f"Duplicate {layer.name()} entity")
         self.gpsLayer: QgsVectorLayer = gpsLayer
         self.toDuplicate: QgsFeature = self.layer.getFeature(toDuplicate)
         self.validateButton = QPushButton("Duplicate with changes")
