@@ -115,9 +115,14 @@ class SammoTableDock(QDockWidget):
     def unload(self) -> None:
         self.clean()
 
-    def refresh(self, layer: QgsVectorLayer, filterExpr: str = "True") -> None:
+    def refresh(
+        self,
+        layer: QgsVectorLayer,
+        filterExpr: str = "True",
+        focus: bool = True,
+    ) -> None:
         table = self._widget.tables[layer.name()]
-        SammoAttributeTable.refresh(table, layer.name(), filterExpr)
+        SammoAttributeTable.refresh(table, layer.name(), filterExpr, focus)
 
     def removeTable(self, name: str) -> None:
         if name in self._widget.tables:

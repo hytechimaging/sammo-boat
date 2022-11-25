@@ -25,7 +25,10 @@ class SammoAttributeTable:
 
     @staticmethod
     def refresh(
-        table: QDialog, layerName: str, filterExpr: str = "True"
+        table: QDialog,
+        layerName: str,
+        filterExpr: str = "True",
+        focus: bool = True,
     ) -> None:
         table.findChild(QLineEdit, "mFilterQuery").setValue(filterExpr)
         table.findChild(QAction, "mActionApplyFilter").trigger()
@@ -44,6 +47,10 @@ class SammoAttributeTable:
             for i in range(view.model().columnCount()):
                 if view.model().headerData(i, 1) == "routeType":
                     index = view.model().index(0, i)
+
+        if not focus:
+            return
+
         view.selectionModel().setCurrentIndex(
             index,
             QtCore.QItemSelectionModel.ClearAndSelect
