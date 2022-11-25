@@ -23,11 +23,13 @@ class SammoLayer:
         table: str,
         name: str,
         soundAction: bool = False,
+        duplicateAction: bool = False,
     ):
         self.db = db
         self.table = table
         self.name = name
         self.soundAction = soundAction
+        self.duplicateAction = duplicateAction
 
     @property
     def layer(self) -> QgsVectorLayer:
@@ -46,6 +48,8 @@ class SammoLayer:
 
         if self.soundAction:
             self.addSoundAction(layer)
+        if self.duplicateAction:
+            self.addDuplicateAction(layer)
 
         self._hideWidgetFid(layer)
         self._init(layer)
@@ -60,7 +64,6 @@ class SammoLayer:
         layer.setEditorWidgetSetup(idx, setup)
 
     def addSoundAction(self, layer: QgsVectorLayer) -> None:
-        layer.actions().clearActions()
         with open(Path(__file__).parent / "audio_action.py") as f:
             code = f.read()
         code = code.format(
@@ -77,6 +80,14 @@ class SammoLayer:
             self.db.directory,
         )
 
-        ac = QgsAction(1, "Play", code, False)
+        ac = QgsAction(1, "Play audio", code, False)
         ac.setActionScopes({"Field"})
+        layer.actions().addAction(ac)
+
+    def addDuplicateAction(self, layer: QgsVectorLayer) -> None:
+        with open(Path(__file__).parent / "duplicate_action.py") as f:
+            code = f.read()
+
+        ac = QgsAction(1, "Duplicate record", code, False)
+        ac.setActionScopes({"Field", "Entity"})
         layer.actions().addAction(ac)

@@ -27,11 +27,13 @@ KO_COLOR = "rgb(242, 186, 195)"
 class StatusWidget(QFrame, FORM_CLASS):
 
     recordInterrupted: pyqtSignal = pyqtSignal()
+    activateGPS: pyqtSignal = pyqtSignal()
 
     def __init__(self, parent):
         super().__init__(parent)
         self.setupUi(self)
         self.record.clicked.connect(self.interrupt)
+        self.gpsButton.clicked.connect(self.activateGPS)
         self.init()
 
     def updateNeedSave(self, status):
@@ -69,16 +71,14 @@ class StatusWidget(QFrame, FORM_CLASS):
     def updateGps(
         self, status, latitude="", longitude="", speed=-9999.0, course=-9999.0
     ):
-        self.gps.setStyleSheet(self._styleSheet(self.gps, status))
+        self.gpsButton.setStyleSheet(self._styleSheet(self.gpsButton, status))
         self.gpsFrame.setStyleSheet(self._styleSheet(self.gpsFrame, status))
-        self.gps.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
 
-        icon = "gps_ko.png"
+        icon_path = "gps_ko.png"
         if status:
-            icon = "gps_ok.png"
+            icon_path = "gps_ok.png"
 
-        px = pixmap(icon, QSize(64, 64))
-        self.gps.setPixmap(px)
+        self.gpsButton.setIcon(icon(icon_path))
 
         if latitude and longitude:
             self.latitude.setText(f"{latitude:.4f}")
@@ -119,6 +119,7 @@ class StatusWidget(QFrame, FORM_CLASS):
 class SammoStatusDock(QDockWidget):
 
     recordInterrupted: pyqtSignal = pyqtSignal()
+    activateGPS: pyqtSignal = pyqtSignal()
 
     def __init__(self, iface, session):
         super().__init__("Sammo Status", iface.mainWindow())
@@ -151,6 +152,9 @@ class SammoStatusDock(QDockWidget):
         else:
             self.iface.removeDockWidget(self)
             self.setVisible(False)
+
+    def desactivateGPS(self):
+        self._counter500msWithoutGpsInfo = 4
 
     def refresh(self):
         if not self._widget:
@@ -226,6 +230,7 @@ class SammoStatusDock(QDockWidget):
     def _init(self, parent):
         self._widget = StatusWidget(self)
         self._widget.recordInterrupted.connect(self.recordInterrupted)
+        self._widget.activateGPS.connect(self.activateGPS)
 
         self.setVisible(False)
         self.dockLocationChanged.connect(self._saveLastLocation)

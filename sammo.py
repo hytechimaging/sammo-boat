@@ -19,6 +19,7 @@ from qgis.core import (
     QgsFeatureRequest,
 )
 
+from .src.core.status import StatusCode
 from .src.core.gps import SammoGpsReader
 from .src.core.session import SammoSession
 from .src.core.utils import shortcutCreation
@@ -74,6 +75,7 @@ class Sammo:
         self.statusDock.recordInterrupted.connect(
             self.soundRecordingController.interruptRecording
         )
+        self.statusDock.activateGPS.connect(self.activateGPS)
         self.tableDock = SammoTableDock(iface)
 
         iface.projectRead.connect(self.onProjectLoaded)
@@ -128,14 +130,48 @@ class Sammo:
                 self.pluginFolder(), "src", "core", "gps_simu.csv"
             )
         threadGps = ThreadSimuGps(self.session, testFilePath)
-        threadGps.frame.connect(self.onGpsFrame)
         return [button, threadGps]
 
     def createGpsReader(self) -> SammoGpsReader:
         gps = SammoGpsReader()
-        gps.frame.connect(self.onGpsFrame)
         gps.start()
         return gps
+
+    def activateGPS(self) -> None:
+        self.saveAll()
+        reader = self.gpsReader
+        if (
+            os.environ.get("SAMMO_DEBUG")
+            and self.threadSerialSimuGps
+            and self.simuGpsSerialAction.button.isChecked()
+        ):
+            reader = self.threadSerialSimuGps
+        elif (
+            os.environ.get("SAMMO_DEBUG")
+            and self.threadSimuGps
+            and self.simuGpsAction.button.isChecked()
+        ):
+            reader = self.threadSimuGps
+
+        if reader.receivers(reader.frame):
+            reader.frame.disconnect(self.onGpsFrame)
+            self.statusDock.desactivateGPS()
+            if self.session.environmentLayer.featureCount() and next(
+                self.session.environmentLayer.getFeatures(
+                    QgsFeatureRequest().addOrderBy("dateTime", False)
+                )
+            )["status"] != StatusCode.display(StatusCode.END):
+                self.session.addEnvironmentFeature(StatusCode.END)
+                self.tableDock.refresh(
+                    self.session.environmentLayer, self.filterExpr
+                )
+        elif not (reader.worker and reader.worker._gps):
+            self.iface.messageBar().pushCritical(
+                "No GPS detected", "retry later"
+            )
+        else:
+            reader.frame.connect(self.onGpsFrame)
+        self.saveAll()
 
     def createSaveAction(self) -> SammoSaveAction:
         button = SammoSaveAction(self.mainWindow, self.toolbar)
@@ -187,6 +223,8 @@ class Sammo:
             self.iface.addPluginToMenu("Sammo-Boat", self.shortcutAction)
 
     def initShortcuts(self) -> None:
+        self.gpsShortcut = QShortcut(QKeySequence("Shift+G"), self.mainWindow)
+        self.gpsShortcut.activated.connect(self.activateGPS)
         self.environmentShortcut = QShortcut(
             QKeySequence("Shift+E"), self.mainWindow
         )
@@ -237,6 +275,7 @@ class Sammo:
         self.zoomOutShortcut.activated.connect(self.iface.mapCanvas().zoomOut)
 
     def unload(self):
+        self.activateGPS()  # add End environment Status if needed
         self.gpsReader.stop()
 
         if self.threadSimuGps is not None and self.threadSimuGps.isProceeding:
@@ -292,8 +331,12 @@ class Sammo:
     def validate(self) -> None:
         self.session.validate()
         self.session.saveAll()
-        self.tableDock.refresh(self.session.environmentLayer, self.filterExpr)
-        self.tableDock.refresh(self.session.sightingsLayer, self.filterExpr)
+        self.tableDock.refresh(
+            self.session.environmentLayer, self.filterExpr, False
+        )
+        self.tableDock.refresh(
+            self.session.sightingsLayer, self.filterExpr, False
+        )
 
     def onGpsFrame(
         self,

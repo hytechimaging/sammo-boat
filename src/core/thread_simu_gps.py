@@ -3,7 +3,9 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
+import serial
 from time import sleep
+from typing import Optional
 from .other_thread import WorkerForOtherThread, OtherThread
 from qgis.PyQt.QtCore import pyqtSignal
 from .session import SammoSession
@@ -20,6 +22,7 @@ class WorkerSimuGps(WorkerForOtherThread):
         indexOfNextGpsPoint: int,
     ):
         super().__init__()
+        self._gps: Optional[serial.Serial] = serial.Serial()
         self._testFilePath = testFilePath
         self._session: SammoSession = session
         self._lines = None
@@ -82,6 +85,7 @@ class ThreadSimuGps(OtherThread):
         self._testFilePath = testFilePath
         # always begins at the second line because the first is for titles
         self.indexOfNextGpsPoint: int = 1
+        self.worker = None
 
     def start(self):
         self.worker = WorkerSimuGps(
