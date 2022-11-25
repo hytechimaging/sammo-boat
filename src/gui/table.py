@@ -13,11 +13,11 @@ from qgis.core import QgsSettings, QgsVectorLayer
 from qgis.PyQt.QtWidgets import (
     QFrame,
     QLabel,
+    QDialog,
     QWidget,
     QSplitter,
     QDockWidget,
     QVBoxLayout,
-    QDialog,
 )
 
 from .attribute_table import SammoAttributeTable

@@ -4,9 +4,12 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 from qgis.PyQt import QtCore
+from qgis.gui import QgisInterface
+from qgis.core import QgsVectorLayer
 from qgis.PyQt.QtWidgets import (
     QFrame,
     QAction,
+    QDialog,
     QToolBar,
     QLineEdit,
     QTableView,
@@ -17,11 +20,13 @@ from ..core.database import SIGHTINGS_TABLE, ENVIRONMENT_TABLE, FOLLOWERS_TABLE
 
 class SammoAttributeTable:
     @staticmethod
-    def toolbar(table):
+    def toolbar(table: QDialog) -> QToolBar:
         return table.findChild(QToolBar, "mToolbar")
 
     @staticmethod
-    def refresh(table, layerName, filterExpr="True"):
+    def refresh(
+        table: QDialog, layerName: str, filterExpr: str = "True"
+    ) -> None:
         table.findChild(QLineEdit, "mFilterQuery").setValue(filterExpr)
         table.findChild(QAction, "mActionApplyFilter").trigger()
         table.findChild(QAction, "mActionReload").trigger()
@@ -47,11 +52,11 @@ class SammoAttributeTable:
 
     @staticmethod
     def attributeTable(
-        iface,
-        layer,
-        filterExpr="",
-        sortExpr='"dateTime"',
-    ):
+        iface: QgisInterface,
+        layer: QgsVectorLayer,
+        filterExpr: str = "",
+        sortExpr: str = '"dateTime"',
+    ) -> QDialog:
         # hide some columns
         hiddens = [
             "copy",
