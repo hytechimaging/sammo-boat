@@ -3,6 +3,7 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
+from qgis import utils
 from qgis.PyQt.QtWidgets import (
     QLabel,
     QDialog,
@@ -29,7 +30,7 @@ class DuplicateDialog(QDialog):
     ):
         super().__init__()
         self.layer: QgsVectorLayer = QgsProject.instance().mapLayer(layerId)
-        self.setWindowTitle(f"Duplicate {layer.name()} entity")
+        self.setWindowTitle(f"Duplicate {self.layer.name().lower()} entity")
         self.gpsLayer: QgsVectorLayer = gpsLayer
         self.toDuplicate: QgsFeature = self.layer.getFeature(toDuplicate)
         self.validateButton = QPushButton("Duplicate with changes")
@@ -114,6 +115,9 @@ class DuplicateDialog(QDialog):
         self.layer.commitChanges()
         self.layer.startEditing()
         self.close()
+        for pluginInstance in utils.plugins.values():
+            if pluginInstance.__class__.__name__ == 'Sammo':
+                pluginInstance.filterTable()
 
     def updateGeometry(self):
         dt = self.datetimeEdit.dateTime()
