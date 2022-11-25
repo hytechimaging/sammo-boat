@@ -331,8 +331,12 @@ class Sammo:
     def validate(self) -> None:
         self.session.validate()
         self.session.saveAll()
-        self.tableDock.refresh(self.session.environmentLayer, self.filterExpr)
-        self.tableDock.refresh(self.session.sightingsLayer, self.filterExpr)
+        self.tableDock.refresh(
+            self.session.environmentLayer, self.filterExpr, False
+        )
+        self.tableDock.refresh(
+            self.session.sightingsLayer, self.filterExpr, False
+        )
 
     def onGpsFrame(
         self,
