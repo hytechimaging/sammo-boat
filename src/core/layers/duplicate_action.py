@@ -116,7 +116,7 @@ class DuplicateDialog(QDialog):
         self.layer.startEditing()
         self.close()
         for pluginInstance in utils.plugins.values():
-            if pluginInstance.__class__.__name__ == 'Sammo':
+            if pluginInstance.__class__.__name__ == "Sammo":
                 pluginInstance.filterTable()
 
     def updateGeometry(self):

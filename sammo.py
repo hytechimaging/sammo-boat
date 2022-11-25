@@ -163,8 +163,7 @@ class Sammo:
             )["status"] != StatusCode.display(StatusCode.END):
                 self.session.addEnvironmentFeature(StatusCode.END)
                 self.tableDock.refresh(
-                    self.session.environmentLayer,
-                    self.filterExpr
+                    self.session.environmentLayer, self.filterExpr
                 )
         else:
             reader.frame.connect(self.onGpsFrame)
