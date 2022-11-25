@@ -37,6 +37,7 @@ from .src.gui.simu_gps import SammoSimuGpsAction
 from .src.gui.settings import SammoSettingsAction
 from .src.gui.sightings import SammoSightingsAction
 from .src.gui.environment import SammoEnvironmentAction
+from .src.gui.attribute_table import SammoAttributeTable
 from .src.gui.merge import SammoMergeAction, SammoMergeDialog
 from .src.gui.followers import SammoFollowersAction, SammoFollowersTable
 
@@ -46,6 +47,7 @@ class Sammo:
         self.iface = iface
         self.toolbar: QToolBar = self.iface.addToolBar("Sammo ToolBar")
         self.toolbar.setObjectName("Sammo ToolBar")
+        self.filterExpr: str = "True"
 
         self.gps_wait = False
         self.loading = False
@@ -139,6 +141,8 @@ class Sammo:
         button = SammoSaveAction(self.mainWindow, self.toolbar)
         button.saveAction.triggered.connect(self.saveAll)
         button.validateAction.triggered.connect(self.validate)
+        button.validateFilter.triggered.connect(self.filterTable)
+        button.dateFilter.triggered.connect(self.filterTable)
         return button
 
     def createExportAction(self) -> SammoExportAction:
@@ -147,7 +151,7 @@ class Sammo:
 
     def createFollowersAction(self):
         button = SammoFollowersAction(self.mainWindow, self.toolbar)
-        button.triggered.connect(self.onFollowersAction)
+        button.action.triggered.connect(self.onFollowersAction)
         return button
 
     def createSightingsAction(self) -> SammoSightingsAction:
@@ -257,14 +261,39 @@ class Sammo:
         del self.statusDock
         del self.toolbar
 
+    def filterTable(self):
+        self.filterExpr = "True"  # To keep advanced filter up in table dock
+        if self.saveAction.dateFilter.isChecked():
+            begin = datetime.combine(
+                datetime.now().date(), datetime.min.time()
+            )
+            after = datetime.combine(
+                datetime.now().date(), datetime.max.time()
+            )
+            self.filterExpr += (
+                " and datetime > to_datetime("
+                f"'{begin.isoformat()}') and "
+                "datetime < to_datetime("
+                f"'{after.isoformat()}')"
+            )
+        if self.saveAction.validateFilter.isChecked():
+            self.filterExpr += " and validated is False"
+
+        self.tableDock.refresh(
+            self.session.environmentLayer, self.filterExpr, False
+        )
+        self.tableDock.refresh(
+            self.session.sightingsLayer, self.filterExpr, False
+        )
+
     def saveAll(self) -> None:
         self.session.saveAll()
 
     def validate(self) -> None:
         self.session.validate()
         self.session.saveAll()
-        self.tableDock.refresh(self.session.environmentLayer)
-        self.tableDock.refresh(self.session.sightingsLayer)
+        self.tableDock.refresh(self.session.environmentLayer, self.filterExpr)
+        self.tableDock.refresh(self.session.sightingsLayer, self.filterExpr)
 
     def onGpsFrame(
         self,
@@ -419,17 +448,24 @@ class Sammo:
         self.soundRecordingController.onStartEnvironment()
         self.iface.mapCanvas().setFocus()
         layer = self.session.addEnvironmentFeature()
-        self.tableDock.refresh(layer)
+        self.tableDock.refresh(layer, self.filterExpr)
         self.soundRecordingController.onStopEventWhichNeedSoundRecord(60)
 
     def onSightingsAction(self):
         self.soundRecordingController.onStartSightings()
         self.iface.mapCanvas().setFocus()
         layer = self.session.addSightingsFeature()
-        self.tableDock.refresh(layer)
+        self.tableDock.refresh(layer, self.filterExpr)
         self.soundRecordingController.onStopEventWhichNeedSoundRecord(60)
 
-    def onFollowersAction(self):
+    def onFollowersAction(self, validation: QAction):
+        if validation == self.followersAction.followerTable:
+            table = SammoAttributeTable.attributeTable(
+                self.iface, self.session.followersLayer, self.filterExpr
+            )
+            table.show()
+            return
+
         self.soundRecordingController.onStartFollowers()
 
         self.followersTable = SammoFollowersTable(

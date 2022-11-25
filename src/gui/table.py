@@ -6,17 +6,18 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 import os
 
 from qgis.PyQt import uic
-from qgis.core import QgsSettings
+from qgis.gui import QgisInterface
 from qgis.PyQt.QtGui import QKeyEvent
 from qgis.PyQt.QtCore import Qt, QSize, QEvent
+from qgis.core import QgsSettings, QgsVectorLayer
 from qgis.PyQt.QtWidgets import (
     QFrame,
     QLabel,
+    QDialog,
     QWidget,
     QSplitter,
     QDockWidget,
     QVBoxLayout,
-    QDialog,
 )
 
 from .attribute_table import SammoAttributeTable
@@ -27,7 +28,12 @@ FORM_CLASS, _ = uic.loadUiType(
 
 
 class TableWidget(QFrame, FORM_CLASS):
-    def __init__(self, iface, environmentLayer, sightingLayer):
+    def __init__(
+        self,
+        iface: QgisInterface,
+        environmentLayer: QgsVectorLayer,
+        sightingLayer: QgsVectorLayer,
+    ):
         super().__init__()
         self.setupUi(self)
 
@@ -84,7 +90,9 @@ class SammoTableDock(QDockWidget):
         self.iface = iface
         self._widget = None
 
-    def init(self, environmentLayer, sightingsLayer):
+    def init(
+        self, environmentLayer: QgsVectorLayer, sightingsLayer: QgsVectorLayer
+    ):
         lastView = int(QgsSettings().value("qgis/attributeTableLastView", 0))
         QgsSettings().setValue("qgis/attributeTableLastView", 0)
 
@@ -104,19 +112,24 @@ class SammoTableDock(QDockWidget):
         self.refresh(sightingsLayer)
         QgsSettings().setValue("qgis/attributeTableLastView", lastView)
 
-    def unload(self):
+    def unload(self) -> None:
         self.clean()
 
-    def refresh(self, layer):
+    def refresh(
+        self,
+        layer: QgsVectorLayer,
+        filterExpr: str = "True",
+        focus: bool = True,
+    ) -> None:
         table = self._widget.tables[layer.name()]
-        SammoAttributeTable.refresh(table, layer.name())
+        SammoAttributeTable.refresh(table, layer.name(), filterExpr, focus)
 
-    def removeTable(self, name):
+    def removeTable(self, name: str) -> None:
         if name in self._widget.tables:
             self._widget.tables[name].accept()
             self._widget.tables.pop(name, None)
 
-    def clean(self):
+    def clean(self) -> None:
         if self._widget:
             tableKeys = [k for k in self._widget.tables.keys()]
             for name in tableKeys:

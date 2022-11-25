@@ -364,12 +364,12 @@ class SammoSession:
 
         survey = (
             next(self.surveyLayer.getFeatures())
-            if self.surveyLayer.featureCount()
+            if self.surveyLayer.featureCount() > 0
             else None
         )
         transect = (
             next(self.transectLayer.getFeatures())
-            if self.transectLayer.featureCount()
+            if self.transectLayer.featureCount() > 0
             else None
         )
         environmentLayer = self.environmentLayer
@@ -767,7 +767,7 @@ class SammoSession:
         ]
         for layer in staticLayers:
             out = getattr(sessionOutput, layer)
-            if out.featureCount() != 0:
+            if out.featureCount() < 1:
                 continue
 
             out.startEditing()
