@@ -128,7 +128,7 @@ class DuplicateDialog(QDialog):
         if ftsExact:
             self.interpolated = ftsExact[0].geometry()
             self.geometryLabel.setText(
-                f"Interpolated position : {self.interpolated.asWkt()}"
+                f"Interpolated position : {self.interpolated.asWkt(3)}"
             )
             return
 
@@ -186,7 +186,7 @@ class DuplicateDialog(QDialog):
             )
         )
         self.geometryLabel.setText(
-            f"Interpolated position : {self.interpolated.asWkt()}"
+            f"Interpolated position : {self.interpolated.asWkt(3)}"
         )
 
 
