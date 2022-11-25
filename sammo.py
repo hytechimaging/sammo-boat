@@ -165,6 +165,10 @@ class Sammo:
                 self.tableDock.refresh(
                     self.session.environmentLayer, self.filterExpr
                 )
+        elif not (reader.worker and reader.worker._gps):
+            self.iface.messageBar().pushCritical(
+                "No GPS detected", "retry later"
+            )
         else:
             reader.frame.connect(self.onGpsFrame)
         self.saveAll()

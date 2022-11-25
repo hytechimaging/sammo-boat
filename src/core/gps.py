@@ -8,7 +8,7 @@ import sys
 import time
 import serial
 import platform
-from typing import Tuple
+from typing import Tuple, Optional
 from serial import SerialException
 
 from qgis.PyQt.QtCore import pyqtSignal
@@ -23,7 +23,7 @@ class WorkerGpsExtractor(WorkerForOtherThread):
 
     def __init__(self):
         super().__init__()
-        self._gps: serial.Serial = None
+        self._gps: Optional[serial.Serial] = None
         self.isGpsOnline: bool = False
         self.isGPRMCMode: bool = False
         self.idOfPort: int = 0
@@ -146,6 +146,7 @@ class SammoGpsReader(OtherThread):
     def __init__(self):
         super().__init__()
         self.active = False
+        self.worker = None
 
     def start(self) -> None:
         self.worker = WorkerGpsExtractor()
