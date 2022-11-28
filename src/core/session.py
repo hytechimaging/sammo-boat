@@ -35,6 +35,7 @@ from .database import (
 )
 from .layers import (
     SammoGpsLayer,
+    SammoBoatLayer,
     SammoWorldLayer,
     SammoSurveyLayer,
     SammoStrateLayer,
@@ -113,6 +114,12 @@ class SammoSession:
         return None
 
     @property
+    def boatLayer(self) -> QgsVectorLayer:
+        if self._boatLayer:
+            return self._boatLayer.layer
+        return None
+
+    @property
     def surveyLayer(self) -> QgsVectorLayer:
         if self._surveyLayer:
             return self._surveyLayer.layer
@@ -147,6 +154,7 @@ class SammoSession:
             self.sightingsLayer,
             self.surveyLayer,
             self.strateLayer,
+            self.boatLayer,
             self.plateformLayer,
             self.transectLayer,
         ]
@@ -159,10 +167,11 @@ class SammoSession:
         self._worldLayer = SammoWorldLayer(self.db)
 
         # Administrator table
-        self._surveyLayer = SammoSurveyLayer(self.db)
+        self._plateformLayer = SammoPlateformLayer(self.db)
+        self._boatLayer = SammoBoatLayer(self.db, self._plateformLayer)
+        self._surveyLayer = SammoSurveyLayer(self.db, self._boatLayer)
         self._transectLayer = SammoTransectLayer(self.db)
         self._strateLayer = SammoStrateLayer(self.db)
-        self._plateformLayer = SammoPlateformLayer(self.db)
         self._observersLayer = SammoObserversLayer(self.db)
         self._speciesLayer = SammoSpeciesLayer(self.db)
 
@@ -172,7 +181,7 @@ class SammoSession:
             self.db, self._observersLayer, self._speciesLayer
         )
         self._environmentLayer = SammoEnvironmentLayer(
-            self.db, self._observersLayer
+            self.db, self._observersLayer, self._plateformLayer
         )
 
         # create database if necessary
@@ -181,10 +190,11 @@ class SammoSession:
 
             # add layers
             self._worldLayer.addToProject(project)
+            self._plateformLayer.addToProject(project)
+            self._boatLayer.addToProject(project)
             self._surveyLayer.addToProject(project)
             self._transectLayer.addToProject(project)
             self._strateLayer.addToProject(project)
-            self._plateformLayer.addToProject(project)
             self._gpsLayer.addToProject(project)
             self._speciesLayer.addToProject(project)
             self._sightingsLayer.addToProject(project)
@@ -211,6 +221,7 @@ class SammoSession:
             QgsProject.instance().read(self.db.projectUri)
             for layer in [
                 self._gpsLayer,
+                self._boatLayer,
                 self._worldLayer,
                 self._speciesLayer,
                 self._followersLayer,
@@ -258,6 +269,9 @@ class SammoSession:
             )
         )
         effortGroup = layer.maximumValue(layer.fields().indexOf("effortGroup"))
+        shipName = ""
+        if self.surveyLayer.featureCount() > 0:
+            shipName = next(self.surveyLayer.getFeatures())["shipName"]
         if effortGroup and statusCode == StatusCode.display(StatusCode.BEGIN):
             effortGroup += 1
         self._addFeature(
@@ -267,6 +281,7 @@ class SammoSession:
             effortGroup=effortGroup or 1,
             speed=self.lastGpsInfo["gprmc"]["speed"],
             courseAverage=self.lastGpsInfo["gprmc"]["course"],
+            shipName=shipName,
         )
         return layer
 
@@ -458,7 +473,6 @@ class SammoSession:
                     "survey",
                     "cycle",
                     "session",
-                    "shipName",
                     "computer",
                 ]:
                     if attr == "computer" and feat["computer"]:
@@ -475,6 +489,7 @@ class SammoSession:
                         environmentLayer.fields().indexOf(attr),
                         transect[attr],
                     )
+
             idx = environmentLayer.fields().indexOf("validated")
             environmentLayer.changeAttributeValue(
                 feat.id(),
@@ -647,15 +662,6 @@ class SammoSession:
                         continue
                     else:
                         feat[name] = lastFeat[name]
-        if layer == self.environmentLayer:
-            plateform = (
-                next(self.plateformLayer.getFeatures())
-                if self.plateformLayer.featureCount() > 0
-                else None
-            )
-            if plateform:
-                feat["plateform"] = plateform["plateform"]
-                feat["plateformHeight"] = plateform["plateformHeight"]
 
         for key, value in kwargs.items():
             if key in ["speed", "courseAverage"] and value == -9999.0:

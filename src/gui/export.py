@@ -100,12 +100,21 @@ class SammoExportAction(QDialog):
                     self.session.observersLayer.source(),
                     self.session.observersLayer.name(),
                 )  # keepped alive until export is done
-                layer.addJoin(self.environmentLayerJoinInfo(joinLayer, "left"))
                 layer.addJoin(
-                    self.environmentLayerJoinInfo(joinLayer, "rigth")
+                    self.environmentLayerJoinObserverInfo(joinLayer, "left")
                 )
                 layer.addJoin(
-                    self.environmentLayerJoinInfo(joinLayer, "center")
+                    self.environmentLayerJoinObserverInfo(joinLayer, "rigth")
+                )
+                layer.addJoin(
+                    self.environmentLayerJoinObserverInfo(joinLayer, "center")
+                )
+                joinLayer = QgsVectorLayer(
+                    self.session.plateformLayer.source(),
+                    self.session.plateformLayer.name(),
+                )
+                layer.addJoin(
+                    self.environmentLayerJoinPlateformInfo(joinLayer)
                 )
 
             options = QgsVectorFileWriter.SaveVectorOptions()
@@ -113,7 +122,7 @@ class SammoExportAction(QDialog):
             options.attributes = [
                 layer.fields().indexOf(field.name())
                 for field in layer.fields()
-                if field.name() != "validated"
+                if field.name() not in ["validated", "plateformId"]
             ]
             QgsVectorFileWriter.writeAsVectorFormatV2(
                 layer,
@@ -138,7 +147,7 @@ class SammoExportAction(QDialog):
         )
         return joinInfo
 
-    def environmentLayerJoinInfo(self, layer, side):
+    def environmentLayerJoinObserverInfo(self, layer, side):
         joinInfo = QgsVectorLayerJoinInfo()
         joinInfo.setJoinLayer(layer)
         joinInfo.setJoinFieldName("observer")
@@ -147,4 +156,13 @@ class SammoExportAction(QDialog):
         joinInfo.setJoinFieldNamesSubset(
             ["firstName", "lastName", "organization"]
         )
+        return joinInfo
+
+    def environmentLayerJoinPlateformInfo(self, layer):
+        joinInfo = QgsVectorLayerJoinInfo()
+        joinInfo.setJoinLayer(layer)
+        joinInfo.setJoinFieldName("fid")
+        joinInfo.setTargetFieldName("plateformId")
+        joinInfo.setPrefix("")
+        joinInfo.setJoinFieldNamesSubset(["plateform", "plateformHeight"])
         return joinInfo

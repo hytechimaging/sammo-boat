@@ -4,6 +4,7 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
 from .gps import SammoGpsLayer
+from .boat import SammoBoatLayer
 from .world import SammoWorldLayer
 from .survey import SammoSurveyLayer
 from .strate import SammoStrateLayer

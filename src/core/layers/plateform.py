@@ -46,11 +46,13 @@ class SammoPlateformLayer(SammoLayer):
 
         # plateform
         idx = layer.fields().indexFromName("plateformHeight")
-        cfg = {}
-        cfg["map"] = [
-            {"8": 8},
-            {"14": 14},
-            {"16": 16},
-        ]
-        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        cfg = {
+            "AllowNull": False,
+            "Max": 1000,
+            "Min": 0,
+            "Precision": 1,
+            "Step": 1,
+            "Style": "SpinBox",
+        }
+        setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)

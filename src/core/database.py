@@ -33,6 +33,7 @@ FOLLOWERS_TABLE = "followers"
 SIGHTINGS_TABLE = "sightings"
 ENVIRONMENT_TABLE = "environment"
 WORLD_TABLE = "world"
+BOAT_TABLE = "boat"
 SURVEY_TABLE = "survey"
 TRANSECT_TABLE = "transect"
 STRATE_TABLE = "strate"
@@ -84,10 +85,13 @@ class SammoDataBase:
         self._createTable(self._fieldsObserver(), OBSERVERS_TABLE)
 
         # administrator table
+        self._createTable(self._fieldsBoat(), BOAT_TABLE)
+        self._populateBoatTable()
         self._createTable(self._fieldsSurvey(), SURVEY_TABLE)
         self._createTable(self._fieldsTransect(), TRANSECT_TABLE)
         self._createTable(self._fieldsStrate(), STRATE_TABLE)
         self._createTable(self._fieldsPlateform(), PLATEFORM_TABLE)
+        self._populatePlateformTable()
 
         self._copyWorldTable()
 
@@ -125,8 +129,7 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("left"))
         fields.append(self._createFieldShortText("right"))
         fields.append(QgsField("dateTime", QVariant.DateTime))
-        fields.append(self._createFieldShortText("plateform"))
-        fields.append(QgsField("plateformHeight", QVariant.Int))
+        fields.append(self._createFieldShortText("plateformId"))
         fields.append(self._createFieldShortText("routeType"))
         fields.append(QgsField("speed", QVariant.Int))
         fields.append(QgsField("courseAverage", QVariant.Int))
@@ -233,6 +236,20 @@ class SammoDataBase:
 
         return fields
 
+    def _fieldsBoat(self) -> QgsFields:
+        fields = QgsFields()
+        fields.append(self._createFieldShortText("name"))
+        return fields
+
+    def _populateBoatTable(self) -> None:
+        boatLyr = QgsVectorLayer(self.tableUri(BOAT_TABLE), "boat", "ogr")
+        boatLyr.startEditing()
+        for name in ["Thalassa", "Europe", "PourquoiPas"]:
+            ft = QgsFeature(boatLyr.fields())
+            ft["name"] = name
+            boatLyr.addFeature(ft)
+        boatLyr.commitChanges()
+
     def _fieldsSurvey(self) -> QgsFields:
         fields = QgsFields()
         fields.append(self._createFieldShortText("region"))
@@ -264,9 +281,51 @@ class SammoDataBase:
         fields = QgsFields()
         fields.append(self._createFieldShortText("ship"))
         fields.append(self._createFieldShortText("plateform"))
-        fields.append(self._createFieldShortText("plateformHeight"))
+        fields.append(QgsField("plateformHeight", QVariant.Double))
 
         return fields
+
+    def _populatePlateformTable(self) -> None:
+        plateformLyr = QgsVectorLayer(
+            self.tableUri(PLATEFORM_TABLE), "plateform", "ogr"
+        )
+        plateformLyr.startEditing()
+        plateforms = [
+            {"ship": "Thalassa", "plateform": "deck", "plateformHeight": 8.0},
+            {
+                "ship": "Thalassa",
+                "plateform": "bridge",
+                "plateformHeight": 14.0,
+            },
+            {
+                "ship": "Thalassa",
+                "plateform": "upper_bridge",
+                "plateformHeight": 16.5,
+            },
+            {"ship": "Europe", "plateform": "deck", "plateformHeight": 4.0},
+            {"ship": "Europe", "plateform": "bridge", "plateformHeight": 4.0},
+            {
+                "ship": "PourquoiPas",
+                "plateform": "deck",
+                "plateformHeight": 16.3,
+            },
+            {
+                "ship": "PourquoiPas",
+                "plateform": "bridge",
+                "plateformHeight": 18.6,
+            },
+            {
+                "ship": "PourquoiPas",
+                "plateform": "upper_bridge",
+                "plateformHeight": 21.6,
+            },
+        ]
+        for plateformAttr in plateforms:
+            ft = QgsFeature(plateformLyr.fields())
+            for k, v in plateformAttr.items():
+                ft[k] = v
+            plateformLyr.addFeature(ft)
+        plateformLyr.commitChanges()
 
     def _createTable(
         self, fields: QgsFields, tableName: str, geom=QgsWkbTypes.NoGeometry
