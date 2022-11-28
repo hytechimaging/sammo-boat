@@ -70,6 +70,7 @@ class SammoSettingsDialog(QDialog, FORM_CLASS):
         if vl == self.session.boatLayer:
             self.session.plateformLayer
             dlg = QDialog(self)
+            dlg.setModal(True)
             dlg.setWindowTitle(vl.name())
             table = iface.showAttributeTable(vl)
             originDlg = table.parent()

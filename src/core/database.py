@@ -3,6 +3,7 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
+import csv
 import os.path
 from pathlib import Path
 
@@ -243,10 +244,19 @@ class SammoDataBase:
 
     def _populateBoatTable(self) -> None:
         boatLyr = QgsVectorLayer(self.tableUri(BOAT_TABLE), "boat", "ogr")
+        file = Path(__file__).parent.parent.parent / "data" / "boat.csv"
+        boats = []
+        if file.exists():
+            with open(file.as_posix()) as f:
+                boats = [
+                    { k: v for k, v in row.items()}
+                    for row in csv.DictReader(f)
+                ]
         boatLyr.startEditing()
-        for name in ["Thalassa", "Europe", "PourquoiPas"]:
+        for boatAttr in boats:
             ft = QgsFeature(boatLyr.fields())
-            ft["name"] = name
+            for k, v in boatAttr.items():
+                ft[k] = v
             boatLyr.addFeature(ft)
         boatLyr.commitChanges()
 
@@ -289,37 +299,22 @@ class SammoDataBase:
         plateformLyr = QgsVectorLayer(
             self.tableUri(PLATEFORM_TABLE), "plateform", "ogr"
         )
+        file = Path(__file__).parent.parent.parent / "data" / "plateform.csv"
+        plateforms = []
+        if file.exists():
+            with open(file.as_posix()) as f:
+                plateforms = [
+                    {
+                        k: (
+                            float(v)
+                            if k == "plateformHeight"
+                            else v
+                        )
+                        for k, v in row.items()
+                    }
+                    for row in csv.DictReader(f)
+                ]
         plateformLyr.startEditing()
-        plateforms = [
-            {"ship": "Thalassa", "plateform": "deck", "plateformHeight": 8.0},
-            {
-                "ship": "Thalassa",
-                "plateform": "bridge",
-                "plateformHeight": 14.0,
-            },
-            {
-                "ship": "Thalassa",
-                "plateform": "upper_bridge",
-                "plateformHeight": 16.5,
-            },
-            {"ship": "Europe", "plateform": "deck", "plateformHeight": 4.0},
-            {"ship": "Europe", "plateform": "bridge", "plateformHeight": 4.0},
-            {
-                "ship": "PourquoiPas",
-                "plateform": "deck",
-                "plateformHeight": 16.3,
-            },
-            {
-                "ship": "PourquoiPas",
-                "plateform": "bridge",
-                "plateformHeight": 18.6,
-            },
-            {
-                "ship": "PourquoiPas",
-                "plateform": "upper_bridge",
-                "plateformHeight": 21.6,
-            },
-        ]
         for plateformAttr in plateforms:
             ft = QgsFeature(plateformLyr.fields())
             for k, v in plateformAttr.items():
