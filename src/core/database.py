@@ -249,8 +249,7 @@ class SammoDataBase:
         if file.exists():
             with open(file.as_posix()) as f:
                 boats = [
-                    { k: v for k, v in row.items()}
-                    for row in csv.DictReader(f)
+                    {k: v for k, v in row.items()} for row in csv.DictReader(f)
                 ]
         boatLyr.startEditing()
         for boatAttr in boats:
@@ -305,11 +304,7 @@ class SammoDataBase:
             with open(file.as_posix()) as f:
                 plateforms = [
                     {
-                        k: (
-                            float(v)
-                            if k == "plateformHeight"
-                            else v
-                        )
+                        k: (float(v) if k == "plateformHeight" else v)
                         for k, v in row.items()
                     }
                     for row in csv.DictReader(f)

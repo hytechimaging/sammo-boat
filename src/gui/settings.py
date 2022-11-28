@@ -52,6 +52,7 @@ class SammoSettingsDialog(QDialog, FORM_CLASS):
         self.transectButton.clicked.connect(self.surveyEdit)
         self.strateButton.clicked.connect(self.surveyEdit)
         self.boatButton.clicked.connect(self.surveyEdit)
+        self.plateformButton.clicked.connect(self.surveyEdit)
         self.closeButton.clicked.connect(self.close)
 
     def surveyEdit(self):
@@ -61,13 +62,15 @@ class SammoSettingsDialog(QDialog, FORM_CLASS):
             vl = self.session.transectLayer
         elif self.sender() == self.strateButton:
             vl = self.session.strateLayer
+        elif self.sender() == self.plateformButton:
+            vl = self.session.plateformLayer
         elif self.sender() == self.boatButton:
             vl = self.session.boatLayer
         vl.startEditing()
         if not vl.featureCount():
             feat = QgsVectorLayerUtils.createFeature(vl)
             vl.addFeature(feat)
-        if vl == self.session.boatLayer:
+        if vl in [self.session.boatLayer, self.session.plateformLayer]:
             self.session.plateformLayer
             dlg = QDialog(self)
             dlg.setModal(True)
