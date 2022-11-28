@@ -30,7 +30,7 @@ from ..core.session import SammoSession
 class SammoExportAction(QDialog):
     def __init__(
         self, parent: QObject, toolbar: QToolBar, session: SammoSession
-    ):
+    ) -> None:
         super().__init__()
         uic.loadUi(Path(__file__).parent / "ui/export.ui", self)
         self.action: QAction = None
@@ -42,7 +42,7 @@ class SammoExportAction(QDialog):
         self.exportButton.clicked.connect(self.export)
         self.exportButton.setEnabled(False)
 
-    def setEnabled(self, status):
+    def setEnabled(self, status: bool) -> None:
         self.action.setEnabled(status)
         self.action.setChecked(False)
 
@@ -53,7 +53,7 @@ class SammoExportAction(QDialog):
         self.action.setToolTip("Export session")
         toolbar.addAction(self.action)
 
-    def updateSaveFolder(self):
+    def updateSaveFolder(self) -> None:
         path = QFileDialog.getExistingDirectory(
             self,
             "Export folder",
@@ -64,7 +64,7 @@ class SammoExportAction(QDialog):
             self.saveFolderEdit.setText(path)
             self.exportButton.setEnabled(True)
 
-    def export(self):
+    def export(self) -> None:
         driver = self.driverComboBox.currentText()
         if driver not in ["CSV", "GPKG"]:
             self.progressBar.setFormat("Unknown driver: aborting export")
@@ -100,12 +100,21 @@ class SammoExportAction(QDialog):
                     self.session.observersLayer.source(),
                     self.session.observersLayer.name(),
                 )  # keepped alive until export is done
-                layer.addJoin(self.environmentLayerJoinInfo(joinLayer, "left"))
                 layer.addJoin(
-                    self.environmentLayerJoinInfo(joinLayer, "rigth")
+                    self.environmentLayerJoinObserverInfo(joinLayer, "left")
                 )
                 layer.addJoin(
-                    self.environmentLayerJoinInfo(joinLayer, "center")
+                    self.environmentLayerJoinObserverInfo(joinLayer, "rigth")
+                )
+                layer.addJoin(
+                    self.environmentLayerJoinObserverInfo(joinLayer, "center")
+                )
+                joinLayer = QgsVectorLayer(
+                    self.session.plateformLayer.source(),
+                    self.session.plateformLayer.name(),
+                )
+                layer.addJoin(
+                    self.environmentLayerJoinPlateformInfo(joinLayer)
                 )
 
             options = QgsVectorFileWriter.SaveVectorOptions()
@@ -113,7 +122,7 @@ class SammoExportAction(QDialog):
             options.attributes = [
                 layer.fields().indexOf(field.name())
                 for field in layer.fields()
-                if field.name() != "validated"
+                if field.name() not in ["validated", "plateformId"]
             ]
             QgsVectorFileWriter.writeAsVectorFormatV2(
                 layer,
@@ -127,7 +136,7 @@ class SammoExportAction(QDialog):
             self.progressBar.setValue(int(100 / nb * (i + 1)))
         self.close()
 
-    def sightingsLayerJoinInfo(self, layer):
+    def sightingsLayerJoinInfo(self, layer: QgsVectorLayer) -> None:
         joinInfo = QgsVectorLayerJoinInfo()
         joinInfo.setJoinLayer(layer)
         joinInfo.setJoinFieldName("species")
@@ -138,7 +147,9 @@ class SammoExportAction(QDialog):
         )
         return joinInfo
 
-    def environmentLayerJoinInfo(self, layer, side):
+    def environmentLayerJoinObserverInfo(
+        self, layer: QgsVectorLayer, side: str
+    ) -> None:
         joinInfo = QgsVectorLayerJoinInfo()
         joinInfo.setJoinLayer(layer)
         joinInfo.setJoinFieldName("observer")
@@ -147,4 +158,13 @@ class SammoExportAction(QDialog):
         joinInfo.setJoinFieldNamesSubset(
             ["firstName", "lastName", "organization"]
         )
+        return joinInfo
+
+    def environmentLayerJoinPlateformInfo(self, layer: QgsVectorLayer) -> None:
+        joinInfo = QgsVectorLayerJoinInfo()
+        joinInfo.setJoinLayer(layer)
+        joinInfo.setJoinFieldName("fid")
+        joinInfo.setTargetFieldName("plateformId")
+        joinInfo.setPrefix("")
+        joinInfo.setJoinFieldNamesSubset(["plateform", "plateformHeight"])
         return joinInfo

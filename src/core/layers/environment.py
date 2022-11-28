@@ -19,10 +19,17 @@ from ..database import (
 )
 
 from .layer import SammoLayer
+from .plateform import SammoPlateformLayer
+from .observers import SammoObserversLayer
 
 
 class SammoEnvironmentLayer(SammoLayer):
-    def __init__(self, db: SammoDataBase, observersLayer: SammoLayer):
+    def __init__(
+        self,
+        db: SammoDataBase,
+        observersLayer: SammoObserversLayer,
+        plateformLayer: SammoPlateformLayer,
+    ):
         super().__init__(
             db,
             ENVIRONMENT_TABLE,
@@ -31,6 +38,7 @@ class SammoEnvironmentLayer(SammoLayer):
             duplicateAction=True,
         )
         self.observersLayer = observersLayer
+        self.plateformLayer = plateformLayer
 
     def _init(self, layer: QgsVectorLayer):
         self._init_symbology(layer)
@@ -48,20 +56,28 @@ class SammoEnvironmentLayer(SammoLayer):
 
     def _init_widgets(self, layer: QgsVectorLayer) -> None:
         # platform
-        idx = layer.fields().indexFromName("plateform")
-        cfg = {}
-        cfg["map"] = [
-            {"bridge_inside": "bridge_inside"},
-            {"bridge_outside": "bridge_outside"},
-            {"upper_bridge_outside": "upper_bridge_outside"},
-            {"upper_bridge_inside": "upper_bridge_inside"},
-            {"deck": "deck"},
-        ]
-        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        idx = layer.fields().indexFromName("plateformId")
+        cfg = {
+            "AllowMulti": False,
+            "AllowNull": True,
+            "Description": "plateform",
+            "FilterExpression": " current_value('shipName') =  \"ship\" ",
+            "Key": "fid",
+            "Layer": self.plateformLayer.layer.id(),
+            "LayerName": self.plateformLayer.name,
+            "LayerProviderName": "ogr",
+            "LayerSource": self.plateformLayer.uri,
+            "NofColumns": 1,
+            "OrderByValue": False,
+            "UseCompleter": False,
+            "Value": "plateform",
+        }
+        setup = QgsEditorWidgetSetup("ValueRelation", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         form_config = layer.editFormConfig()
         form_config.setReadOnly(idx, False)
         layer.setEditFormConfig(form_config)
+        layer.setFieldAlias(idx, "plateform")
 
         # route type
         idx = layer.fields().indexFromName("routeType")

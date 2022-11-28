@@ -3,6 +3,7 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
+import csv
 import os.path
 from pathlib import Path
 
@@ -33,6 +34,7 @@ FOLLOWERS_TABLE = "followers"
 SIGHTINGS_TABLE = "sightings"
 ENVIRONMENT_TABLE = "environment"
 WORLD_TABLE = "world"
+BOAT_TABLE = "boat"
 SURVEY_TABLE = "survey"
 TRANSECT_TABLE = "transect"
 STRATE_TABLE = "strate"
@@ -84,10 +86,13 @@ class SammoDataBase:
         self._createTable(self._fieldsObserver(), OBSERVERS_TABLE)
 
         # administrator table
+        self._createTable(self._fieldsBoat(), BOAT_TABLE)
+        self._populateBoatTable()
         self._createTable(self._fieldsSurvey(), SURVEY_TABLE)
         self._createTable(self._fieldsTransect(), TRANSECT_TABLE)
         self._createTable(self._fieldsStrate(), STRATE_TABLE)
         self._createTable(self._fieldsPlateform(), PLATEFORM_TABLE)
+        self._populatePlateformTable()
 
         self._copyWorldTable()
 
@@ -125,8 +130,7 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("left"))
         fields.append(self._createFieldShortText("right"))
         fields.append(QgsField("dateTime", QVariant.DateTime))
-        fields.append(self._createFieldShortText("plateform"))
-        fields.append(QgsField("plateformHeight", QVariant.Int))
+        fields.append(self._createFieldShortText("plateformId"))
         fields.append(self._createFieldShortText("routeType"))
         fields.append(QgsField("speed", QVariant.Int))
         fields.append(QgsField("courseAverage", QVariant.Int))
@@ -233,6 +237,28 @@ class SammoDataBase:
 
         return fields
 
+    def _fieldsBoat(self) -> QgsFields:
+        fields = QgsFields()
+        fields.append(self._createFieldShortText("name"))
+        return fields
+
+    def _populateBoatTable(self) -> None:
+        boatLyr = QgsVectorLayer(self.tableUri(BOAT_TABLE), "boat", "ogr")
+        file = Path(__file__).parent.parent.parent / "data" / "boat.csv"
+        boats = []
+        if file.exists():
+            with open(file.as_posix()) as f:
+                boats = [
+                    {k: v for k, v in row.items()} for row in csv.DictReader(f)
+                ]
+        boatLyr.startEditing()
+        for boatAttr in boats:
+            ft = QgsFeature(boatLyr.fields())
+            for k, v in boatAttr.items():
+                ft[k] = v
+            boatLyr.addFeature(ft)
+        boatLyr.commitChanges()
+
     def _fieldsSurvey(self) -> QgsFields:
         fields = QgsFields()
         fields.append(self._createFieldShortText("region"))
@@ -264,9 +290,32 @@ class SammoDataBase:
         fields = QgsFields()
         fields.append(self._createFieldShortText("ship"))
         fields.append(self._createFieldShortText("plateform"))
-        fields.append(self._createFieldShortText("plateformHeight"))
+        fields.append(QgsField("plateformHeight", QVariant.Double))
 
         return fields
+
+    def _populatePlateformTable(self) -> None:
+        plateformLyr = QgsVectorLayer(
+            self.tableUri(PLATEFORM_TABLE), "plateform", "ogr"
+        )
+        file = Path(__file__).parent.parent.parent / "data" / "plateform.csv"
+        plateforms = []
+        if file.exists():
+            with open(file.as_posix()) as f:
+                plateforms = [
+                    {
+                        k: (float(v) if k == "plateformHeight" else v)
+                        for k, v in row.items()
+                    }
+                    for row in csv.DictReader(f)
+                ]
+        plateformLyr.startEditing()
+        for plateformAttr in plateforms:
+            ft = QgsFeature(plateformLyr.fields())
+            for k, v in plateformAttr.items():
+                ft[k] = v
+            plateformLyr.addFeature(ft)
+        plateformLyr.commitChanges()
 
     def _createTable(
         self, fields: QgsFields, tableName: str, geom=QgsWkbTypes.NoGeometry
