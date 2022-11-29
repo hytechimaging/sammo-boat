@@ -502,7 +502,7 @@ class Sammo:
         self.tableDock.refresh(layer, self.filterExpr)
         self.soundRecordingController.onStopEventWhichNeedSoundRecord(60)
 
-    def onFollowersAction(self, validation: Optional[QAction]=None):
+    def onFollowersAction(self, validation: Optional[QAction] = None):
         if validation == self.followersAction.followerTable:
             table = SammoAttributeTable.attributeTable(
                 self.iface, self.session.followersLayer, self.filterExpr
