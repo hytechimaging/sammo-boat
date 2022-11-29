@@ -9,7 +9,13 @@ from qgis.PyQt import uic
 from qgis.utils import iface
 from qgis.PyQt.QtCore import QObject
 from qgis.core import QgsVectorLayerUtils
-from qgis.PyQt.QtWidgets import QAction, QToolBar, QDialog
+from qgis.PyQt.QtWidgets import (
+    QAction,
+    QToolBar,
+    QDialog,
+    QVBoxLayout,
+    QHBoxLayout,
+)
 
 from ..core import utils
 from ..core.session import SammoSession
@@ -77,7 +83,10 @@ class SammoSettingsDialog(QDialog, FORM_CLASS):
             dlg.setWindowTitle(vl.name())
             table = iface.showAttributeTable(vl)
             originDlg = table.parent()
-            table.setParent(dlg)
+            hLayout = QHBoxLayout(dlg)
+            vLayout = QVBoxLayout()
+            hLayout.addLayout(vLayout)
+            vLayout.addWidget(table)
             if originDlg:  # version < 3.28 compatibility
                 originDlg.hide()
             dlg.show()

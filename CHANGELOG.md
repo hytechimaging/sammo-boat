@@ -4,6 +4,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+-----
+
+## [v1.3.0] - 2002-11-28
+
+### Add
+
+- Zoom shorcut (Ctrl+< and Ctrl+>)
+- Export with gpkg extension
+- Duplicate action to add/replace a entity with a interpolated geometry
+- Environment layer : `effortGroup` field
+- Follower layer : new dialog to consult and validate followers
+- Current day filter to help validation
+- Unvalidated filter to help validation
+- Boat layer
+
+## Modified
+
+- GPS can be enable/disable (button + shortcut). Disable GPS also finishes effort
+- Merge : dateCheckbox checked by default
+- Environment form : float accepted for `visibility` attribute
+- Environment form : platform are filtered by boat (defined in settings)
+- Environment form : fix bug after inserting two entities in a row
+- Sighting form : increase `podSize` value range
+- Sighting form : avoid to define `distance`, `podSize` and `angle` by accident
+- Follower form : `nObervers` and `podSize` could be 0
+- Follower form : warning on `podSize`, `back` and `fishActivity`
+- Follower form : fix observer replacement in first row when adding a second row
+
 -----
 
 ## [v1.2.3] - 2002-07-06
