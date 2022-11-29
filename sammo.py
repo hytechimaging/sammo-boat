@@ -6,6 +6,7 @@ __copyright__ = "Copyright (c) 2022 Hytech Imaging"
 import os.path
 import platform
 from datetime import datetime
+from typing import Optional
 
 from qgis.PyQt.QtGui import QKeySequence
 from qgis.PyQt.QtWidgets import QToolBar, QShortcut, QTableView, QAction
@@ -501,7 +502,7 @@ class Sammo:
         self.tableDock.refresh(layer, self.filterExpr)
         self.soundRecordingController.onStopEventWhichNeedSoundRecord(60)
 
-    def onFollowersAction(self, validation: QAction):
+    def onFollowersAction(self, validation: Optional[QAction]=None):
         if validation == self.followersAction.followerTable:
             table = SammoAttributeTable.attributeTable(
                 self.iface, self.session.followersLayer, self.filterExpr
