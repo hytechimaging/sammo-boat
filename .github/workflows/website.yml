@@ -1,10 +1,10 @@
 name: "Website"
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
+on: push
+  # push:
+  #   branches:
+  #     - main
+  # pull_request:
 
 jobs:
   code:
@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Check out repository code
-        uses: actions/checkout@main
+        uses: actions/checkout@v3
       - name: Install sphinx
         run: sudo apt-get install python3-virtualenv virtualenv
       - name: Build html documentation
