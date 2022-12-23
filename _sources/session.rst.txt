@@ -43,7 +43,7 @@ Most of these tables can be configured in the settings dialog (cf. :ref:`setting
 The main tables used by operator will be the following:
 
 - environment
-- sightning
+- sighting
 - follower
 
 Futhermore the `gps` table will be automatically fulfill by the gps connection
