@@ -8,6 +8,7 @@ from qgis.PyQt.QtWidgets import (
     QLabel,
     QDialog,
     QComboBox,
+    QCheckBox,
     QPushButton,
     QHBoxLayout,
     QVBoxLayout,
@@ -39,6 +40,9 @@ class DuplicateDialog(QDialog):
         self.cancelButton.clicked.connect(self.close)
 
         self.VLayout = QVBoxLayout(self)
+        self.checkBox = QCheckBox("Duplicate ?")
+        self.checkBox.setChecked(True)
+        self.VLayout.addWidget(self.checkBox)
         # datetime
         self.HLayout = QHBoxLayout()
         self.datetimeLabel = QLabel("Datetime :")
@@ -97,21 +101,41 @@ class DuplicateDialog(QDialog):
         self.VLayout.addLayout(self.HBottomLayout)
 
     def validate(self):
-        feat = QgsVectorLayerUtils.createFeature(self.layer)
-        feat.setGeometry(self.interpolated)
+        if self.checkBox.isChecked():
+            feat = QgsVectorLayerUtils.createFeature(self.layer)
+            feat.setGeometry(self.interpolated)
 
-        for name in self.toDuplicate.fields().names():
-            if name == "fid":
-                continue
-            feat[name] = self.toDuplicate[name]
+            for name in self.toDuplicate.fields().names():
+                if name == "fid":
+                    continue
+                feat[name] = self.toDuplicate[name]
 
-        feat["datetime"] = self.datetimeEdit.dateTime()
-        if self.layer.name() == "Environment":
-            feat["status"] = self.statusComboBox.currentText()
-            feat["effortGroup"] = int(self.effortComboBox.currentText())
+            feat["datetime"] = self.datetimeEdit.dateTime()
+            if self.layer.name() == "Environment":
+                feat["status"] = self.statusComboBox.currentText()
+                feat["effortGroup"] = int(self.effortComboBox.currentText())
 
-        self.layer.startEditing()
-        self.layer.addFeature(feat)
+            self.layer.startEditing()
+            self.layer.addFeature(feat)
+        else:
+            self.layer.startEditing()
+            self.layer.changeGeometry(self.toDuplicate.id(), self.interpolated)
+            self.layer.changeAttributeValue(
+                self.toDuplicate.id(),
+                self.layer.fields().indexOf("dateTime"),
+                self.datetimeEdit.dateTime(),
+            )
+            if self.layer.name() == "Environment":
+                self.layer.changeAttributeValue(
+                    self.toDuplicate.id(),
+                    self.layer.fields().indexOf("status"),
+                    self.statusComboBox.currentText(),
+                )
+                self.layer.changeAttributeValue(
+                    self.toDuplicate.id(),
+                    self.layer.fields().indexOf("effortGroup"),
+                    int(self.effortComboBox.currentText()),
+                )
         self.layer.commitChanges()
         self.layer.startEditing()
         self.close()
