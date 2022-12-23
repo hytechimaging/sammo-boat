@@ -224,8 +224,6 @@ class Sammo:
             self.iface.addPluginToMenu("Sammo-Boat", self.shortcutAction)
 
     def initShortcuts(self) -> None:
-        self.gpsShortcut = QShortcut(QKeySequence("Shift+G"), self.mainWindow)
-        self.gpsShortcut.activated.connect(self.activateGPS)
         self.environmentShortcut = QShortcut(
             QKeySequence("Shift+E"), self.mainWindow
         )

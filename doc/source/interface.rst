@@ -162,7 +162,6 @@ Status Panel
 
 The GPS button is used to enable/disable the GPS. If no GPS is found, a message
 box will appear to warn the user. Otherwise |gps_ko| will turn into |gps_ok|.
-This action can also be done with the ``Shift+g`` shortcut.
 
 The GPS infos are displayed aside the button. Futhermore, a new gps entity is
 created per minut.
