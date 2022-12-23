@@ -537,6 +537,11 @@ class SammoSession:
                         sightingsLayer.fields().indexOf("observer"),
                         envFeat["center"],
                     )
+                sightingsLayer.changeAttributeValue(
+                    feat.id(),
+                    sightingsLayer.fields().indexOf("effortGroup"),
+                    envFeat["effortGroup"],
+                )
                 break
 
             if survey:
@@ -575,6 +580,22 @@ class SammoSession:
                 idx,
                 not merge,
             )
+            strDateTime = (
+                feat["dateTime"].toPyDateTime().strftime("%Y-%m-%d %H:%M:%S")
+            )
+            request = QgsFeatureRequest().setFilterExpression(
+                f"dateTime < to_datetime('{strDateTime}') "
+                f"and status != '{StatusCode.display(StatusCode.END)}'"
+            )
+            request.addOrderBy("dateTime", False)
+            for envFeat in environmentLayer.getFeatures(request):
+                followersLayer.changeAttributeValue(
+                    feat.id(),
+                    followersLayer.fields().indexOf("effortGroup"),
+                    envFeat["effortGroup"],
+                )
+                break
+
         followersLayer.commitChanges()
         followersLayer.startEditing()
 

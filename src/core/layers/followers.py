@@ -138,6 +138,7 @@ class SammoFollowersLayer(SammoLayer):
             "soundEnd",
             "dateTime",
             "validated",
+            "effortGroup",
         ]:
             idx = layer.fields().indexFromName(field)
             form_config = layer.editFormConfig()

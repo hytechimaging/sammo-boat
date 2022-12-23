@@ -197,6 +197,7 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("soundStart"))
         fields.append(self._createFieldShortText("soundEnd"))
         fields.append(QgsField("validated", QVariant.Bool))
+        fields.append(QgsField("effortGroup", QVariant.Int))
 
         return fields
 
@@ -215,6 +216,7 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("soundStart"))
         fields.append(self._createFieldShortText("soundEnd"))
         fields.append(QgsField("validated", QVariant.Bool))
+        fields.append(QgsField("effortGroup", QVariant.Int))
 
         return fields
 
