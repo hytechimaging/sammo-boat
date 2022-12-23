@@ -81,11 +81,11 @@ Futhermore the validation button includes the validation feature, that is used
 to flag entities as verified. This feature should be used at the end of the
 acquisition day, to check records without being in the rush. By default, it will
 validate all records, after checking that environnement records are valids, but
-user can also select entities in environment/sightning/follower tables to only
+user can also select entities in environment/sighting/follower tables to only
 validate these particular entities.
 
 At the end, there is also two filters that can be activated to filter
-environment/sightning/follower tables. It can be useful to do the entity check.
+environment/sighting/follower tables. It can be useful to do the entity check.
 
 
 4 - |export| Export button
@@ -109,7 +109,7 @@ This button is used to merge session. It will open the following dialog :
 |
 
 If there is more than one observer on the boat, this feature can be used to merge
-data from two distinct session. The environment/sightning/follower tables will be
+data from two distinct session. The environment/sighting/follower tables will be
 merging, avoiding to copy identical entities captured on a previous day. Gps point
 will be also decimated to keep only one record per minutes.
 
@@ -209,10 +209,10 @@ action to fix it (cf. :ref:`duplicateaction`).
 
 .. _sightingtable:
 
-12 - Sightning table
+12 - Sighting table
 ~~~~~~~~~~~~~~~~~~~~
 
-The sightning table is used to modify sightning entity attributes. Sighting entity describes an observation made by the operator.
+The sighting table is used to modify sighting entity attributes. Sighting entity describes an observation made by the operator.
 
 13 - Map canvas
 ~~~~~~~~~~~~~~~
@@ -235,5 +235,5 @@ displayed:
 - world (as background map)
 - |gps_symbol| gps 
 - |environment_symbol| environmenent 
-- |sighting_symbol| sightning 
+- |sighting_symbol| sighting 
 - |follower_symbol| follower 
