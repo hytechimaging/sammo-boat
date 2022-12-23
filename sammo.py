@@ -8,6 +8,7 @@ import platform
 from datetime import datetime
 from typing import Optional
 
+from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QKeySequence
 from qgis.PyQt.QtWidgets import QToolBar, QShortcut, QTableView, QAction
 
@@ -504,6 +505,13 @@ class Sammo:
         if validation == self.followersAction.followerTable:
             table = SammoAttributeTable.attributeTable(
                 self.iface, self.session.followersLayer, self.filterExpr
+            )
+            table.setWindowFlags(
+                Qt.Window
+                | Qt.CustomizeWindowHint
+                | Qt.WindowTitleHint
+                | Qt.WindowCloseButtonHint
+                | Qt.WindowStaysOnTopHint
             )
             table.show()
             return
