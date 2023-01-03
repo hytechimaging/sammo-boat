@@ -63,14 +63,30 @@ def shortcutCreation():
             shortcut.save()
 
         # office splash screen
+        default_template = script("template_default.bat")
+        default_script = script("default.bat")
         admin_template = script("template_admin.bat")
         admin_script = script("sammo_boat_admin.bat")
         operator_template = script("template_operator.bat")
         operator_script = script("sammo_boat_operator.bat")
 
-        lines = []
         exe_tag = "{{ QGIS_EXECUTABLE }}"
         profile_tag = "{{ PROFILE_PATH }}"
+
+        lines = []
+        with open(default_template) as f:
+            for line in f:
+                if exe_tag in line:
+                    line = line.replace(
+                        exe_tag, QgsApplication.applicationFilePath()
+                    )
+                lines.append(line)
+
+        with open(default_script, "w") as f:
+            for line in lines:
+                f.write(line)
+
+        lines = []
         with open(admin_template) as f:
             for line in f:
                 if exe_tag in line:
@@ -121,6 +137,17 @@ def shortcutCreation():
         rmtree(operatorPluginPath, ignore_errors=True)
         copytree(ROOT_DIR.as_posix(), operatorPluginPath)
 
+        # QGIS default
+        link_path = (
+            Path(os.environ["HOMEDRIVE"])
+            / os.environ["HOMEPATH"]
+            / "Desktop"
+            / "QGIS-default.lnk"
+        ).as_posix()
+        ico = path("qgis.ico")
+        exe = default_script
+        createShortcut(link_path, exe, ico)
+
         # admin
         link_path = (
             Path(os.environ["HOMEDRIVE"])
@@ -128,7 +155,7 @@ def shortcutCreation():
             / "Desktop"
             / "Sammo-boat-admin.lnk"
         ).as_posix()
-        ico = path("environment.ico")
+        ico = path("environment_admin.ico")
         exe = admin_script
         createShortcut(link_path, exe, ico)
 

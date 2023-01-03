@@ -8,6 +8,7 @@ import platform
 from datetime import datetime
 from typing import Optional
 
+from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QKeySequence
 from qgis.PyQt.QtWidgets import QToolBar, QShortcut, QTableView, QAction
 
@@ -224,8 +225,6 @@ class Sammo:
             self.iface.addPluginToMenu("Sammo-Boat", self.shortcutAction)
 
     def initShortcuts(self) -> None:
-        self.gpsShortcut = QShortcut(QKeySequence("Shift+G"), self.mainWindow)
-        self.gpsShortcut.activated.connect(self.activateGPS)
         self.environmentShortcut = QShortcut(
             QKeySequence("Shift+E"), self.mainWindow
         )
@@ -506,6 +505,13 @@ class Sammo:
         if validation == self.followersAction.followerTable:
             table = SammoAttributeTable.attributeTable(
                 self.iface, self.session.followersLayer, self.filterExpr
+            )
+            table.setWindowFlags(
+                Qt.Window
+                | Qt.CustomizeWindowHint
+                | Qt.WindowTitleHint
+                | Qt.WindowCloseButtonHint
+                | Qt.WindowStaysOnTopHint
             )
             table.show()
             return

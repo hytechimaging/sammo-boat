@@ -84,6 +84,8 @@ class SammoAttributeTable:
             "plateformHeight",
             "observer",
         ]
+        if layer.name().lower() != ENVIRONMENT_TABLE:
+            hiddens += ["effortGroup"]
         config = layer.attributeTableConfig()
         columns = config.columns()
         for column in columns:
