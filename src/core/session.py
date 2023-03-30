@@ -403,6 +403,8 @@ class SammoSession:
             self.sightingsLayer,
             self.followersLayer,
         ]:
+            if not layer:
+                continue
             layer.commitChanges()
             layer.startEditing()
 

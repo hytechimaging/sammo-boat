@@ -7,7 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -----
 
-## [v1.3.0] - 2002-11-28
+## [v1.3.1] - 2023-01-xx
+
+## Modified
+
+- Remove gps shortcut
+- Fix typographic error in documentation
+- Export of the effortGroup attribute in sighting and follower layer.
+- Followers dialog always stays on top
+- Duplicate action can also only modify the current feature
+- New icon for admin profile to avoid confusion (and default profile backup)
+
+## [v1.3.0] - 2022-11-28
 
 ### Add
 
@@ -35,7 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -----
 
-## [v1.2.3] - 2002-07-06
+## [v1.2.3] - 2022-07-06
 
 ## Modified
 
@@ -180,6 +191,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+[v1.3.1]: https://github.com/hytechimaging/sammo-boat/releases/tag/v1.3.1
+[v1.3.0]: https://github.com/hytechimaging/sammo-boat/releases/tag/v1.3.0
 [v1.2.3]: https://github.com/hytechimaging/sammo-boat/releases/tag/v1.2.3
 [v1.2.2]: https://github.com/hytechimaging/sammo-boat/releases/tag/v1.2.2
 [v1.2.1]: https://github.com/hytechimaging/sammo-boat/releases/tag/v1.2.1
