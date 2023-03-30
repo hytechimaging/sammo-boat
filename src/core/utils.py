@@ -8,10 +8,11 @@ import platform
 from pathlib import Path
 from datetime import datetime
 from shutil import copytree, rmtree
+from typing import Tuple
 
-from qgis.core import QgsApplication
 from qgis.PyQt.QtCore import QSize, QFile
 from qgis.PyQt.QtGui import QIcon, QPixmap
+from qgis.core import QgsApplication, Qgis
 
 
 ROOT_DIR = Path(__file__).parent.parent.parent
@@ -169,3 +170,6 @@ def shortcutCreation():
         ico = path("environment.ico")
         exe = operator_script
         createShortcut(link_path, exe, ico)
+
+def qgisVersion() -> Tuple[int, int, int]:
+    return [int(x) for x in Qgis.version().split('-')[0].split(".")]
