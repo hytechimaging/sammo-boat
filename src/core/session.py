@@ -268,17 +268,30 @@ class SammoSession:
                 else StatusCode(int(bool(layer.featureCount())))
             )
         )
-        effortGroup = layer.maximumValue(layer.fields().indexOf("effortGroup"))
+        effortGroup = layer.maximumValue(
+            layer.fields().indexOf("_effortGroup")
+        )
         shipName = ""
         if self.surveyLayer.featureCount() > 0:
             shipName = next(self.surveyLayer.getFeatures())["shipName"]
         if effortGroup and statusCode == StatusCode.display(StatusCode.BEGIN):
             effortGroup += 1
+
+        effortLeg = 0
+        for ft in layer.getFeatures(
+            QgsFeatureRequest(QgsExpression(f"_effortGroup = {effortGroup}"))
+        ):
+            if ft["_effortLeg"] > effortLeg:
+                effortLeg = ft["_effortLeg"]
+        if statusCode != StatusCode.display(StatusCode.END):
+            effortLeg += 1
+
         self._addFeature(
             layer,
             geom=self.lastGpsInfo["geometry"],
             status=statusCode,
-            effortGroup=effortGroup or 1,
+            _effortGroup=effortGroup or 1,
+            _effortLeg=effortLeg or 1,
             speed=self.lastGpsInfo["gprmc"]["speed"],
             courseAverage=self.lastGpsInfo["gprmc"]["course"],
             shipName=shipName,
@@ -326,7 +339,7 @@ class SammoSession:
                 )
                 self.environmentLayer.changeAttributeValue(
                     fid,
-                    self.environmentLayer.fields().indexOf("effortGroup"),
+                    self.environmentLayer.fields().indexOf("_effortGroup"),
                     prevFeat["effortGroup"],
                 )
             elif prevFeat["routeType"] != feat["routeType"]:
@@ -348,7 +361,7 @@ class SammoSession:
                 )
                 self.environmentLayer.changeAttributeValue(
                     fid,
-                    self.environmentLayer.fields().indexOf("effortGroup"),
+                    self.environmentLayer.fields().indexOf("_effortGroup"),
                     prevFeat["effortGroup"] + 1,
                 )
                 self.environmentLayer.changeAttributeValue(
@@ -430,13 +443,13 @@ class SammoSession:
 
         # effort status check
         effortIds = environmentLayer.uniqueValues(
-            environmentLayer.fields().indexOf("effortGroup")
+            environmentLayer.fields().indexOf("_effortGroup")
         )
         errors = []
         for effortId in effortIds:
             effortIt = environmentLayer.getFeatures(
                 QgsFeatureRequest().setFilterExpression(
-                    f"effortGroup = {effortId}"
+                    f"_effortGroup = {effortId}"
                 )
             )
             statusCodes = {ft["datetime"]: ft["status"] for ft in effortIt}
@@ -541,7 +554,7 @@ class SammoSession:
                     )
                 sightingsLayer.changeAttributeValue(
                     feat.id(),
-                    sightingsLayer.fields().indexOf("effortGroup"),
+                    sightingsLayer.fields().indexOf("_effortGroup"),
                     envFeat["effortGroup"],
                 )
                 break
@@ -593,7 +606,7 @@ class SammoSession:
             for envFeat in environmentLayer.getFeatures(request):
                 followersLayer.changeAttributeValue(
                     feat.id(),
-                    followersLayer.fields().indexOf("effortGroup"),
+                    followersLayer.fields().indexOf("_effortGroup"),
                     envFeat["effortGroup"],
                 )
                 break

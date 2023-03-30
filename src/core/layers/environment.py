@@ -4,7 +4,9 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
 from qgis.PyQt.QtGui import QColor
+from qgis.PyQt.QtCore import QVariant
 from qgis.core import (
+    QgsField,
     QgsVectorLayer,
     QgsDefaultValue,
     QgsConditionalStyle,
@@ -335,7 +337,7 @@ class SammoEnvironmentLayer(SammoLayer):
             "strate",
             "length",
             "plateformHeight",
-            "effortGroup",
+            "_effortGroup",
         ]:
             idx = layer.fields().indexFromName(field)
             form_config = layer.editFormConfig()
@@ -385,6 +387,20 @@ class SammoEnvironmentLayer(SammoLayer):
             }
             setup = QgsEditorWidgetSetup("ValueRelation", cfg)
             layer.setEditorWidgetSetup(idx, setup)
+
+        field = QgsField("effortGroup", QVariant.String)
+        layer.addExpressionField(
+            "concat(format_date(dateTime,'ddMMyyyy'), '_', computer"
+            ",'_G', _effortGroup)",
+            field,
+        )
+
+        field = QgsField("effortLeg", QVariant.String)
+        layer.addExpressionField(
+            "concat(format_date(dateTime,'ddMMyyyy'), '_', computer"
+            ",'_L', _effortLeg)",
+            field,
+        )
 
     def _init_conditional_style(self, layer: QgsVectorLayer) -> None:
         # routeType, speed, courseAverage

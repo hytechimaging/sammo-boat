@@ -25,6 +25,7 @@ from qgis.core import (
 
 from ..core import utils
 from ..core.session import SammoSession
+from ..core.database import SIGHTINGS_TABLE, ENVIRONMENT_TABLE, FOLLOWERS_TABLE
 
 
 class SammoExportAction(QDialog):

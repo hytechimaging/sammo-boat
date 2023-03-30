@@ -247,7 +247,7 @@ class SammoSightingsLayer(SammoLayer):
             "validated",
             "sightNum",
             "observer",
-            "effortGroup",
+            "_effortGroup",
         ]:
             idx = layer.fields().indexFromName(field)
             form_config = layer.editFormConfig()

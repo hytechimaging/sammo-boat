@@ -80,13 +80,13 @@ class DuplicateDialog(QDialog):
                 [
                     str(element)
                     for element in self.layer.uniqueValues(
-                        self.layer.fields().indexOf("effortGroup")
+                        self.layer.fields().indexOf("_effortGroup")
                     )
                 ]
             )
             self.effortComboBox.setCurrentIndex(
                 self.effortComboBox.findText(
-                    str(self.toDuplicate["effortGroup"])
+                    str(self.toDuplicate["_effortGroup"])
                 )
             )
             self.HEffortLayout.addWidget(self.effortLabel)
@@ -113,7 +113,7 @@ class DuplicateDialog(QDialog):
             feat["datetime"] = self.datetimeEdit.dateTime()
             if self.layer.name() == "Environment":
                 feat["status"] = self.statusComboBox.currentText()
-                feat["effortGroup"] = int(self.effortComboBox.currentText())
+                feat["_effortGroup"] = int(self.effortComboBox.currentText())
 
             self.layer.startEditing()
             self.layer.addFeature(feat)
@@ -133,7 +133,7 @@ class DuplicateDialog(QDialog):
                 )
                 self.layer.changeAttributeValue(
                     self.toDuplicate.id(),
-                    self.layer.fields().indexOf("effortGroup"),
+                    self.layer.fields().indexOf("_effortGroup"),
                     int(self.effortComboBox.currentText()),
                 )
         self.layer.commitChanges()
