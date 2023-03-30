@@ -82,13 +82,19 @@ class SammoExportAction(QDialog):
 
             # Add Lon/Lat field
             if layer.geometryType() == QgsWkbTypes.PointGeometry:
-                field = QgsField("lat", QVariant.Double)
-                layer.addExpressionField("x($geometry) ", field)
                 field = QgsField("lon", QVariant.Double)
+                layer.addExpressionField("x($geometry) ", field)
+                field = QgsField("lat", QVariant.Double)
                 layer.addExpressionField("y($geometry) ", field)
 
+            if layer.name() in [SIGHTINGS_TABLE, ENVIRONMENT_TABLE]:
+                field = QgsField("date", QVariant.Date)
+                layer.addExpressionField('to_date("dateTime")', field)
+                field = QgsField("hhmmss", QVariant.Time)
+                layer.addExpressionField('to_time("dateTime")', field)
+
             # Add joined fields
-            if layer.name() == self.session.sightingsLayer.name():
+            if layer.name() in [SIGHTINGS_TABLE, FOLLOWERS_TABLE]:
                 joinLayer = QgsVectorLayer(
                     self.session.speciesLayer.source(),
                     self.session.speciesLayer.name(),
@@ -122,7 +128,7 @@ class SammoExportAction(QDialog):
             options.attributes = [
                 layer.fields().indexOf(field.name())
                 for field in layer.fields()
-                if field.name() not in ["validated", "plateformId"]
+                if field.name() not in ["sightNum", "validated", "plateformId"]
             ]
             QgsVectorFileWriter.writeAsVectorFormatV2(
                 layer,

@@ -83,14 +83,14 @@ class SammoLayer:
         )
 
         major, minor, _ = qgisVersion()
-        if 2 < major < 4 and minor < 29: # Check API break
+        if 2 < major < 4 and minor < 29:  # Check API break
             ac = QgsAction(1, "Play audio", code, False)
         else:
             ac = QgsAction(
                 Qgis.AttributeActionType.GenericPython,
                 "Play audio",
                 code,
-                False
+                False,
             )
         ac.setActionScopes({"Field"})
         layer.actions().addAction(ac)
@@ -100,14 +100,14 @@ class SammoLayer:
             code = f.read()
 
         major, minor, _ = qgisVersion()
-        if 2 < major < 4 and minor < 29: # Check API break
+        if 2 < major < 4 and minor < 29:  # Check API break
             ac = QgsAction(1, "Duplicate record", code, False)
         else:
             ac = QgsAction(
                 Qgis.AttributeActionType.GenericPython,
                 "Duplicate record",
                 code,
-                False
+                False,
             )
         ac.setActionScopes({"Field", "Entity"})
         layer.actions().addAction(ac)

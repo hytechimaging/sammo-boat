@@ -171,5 +171,6 @@ def shortcutCreation():
         exe = operator_script
         createShortcut(link_path, exe, ico)
 
+
 def qgisVersion() -> Tuple[int, int, int]:
-    return [int(x) for x in Qgis.version().split('-')[0].split(".")]
+    return [int(x) for x in Qgis.version().split("-")[0].split(".")]
