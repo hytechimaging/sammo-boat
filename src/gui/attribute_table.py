@@ -85,7 +85,7 @@ class SammoAttributeTable:
             "observer",
         ]
         if layer.name().lower() != ENVIRONMENT_TABLE:
-            hiddens += ["_effortGroup"]
+            hiddens += ["_effortGroup", "_effortLeg"]
         config = layer.attributeTableConfig()
         columns = config.columns()
         for column in columns:

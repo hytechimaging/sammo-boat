@@ -129,7 +129,15 @@ class SammoExportAction(QDialog):
             options.attributes = [
                 layer.fields().indexOf(field.name())
                 for field in layer.fields()
-                if field.name() not in ["sightNum", "validated", "plateformId"]
+                if field.name()
+                not in [
+                    "sightNum",
+                    "validated",
+                    "plateformId",
+                    "_effortLeg",
+                    "_effortGroup",
+                    "_focalId",
+                ]
             ]
             QgsVectorFileWriter.writeAsVectorFormatV2(
                 layer,

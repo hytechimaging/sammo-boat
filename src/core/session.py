@@ -15,6 +15,7 @@ from qgis.PyQt.QtCore import QDate, QDateTime
 
 from qgis.core import (
     QgsProject,
+    QgsFeature,
     QgsGeometry,
     QgsMapLayer,
     QgsSettings,
@@ -373,14 +374,39 @@ class SammoSession:
 
     def addSightingsFeature(self) -> QgsVectorLayer:
         layer = self.sightingsLayer
-        self._addFeature(layer, geom=self.lastGpsInfo["geometry"])
+        lastEnvFt = self.database.lastFeature(
+            self.environmentLayer
+        ) or QgsFeature(fields=self.environmentLayer.fields())
+        effortLeg = lastEnvFt["_effortLeg"] or 0
+        effortGroup = lastEnvFt["_effortGroup"] or 0
+
+        self._addFeature(
+            layer,
+            geom=self.lastGpsInfo["geometry"],
+            _effortGroup=effortGroup,
+            _effortLeg=effortLeg,
+        )
         return layer
 
     def addFollowersFeature(
-        self, dt: str, geom: QgsGeometry, duplicate: bool
+        self, dt: str, geom: QgsGeometry, focalId: int, duplicate: bool
     ) -> None:
         layer = self.followersLayer
-        self._addFeature(layer, dt, geom, duplicate)
+        lastEnvFt = self.database.lastFeature(
+            self.environmentLayer
+        ) or QgsFeature(fields=self.environmentLayer.fields())
+        effortLeg = lastEnvFt["_effortLeg"] or 0
+        effortGroup = lastEnvFt["_effortGroup"] or 0
+
+        self._addFeature(
+            layer,
+            dt,
+            geom,
+            duplicate,
+            _effortGroup=effortGroup,
+            _effortLeg=effortLeg,
+            _focalId=focalId,
+        )
 
     def needsSaving(self) -> None:
         for layer in [
@@ -524,6 +550,19 @@ class SammoSession:
         for feat in featuresIterator:
             if feat["validated"]:
                 continue
+            if survey:
+                for attr in [
+                    "survey",
+                    "cycle",
+                    "computer",
+                ]:
+                    if attr == "computer" and feat["computer"]:
+                        continue
+                    sightingsLayer.changeAttributeValue(
+                        feat.id(),
+                        sightingsLayer.fields().indexOf(attr),
+                        survey[attr],
+                    )
 
             strDateTime = (
                 feat["dateTime"].toPyDateTime().strftime("%Y-%m-%d %H:%M:%S")
@@ -590,6 +629,21 @@ class SammoSession:
         )
         idx = followersLayer.fields().indexOf("validated")
         for feat in featuresIterator:
+            if survey:
+                for attr in [
+                    "survey",
+                    "cycle",
+                    "session",
+                    "computer",
+                ]:
+                    if attr == "computer" and feat["computer"]:
+                        continue
+                    followersLayer.changeAttributeValue(
+                        feat.id(),
+                        followersLayer.fields().indexOf(attr),
+                        survey[attr],
+                    )
+
             followersLayer.changeAttributeValue(
                 feat.id(),
                 idx,
@@ -653,7 +707,23 @@ class SammoSession:
         speed: Optional[float] = -9999.0,
         course: Optional[float] = -9999.0,
     ):
-        self._gpsLayer.add(longitude, latitude, hour, minu, sec, speed, course)
+        if self.surveyLayer.featureCount() > 0:
+            ft = next(self.surveyLayer.getFeatures())
+            survey = ft["survey"]
+            cycle = ft["cycle"]
+            computer = ft["computer"]
+        self._gpsLayer.add(
+            longitude,
+            latitude,
+            hour,
+            minu,
+            sec,
+            speed,
+            course,
+            survey,
+            cycle,
+            computer,
+        )
 
     def _addFeature(
         self,

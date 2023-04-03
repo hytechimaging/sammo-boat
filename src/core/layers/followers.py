@@ -4,8 +4,10 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
 from qgis.PyQt.QtGui import QColor
+from qgis.PyQt.QtCore import QVariant
 
 from qgis.core import (
+    QgsField,
     QgsVectorLayer,
     QgsDefaultValue,
     QgsConditionalStyle,
@@ -139,6 +141,9 @@ class SammoFollowersLayer(SammoLayer):
             "dateTime",
             "validated",
             "_effortGroup",
+            "survey",
+            "cycle",
+            "computer",
         ]:
             idx = layer.fields().indexFromName(field)
             form_config = layer.editFormConfig()
@@ -156,6 +161,13 @@ class SammoFollowersLayer(SammoLayer):
         setup = QgsEditorWidgetSetup("TextEdit", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
+
+        field = QgsField("focalId", QVariant.String)
+        layer.addExpressionField(
+            "concat(format_date(dateTime,'ddMMyyyy'), '_', computer"
+            ",'_F', _focalId)",
+            field,
+        )
 
     def _init_conditional_style(self, layer: QgsVectorLayer) -> None:
         # species

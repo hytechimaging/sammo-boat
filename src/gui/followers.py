@@ -72,6 +72,16 @@ class SammoFollowersTable(QDialog, FORM_CLASS):
         lastView = int(QgsSettings().value("qgis/attributeTableLastView", 0))
         QgsSettings().setValue("qgis/attributeTableLastView", 0)
 
+        if not followerLayer.featureCount():
+            self.focalId = 1
+        else:
+            self.focalId = (
+                followerLayer.maximumValue(
+                    followerLayer.fields().indexOf("_focalId")
+                )
+                + 1
+            )
+
         # the same datetime is used for all followers added in this session
         self.datetime = utils.now()
         filterExpr = (

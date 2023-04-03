@@ -541,6 +541,7 @@ class Sammo:
         self.session.addFollowersFeature(
             self.followersTable.datetime,
             self.followersTable.geom,
+            self.followersTable.focalId,
             bool(self.followersTable.rowCount()),
         )
         self.followersTable.refresh()
