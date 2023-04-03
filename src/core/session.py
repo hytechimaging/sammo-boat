@@ -310,73 +310,102 @@ class SammoSession:
         # StatusCode.BEGIN to start a new route, and a new feature is created
         # with a StatusCode.END to end the previous route.
 
-        if (
-            not self.environmentLayer
-            or idx != self.environmentLayer.fields().indexOf("routeType")
-        ):
+        if not self.environmentLayer or idx not in [
+            self.environmentLayer.fields().indexOf("routeType"),
+            self.environmentLayer.fields().indexOf("status"),
+        ]:
             return
+        elif (
+            self.environmentLayer
+            and idx == self.environmentLayer.fields().indexOf("routeType")
+        ):
+            feat = self.environmentLayer.getFeature(fid)
+            request = QgsFeatureRequest().addOrderBy("dateTime", False)
+            for prevFeat in self.environmentLayer.getFeatures(request):
+                if prevFeat["fid"] == feat["fid"]:
+                    continue
+                elif prevFeat["status"] == StatusCode.display(
+                    StatusCode.END
+                ) or feat["status"] == StatusCode.display(StatusCode.END):
+                    return
+                elif (
+                    prevFeat["status"]
+                    in [
+                        StatusCode.display(StatusCode.BEGIN),
+                        StatusCode.display(StatusCode.ADD),
+                    ]
+                    and prevFeat["routeType"] == feat["routeType"]
+                ):
+                    self.environmentLayer.changeAttributeValue(
+                        fid,
+                        self.environmentLayer.fields().indexOf("status"),
+                        StatusCode.display(StatusCode.ADD),
+                    )
+                    self.environmentLayer.changeAttributeValue(
+                        fid,
+                        self.environmentLayer.fields().indexOf("_effortGroup"),
+                        prevFeat["_effortGroup"],
+                    )
+                elif prevFeat["routeType"] != feat["routeType"]:
+                    ft = QgsVectorLayerUtils.createFeature(
+                        self.environmentLayer
+                    )
+                    ft.setGeometry(feat.geometry())
+                    for attr in feat.fields().names():
+                        if attr in ["fid", "routeType", "dateTime", "status"]:
+                            continue
+                        ft[attr] = feat[attr]
+                    ft["routeType"] = prevFeat["routeType"]
+                    ft["dateTime"] = QDateTime(feat["dateTime"])
+                    ft["status"] = StatusCode.display(StatusCode.END)
+                    ft["_effortLeg"] = prevFeat["_effortLeg"]
+                    self.environmentLayer.addFeature(ft)
 
-        feat = self.environmentLayer.getFeature(fid)
-        request = QgsFeatureRequest().addOrderBy("dateTime", False)
-        for prevFeat in self.environmentLayer.getFeatures(request):
-            if prevFeat["fid"] == feat["fid"]:
-                continue
-            elif prevFeat["status"] == StatusCode.display(
-                StatusCode.END
-            ) or feat["status"] == StatusCode.display(StatusCode.END):
+                    self.environmentLayer.changeAttributeValue(
+                        fid,
+                        self.environmentLayer.fields().indexOf("status"),
+                        StatusCode.display(StatusCode.BEGIN),
+                    )
+                    self.environmentLayer.changeAttributeValue(
+                        fid,
+                        self.environmentLayer.fields().indexOf("_effortGroup"),
+                        prevFeat["_effortGroup"] + 1,
+                    )
+                    self.environmentLayer.changeAttributeValue(
+                        fid,
+                        self.environmentLayer.fields().indexOf("_effortLeg"),
+                        1,
+                    )
+                    self.environmentLayer.changeAttributeValue(
+                        fid,
+                        self.environmentLayer.fields().indexOf("dateTime"),
+                        ft["dateTime"].addSecs(1),
+                    )
+                break
+
+        elif (
+            self.environmentLayer
+            and idx == self.environmentLayer.fields().indexOf("status")
+        ):
+            feat = self.environmentLayer.getFeature(fid)
+            if feat["status"] != StatusCode.display(StatusCode.END):
                 return
-            elif (
-                prevFeat["status"]
-                in [
-                    StatusCode.display(StatusCode.BEGIN),
-                    StatusCode.display(StatusCode.ADD),
-                ]
-                and prevFeat["routeType"] == feat["routeType"]
-            ):
+            request = QgsFeatureRequest().addOrderBy("dateTime", False)
+            for prevFeat in self.environmentLayer.getFeatures(request):
+                if prevFeat["fid"] == feat["fid"]:
+                    continue
                 self.environmentLayer.changeAttributeValue(
                     fid,
-                    self.environmentLayer.fields().indexOf("status"),
-                    StatusCode.display(StatusCode.ADD),
+                    self.environmentLayer.fields().indexOf("_effortLeg"),
+                    prevFeat["_effortLeg"],
                 )
-                self.environmentLayer.changeAttributeValue(
-                    fid,
-                    self.environmentLayer.fields().indexOf("_effortGroup"),
-                    prevFeat["effortGroup"],
-                )
-            elif prevFeat["routeType"] != feat["routeType"]:
-                ft = QgsVectorLayerUtils.createFeature(self.environmentLayer)
-                ft.setGeometry(feat.geometry())
-                for attr in feat.fields().names():
-                    if attr in ["fid", "routeType", "dateTime", "status"]:
-                        continue
-                    ft[attr] = feat[attr]
-                ft["routeType"] = prevFeat["routeType"]
-                ft["dateTime"] = QDateTime(feat["dateTime"])
-                ft["status"] = StatusCode.display(StatusCode.END)
-                self.environmentLayer.addFeature(ft)
-
-                self.environmentLayer.changeAttributeValue(
-                    fid,
-                    self.environmentLayer.fields().indexOf("status"),
-                    StatusCode.display(StatusCode.BEGIN),
-                )
-                self.environmentLayer.changeAttributeValue(
-                    fid,
-                    self.environmentLayer.fields().indexOf("_effortGroup"),
-                    prevFeat["effortGroup"] + 1,
-                )
-                self.environmentLayer.changeAttributeValue(
-                    fid,
-                    self.environmentLayer.fields().indexOf("dateTime"),
-                    ft["dateTime"].addSecs(1),
-                )
-            break
+                break
 
     def addSightingsFeature(self) -> QgsVectorLayer:
         layer = self.sightingsLayer
-        lastEnvFt = self.database.lastFeature(
-            self.environmentLayer
-        ) or QgsFeature(fields=self.environmentLayer.fields())
+        lastEnvFt = self.db.lastFeature(self.environmentLayer) or QgsFeature(
+            fields=self.environmentLayer.fields()
+        )
         effortLeg = lastEnvFt["_effortLeg"] or 0
         effortGroup = lastEnvFt["_effortGroup"] or 0
 
@@ -392,9 +421,9 @@ class SammoSession:
         self, dt: str, geom: QgsGeometry, focalId: int, duplicate: bool
     ) -> None:
         layer = self.followersLayer
-        lastEnvFt = self.database.lastFeature(
-            self.environmentLayer
-        ) or QgsFeature(fields=self.environmentLayer.fields())
+        lastEnvFt = self.db.lastFeature(self.environmentLayer) or QgsFeature(
+            fields=self.environmentLayer.fields()
+        )
         effortLeg = lastEnvFt["_effortLeg"] or 0
         effortGroup = lastEnvFt["_effortGroup"] or 0
 
@@ -594,7 +623,7 @@ class SammoSession:
                 sightingsLayer.changeAttributeValue(
                     feat.id(),
                     sightingsLayer.fields().indexOf("_effortGroup"),
-                    envFeat["effortGroup"],
+                    envFeat["_effortGroup"],
                 )
                 break
 
@@ -661,7 +690,7 @@ class SammoSession:
                 followersLayer.changeAttributeValue(
                     feat.id(),
                     followersLayer.fields().indexOf("_effortGroup"),
-                    envFeat["effortGroup"],
+                    envFeat["_effortGroup"],
                 )
                 break
 

@@ -88,11 +88,37 @@ class SammoExportAction(QDialog):
                 field = QgsField("lat", QVariant.Double)
                 layer.addExpressionField("y($geometry) ", field)
 
+            if layer.name() in [
+                SIGHTINGS_TABLE,
+                ENVIRONMENT_TABLE,
+                FOLLOWERS_TABLE,
+            ]:
+                field = QgsField("effortGroup", QVariant.String)
+                layer.addExpressionField(
+                    "concat(format_date(dateTime,'ddMMyyyy'), '_', computer"
+                    ",'_G', _effortGroup)",
+                    field,
+                )
+                field = QgsField("effortLeg", QVariant.String)
+                layer.addExpressionField(
+                    "concat(format_date(dateTime,'ddMMyyyy'), '_', computer"
+                    ",'_L', _effortLeg)",
+                    field,
+                )
+
             if layer.name() in [SIGHTINGS_TABLE, ENVIRONMENT_TABLE]:
                 field = QgsField("date", QVariant.Date)
                 layer.addExpressionField('to_date("dateTime")', field)
                 field = QgsField("hhmmss", QVariant.Time)
                 layer.addExpressionField('to_time("dateTime")', field)
+
+            elif layer.name() == FOLLOWERS_TABLE:
+                field = QgsField("focalId", QVariant.String)
+                layer.addExpressionField(
+                    "concat(format_date(dateTime,'ddMMyyyy'), '_', computer"
+                    ",'_F', _focalId)",
+                    field,
+                )
 
             # Add joined fields
             if layer.name() in [SIGHTINGS_TABLE, FOLLOWERS_TABLE]:

@@ -20,6 +20,8 @@ from qgis.PyQt.QtWidgets import (
     QVBoxLayout,
 )
 
+from ..core.status import StatusCode
+from ..core.database import ENVIRONMENT_TABLE
 from .attribute_table import SammoAttributeTable
 
 FORM_CLASS, _ = uic.loadUiType(
@@ -118,10 +120,14 @@ class SammoTableDock(QDockWidget):
     def refresh(
         self,
         layer: QgsVectorLayer,
-        filterExpr: str = "True",
+        filterExpr: str = "",
         focus: bool = True,
     ) -> None:
         table = self._widget.tables[layer.name()]
+        if layer.name().lower() == ENVIRONMENT_TABLE:
+            if filterExpr:
+                filterExpr += " and "
+            filterExpr += f"status != '{StatusCode.display(StatusCode.END)}'"
         SammoAttributeTable.refresh(table, layer.name(), filterExpr, focus)
 
     def removeTable(self, name: str) -> None:
