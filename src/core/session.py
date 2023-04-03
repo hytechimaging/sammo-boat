@@ -15,7 +15,6 @@ from qgis.PyQt.QtCore import QDate, QDateTime
 
 from qgis.core import (
     QgsProject,
-    QgsFeature,
     QgsGeometry,
     QgsMapLayer,
     QgsSettings,
@@ -403,37 +402,18 @@ class SammoSession:
 
     def addSightingsFeature(self) -> QgsVectorLayer:
         layer = self.sightingsLayer
-        lastEnvFt = self.db.lastFeature(self.environmentLayer) or QgsFeature(
-            fields=self.environmentLayer.fields()
-        )
-        effortLeg = lastEnvFt["_effortLeg"] or 0
-        effortGroup = lastEnvFt["_effortGroup"] or 0
-
-        self._addFeature(
-            layer,
-            geom=self.lastGpsInfo["geometry"],
-            _effortGroup=effortGroup,
-            _effortLeg=effortLeg,
-        )
+        self._addFeature(layer, geom=self.lastGpsInfo["geometry"])
         return layer
 
     def addFollowersFeature(
         self, dt: str, geom: QgsGeometry, focalId: int, duplicate: bool
     ) -> None:
         layer = self.followersLayer
-        lastEnvFt = self.db.lastFeature(self.environmentLayer) or QgsFeature(
-            fields=self.environmentLayer.fields()
-        )
-        effortLeg = lastEnvFt["_effortLeg"] or 0
-        effortGroup = lastEnvFt["_effortGroup"] or 0
-
         self._addFeature(
             layer,
             dt,
             geom,
             duplicate,
-            _effortGroup=effortGroup,
-            _effortLeg=effortLeg,
             _focalId=focalId,
         )
 
@@ -593,40 +573,6 @@ class SammoSession:
                         survey[attr],
                     )
 
-            strDateTime = (
-                feat["dateTime"].toPyDateTime().strftime("%Y-%m-%d %H:%M:%S")
-            )
-            request = QgsFeatureRequest().setFilterExpression(
-                f"dateTime < to_datetime('{strDateTime}') "
-                f"and status != '{StatusCode.display(StatusCode.END)}'"
-            )
-            request.addOrderBy("dateTime", False)
-            for envFeat in environmentLayer.getFeatures(request):
-                if feat["side"] == "L":
-                    sightingsLayer.changeAttributeValue(
-                        feat.id(),
-                        sightingsLayer.fields().indexOf("observer"),
-                        envFeat["left"],
-                    )
-                elif feat["side"] == "R":
-                    sightingsLayer.changeAttributeValue(
-                        feat.id(),
-                        sightingsLayer.fields().indexOf("observer"),
-                        envFeat["right"],
-                    )
-                elif feat["side"] == "C":
-                    sightingsLayer.changeAttributeValue(
-                        feat.id(),
-                        sightingsLayer.fields().indexOf("observer"),
-                        envFeat["center"],
-                    )
-                sightingsLayer.changeAttributeValue(
-                    feat.id(),
-                    sightingsLayer.fields().indexOf("_effortGroup"),
-                    envFeat["_effortGroup"],
-                )
-                break
-
             if survey:
                 sightingsLayer.changeAttributeValue(
                     feat.id(),
@@ -678,21 +624,6 @@ class SammoSession:
                 idx,
                 not merge,
             )
-            strDateTime = (
-                feat["dateTime"].toPyDateTime().strftime("%Y-%m-%d %H:%M:%S")
-            )
-            request = QgsFeatureRequest().setFilterExpression(
-                f"dateTime < to_datetime('{strDateTime}') "
-                f"and status != '{StatusCode.display(StatusCode.END)}'"
-            )
-            request.addOrderBy("dateTime", False)
-            for envFeat in environmentLayer.getFeatures(request):
-                followersLayer.changeAttributeValue(
-                    feat.id(),
-                    followersLayer.fields().indexOf("_effortGroup"),
-                    envFeat["_effortGroup"],
-                )
-                break
 
         followersLayer.commitChanges()
         followersLayer.startEditing()

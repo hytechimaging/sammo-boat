@@ -4,10 +4,8 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 from qgis.PyQt.QtGui import QColor
-from qgis.PyQt.QtCore import QVariant
 
 from qgis.core import (
-    QgsField,
     QgsVectorLayer,
     QgsDefaultValue,
     QgsConditionalStyle,
@@ -268,21 +266,21 @@ class SammoSightingsLayer(SammoLayer):
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
 
-        field = QgsField("effortGroup", QVariant.String)
-        layer.addExpressionField(
-            "concat(format_date(dateTime,'ddMMyyyy'), '_', computer"
-            ",'_G', _effortGroup)",
-            field,
-        )
-
-        field = QgsField("effortLeg", QVariant.String)
-        layer.addExpressionField(
-            "concat(format_date(dateTime,'ddMMyyyy'), '_', computer"
-            ",'_L', _effortLeg)",
-            field,
-        )
-
     def _init_conditional_style(self, layer: QgsVectorLayer) -> None:
+        # dateTime
+        idx = layer.fields().indexFromName("dateTime")
+        cfg = {
+            "allow_null": False,
+            "calendar_popup": False,
+            "display_format": (
+                "dd/MM/yyyy HH:mm:ss "  # last space needed to avoid timezone
+            ),
+            "field_format": "yyyy-MM-dd HH:mm:ss",
+            "field_iso_format": False,
+        }
+        setup = QgsEditorWidgetSetup("DateTime", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+
         # side, distance
         expr = "@value is NULL"
         style = QgsConditionalStyle(expr)
