@@ -724,6 +724,9 @@ class SammoSession:
                         "strate",
                         "length",
                         "comment",
+                        "species",
+                        "podSize",
+                        "age",
                     ]:
                         continue
                     else:
