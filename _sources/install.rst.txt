@@ -21,11 +21,10 @@ And to install the plugin dependencies :
 
 .. code-block:: python
 
-    import pip
-    pip.main(['install', 'sounddevice'])
-    pip.main(['install', 'soundfile'])
-    pip.main(['install', 'pyserial'])
-    pip.main(['install', 'pywin32']) # Windows exclusively
+    import subprocess
+    cmd="python -m pip install --force-reinstall sounddevice soundfile pyserial pywin32".split(" ") # pywin32 seulement pour Windows
+    subprocess.run(cmd)
+
 
 
 QGIS Desktop needs to be restarted after installing these dependencies.

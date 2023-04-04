@@ -89,11 +89,9 @@ installed through the <cite>Python Console</cite> of QGIS Desktop with <cite>pip
 </pre></div>
 </div>
 <p>And to install the plugin dependencies :</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pip</span>
-<span class="n">pip</span><span class="o">.</span><span class="n">main</span><span class="p">([</span><span class="s1">&#39;install&#39;</span><span class="p">,</span> <span class="s1">&#39;sounddevice&#39;</span><span class="p">])</span>
-<span class="n">pip</span><span class="o">.</span><span class="n">main</span><span class="p">([</span><span class="s1">&#39;install&#39;</span><span class="p">,</span> <span class="s1">&#39;soundfile&#39;</span><span class="p">])</span>
-<span class="n">pip</span><span class="o">.</span><span class="n">main</span><span class="p">([</span><span class="s1">&#39;install&#39;</span><span class="p">,</span> <span class="s1">&#39;pyserial&#39;</span><span class="p">])</span>
-<span class="n">pip</span><span class="o">.</span><span class="n">main</span><span class="p">([</span><span class="s1">&#39;install&#39;</span><span class="p">,</span> <span class="s1">&#39;pywin32&#39;</span><span class="p">])</span> <span class="c1"># Windows exclusively</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="n">cmd</span><span class="o">=</span><span class="s2">&quot;python -m pip install --force-reinstall sounddevice soundfile pyserial pywin32&quot;</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span> <span class="c1"># pywin32 seulement pour Windows</span>
+<span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>QGIS Desktop needs to be restarted after installing these dependencies.</p>
