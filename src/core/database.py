@@ -234,8 +234,8 @@ class SammoDataBase:
         fields.append(QgsField("gpsDateTime", QVariant.DateTime))
         fields.append(QgsField("speed", QVariant.Double))
         fields.append(QgsField("course", QVariant.Int))
+        fields.append(self._createFieldShortText("survey"))
         fields.append(self._createFieldShortText("cycle"))
-        fields.append(self._createFieldShortText("session"))
         fields.append(self._createFieldShortText("computer"))
 
         return fields
