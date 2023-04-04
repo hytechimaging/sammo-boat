@@ -667,6 +667,9 @@ class SammoSession:
         speed: Optional[float] = -9999.0,
         course: Optional[float] = -9999.0,
     ):
+        survey = ""
+        cycle = ""
+        computer = ""
         if self.surveyLayer.featureCount() > 0:
             ft = next(self.surveyLayer.getFeatures())
             survey = ft["survey"]
