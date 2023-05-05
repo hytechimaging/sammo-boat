@@ -15,6 +15,8 @@ from qgis.PyQt.QtCore import pyqtSignal
 
 from .other_thread import WorkerForOtherThread, OtherThread
 
+BAUDRATES = [4800, 9600, 115200, 19200]
+
 
 class WorkerGpsExtractor(WorkerForOtherThread):
     addNewFeatureToGpsTableSignal = pyqtSignal(
@@ -100,26 +102,49 @@ class WorkerGpsExtractor(WorkerForOtherThread):
 
     def autodetect(self):
         for i in range(0, 9):
-            port = "{}{}".format(self._serialPortPrefix(), str(i))
-            try:
-                self._gps = serial.Serial(port, baudrate=4800, timeout=0.5)
-                time.sleep(1.0)
-                self._gps.readlines()  # flush incomplete line
-                check = self._gps.readline()
-                assert check[0] != "$"
-                print("Port GPS ouvert sur " + port)
-            except (SerialException, OSError, AssertionError, Exception) as e:
-                if os.environ.get("SAMMO_DEBUG"):
-                    print(e)
-                self.isGpsOnline = False
-                if self._gps:
-                    self._gps.close()
-                self._gps = None
-                continue
+            for baudrate in BAUDRATES:
+                port = "{}{}".format(self._serialPortPrefix(), str(i))
+                try:
+                    self._gps = serial.Serial(
+                        port, baudrate=baudrate, timeout=0.5
+                    )
+                    self._gps.flush()  # flush incomplete line
+                    time.sleep(1.0)
+                    self._gps.readline(self._gps.in_waiting)
+                    time.sleep(0.5)
+                    check = self._gps.readline(self._gps.in_waiting)
+                    assert check.decode("cp1250")[0] == "$"
+                    suitable = False
+                    nb = 0
+                    while not suitable:
+                        check = self._gps.readline().decode("cp1250")
+                        print(check)
+                        if self.isGprmcLine(check) or self.isGpggaLine(check):
+                            break
+                        nb += 1
+                        if nb >= 20:
+                            raise Exception(
+                                "GPS has no GPRMC, neither GPGGA frames"
+                            )
+                    print(f"Port GPS ouvert sur {port}, baudrate:{baudrate}")
+                except (
+                    SerialException,
+                    OSError,
+                    UnicodeDecodeError,
+                    AssertionError,
+                    Exception,
+                ) as e:
+                    if os.environ.get("SAMMO_DEBUG"):
+                        print(e)
+                    self.isGpsOnline = False
+                    if self._gps:
+                        self._gps.close()
+                    self._gps = None
+                    continue
 
-            # don't test other serial port if everyhing looks good
-            if self._gps:
-                break
+                # don't test other serial port if everyhing looks good
+                if self._gps:
+                    break
 
     def toDoIfNotAGpggaLine(self):
         if self.isGpsOnline and (time.time() - self.timeOfLastContact) > 5:
