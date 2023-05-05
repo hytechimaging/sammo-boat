@@ -42,7 +42,6 @@ class SammoMergeAction(QObject):
 
 
 class SammoMergeDialog(QDialog, FORM_CLASS):
-
     mergeEnded = pyqtSignal(str)
 
     def __init__(self):
