@@ -144,7 +144,7 @@ class WorkerGpsExtractor(WorkerForOtherThread):
 
                 # don't test other serial port if everyhing looks good
                 if self._gps:
-                    break
+                    return
 
     def toDoIfNotAGpggaLine(self):
         if self.isGpsOnline and (time.time() - self.timeOfLastContact) > 5:
