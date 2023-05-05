@@ -27,7 +27,7 @@ class SammoAttributeTable:
     def refresh(
         table: QDialog,
         layerName: str,
-        filterExpr: str = "True",
+        filterExpr: str = "",
         focus: bool = True,
     ) -> None:
         table.findChild(QLineEdit, "mFilterQuery").setValue(filterExpr)
@@ -83,9 +83,11 @@ class SammoAttributeTable:
             "sightNum",
             "plateformHeight",
             "observer",
+            "_effortGroup",
+            "_effortLeg",
         ]
         if layer.name().lower() != ENVIRONMENT_TABLE:
-            hiddens += ["effortGroup"]
+            hiddens += ["effortGroup", "effortLeg"]
         config = layer.attributeTableConfig()
         columns = config.columns()
         for column in columns:

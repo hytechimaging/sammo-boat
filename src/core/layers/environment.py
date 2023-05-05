@@ -55,6 +55,20 @@ class SammoEnvironmentLayer(SammoLayer):
         layer.renderer().symbol().changeSymbolLayer(0, symbol)
 
     def _init_widgets(self, layer: QgsVectorLayer) -> None:
+        # dateTime
+        idx = layer.fields().indexFromName("dateTime")
+        cfg = {
+            "allow_null": False,
+            "calendar_popup": False,
+            "display_format": (
+                "dd/MM/yyyy HH:mm:ss "  # last space needed to avoid timezone
+            ),
+            "field_format": "yyyy-MM-dd HH:mm:ss",
+            "field_iso_format": False,
+        }
+        setup = QgsEditorWidgetSetup("DateTime", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+
         # platform
         idx = layer.fields().indexFromName("plateformId")
         cfg = {
@@ -335,7 +349,7 @@ class SammoEnvironmentLayer(SammoLayer):
             "strate",
             "length",
             "plateformHeight",
-            "effortGroup",
+            "_effortGroup",
         ]:
             idx = layer.fields().indexFromName(field)
             form_config = layer.editFormConfig()

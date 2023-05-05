@@ -5,6 +5,7 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 from pathlib import Path
 from qgis.core import (
+    Qgis,
     QgsAction,
     QgsProject,
     QgsVectorLayer,
@@ -12,6 +13,7 @@ from qgis.core import (
 )
 
 from ..database import SammoDataBase
+from ..utils import qgisVersion
 
 NULL = "{2839923C-8B7D-419E-B84B-CA2FE9B80EC7}"
 
@@ -80,7 +82,16 @@ class SammoLayer:
             self.db.directory,
         )
 
-        ac = QgsAction(1, "Play audio", code, False)
+        major, minor, _ = qgisVersion()
+        if 2 < major < 4 and minor < 29:  # Check API break
+            ac = QgsAction(1, "Play audio", code, False)
+        else:
+            ac = QgsAction(
+                Qgis.AttributeActionType.GenericPython,
+                "Play audio",
+                code,
+                False,
+            )
         ac.setActionScopes({"Field"})
         layer.actions().addAction(ac)
 
@@ -88,6 +99,15 @@ class SammoLayer:
         with open(Path(__file__).parent / "duplicate_action.py") as f:
             code = f.read()
 
-        ac = QgsAction(1, "Duplicate record", code, False)
+        major, minor, _ = qgisVersion()
+        if 2 < major < 4 and minor < 29:  # Check API break
+            ac = QgsAction(1, "Duplicate record", code, False)
+        else:
+            ac = QgsAction(
+                Qgis.AttributeActionType.GenericPython,
+                "Duplicate record",
+                code,
+                False,
+            )
         ac.setActionScopes({"Field", "Entity"})
         layer.actions().addAction(ac)

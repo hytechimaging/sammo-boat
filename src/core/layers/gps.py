@@ -44,6 +44,9 @@ class SammoGpsLayer(SammoLayer):
         sec: int,
         speed: float = -9999.0,
         course: float = -9999.0,
+        survey: str = "",
+        cycle: str = "",
+        computer: str = "",
     ) -> None:
         layer = self.layer
         layer.startEditing()
@@ -64,6 +67,12 @@ class SammoGpsLayer(SammoLayer):
             feature.setAttribute("speed", speed)
         if course != -9999.0:
             feature.setAttribute("course", course)
+        if survey:
+            feature.setAttribute("survey", survey)
+        if cycle:
+            feature.setAttribute("cycle", cycle)
+        if computer:
+            feature.setAttribute("computer", computer)
 
         layer.addFeature(feature)
         layer.commitChanges()

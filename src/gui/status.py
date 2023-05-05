@@ -25,7 +25,6 @@ KO_COLOR = "rgb(242, 186, 195)"
 
 
 class StatusWidget(QFrame, FORM_CLASS):
-
     recordInterrupted: pyqtSignal = pyqtSignal()
     activateGPS: pyqtSignal = pyqtSignal()
 
@@ -117,7 +116,6 @@ class StatusWidget(QFrame, FORM_CLASS):
 
 
 class SammoStatusDock(QDockWidget):
-
     recordInterrupted: pyqtSignal = pyqtSignal()
     activateGPS: pyqtSignal = pyqtSignal()
 

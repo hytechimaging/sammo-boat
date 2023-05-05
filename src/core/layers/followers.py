@@ -4,8 +4,10 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
 from qgis.PyQt.QtGui import QColor
+from qgis.PyQt.QtCore import QVariant
 
 from qgis.core import (
+    QgsField,
     QgsVectorLayer,
     QgsDefaultValue,
     QgsConditionalStyle,
@@ -44,6 +46,20 @@ class SammoFollowersLayer(SammoLayer):
         layer.renderer().symbol().changeSymbolLayer(0, symbol)
 
     def _init_widgets(self, layer: QgsVectorLayer) -> None:
+        # dateTime
+        idx = layer.fields().indexFromName("dateTime")
+        cfg = {
+            "allow_null": False,
+            "calendar_popup": False,
+            "display_format": (
+                "dd/MM/yyyy HH:mm:ss "  # last space needed to avoid timezone
+            ),
+            "field_format": "yyyy-MM-dd HH:mm:ss",
+            "field_iso_format": False,
+        }
+        setup = QgsEditorWidgetSetup("DateTime", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+
         # podSize
         idx = layer.fields().indexFromName("podSize")
         cfg = {
@@ -138,7 +154,10 @@ class SammoFollowersLayer(SammoLayer):
             "soundEnd",
             "dateTime",
             "validated",
-            "effortGroup",
+            "_effortGroup",
+            "survey",
+            "cycle",
+            "computer",
         ]:
             idx = layer.fields().indexFromName(field)
             form_config = layer.editFormConfig()
@@ -156,6 +175,13 @@ class SammoFollowersLayer(SammoLayer):
         setup = QgsEditorWidgetSetup("TextEdit", cfg)
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
+
+        field = QgsField("focalId", QVariant.String)
+        layer.addExpressionField(
+            "concat(format_date(dateTime,'ddMMyyyy'), '_', computer"
+            ",'_F', _focalId)",
+            field,
+        )
 
     def _init_conditional_style(self, layer: QgsVectorLayer) -> None:
         # species

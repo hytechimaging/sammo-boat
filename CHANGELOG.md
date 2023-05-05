@@ -4,10 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+-----
+## [v1.3.2] - 2023-04-xx
+
+## Modified
+
+- EffortGroup became a complex id and it is copied into Sighting/Followers entities during export
+- EffortLeg added and copied in Sighting entities export
+- Environment/Sighting/Follower : date and hhmmss are generated during export
+- Sighting/Follower/ GPS : survey/cycle/computer field added in export
+- Follower: nFollowers became FocalId, added species referential fields
+- Revert lat/lon in export
 
 -----
 
-## [v1.3.1] - 2023-01-xx
+## [v1.3.1] - 2023-01-04
 
 ## Modified
 

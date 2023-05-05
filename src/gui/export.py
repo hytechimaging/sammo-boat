@@ -18,13 +18,16 @@ from qgis.core import (
     QgsField,
     QgsWkbTypes,
     QgsVectorLayer,
+    QgsFeatureRequest,
     QgsVectorFileWriter,
     QgsVectorLayerJoinInfo,
     QgsCoordinateTransformContext,
 )
 
 from ..core import utils
+from ..core.status import StatusCode
 from ..core.session import SammoSession
+from ..core.database import SIGHTINGS_TABLE, ENVIRONMENT_TABLE, FOLLOWERS_TABLE
 
 
 class SammoExportAction(QDialog):
@@ -64,7 +67,78 @@ class SammoExportAction(QDialog):
             self.saveFolderEdit.setText(path)
             self.exportButton.setEnabled(True)
 
+    def applyEnvAttr(self):
+        environmentLayer = self.session.environmentLayer
+        # Sightings
+        sightingsLayer = self.session.sightingsLayer
+        sightingsLayer.startEditing()
+        for feat in sightingsLayer.getFeatures():
+            strDateTime = (
+                feat["dateTime"].toPyDateTime().strftime("%Y-%m-%d %H:%M:%S")
+            )
+            request = QgsFeatureRequest().setFilterExpression(
+                f"dateTime < to_datetime('{strDateTime}') "
+                f"and status != '{StatusCode.display(StatusCode.END)}'"
+            )
+            request.addOrderBy("dateTime", False)
+            for envFeat in environmentLayer.getFeatures(request):
+                if feat["side"] == "L":
+                    sightingsLayer.changeAttributeValue(
+                        feat.id(),
+                        sightingsLayer.fields().indexOf("observer"),
+                        envFeat["left"],
+                    )
+                elif feat["side"] == "R":
+                    sightingsLayer.changeAttributeValue(
+                        feat.id(),
+                        sightingsLayer.fields().indexOf("observer"),
+                        envFeat["right"],
+                    )
+                elif feat["side"] == "C":
+                    sightingsLayer.changeAttributeValue(
+                        feat.id(),
+                        sightingsLayer.fields().indexOf("observer"),
+                        envFeat["center"],
+                    )
+                sightingsLayer.changeAttributeValue(
+                    feat.id(),
+                    sightingsLayer.fields().indexOf("_effortGroup"),
+                    envFeat["_effortGroup"],
+                )
+                sightingsLayer.changeAttributeValue(
+                    feat.id(),
+                    sightingsLayer.fields().indexOf("_effortLeg"),
+                    envFeat["_effortLeg"],
+                )
+                break
+        sightingsLayer.commitChanges()
+        sightingsLayer.startEditing()
+
+        # Followers
+        followersLayer = self.session.followersLayer
+        followersLayer.startEditing()
+        for feat in followersLayer.getFeatures():
+            strDateTime = (
+                feat["dateTime"].toPyDateTime().strftime("%Y-%m-%d %H:%M:%S")
+            )
+            request = QgsFeatureRequest().setFilterExpression(
+                f"dateTime < to_datetime('{strDateTime}') "
+                f"and status != '{StatusCode.display(StatusCode.END)}'"
+            )
+            request.addOrderBy("dateTime", False)
+            for envFeat in environmentLayer.getFeatures(request):
+                followersLayer.changeAttributeValue(
+                    feat.id(),
+                    followersLayer.fields().indexOf("_effortGroup"),
+                    envFeat["_effortGroup"],
+                )
+                break
+
+        followersLayer.commitChanges()
+        followersLayer.startEditing()
+
     def export(self) -> None:
+        self.applyEnvAttr()
         driver = self.driverComboBox.currentText()
         if driver not in ["CSV", "GPKG"]:
             self.progressBar.setFormat("Unknown driver: aborting export")
@@ -82,13 +156,45 @@ class SammoExportAction(QDialog):
 
             # Add Lon/Lat field
             if layer.geometryType() == QgsWkbTypes.PointGeometry:
-                field = QgsField("lat", QVariant.Double)
-                layer.addExpressionField("x($geometry) ", field)
                 field = QgsField("lon", QVariant.Double)
+                layer.addExpressionField("x($geometry) ", field)
+                field = QgsField("lat", QVariant.Double)
                 layer.addExpressionField("y($geometry) ", field)
 
+            if layer.name().lower() in [
+                SIGHTINGS_TABLE,
+                ENVIRONMENT_TABLE,
+                FOLLOWERS_TABLE,
+            ]:
+                field = QgsField("effortGroup", QVariant.String)
+                layer.addExpressionField(
+                    "concat(format_date(dateTime,'ddMMyyyy'), '_', computer"
+                    ",'_G', _effortGroup)",
+                    field,
+                )
+                field = QgsField("effortLeg", QVariant.String)
+                layer.addExpressionField(
+                    "concat(format_date(dateTime,'ddMMyyyy'), '_', computer"
+                    ",'_L', _effortLeg)",
+                    field,
+                )
+
+            if layer.name().lower() in [SIGHTINGS_TABLE, ENVIRONMENT_TABLE]:
+                field = QgsField("date", QVariant.Date)
+                layer.addExpressionField('to_date("dateTime")', field)
+                field = QgsField("hhmmss", QVariant.Time)
+                layer.addExpressionField('to_time("dateTime")', field)
+
+            elif layer.name().lower() == FOLLOWERS_TABLE:
+                field = QgsField("focalId", QVariant.String)
+                layer.addExpressionField(
+                    "concat(format_date(dateTime,'ddMMyyyy'), '_', computer"
+                    ",'_F', _focalId)",
+                    field,
+                )
+
             # Add joined fields
-            if layer.name() == self.session.sightingsLayer.name():
+            if layer.name().lower() in [SIGHTINGS_TABLE, FOLLOWERS_TABLE]:
                 joinLayer = QgsVectorLayer(
                     self.session.speciesLayer.source(),
                     self.session.speciesLayer.name(),
@@ -122,7 +228,15 @@ class SammoExportAction(QDialog):
             options.attributes = [
                 layer.fields().indexOf(field.name())
                 for field in layer.fields()
-                if field.name() not in ["validated", "plateformId"]
+                if field.name()
+                not in [
+                    "sightNum",
+                    "validated",
+                    "plateformId",
+                    "_effortLeg",
+                    "_effortGroup",
+                    "_focalId",
+                ]
             ]
             QgsVectorFileWriter.writeAsVectorFormatV2(
                 layer,

@@ -159,7 +159,8 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("soundStart"))
         fields.append(self._createFieldShortText("soundEnd"))
         fields.append(QgsField("validated", QVariant.Bool))
-        fields.append(QgsField("effortGroup", QVariant.Int))
+        fields.append(QgsField("_effortGroup", QVariant.Int))
+        fields.append(QgsField("_effortLeg", QVariant.Int))
 
         return fields
 
@@ -197,13 +198,17 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("soundStart"))
         fields.append(self._createFieldShortText("soundEnd"))
         fields.append(QgsField("validated", QVariant.Bool))
-        fields.append(QgsField("effortGroup", QVariant.Int))
+        fields.append(QgsField("_effortGroup", QVariant.Int))
+        fields.append(QgsField("_effortLeg", QVariant.Int))
+        fields.append(self._createFieldShortText("survey"))
+        fields.append(self._createFieldShortText("cycle"))
+        fields.append(self._createFieldShortText("computer"))
 
         return fields
 
     def _createFieldsForFollowersTable(self) -> QgsFields:
         fields = QgsFields()
-        fields.append(QgsField("nFollower", QVariant.Int))
+        fields.append(QgsField("_focalId", QVariant.Int))
         fields.append(self._createFieldShortText("back"))
         fields.append(QgsField("dateTime", QVariant.DateTime))
         fields.append(self._createFieldShortText("fishActivity"))
@@ -216,7 +221,10 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("soundStart"))
         fields.append(self._createFieldShortText("soundEnd"))
         fields.append(QgsField("validated", QVariant.Bool))
-        fields.append(QgsField("effortGroup", QVariant.Int))
+        fields.append(QgsField("_effortGroup", QVariant.Int))
+        fields.append(self._createFieldShortText("survey"))
+        fields.append(self._createFieldShortText("cycle"))
+        fields.append(self._createFieldShortText("computer"))
 
         return fields
 
@@ -226,6 +234,9 @@ class SammoDataBase:
         fields.append(QgsField("gpsDateTime", QVariant.DateTime))
         fields.append(QgsField("speed", QVariant.Double))
         fields.append(QgsField("course", QVariant.Int))
+        fields.append(self._createFieldShortText("survey"))
+        fields.append(self._createFieldShortText("cycle"))
+        fields.append(self._createFieldShortText("computer"))
 
         return fields
 
