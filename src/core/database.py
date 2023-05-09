@@ -103,14 +103,18 @@ class SammoDataBase:
         return os.path.isfile(os.path.join(directory, DB_NAME))
 
     @staticmethod
-    def lastFeature(layer: QgsVectorLayer) -> QgsFeature:
+    def lastFeature(
+        layer: QgsVectorLayer, mergeAction: bool = False
+    ) -> QgsFeature:
         feat = None
         for feature in layer.getFeatures(
             QgsFeatureRequest().addOrderBy("fid", False)
         ):
-            if layer.name().casefold() == ENVIRONMENT_TABLE and feature[
-                "status"
-            ] == StatusCode.display(StatusCode.END):
+            if (
+                layer.name().casefold() == ENVIRONMENT_TABLE
+                and feature["status"] == StatusCode.display(StatusCode.END)
+                and not mergeAction
+            ):
                 continue
 
             if not feat:

@@ -830,7 +830,7 @@ class SammoSession:
             progressBar.setFormat(f"Copy {layer}, Total : %p%")
 
             newFid = 0
-            lastFeature = SammoDataBase.lastFeature(out)
+            lastFeature = SammoDataBase.lastFeature(out, True)
             if lastFeature:
                 newFid = lastFeature["fid"] + 1
             tot = (
@@ -864,9 +864,9 @@ class SammoSession:
                         feature["fid"] = newFid
                         newFid += 1
 
-                        out.startEditing()
-                        out.addFeature(feature)
-                        out.commitChanges()
+                        print(out.startEditing())
+                        print(out.addFeature(feature))
+                        print(out.commitChanges())
 
         # gps layer
         out = getattr(sessionOutput, "gpsLayer")
@@ -880,7 +880,7 @@ class SammoSession:
         progressBar.setFormat("Copy gpsLayer, Total : %p%")
 
         newFid = 0
-        lastFeature = SammoDataBase.lastFeature(out)
+        lastFeature = SammoDataBase.lastFeature(out, True)
         if lastFeature:
             newFid = lastFeature["fid"] + 1
         tot = (

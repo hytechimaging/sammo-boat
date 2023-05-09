@@ -17,7 +17,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Revert lat/lon in export
 - Management of unpredicted GPS (test several baudrate and refuse non GPGGA/GPRMC frame)
 
-
 -----
 
 ## [v1.3.1] - 2023-01-04
@@ -30,6 +29,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Followers dialog always stays on top
 - Duplicate action can also only modify the current feature
 - New icon for admin profile to avoid confusion (and default profile backup)
+
+-----
 
 ## [v1.3.0] - 2022-11-28
 
@@ -204,6 +205,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+[v1.3.2]: https://github.com/hytechimaging/sammo-boat/releases/tag/v1.3.2
 [v1.3.1]: https://github.com/hytechimaging/sammo-boat/releases/tag/v1.3.1
 [v1.3.0]: https://github.com/hytechimaging/sammo-boat/releases/tag/v1.3.0
 [v1.2.3]: https://github.com/hytechimaging/sammo-boat/releases/tag/v1.2.3
