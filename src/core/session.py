@@ -203,6 +203,7 @@ class SammoSession:
             self._worldLayer.addToProject(project)
             self._plateformLayer.addToProject(project)
             self._boatLayer.addToProject(project)
+            self._plateformLayer._link_boat(self._boatLayer)
             self._surveyLayer.addToProject(project)
             self._transectLayer.addToProject(project)
             self._strateLayer.addToProject(project)
@@ -247,6 +248,7 @@ class SammoSession:
                 self._plateformLayer,
             ]:
                 layer._init(layer.layer)
+            self._plateformLayer._link_boat(self._boatLayer)
             self.environmentLayer.actions().clearActions()
             self._environmentLayer.addSoundAction(self.environmentLayer)
             self._environmentLayer.addDuplicateAction(self.environmentLayer)

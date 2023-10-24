@@ -20,17 +20,6 @@ class SammoPlateformLayer(SammoLayer):
         self._init_widgets(layer)
 
     def _init_widgets(self, layer: QgsVectorLayer) -> None:
-        # shipName
-        idx = layer.fields().indexFromName("ship")
-        cfg = {}
-        cfg["map"] = [
-            {"Thalassa": "Thalassa"},
-            {"Europe": "Europe"},
-            {"PourquoiPas": "PourquoiPas"},
-        ]
-        setup = QgsEditorWidgetSetup("ValueMap", cfg)
-        layer.setEditorWidgetSetup(idx, setup)
-
         # plateform
         idx = layer.fields().indexFromName("plateform")
         cfg = {}
@@ -56,3 +45,25 @@ class SammoPlateformLayer(SammoLayer):
         }
         setup = QgsEditorWidgetSetup("Range", cfg)
         layer.setEditorWidgetSetup(idx, setup)
+
+    def _link_boat(self, boatLayer: SammoLayer):
+        # shipName
+        idx = self.layer.fields().indexFromName("ship")
+        cfg = {
+            "AllowMulti": False,
+            "AllowNull": False,
+            "Description": '"ship"',
+            "FilterExpression": "",
+            "Key": "name",
+            "Layer": boatLayer.layer.id(),
+            "LayerName": boatLayer.name,
+            "LayerProviderName": "ogr",
+            "LayerSource": boatLayer.uri,
+            "NofColumns": 1,
+            "OrderByValue": False,
+            "UseCompleter": False,
+            "Value": "name",
+        }
+        setup = QgsEditorWidgetSetup("ValueRelation", cfg)
+        res = self.layer.setEditorWidgetSetup(idx, setup)
+        print(f"le res : {res}")
