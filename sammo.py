@@ -405,7 +405,13 @@ class Sammo:
             # we udpate the database if we don't need to wait for speed/course
             if not self.gps_wait:
                 self.session.addGps(
-                    longitude, latitude, h, m, s, speed, course
+                    longitude,
+                    latitude,
+                    h,
+                    m,
+                    s,
+                    self.session.lastGpsInfo["gprmc"]["speed"],
+                    self.session.lastGpsInfo["gprmc"]["course"],
                 )
                 self.session.lastCaptureTime = gpsNow
 
