@@ -23,8 +23,6 @@ from qgis.core import (
     QgsCoordinateTransformContext,
 )
 
-from .status import StatusCode
-
 DB_NAME = "sammo-boat.gpkg"
 
 GPS_TABLE = "gps"
@@ -117,13 +115,6 @@ class SammoDataBase:
         for feature in layer.getFeatures(
             QgsFeatureRequest().addOrderBy("fid", False)
         ):
-            if (
-                layer.name().casefold() == ENVIRONMENT_TABLE
-                and feature["status"] == StatusCode.display(StatusCode.END)
-                and not mergeAction
-            ):
-                continue
-
             if not feat:
                 feat = feature
             elif feature.id() > feat.id():
@@ -202,7 +193,6 @@ class SammoDataBase:
 
     def _fieldsSightings(self) -> QgsFields:
         fields = QgsFields()
-        fields.append(self._createFieldShortText("sightNum"))
         fields.append(QgsField("dateTime", QVariant.DateTime))
         fields.append(self._createFieldShortText("observer"))
         fields.append(self._createFieldShortText("side"))

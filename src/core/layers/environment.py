@@ -374,7 +374,6 @@ class SammoEnvironmentLayer(SammoLayer):
         cfg["map"] = [
             {"Begin": "Begin"},
             {"Add": "Add"},
-            {"End": "End"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)

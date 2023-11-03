@@ -6,7 +6,7 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 from pathlib import Path
 
 from qgis.PyQt import uic
-from qgis.PyQt.QtCore import QObject, QVariant
+from qgis.PyQt.QtCore import QObject, QVariant, QDateTime
 from qgis.PyQt.QtWidgets import (
     QAction,
     QDialog,
@@ -17,8 +17,10 @@ from qgis.PyQt.QtWidgets import (
 from qgis.core import (
     QgsField,
     QgsWkbTypes,
+    QgsExpression,
     QgsVectorLayer,
     QgsFeatureRequest,
+    QgsVectorLayerUtils,
     QgsVectorFileWriter,
     QgsVectorLayerJoinInfo,
     QgsCoordinateTransformContext,
@@ -78,7 +80,6 @@ class SammoExportAction(QDialog):
             )
             request = QgsFeatureRequest().setFilterExpression(
                 f"dateTime < to_datetime('{strDateTime}') "
-                f"and status != '{StatusCode.display(StatusCode.END)}'"
             )
             request.addOrderBy("dateTime", False)
             for envFeat in environmentLayer.getFeatures(request):
@@ -123,7 +124,6 @@ class SammoExportAction(QDialog):
             )
             request = QgsFeatureRequest().setFilterExpression(
                 f"dateTime < to_datetime('{strDateTime}') "
-                f"and status != '{StatusCode.display(StatusCode.END)}'"
             )
             request.addOrderBy("dateTime", False)
             for envFeat in environmentLayer.getFeatures(request):
@@ -222,6 +222,7 @@ class SammoExportAction(QDialog):
                 layer.addJoin(
                     self.environmentLayerJoinPlateformInfo(joinLayer)
                 )
+                layer = self.addEndEffortFeature(layer)
 
             options = QgsVectorFileWriter.SaveVectorOptions()
             options.driverName = driver
@@ -230,7 +231,6 @@ class SammoExportAction(QDialog):
                 for field in layer.fields()
                 if field.name()
                 not in [
-                    "sightNum",
                     "validated",
                     "plateformId",
                     "_effortLeg",
@@ -247,6 +247,8 @@ class SammoExportAction(QDialog):
                 QgsCoordinateTransformContext(),
                 options,
             )
+            if layer.name() == self.session.environmentLayer.name():
+                self.removeEndEffort(layer)
             self.progressBar.setValue(int(100 / nb * (i + 1)))
         self.close()
 
@@ -292,3 +294,57 @@ class SammoExportAction(QDialog):
         joinInfo.setPrefix("")
         joinInfo.setJoinFieldNamesSubset(["plateform", "plateformHeight"])
         return joinInfo
+
+    def addEndEffortFeature(self, layer: QgsVectorLayer) -> QgsVectorLayer:
+        effortGroupValues = layer.uniqueValues(
+            layer.fields().indexOf("_effortGroup")
+        )
+        layer.startEditing()
+        for effortGroupValue in effortGroupValues:
+            expr = QgsExpression(f"_effortGroup = {effortGroupValue}")
+            request = QgsFeatureRequest(expr).addOrderBy("dateTime", False)
+            lastEffortFt = None
+            for lastEffortFt in layer.getFeatures(request):
+                break
+            if not lastEffortFt:
+                print(lastEffortFt)
+                continue
+            expr = QgsExpression(
+                f"_effortGroup != {effortGroupValue} and "
+                f"status = '{StatusCode.display(StatusCode.BEGIN)}' and "
+                "dateTime > "
+                f"'{lastEffortFt['dateTime'].toPyDateTime().isoformat()}'"
+            )
+            request = QgsFeatureRequest(expr).addOrderBy("dateTime", True)
+            nextBegFt = None
+            for nextBegFt in layer.getFeatures(request):
+                break
+            if not nextBegFt:
+                nextBegFt = lastEffortFt
+                dt = QDateTime(nextBegFt["dateTime"]).addSecs(1)
+            else:
+                dt = QDateTime(nextBegFt["dateTime"]).addSecs(-1)
+            feat = QgsVectorLayerUtils.createFeature(layer)
+            feat.setGeometry(nextBegFt.geometry())
+            for attr in feat.fields().names():
+                if attr in ["fid", "dateTime", "status"]:
+                    continue
+                feat[attr] = lastEffortFt[attr]
+            feat["dateTime"] = dt
+            feat["status"] = StatusCode.display(StatusCode.END)
+            layer.addFeature(feat)
+        layer.commitChanges()
+        layer.startEditing()
+        return layer
+
+    def removeEndEffort(self, layer):
+        layer.startEditing()
+        expr = QgsExpression(
+            f"status = '{StatusCode.display(StatusCode.END)}'"
+        )
+        request = QgsFeatureRequest(expr)
+        endFts = [endFt.id() for endFt in layer.getFeatures(request)]
+        print(endFts)
+        layer.deleteFeatures(endFts)
+        layer.commitChanges()
+        layer.startEditing()

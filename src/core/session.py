@@ -11,8 +11,9 @@ from typing import List, Optional, Dict, Union
 
 from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtWidgets import QProgressBar, QMessageBox
-from qgis.PyQt.QtCore import QDate, QDateTime
+from qgis.PyQt.QtCore import QDate
 
+from qgis.utils import iface
 from qgis.core import (
     QgsProject,
     QgsGeometry,
@@ -259,44 +260,89 @@ class SammoSession:
                 self.updateRouteTypeStatus
             )
 
-    def addEnvironmentFeature(
-        self, status: Optional[StatusCode] = None
-    ) -> QgsVectorLayer:
+    def surveyValues(self, layer: QgsVectorLayer) -> tuple:
+        survey = (
+            next(self.surveyLayer.getFeatures())
+            if self.surveyLayer.featureCount() > 0
+            else None
+        )
+        if (
+            not survey
+            or not survey["survey"]
+            or not survey["cycle"]
+            or not survey["computer"]
+            or not survey["shipName"]
+        ):
+            iface.messageBar().pushWarning(
+                "Sightings",
+                "Administration table `survey` is not fulfilled,"
+                " all sighting attributes cannot be filled",
+            )
+            survey_value = ""
+            cycle_value = ""
+            computer_value = ""
+            ship_value = ""
+        else:
+            survey_value = survey["survey"]
+            cycle_value = survey["cycle"]
+            computer_value = survey["computer"]
+            ship_value = survey["shipName"]
+        return survey_value, cycle_value, computer_value, ship_value
+
+    def transectValues(self, layer: QgsVectorLayer) -> tuple:
+        transect = (
+            next(self.transectLayer.getFeatures())
+            if self.transectLayer.featureCount() > 0
+            else None
+        )
+        if (
+            not transect
+            or not transect["transect"]
+            or not transect["strate"]
+            or not transect["length"]
+        ):
+            iface.messageBar().pushWarning(
+                layer.name(),
+                "Administration table `transect` is not fulfilled,"
+                f" all {layer.name().lower()} attributes cannot be filled",
+            )
+            transect_value = ""
+            strate_value = ""
+            length_value = 0
+        else:
+            transect_value = transect["transect"]
+            strate_value = transect["strate"]
+            length_value = transect["length"]
+        return transect_value, strate_value, length_value
+
+    def addEnvironmentFeature(self) -> QgsVectorLayer:
         layer = self.environmentLayer
         statusCode = StatusCode.display(
-            status
-            if status
-            else (
-                StatusCode.BEGIN
-                if (
-                    layer.featureCount()
-                    and next(
-                        layer.getFeatures(
-                            QgsFeatureRequest().addOrderBy("dateTime", False)
-                        )
-                    )["status"]
-                    == StatusCode.display(StatusCode.END)
-                )
-                else StatusCode(int(bool(layer.featureCount())))
-            )
+            StatusCode(int(bool(layer.featureCount())))
         )
-        effortGroup = layer.maximumValue(
-            layer.fields().indexOf("_effortGroup")
+
+        # Administration table values
+        (
+            survey_value,
+            cycle_value,
+            computer_value,
+            ship_value,
+        ) = self.surveyValues()
+        transect_value, strate_value, length_value = self.transectValues()
+
+        # EffortGroup management
+        effortGroup = max(
+            layer.maximumValue(layer.fields().indexOf("_effortGroup")), 0
         )
-        shipName = ""
-        if self.surveyLayer.featureCount() > 0:
-            shipName = next(self.surveyLayer.getFeatures())["shipName"]
         if effortGroup and statusCode == StatusCode.display(StatusCode.BEGIN):
             effortGroup += 1
-
         effortLeg = 0
         for ft in layer.getFeatures(
             QgsFeatureRequest(QgsExpression(f"_effortGroup = {effortGroup}"))
         ):
             if ft["_effortLeg"] > effortLeg:
                 effortLeg = ft["_effortLeg"]
-        if statusCode != StatusCode.display(StatusCode.END):
-            effortLeg += 1
+        effortLeg += 1
 
         self._addFeature(
             layer,
@@ -306,7 +352,13 @@ class SammoSession:
             _effortLeg=effortLeg or 1,
             speed=self.lastGpsInfo["gprmc"]["speed"],
             courseAverage=self.lastGpsInfo["gprmc"]["course"],
-            shipName=shipName,
+            survey=survey_value,
+            cycle=cycle_value,
+            computer=computer_value,
+            shipName=ship_value,
+            transect=transect_value,
+            strate_value=strate_value,
+            length=length_value,
         )
         return layer
 
@@ -316,14 +368,12 @@ class SammoSession:
         # feature, the index of the modified attribute and the new value of
         # this attribute.
         # If the attribute changed is routeType, we will check the previous
-        # feature to check if the routeType change between the two feature.
+        # feature to check if the routeType changes between the two feature.
         # If it's so, the status of the feature that has been changed is set on
-        # StatusCode.BEGIN to start a new route, and a new feature is created
-        # with a StatusCode.END to end the previous route.
+        # StatusCode.BEGIN to start a new route.
 
         if not self.environmentLayer or idx not in [
             self.environmentLayer.fields().indexOf("routeType"),
-            self.environmentLayer.fields().indexOf("status"),
         ]:
             return
         elif (
@@ -335,43 +385,13 @@ class SammoSession:
             for prevFeat in self.environmentLayer.getFeatures(request):
                 if prevFeat["fid"] == feat["fid"]:
                     continue
-                elif prevFeat["status"] == StatusCode.display(
-                    StatusCode.END
-                ) or feat["status"] == StatusCode.display(StatusCode.END):
-                    return
-                elif (
-                    prevFeat["status"]
-                    in [
-                        StatusCode.display(StatusCode.BEGIN),
-                        StatusCode.display(StatusCode.ADD),
-                    ]
-                    and prevFeat["routeType"] == feat["routeType"]
-                ):
-                    self.environmentLayer.changeAttributeValue(
-                        fid,
-                        self.environmentLayer.fields().indexOf("status"),
-                        StatusCode.display(StatusCode.ADD),
-                    )
+                elif prevFeat["routeType"] == feat["routeType"]:
                     self.environmentLayer.changeAttributeValue(
                         fid,
                         self.environmentLayer.fields().indexOf("_effortGroup"),
                         prevFeat["_effortGroup"],
                     )
                 elif prevFeat["routeType"] != feat["routeType"]:
-                    ft = QgsVectorLayerUtils.createFeature(
-                        self.environmentLayer
-                    )
-                    ft.setGeometry(feat.geometry())
-                    for attr in feat.fields().names():
-                        if attr in ["fid", "routeType", "dateTime", "status"]:
-                            continue
-                        ft[attr] = feat[attr]
-                    ft["routeType"] = prevFeat["routeType"]
-                    ft["dateTime"] = QDateTime(feat["dateTime"])
-                    ft["status"] = StatusCode.display(StatusCode.END)
-                    ft["_effortLeg"] = prevFeat["_effortLeg"]
-                    self.environmentLayer.addFeature(ft)
-
                     self.environmentLayer.changeAttributeValue(
                         fid,
                         self.environmentLayer.fields().indexOf("status"),
@@ -387,46 +407,34 @@ class SammoSession:
                         self.environmentLayer.fields().indexOf("_effortLeg"),
                         1,
                     )
-                    self.environmentLayer.changeAttributeValue(
-                        fid,
-                        self.environmentLayer.fields().indexOf("dateTime"),
-                        ft["dateTime"].addSecs(1),
-                    )
-                break
-
-        elif (
-            self.environmentLayer
-            and idx == self.environmentLayer.fields().indexOf("status")
-        ):
-            feat = self.environmentLayer.getFeature(fid)
-            if feat["status"] != StatusCode.display(StatusCode.END):
-                return
-            request = QgsFeatureRequest().addOrderBy("dateTime", False)
-            for prevFeat in self.environmentLayer.getFeatures(request):
-                if prevFeat["fid"] == feat["fid"]:
-                    continue
-                self.environmentLayer.changeAttributeValue(
-                    fid,
-                    self.environmentLayer.fields().indexOf("_effortLeg"),
-                    prevFeat["_effortLeg"],
-                )
                 break
 
     def addSightingsFeature(self) -> QgsVectorLayer:
         layer = self.sightingsLayer
-        self._addFeature(layer, geom=self.lastGpsInfo["geometry"])
+        survey_value, cycle_value, computer_value, _ = self.surveyValues()
+        self._addFeature(
+            layer,
+            geom=self.lastGpsInfo["geometry"],
+            survey=survey_value,
+            cycle=cycle_value,
+            computer=computer_value,
+        )
         return layer
 
     def addFollowersFeature(
         self, dt: str, geom: QgsGeometry, focalId: int, duplicate: bool
     ) -> None:
         layer = self.followersLayer
+        survey_value, cycle_value, computer_value, _ = self.surveyValues()
         self._addFeature(
             layer,
             dt,
             geom,
             duplicate,
             _focalId=focalId,
+            survey=survey_value,
+            cycle=cycle_value,
+            computer=computer_value,
         )
 
     def needsSaving(self) -> None:
@@ -475,170 +483,33 @@ class SammoSession:
             + self.followersLayer.selectedFeatureCount()
         )
 
-        survey = (
-            next(self.surveyLayer.getFeatures())
-            if self.surveyLayer.featureCount() > 0
-            else None
-        )
-        transect = (
-            next(self.transectLayer.getFeatures())
-            if self.transectLayer.featureCount() > 0
-            else None
-        )
-        environmentLayer = self.environmentLayer
-        environmentLayer.startEditing()
+        self.effortCheck(self.environmentLayer)
 
-        # effort status check
-        effortIds = environmentLayer.uniqueValues(
-            environmentLayer.fields().indexOf("_effortGroup")
-        )
-        errors = []
-        for effortId in effortIds:
-            effortIt = environmentLayer.getFeatures(
-                QgsFeatureRequest().setFilterExpression(
-                    f"_effortGroup = {effortId}"
-                )
+        def validateFeatures(selectedLayer: QgsVectorLayer):
+            selectedLayer.startEditing()
+            featuresIterator = (
+                selectedLayer.getSelectedFeatures()
+                if selectedMode
+                else selectedLayer.getFeatures()
             )
-            statusCodes = {ft["datetime"]: ft["status"] for ft in effortIt}
-            if (
-                StatusCode.display(StatusCode.BEGIN)
-                not in statusCodes.values()
-            ):
-                errors.append(
-                    f"Missing BEGIN code for effortGroup {effortId} (before "
-                    f"{min(statusCodes).toPyDateTime().isoformat()} record)"
-                )
-            elif (
-                StatusCode.display(StatusCode.END) not in statusCodes.values()
-            ):
-                errors.append(
-                    f"Missing END code for effortGroup {effortId} (after "
-                    f"{max(statusCodes).toPyDateTime().isoformat()} record)"
-                )
-        if errors:
-            errors.append("Please, resolve errors before validation")
-            QMessageBox.warning(
-                None, "Errors detected in effort status", "\n".join(errors)
-            )
-            return
-
-        featuresIterator = (
-            environmentLayer.getSelectedFeatures()
-            if selectedMode
-            else environmentLayer.getFeatures()
-        )
-        for feat in featuresIterator:
-            if feat["validated"]:
-                continue
-            if survey:
-                for attr in [
-                    "survey",
-                    "cycle",
-                    "session",
-                    "computer",
-                ]:
-                    if attr == "computer" and feat["computer"]:
-                        continue
-                    environmentLayer.changeAttributeValue(
-                        feat.id(),
-                        environmentLayer.fields().indexOf(attr),
-                        survey[attr],
-                    )
-            if transect:
-                for attr in ["transect", "strate", "length"]:
-                    environmentLayer.changeAttributeValue(
-                        feat.id(),
-                        environmentLayer.fields().indexOf(attr),
-                        transect[attr],
-                    )
-
-            idx = environmentLayer.fields().indexOf("validated")
-            environmentLayer.changeAttributeValue(
-                feat.id(),
-                idx,
-                not merge,
-            )
-        environmentLayer.commitChanges()
-        environmentLayer.startEditing()
-
-        sightingsLayer = self.sightingsLayer
-        sightingsLayer.startEditing()
-        featuresIterator = (
-            sightingsLayer.getSelectedFeatures()
-            if selectedMode
-            else sightingsLayer.getFeatures()
-        )
-        for feat in featuresIterator:
-            if feat["validated"]:
-                continue
-            if survey:
-                for attr in [
-                    "survey",
-                    "cycle",
-                    "computer",
-                ]:
-                    if attr == "computer" and feat["computer"]:
-                        continue
-                    sightingsLayer.changeAttributeValue(
-                        feat.id(),
-                        sightingsLayer.fields().indexOf(attr),
-                        survey[attr],
-                    )
-
-            if survey:
-                sightingsLayer.changeAttributeValue(
+            for feat in featuresIterator:
+                if feat["validated"]:
+                    continue
+                idx = selectedLayer.fields().indexOf("validated")
+                selectedLayer.changeAttributeValue(
                     feat.id(),
-                    sightingsLayer.fields().indexOf("sightNum"),
-                    "-".join(
-                        [
-                            str(survey["survey"]),
-                            str(survey["session"]),
-                            str(survey["computer"]),
-                            str(feat["fid"]),
-                        ]
-                    ),
+                    idx,
+                    not merge,
                 )
-            idx = sightingsLayer.fields().indexOf("validated")
-            sightingsLayer.changeAttributeValue(
-                feat.id(),
-                idx,
-                not merge,
-            )
-        sightingsLayer.commitChanges()
-        sightingsLayer.startEditing()
+            selectedLayer.commitChanges()
+            selectedLayer.startEditing()
 
-        followersLayer = self.followersLayer
-        followersLayer.startEditing()
-        featuresIterator = (
-            followersLayer.getSelectedFeatures()
-            if selectedMode
-            else followersLayer.getFeatures()
-        )
-        idx = followersLayer.fields().indexOf("validated")
-        for feat in featuresIterator:
-            if survey:
-                for attr in [
-                    "survey",
-                    "cycle",
-                    "session",
-                    "computer",
-                ]:
-                    if attr == "computer" and feat["computer"]:
-                        continue
-                    followersLayer.changeAttributeValue(
-                        feat.id(),
-                        followersLayer.fields().indexOf(attr),
-                        survey[attr],
-                    )
-
-            followersLayer.changeAttributeValue(
-                feat.id(),
-                idx,
-                not merge,
-            )
-
-        followersLayer.commitChanges()
-        followersLayer.startEditing()
+        for layer in (
+            self.environmentLayer,
+            self.sightingsLayer,
+            self.followersLayer,
+        ):
+            validateFeatures(layer)
 
     def onStopSoundRecordingForEvent(
         self,
@@ -785,6 +656,36 @@ class SammoSession:
         return ""
 
     @staticmethod
+    def effortCheck(environmentLayer) -> None:
+        # effort status check
+        effortIds = environmentLayer.uniqueValues(
+            environmentLayer.fields().indexOf("_effortGroup")
+        )
+        errors = []
+        for effortId in effortIds:
+            effortIt = environmentLayer.getFeatures(
+                QgsFeatureRequest().setFilterExpression(
+                    f"_effortGroup = {effortId}"
+                )
+            )
+            statusCodes = {ft["datetime"]: ft["status"] for ft in effortIt}
+            if (
+                StatusCode.display(StatusCode.BEGIN)
+                not in statusCodes.values()
+            ):
+                errors.append(
+                    f"Missing BEGIN code for effortGroup {effortId} (before "
+                    f"{min(statusCodes).toPyDateTime().isoformat()} record)"
+                )
+
+        if errors:
+            errors.append("Please, resolve errors before validation")
+            QMessageBox.warning(
+                None, "Errors detected in effort status", "\n".join(errors)
+            )
+            return
+
+    @staticmethod
     def merge(
         sessionADir: str,
         sessionBDir: str,
@@ -797,11 +698,11 @@ class SammoSession:
         # open input session
         sessionA = SammoSession()
         sessionA.init(sessionADir, load=False)
-        sessionA.validate(True)
+        sessionA.effortCheck(sessionA.environmentLayer)
 
         sessionB = SammoSession()
         sessionB.init(sessionBDir, load=False)
-        sessionB.validate(True)
+        sessionB.effortCheck(sessionB.environmentLayer)
 
         # create output session
         sessionOutput = SammoSession()

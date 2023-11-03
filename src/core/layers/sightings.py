@@ -229,7 +229,6 @@ class SammoSightingsLayer(SammoLayer):
             "soundEnd",
             "dateTime",
             "validated",
-            "sightNum",
             "observer",
             "_effortGroup",
         ]:
