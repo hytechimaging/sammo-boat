@@ -788,6 +788,8 @@ class SammoSession:
     def merge(
         sessionADir: str,
         sessionBDir: str,
+        sessionAGps: bool,
+        sessionBGps: bool,
         sessionOutputDir: str,
         progressBar: QProgressBar,
         date: Optional[QDate] = None,
@@ -898,7 +900,12 @@ class SammoSession:
         tot = (
             sessionA.gpsLayer.featureCount() + sessionB.gpsLayer.featureCount()
         )
-        for vl in [sessionA.gpsLayer, sessionB.gpsLayer]:
+        gpsVls = []
+        if sessionAGps:
+            gpsVls.append(sessionA.gpsLayer)
+        if sessionAGps:
+            gpsVls.append(sessionB.gpsLayer)
+        for vl in gpsVls:
             for feature in vl.getFeatures(dateRequest):
                 nb += 1
                 progressBar.setValue(int(100 / tot * (nb + 1)))

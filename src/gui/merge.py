@@ -93,6 +93,8 @@ class SammoMergeDialog(QDialog, FORM_CLASS):
         SammoSession.merge(
             self.sessionADir.text(),
             self.sessionBDir.text(),
+            self.sessionAGpsCheckBox.isChecked(),
+            self.sessionBGpsCheckBox.isChecked(),
             self.sessionMergedDir.text(),
             self.progressBar,
             self.dateEdit.date() if self.dateCheckBox.isChecked() else None,
