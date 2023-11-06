@@ -20,11 +20,15 @@ from ..database import (
     SIGHTINGS_TABLE,
 )
 
-from .layer import SammoLayer, NULL
+from .layer import SammoLayer, SammoBehaviourSpeciesLayer, NULL
 
 
 class SammoSightingsLayer(SammoLayer):
-    def __init__(self, db: SammoDataBase):
+    def __init__(
+        self,
+        db: SammoDataBase,
+        behaviourSpeciesLayer: SammoBehaviourSpeciesLayer,
+    ):
         super().__init__(
             db,
             SIGHTINGS_TABLE,
@@ -32,6 +36,7 @@ class SammoSightingsLayer(SammoLayer):
             soundAction=True,
             duplicateAction=True,
         )
+        self.behaviourSpeciesLayer = behaviourSpeciesLayer
 
     def _init(self, layer: QgsVectorLayer) -> None:
         self._init_symbology(layer)
@@ -192,51 +197,29 @@ class SammoSightingsLayer(SammoLayer):
         layer.setEditorWidgetSetup(idx, setup)
         layer.setFieldAlias(idx, "group")
 
-        # behavMam
-        idx = layer.fields().indexFromName("behavMam")
-        cfg = {}
-        cfg["map"] = [
-            {"<NULL>": NULL},
-            {"bow": "bow"},
-            {"milling": "milling"},
-            {"fast_swimming": "fast_swimming"},
-            {"slow_swimming": "slow_swimming"},
-            {"diving": "diving"},
-            {"breaching": "breaching"},
-        ]
-        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        # behavSpecies
+        idx = layer.fields().indexFromName("behavSpecies")
+        cfg = {
+            "AllowMulti": False,
+            "AllowNull": True,
+            "Description": "",
+            "FilterExpression": (
+                '"taxon" = attribute(get_feature('
+                f"'{self.behaviourSpeciesLayer.layer.id()}'"
+                ",'species',current_value('species')),'taxon')"
+            ),
+            "Key": "behav",
+            "Layer": self.behaviourSpeciesLayer.layer.id(),
+            "LayerName": self.behaviourSpeciesLayer.name,
+            "LayerProviderName": "ogr",
+            "LayerSource": self.speciesLayer.uri,
+            "NofColumns": 1,
+            "OrderByValue": False,
+            "UseCompleter": False,
+            "Value": "behav",
+        }
+        setup = QgsEditorWidgetSetup("ValueRelation", cfg)
         layer.setEditorWidgetSetup(idx, setup)
-        layer.setFieldAlias(idx, "mam")
-
-        # behavBird
-        idx = layer.fields().indexFromName("behavBird")
-        cfg = {}
-        cfg["map"] = [
-            {"<NULL>": NULL},
-            {"attacked": "attacked"},
-            {"with_prey": "with_prey"},
-            {"klepto": "klepto"},
-            {"diving": "diving"},
-            {"follow_boat": "follow_boat"},
-            {"random_flight": "random_flight"},
-            {"circular_flight": "circular_flight"},
-            {"straight_flight": "straight_flight"},
-        ]
-        setup = QgsEditorWidgetSetup("ValueMap", cfg)
-        layer.setEditorWidgetSetup(idx, setup)
-        layer.setFieldAlias(idx, "bird")
-
-        # behavShip
-        idx = layer.fields().indexFromName("behavShip")
-        cfg = {}
-        cfg["map"] = [
-            {"<NULL>": NULL},
-            {"fishing": "fishing"},
-            {"route": "route"},
-        ]
-        setup = QgsEditorWidgetSetup("ValueMap", cfg)
-        layer.setEditorWidgetSetup(idx, setup)
-        layer.setFieldAlias(idx, "ship")
 
         # soundFile, soundStart, soundEnd, dateTime
         for field in [
@@ -336,37 +319,18 @@ class SammoSightingsLayer(SammoLayer):
                 {}
             )
             """
-        addExpr = """
-            (
-                if(  "behavMam" ,1,0) +
-                if(  "behavBird" ,1,0) +
-                if(  "behavShip" ,1,0)
-                > 1
+        taxons = (
+            "'"
+            + "','".join(
+                self.behaviourSpeciesLayer.uniqueValues(
+                    self.behaviourSpeciesLayer.fields().indexOf("taxon")
+                )
             )
-            """
-
-        taxons = "'Marine Mammal', 'Seabird', 'Ship'"
+            + "'"
+        )
         style = QgsConditionalStyle(expr.format(taxons, "False"))
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("behaviour", [style])
-
-        # behavMam
-        taxon = "'Marine Mammal'"
-        style = QgsConditionalStyle(expr.format(taxon, addExpr))
-        style.setBackgroundColor(QColor("orange"))
-        layer.conditionalStyles().setFieldStyles("behavMam", [style])
-
-        # behavBird
-        taxon = "'Seabird'"
-        style = QgsConditionalStyle(expr.format(taxon, addExpr))
-        style.setBackgroundColor(QColor("orange"))
-        layer.conditionalStyles().setFieldStyles("behavBird", [style])
-
-        # behavShip
-        taxon = "'Ship'"
-        style = QgsConditionalStyle(expr.format(taxon, addExpr))
-        style.setBackgroundColor(QColor("orange"))
-        layer.conditionalStyles().setFieldStyles("behavShip", [style])
 
         # species
         expr = """

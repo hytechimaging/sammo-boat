@@ -46,6 +46,7 @@ from .layers import (
     SammoObserversLayer,
     SammoSightingsLayer,
     SammoEnvironmentLayer,
+    SammoBehaviourSpeciesLayer,
 )
 from .sound_recording_controller import RecordType
 
@@ -57,6 +58,7 @@ class SammoSession:
         self._gpsLayer: SammoGpsLayer = None
         self._worldLayer: SammoWorldLayer = None
         self._speciesLayer: SammoSpeciesLayer = None
+        self._behaviourSpeciesLayer: SammoBehaviourSpeciesLayer = None
         self._followersLayer: SammoFollowersLayer = None
         self._observersLayer: SammoObserversLayer = None
         self._sightingsLayer: SammoSightingsLayer = None
@@ -108,6 +110,10 @@ class SammoSession:
         return self._speciesLayer.layer
 
     @property
+    def behaviourSpeciesLayer(self) -> QgsVectorLayer:
+        return self._behaviourSpeciesLayer.layer
+
+    @property
     def sightingsLayer(self) -> QgsVectorLayer:
         if self._sightingsLayer:
             return self._sightingsLayer.layer
@@ -150,6 +156,7 @@ class SammoSession:
             self.gpsLayer,
             self.followersLayer,
             self.observersLayer,
+            self.behaviourSpeciesLayer,
             self.speciesLayer,
             self.sightingsLayer,
             self.surveyLayer,
@@ -173,6 +180,7 @@ class SammoSession:
         self._transectLayer = SammoTransectLayer(self.db)
         self._strateLayer = SammoStrateLayer(self.db)
         self._observersLayer = SammoObserversLayer(self.db)
+        self._behaviourSpeciesLayer = SammoBehaviourSpeciesLayer(self.db)
         self._speciesLayer = SammoSpeciesLayer(self.db)
 
         self._gpsLayer = SammoGpsLayer(self.db)
@@ -196,6 +204,7 @@ class SammoSession:
             self._transectLayer.addToProject(project)
             self._strateLayer.addToProject(project)
             self._gpsLayer.addToProject(project)
+            self._behaviourSpeciesLayer.addToProject(project)
             self._speciesLayer.addToProject(project)
             self._sightingsLayer.addToProject(project)
             self._observersLayer.addToProject(project)
@@ -223,6 +232,7 @@ class SammoSession:
                 self._gpsLayer,
                 self._boatLayer,
                 self._worldLayer,
+                self._behaviourSpeciesLayer,
                 self._speciesLayer,
                 self._followersLayer,
                 self._observersLayer,

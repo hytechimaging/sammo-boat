@@ -14,4 +14,5 @@ from .followers import SammoFollowersLayer
 from .observers import SammoObserversLayer
 from .sightings import SammoSightingsLayer
 from .plateform import SammoPlateformLayer
+from .behav import SammoBehaviourSpeciesLayer
 from .environment import SammoEnvironmentLayer

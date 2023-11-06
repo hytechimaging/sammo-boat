@@ -29,6 +29,7 @@ DB_NAME = "sammo-boat.gpkg"
 
 GPS_TABLE = "gps"
 SPECIES_TABLE = "species"
+BEHAVIOUR_SPECIES_TABLE = "behaviour"
 OBSERVERS_TABLE = "observers"
 FOLLOWERS_TABLE = "followers"
 SIGHTINGS_TABLE = "sightings"
@@ -70,7 +71,6 @@ class SammoDataBase:
             ENVIRONMENT_TABLE,
             QgsWkbTypes.Point,
         )
-        self._createTable(self._createFieldsForSpeciesTable(), SPECIES_TABLE)
         self._createTable(
             self._fieldsSightings(), SIGHTINGS_TABLE, QgsWkbTypes.Point
         )
@@ -86,8 +86,15 @@ class SammoDataBase:
         self._createTable(self._fieldsObserver(), OBSERVERS_TABLE)
 
         # administrator table
+        self._createTable(self._createFieldsForSpeciesTable(), SPECIES_TABLE)
+        self._populateTable(SPECIES_TABLE, "species.csv")
+        self._createTable(
+            self._createFieldsForBehaviourSpeciesTable(),
+            BEHAVIOUR_SPECIES_TABLE,
+        )
+        self._populateTable(BEHAVIOUR_SPECIES_TABLE, "behav.csv")
         self._createTable(self._fieldsBoat(), BOAT_TABLE)
-        self._populateBoatTable()
+        self._populateTable(BOAT_TABLE, "boat.csv")
         self._createTable(self._fieldsSurvey(), SURVEY_TABLE)
         self._createTable(self._fieldsTransect(), TRANSECT_TABLE)
         self._createTable(self._fieldsStrate(), STRATE_TABLE)
@@ -178,6 +185,12 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("taxon"))
         return fields
 
+    def _createFieldsForBehaviourSpeciesTable(self) -> QgsFields:
+        fields = QgsFields()
+        fields.append(self._createFieldShortText("behav"))
+        fields.append(self._createFieldShortText("taxon"))
+        return fields
+
     def _fieldsSightings(self) -> QgsFields:
         fields = QgsFields()
         fields.append(self._createFieldShortText("sightNum"))
@@ -193,9 +206,7 @@ class SammoDataBase:
         fields.append(QgsField("angle", QVariant.Int))
         fields.append(QgsField("direction", QVariant.Int))
         fields.append(self._createFieldShortText("behaviour"))
-        fields.append(self._createFieldShortText("behavBird"))
-        fields.append(self._createFieldShortText("behavMam"))
-        fields.append(self._createFieldShortText("behavShip"))
+        fields.append(self._createFieldShortText("behavSpecies"))
         fields.append(self._createFieldShortText("behavGroup"))
         fields.append(QgsField("comment", QVariant.String, len=200))
         fields.append(self._createFieldShortText("soundFile", len=80))
@@ -258,6 +269,23 @@ class SammoDataBase:
         fields = QgsFields()
         fields.append(self._createFieldShortText("name"))
         return fields
+
+    def _populateTable(self, layer_id: str, csv_name: str) -> None:
+        lyr = QgsVectorLayer(self.tableUri(layer_id), "no_matter", "ogr")
+        file = Path(__file__).parent.parent.parent / "data" / csv_name
+        lines = []
+        if file.exists():
+            with open(file.as_posix()) as f:
+                lines = [
+                    {k: v for k, v in row.items()} for row in csv.DictReader(f)
+                ]
+        lyr.startEditing()
+        for attr in lines:
+            ft = QgsFeature(lyr.fields())
+            for k, v in attr.items():
+                ft[k] = v
+            lyr.addFeature(ft)
+        lyr.commitChanges()
 
     def _populateBoatTable(self) -> None:
         boatLyr = QgsVectorLayer(self.tableUri(BOAT_TABLE), "boat", "ogr")
