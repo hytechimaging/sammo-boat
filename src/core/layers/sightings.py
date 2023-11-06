@@ -20,7 +20,8 @@ from ..database import (
     SIGHTINGS_TABLE,
 )
 
-from .layer import SammoLayer, SammoBehaviourSpeciesLayer, NULL
+from .layer import SammoLayer, NULL
+from .behav import SammoBehaviourSpeciesLayer
 
 
 class SammoSightingsLayer(SammoLayer):
@@ -205,14 +206,14 @@ class SammoSightingsLayer(SammoLayer):
             "Description": "",
             "FilterExpression": (
                 '"taxon" = attribute(get_feature('
-                f"'{self.behaviourSpeciesLayer.layer.id()}'"
+                "layer_property('Species', 'id')"
                 ",'species',current_value('species')),'taxon')"
             ),
             "Key": "behav",
             "Layer": self.behaviourSpeciesLayer.layer.id(),
             "LayerName": self.behaviourSpeciesLayer.name,
             "LayerProviderName": "ogr",
-            "LayerSource": self.speciesLayer.uri,
+            "LayerSource": self.behaviourSpeciesLayer.uri,
             "NofColumns": 1,
             "OrderByValue": False,
             "UseCompleter": False,
@@ -322,8 +323,8 @@ class SammoSightingsLayer(SammoLayer):
         taxons = (
             "'"
             + "','".join(
-                self.behaviourSpeciesLayer.uniqueValues(
-                    self.behaviourSpeciesLayer.fields().indexOf("taxon")
+                self.behaviourSpeciesLayer.layer.uniqueValues(
+                    self.behaviourSpeciesLayer.layer.fields().indexOf("taxon")
                 )
             )
             + "'"
@@ -331,6 +332,21 @@ class SammoSightingsLayer(SammoLayer):
         style = QgsConditionalStyle(expr.format(taxons, "False"))
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("behaviour", [style])
+
+        # behavSpecies
+        expr = """
+            attribute(get_feature(
+                layer_property('Species', 'id')
+                ,'species',"species"
+            ),'taxon')
+            != attribute(get_feature(
+                layer_property('Behaviour_species', 'id')
+                ,'behav',"behavSpecies"
+            ),'taxon')
+        """
+        style = QgsConditionalStyle(expr)
+        style.setBackgroundColor(QColor("orange"))
+        layer.conditionalStyles().setFieldStyles("behavSpecies", [style])
 
         # species
         expr = """

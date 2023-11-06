@@ -184,7 +184,9 @@ class SammoSession:
         self._speciesLayer = SammoSpeciesLayer(self.db)
 
         self._gpsLayer = SammoGpsLayer(self.db)
-        self._sightingsLayer = SammoSightingsLayer(self.db)
+        self._sightingsLayer = SammoSightingsLayer(
+            self.db, self._behaviourSpeciesLayer
+        )
         self._followersLayer = SammoFollowersLayer(
             self.db, self._observersLayer, self._speciesLayer
         )

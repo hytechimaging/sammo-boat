@@ -3,7 +3,7 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2023 Hytech Imaging"
 
-from qgis.core import QgsEditorWidgetSetup, QgsVectorLayer
+from qgis.core import QgsVectorLayer
 from ..database import (
     SammoDataBase,
     BEHAVIOUR_SPECIES_TABLE,
