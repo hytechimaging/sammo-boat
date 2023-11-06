@@ -37,6 +37,7 @@ ENVIRONMENT_TABLE = "environment"
 WORLD_TABLE = "world"
 BOAT_TABLE = "boat"
 SURVEY_TABLE = "survey"
+SURVEY_TYPE_TABLE = "survey_type"
 TRANSECT_TABLE = "transect"
 STRATE_TABLE = "strate"
 PLATEFORM_TABLE = "plateform"
@@ -95,6 +96,8 @@ class SammoDataBase:
         self._populateTable(BEHAVIOUR_SPECIES_TABLE, "behav.csv")
         self._createTable(self._fieldsBoat(), BOAT_TABLE)
         self._populateTable(BOAT_TABLE, "boat.csv")
+        self._createTable(self._fieldsSurveyType(), SURVEY_TYPE_TABLE)
+        self._populateTable(SURVEY_TYPE_TABLE, "survey_type.csv")
         self._createTable(self._fieldsSurvey(), SURVEY_TABLE)
         self._populateTable(SURVEY_TABLE, "survey.csv")
         self._createTable(self._fieldsTransect(), TRANSECT_TABLE)
@@ -302,6 +305,11 @@ class SammoDataBase:
                     ft[k] = v
             lyr.addFeature(ft)
         lyr.commitChanges()
+
+    def _fieldsSurveyType(self) -> QgsFields:
+        fields = QgsFields()
+        fields.append(self._createFieldShortText("name"))
+        return fields
 
     def _populateBoatTable(self) -> None:
         boatLyr = QgsVectorLayer(self.tableUri(BOAT_TABLE), "boat", "ogr")

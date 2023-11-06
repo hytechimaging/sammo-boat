@@ -1,0 +1,23 @@
+# coding: utf8
+
+__contact__ = "info@hytech-imaging.fr"
+__copyright__ = "Copyright (c) 2022 Hytech Imaging"
+
+from qgis.core import QgsEditorWidgetSetup, QgsVectorLayer
+
+from ..database import (
+    SURVEY_TYPE_TABLE,
+    SammoDataBase,
+)
+from .layer import SammoLayer
+
+
+class SammoSurveyTypeLayer(SammoLayer):
+    def __init__(self, db: SammoDataBase):
+        super().__init__(db, SURVEY_TYPE_TABLE, "Survey_type")
+
+    def _init(self, layer: QgsVectorLayer) -> None:
+        self._init_widgets(layer)
+
+    def _init_widgets(self, layer: QgsVectorLayer) -> None:
+        pass

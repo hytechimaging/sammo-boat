@@ -28,6 +28,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="surveyTypeButton">
+        <property name="text">
+         <string>SurveyType</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="transectButton">
         <property name="text">
          <string>Transect</string>

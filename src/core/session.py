@@ -46,6 +46,7 @@ from .layers import (
     SammoFollowersLayer,
     SammoObserversLayer,
     SammoSightingsLayer,
+    SammoSurveyTypeLayer,
     SammoEnvironmentLayer,
     SammoBehaviourSpeciesLayer,
 )
@@ -65,6 +66,7 @@ class SammoSession:
         self._sightingsLayer: SammoSightingsLayer = None
         self._environmentLayer: SammoEnvironmentLayer = None
         self._surveyLayer: SammoSurveyLayer = None
+        self._surveyTypeLayer: SammoSurveyLayer = None
         self._transectLayer: SammoTransectLayer = None
         self._strateLayer: SammoStrateLayer = None
         self._plateformLayer: SammoPlateformLayer = None
@@ -133,6 +135,12 @@ class SammoSession:
         return None
 
     @property
+    def surveyTypeLayer(self) -> QgsVectorLayer:
+        if self._surveyLayer:
+            return self._surveyTypeLayer.layer
+        return None
+
+    @property
     def strateLayer(self) -> QgsVectorLayer:
         if self._strateLayer:
             return self._strateLayer.layer
@@ -161,6 +169,7 @@ class SammoSession:
             self.speciesLayer,
             self.sightingsLayer,
             self.surveyLayer,
+            self.surveyTypeLayer,
             self.strateLayer,
             self.boatLayer,
             self.plateformLayer,
@@ -177,7 +186,10 @@ class SammoSession:
         # Administrator table
         self._plateformLayer = SammoPlateformLayer(self.db)
         self._boatLayer = SammoBoatLayer(self.db, self._plateformLayer)
-        self._surveyLayer = SammoSurveyLayer(self.db, self._boatLayer)
+        self._surveyTypeLayer = SammoSurveyTypeLayer(self.db)
+        self._surveyLayer = SammoSurveyLayer(
+            self.db, self._boatLayer, self._surveyTypeLayer
+        )
         self._transectLayer = SammoTransectLayer(self.db)
         self._strateLayer = SammoStrateLayer(self.db)
         self._observersLayer = SammoObserversLayer(self.db)
@@ -204,6 +216,7 @@ class SammoSession:
             self._plateformLayer.addToProject(project)
             self._boatLayer.addToProject(project)
             self._plateformLayer._link_boat(self._boatLayer)
+            self._surveyTypeLayer.addToProject(project)
             self._surveyLayer.addToProject(project)
             self._transectLayer.addToProject(project)
             self._strateLayer.addToProject(project)

@@ -15,4 +15,5 @@ from .observers import SammoObserversLayer
 from .sightings import SammoSightingsLayer
 from .plateform import SammoPlateformLayer
 from .behav import SammoBehaviourSpeciesLayer
+from .survey_type import SammoSurveyTypeLayer
 from .environment import SammoEnvironmentLayer
