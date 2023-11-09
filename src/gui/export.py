@@ -178,6 +178,11 @@ class SammoExportAction(QDialog):
                     ",'_L', _effortLeg)",
                     field,
                 )
+                field = QgsField("_effortId", QVariant.String)
+                layer.addExpressionField(
+                    "to_string(_effortGroup) + '_' + to_string(_effortLeg)",
+                    field,
+                )
 
             if layer.name().lower() in [SIGHTINGS_TABLE, ENVIRONMENT_TABLE]:
                 field = QgsField("date", QVariant.Date)
@@ -195,11 +200,21 @@ class SammoExportAction(QDialog):
 
             # Add joined fields
             if layer.name().lower() in [SIGHTINGS_TABLE, FOLLOWERS_TABLE]:
-                joinLayer = QgsVectorLayer(
+                environJoinLayer = QgsVectorLayer(
+                    self.session.environmentLayer.source(),
+                    self.session.environmentLayer.name(),
+                )  # keepped alive until export is done
+                field = QgsField("_effortId", QVariant.String)
+                environJoinLayer.addExpressionField(
+                    "to_string(_effortGroup) + '_' + to_string(_effortLeg)",
+                    field,
+                )
+                speciesJoinLayer = QgsVectorLayer(
                     self.session.speciesLayer.source(),
                     self.session.speciesLayer.name(),
                 )  # keepped alive until export is done
-                layer.addJoin(self.sightingsLayerJoinInfo(joinLayer))
+                layer.addJoin(self.obsEnvLayerJoinInfo(environJoinLayer))
+                layer.addJoin(self.obsSpeLayerJoinInfo(speciesJoinLayer))
 
             elif layer.name() == self.session.environmentLayer.name():
                 joinLayer = QgsVectorLayer(
@@ -224,6 +239,7 @@ class SammoExportAction(QDialog):
                 )
                 layer = self.addEndEffortFeature(layer)
 
+            print(layer.name(), layer.fields().names())
             options = QgsVectorFileWriter.SaveVectorOptions()
             options.driverName = driver
             options.attributes = [
@@ -236,6 +252,7 @@ class SammoExportAction(QDialog):
                     "_effortLeg",
                     "_effortGroup",
                     "_focalId",
+                    "_effortId",
                 ]
             ]
             QgsVectorFileWriter.writeAsVectorFormatV2(
@@ -252,13 +269,22 @@ class SammoExportAction(QDialog):
             self.progressBar.setValue(int(100 / nb * (i + 1)))
         self.close()
 
-    def sightingsLayerJoinInfo(self, layer: QgsVectorLayer) -> None:
-        joinInfo = QgsVectorLayerJoinInfo()
-        joinInfo.setJoinLayer(layer)
-        joinInfo.setJoinFieldName("species")
-        joinInfo.setTargetFieldName("species")
-        joinInfo.setPrefix("species_")
-        joinInfo.setJoinFieldNamesSubset(
+    def obsEnvLayerJoinInfo(self, layer: QgsVectorLayer) -> None:
+        environmentJoinInfo = QgsVectorLayerJoinInfo()
+        environmentJoinInfo.setJoinLayer(layer)
+        environmentJoinInfo.setJoinFieldName("_effortId")
+        environmentJoinInfo.setTargetFieldName("_effortId")
+        environmentJoinInfo.setPrefix("")
+        environmentJoinInfo.setJoinFieldNamesSubset(["session", "routeType"])
+        return environmentJoinInfo
+
+    def obsSpeLayerJoinInfo(self, layer: QgsVectorLayer) -> None:
+        speciesJoinInfo = QgsVectorLayerJoinInfo()
+        speciesJoinInfo.setJoinLayer(layer)
+        speciesJoinInfo.setJoinFieldName("species")
+        speciesJoinInfo.setTargetFieldName("species")
+        speciesJoinInfo.setPrefix("species_")
+        speciesJoinInfo.setJoinFieldNamesSubset(
             [
                 "name_latin",
                 "name_eng",
@@ -271,7 +297,7 @@ class SammoExportAction(QDialog):
                 "taxon_fr"
             ]
         )
-        return joinInfo
+        return speciesJoinInfo
 
     def environmentLayerJoinObserverInfo(
         self, layer: QgsVectorLayer, side: str

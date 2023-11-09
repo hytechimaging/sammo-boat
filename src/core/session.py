@@ -272,22 +272,32 @@ class SammoSession:
             or not survey["cycle"]
             or not survey["computer"]
             or not survey["shipName"]
+            or not survey["session"]
         ):
             iface.messageBar().pushWarning(
                 "Sightings",
-                "Administration table `survey` is not fulfilled,"
+                f"Administration table `{layer.name().lower()}` "
+                "is not fulfilled,"
                 " all sighting attributes cannot be filled",
             )
             survey_value = ""
             cycle_value = ""
             computer_value = ""
             ship_value = ""
+            session_value = ""
         else:
             survey_value = survey["survey"]
             cycle_value = survey["cycle"]
             computer_value = survey["computer"]
             ship_value = survey["shipName"]
-        return survey_value, cycle_value, computer_value, ship_value
+            session_value = survey["session"]
+        return (
+            survey_value,
+            cycle_value,
+            computer_value,
+            ship_value,
+            session_value,
+        )
 
     def transectValues(self, layer: QgsVectorLayer) -> tuple:
         transect = (
@@ -327,8 +337,9 @@ class SammoSession:
             cycle_value,
             computer_value,
             ship_value,
-        ) = self.surveyValues()
-        transect_value, strate_value, length_value = self.transectValues()
+            session_value,
+        ) = self.surveyValues(layer)
+        transect_value, strate_value, length_value = self.transectValues(layer)
 
         # EffortGroup management
         effortGroup = max(
@@ -354,6 +365,7 @@ class SammoSession:
             courseAverage=self.lastGpsInfo["gprmc"]["course"],
             survey=survey_value,
             cycle=cycle_value,
+            session=session_value,
             computer=computer_value,
             shipName=ship_value,
             transect=transect_value,
@@ -411,13 +423,23 @@ class SammoSession:
 
     def addSightingsFeature(self) -> QgsVectorLayer:
         layer = self.sightingsLayer
-        survey_value, cycle_value, computer_value, _ = self.surveyValues()
+        survey_value, cycle_value, computer_value, _, _ = self.surveyValues(
+            layer
+        )
+        effortGroup = 1
+        effortLeg = 1
+        if self.environmentLayer and self.environmentLayer.featureCount():
+            ft = self.db.lastFeature(self.environmentLayer)
+            effortGroup = ft["_effortGroup"]
+            effortLeg = ft["_effortLeg"]
         self._addFeature(
             layer,
             geom=self.lastGpsInfo["geometry"],
             survey=survey_value,
             cycle=cycle_value,
             computer=computer_value,
+            _effortGroup=effortGroup,
+            _effortLeg=effortLeg,
         )
         return layer
 
@@ -425,7 +447,15 @@ class SammoSession:
         self, dt: str, geom: QgsGeometry, focalId: int, duplicate: bool
     ) -> None:
         layer = self.followersLayer
-        survey_value, cycle_value, computer_value, _ = self.surveyValues()
+        survey_value, cycle_value, computer_value, _, _ = self.surveyValues(
+            layer
+        )
+        effortGroup = 1
+        effortLeg = 1
+        if self.environmentLayer and self.environmentLayer.featureCount():
+            ft = self.db.lastFeature(self.environmentLayer)
+            effortGroup = ft["_effortGroup"]
+            effortLeg = ft["_effortLeg"]
         self._addFeature(
             layer,
             dt,
@@ -435,6 +465,8 @@ class SammoSession:
             survey=survey_value,
             cycle=cycle_value,
             computer=computer_value,
+            _effortGroup=effortGroup,
+            _effortLeg=effortLeg,
         )
 
     def needsSaving(self) -> None:
