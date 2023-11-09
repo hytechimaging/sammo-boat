@@ -205,9 +205,9 @@ class SammoSightingsLayer(SammoLayer):
             "AllowNull": True,
             "Description": "",
             "FilterExpression": (
-                '"taxon" = attribute(get_feature('
+                '"behav_cat" = attribute(get_feature('
                 "layer_property('Species', 'id')"
-                ",'species',current_value('species')),'taxon')"
+                ",'species',current_value('species')),'behav_cat')"
             ),
             "Key": "behav",
             "Layer": self.behaviourSpeciesLayer.layer.id(),
@@ -313,23 +313,23 @@ class SammoSightingsLayer(SammoLayer):
                             'species',
                             attribute('species')
                         )
-                        , 'taxon'
+                        , 'behav_cat'
                     )
                 ),
                 @value is NULL,
                 {}
             )
             """
-        taxons = (
+        behavs = (
             "'"
             + "','".join(
                 self.behaviourSpeciesLayer.layer.uniqueValues(
-                    self.behaviourSpeciesLayer.layer.fields().indexOf("taxon")
+                    self.behaviourSpeciesLayer.layer.fields().indexOf("behav_cat")
                 )
             )
             + "'"
         )
-        style = QgsConditionalStyle(expr.format(taxons, "False"))
+        style = QgsConditionalStyle(expr.format(behavs, "False"))
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("behaviour", [style])
 
@@ -338,11 +338,11 @@ class SammoSightingsLayer(SammoLayer):
             attribute(get_feature(
                 layer_property('Species', 'id')
                 ,'species',"species"
-            ),'taxon')
+            ),'behav_cat')
             != attribute(get_feature(
                 layer_property('Behaviour_species', 'id')
                 ,'behav',"behavSpecies"
-            ),'taxon')
+            ),'behav_cat')
         """
         style = QgsConditionalStyle(expr)
         style.setBackgroundColor(QColor("orange"))

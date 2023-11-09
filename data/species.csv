@@ -1,4 +1,1 @@
-species,commonName,latinName,groupName,family,taxon
-orca,orca,orcinus orca,orcinus,delphinidae,Marine Mammal
-black-headed gull,laughing gull,chroicocephalus ridibundus,chroicocephalus,laridae,Seabird
-fishing ship,,,,,Ship
+species,behav_cat,taxon_fr,family_fr,group_fr,name_fr,name_latin,taxon_eng,family_eng,group_eng,name_eng,name_spa

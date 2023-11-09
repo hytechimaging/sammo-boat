@@ -178,11 +178,20 @@ class SammoDataBase:
     def _createFieldsForSpeciesTable(self) -> QgsFields:
         fields = QgsFields()
         fields.append(self._createFieldShortText("species"))
-        fields.append(self._createFieldShortText("commonName"))
-        fields.append(self._createFieldShortText("latinName"))
-        fields.append(self._createFieldShortText("groupName"))
-        fields.append(self._createFieldShortText("family"))
-        fields.append(self._createFieldShortText("taxon"))
+        fields.append(self._createFieldShortText("behav_cat"))
+        fields.append(self._createFieldShortText("name_latin"))
+        fields.append(self._createFieldShortText("taxon_eng"))
+        fields.append(self._createFieldShortText("family_eng"))
+        fields.append(self._createFieldShortText("group_eng"))
+        fields.append(self._createFieldShortText("name_eng"))
+        fields.append(self._createFieldShortText("taxon_fr"))
+        fields.append(self._createFieldShortText("family_fr"))
+        fields.append(self._createFieldShortText("group_fr"))
+        fields.append(self._createFieldShortText("name_fr"))
+        fields.append(self._createFieldShortText("taxon_spa"))
+        fields.append(self._createFieldShortText("family_spa"))
+        fields.append(self._createFieldShortText("group_spa"))
+        fields.append(self._createFieldShortText("name_spa"))
         return fields
 
     def _createFieldsForBehaviourSpeciesTable(self) -> QgsFields:

@@ -1,17 +1,17 @@
-behav,taxon
-attacked,Seabird
-with_prey,Seabird
-klepto,Seabird
-diving,Seabird
-follow_boat,Seabird
-random_flight,Seabird
-circular_flight,Seabird
-straight_flight,Seabird
-bow,Marine Mammal
-milling,Marine Mammal
-fast_swimming,Marine Mammal
-slow_swimming,Marine Mammal
-diving,Marine Mammal
-breaching,Marine Mammal
-fishing,Ship
-route,Ship
+behav,behav_cat
+attacked,behavBird
+with_prey,behavBird
+klepto,behavBird
+diving,behavBird
+follow_boat,behavBird
+random_flight,behavBird
+circular_flight,behavBird
+straight_flight,behavBird
+bow,behavMam
+milling,behavMam
+fast_swimming,behavMam
+slow_swimming,behavMam
+diving,behavMam
+breaching,behavMam
+fishing,behavShip
+route,behavShip
