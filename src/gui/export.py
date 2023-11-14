@@ -257,7 +257,17 @@ class SammoExportAction(QDialog):
         joinInfo.setTargetFieldName("species")
         joinInfo.setPrefix("species_")
         joinInfo.setJoinFieldNamesSubset(
-            ["commonName", "latinName", "groupName", "family", "taxon"]
+            [
+                "name_latin",
+                "name_eng",
+                "group_eng",
+                "family_eng",
+                "taxon_eng",
+                "name_fr",
+                "group_fr",
+                "family_fr",
+                "taxon_fr"
+            ]
         )
         return joinInfo
 
