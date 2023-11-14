@@ -120,7 +120,7 @@ class SammoFollowersTable(QDialog, FORM_CLASS):
         SammoAttributeTable.refresh(self.table, "Followers", filterExpr)
 
     def eventFilter(self, obj, event):
-        if type(event) == QKeyEvent:
+        if type(event) is QKeyEvent:
             if event.key() == Qt.Key_Escape:
                 event.ignore()
                 return True

@@ -1,0 +1,17 @@
+behav,behav_cat
+attacked,behavBird
+with_prey,behavBird
+klepto,behavBird
+diving,behavBird
+follow_boat,behavBird
+random_flight,behavBird
+circular_flight,behavBird
+straight_flight,behavBird
+bow,behavMam
+milling,behavMam
+fast_swimming,behavMam
+slow_swimming,behavMam
+diving,behavMam
+breaching,behavMam
+fishing,behavShip
+route,behavShip
