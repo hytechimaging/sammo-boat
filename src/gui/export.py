@@ -239,7 +239,6 @@ class SammoExportAction(QDialog):
                 )
                 layer = self.addEndEffortFeature(layer)
 
-            print(layer.name(), layer.fields().names())
             options = QgsVectorFileWriter.SaveVectorOptions()
             options.driverName = driver
             options.attributes = [
@@ -333,7 +332,6 @@ class SammoExportAction(QDialog):
             for lastEffortFt in layer.getFeatures(request):
                 break
             if not lastEffortFt:
-                print(lastEffortFt)
                 continue
             expr = QgsExpression(
                 f"_effortGroup != {effortGroupValue} and "
@@ -370,7 +368,6 @@ class SammoExportAction(QDialog):
         )
         request = QgsFeatureRequest(expr)
         endFts = [endFt.id() for endFt in layer.getFeatures(request)]
-        print(endFts)
         layer.deleteFeatures(endFts)
         layer.commitChanges()
         layer.startEditing()

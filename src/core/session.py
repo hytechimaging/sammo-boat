@@ -811,10 +811,6 @@ class SammoSession:
                         feature["fid"] = newFid
                         newFid += 1
 
-                        print(out.startEditing())
-                        print(out.addFeature(feature))
-                        print(out.commitChanges())
-
         # gps layer
         out = getattr(sessionOutput, "gpsLayer")
         datetimeSet = set(
