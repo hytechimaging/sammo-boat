@@ -324,7 +324,9 @@ class SammoSightingsLayer(SammoLayer):
             "'"
             + "','".join(
                 self.behaviourSpeciesLayer.layer.uniqueValues(
-                    self.behaviourSpeciesLayer.layer.fields().indexOf("behav_cat")
+                    self.behaviourSpeciesLayer.layer.fields().indexOf(
+                        "behav_cat"
+                    )
                 )
             )
             + "'"

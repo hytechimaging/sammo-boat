@@ -74,8 +74,8 @@ class TableWidget(QFrame, FORM_CLASS):
         self.verticalLayout.addWidget(splitter)
 
     def eventFilter(self, obj, event):
-        if type(obj) == QDialog:
-            if type(event) == QKeyEvent:
+        if type(obj) is QDialog:
+            if type(event) is QKeyEvent:
                 if event.key() == Qt.Key_Escape:
                     event.ignore()
                     return True
