@@ -21,7 +21,6 @@ from qgis.core import (
     QgsFeatureRequest,
 )
 
-from .src.core.status import StatusCode
 from .src.core.gps import SammoGpsReader
 from .src.core.session import SammoSession
 from .src.core.utils import shortcutCreation
@@ -158,15 +157,6 @@ class Sammo:
         if reader.receivers(reader.frame):
             reader.frame.disconnect(self.onGpsFrame)
             self.statusDock.desactivateGPS()
-            if self.session.environmentLayer.featureCount() and next(
-                self.session.environmentLayer.getFeatures(
-                    QgsFeatureRequest().addOrderBy("dateTime", False)
-                )
-            )["status"] != StatusCode.display(StatusCode.END):
-                self.session.addEnvironmentFeature(StatusCode.END)
-                self.tableDock.refresh(
-                    self.session.environmentLayer, self.filterExpr
-                )
         elif not (reader.worker and reader.worker._gps):
             self.iface.messageBar().pushCritical(
                 "No GPS detected", "retry later"

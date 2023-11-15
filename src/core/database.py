@@ -96,8 +96,11 @@ class SammoDataBase:
         self._createTable(self._fieldsBoat(), BOAT_TABLE)
         self._populateTable(BOAT_TABLE, "boat.csv")
         self._createTable(self._fieldsSurvey(), SURVEY_TABLE)
+        self._populateTable(SURVEY_TABLE, "survey.csv")
         self._createTable(self._fieldsTransect(), TRANSECT_TABLE)
+        self._populateTable(TRANSECT_TABLE, "transect.csv")
         self._createTable(self._fieldsStrate(), STRATE_TABLE)
+        self._populateTable(STRATE_TABLE, "strate.csv")
         self._createTable(self._fieldsPlateform(), PLATEFORM_TABLE)
         self._populatePlateformTable()
 
@@ -123,7 +126,6 @@ class SammoDataBase:
                 and not mergeAction
             ):
                 continue
-
             if not feat:
                 feat = feature
             elif feature.id() > feat.id():
@@ -197,12 +199,11 @@ class SammoDataBase:
     def _createFieldsForBehaviourSpeciesTable(self) -> QgsFields:
         fields = QgsFields()
         fields.append(self._createFieldShortText("behav"))
-        fields.append(self._createFieldShortText("taxon"))
+        fields.append(self._createFieldShortText("behav_cat"))
         return fields
 
     def _fieldsSightings(self) -> QgsFields:
         fields = QgsFields()
-        fields.append(self._createFieldShortText("sightNum"))
         fields.append(QgsField("dateTime", QVariant.DateTime))
         fields.append(self._createFieldShortText("observer"))
         fields.append(self._createFieldShortText("side"))
@@ -246,6 +247,7 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("soundEnd"))
         fields.append(QgsField("validated", QVariant.Bool))
         fields.append(QgsField("_effortGroup", QVariant.Int))
+        fields.append(QgsField("_effortLeg", QVariant.Int))
         fields.append(self._createFieldShortText("survey"))
         fields.append(self._createFieldShortText("cycle"))
         fields.append(self._createFieldShortText("computer"))
@@ -292,7 +294,12 @@ class SammoDataBase:
         for attr in lines:
             ft = QgsFeature(lyr.fields())
             for k, v in attr.items():
-                ft[k] = v
+                if lyr.fields()[k].typeName() == "Integer":
+                    ft[k] = int(v)
+                elif lyr.fields()[k].typeName() == "Real":
+                    ft[k] = float(v)
+                else:
+                    ft[k] = v
             lyr.addFeature(ft)
         lyr.commitChanges()
 
@@ -334,7 +341,7 @@ class SammoDataBase:
 
     def _fieldsStrate(self) -> QgsFields:
         fields = QgsFields()
-        fields.append(self._createFieldShortText("state"))
+        fields.append(self._createFieldShortText("strate"))
         fields.append(self._createFieldShortText("subRegion"))
         fields.append(self._createFieldShortText("region"))
 

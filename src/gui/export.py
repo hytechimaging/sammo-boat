@@ -6,7 +6,7 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 from pathlib import Path
 
 from qgis.PyQt import uic
-from qgis.PyQt.QtCore import QObject, QVariant
+from qgis.PyQt.QtCore import QObject, QVariant, QDateTime
 from qgis.PyQt.QtWidgets import (
     QAction,
     QDialog,
@@ -17,8 +17,10 @@ from qgis.PyQt.QtWidgets import (
 from qgis.core import (
     QgsField,
     QgsWkbTypes,
+    QgsExpression,
     QgsVectorLayer,
     QgsFeatureRequest,
+    QgsVectorLayerUtils,
     QgsVectorFileWriter,
     QgsVectorLayerJoinInfo,
     QgsCoordinateTransformContext,
@@ -78,7 +80,6 @@ class SammoExportAction(QDialog):
             )
             request = QgsFeatureRequest().setFilterExpression(
                 f"dateTime < to_datetime('{strDateTime}') "
-                f"and status != '{StatusCode.display(StatusCode.END)}'"
             )
             request.addOrderBy("dateTime", False)
             for envFeat in environmentLayer.getFeatures(request):
@@ -123,7 +124,6 @@ class SammoExportAction(QDialog):
             )
             request = QgsFeatureRequest().setFilterExpression(
                 f"dateTime < to_datetime('{strDateTime}') "
-                f"and status != '{StatusCode.display(StatusCode.END)}'"
             )
             request.addOrderBy("dateTime", False)
             for envFeat in environmentLayer.getFeatures(request):
@@ -178,6 +178,11 @@ class SammoExportAction(QDialog):
                     ",'_L', _effortLeg)",
                     field,
                 )
+                field = QgsField("_effortId", QVariant.String)
+                layer.addExpressionField(
+                    "to_string(_effortGroup) + '_' + to_string(_effortLeg)",
+                    field,
+                )
 
             if layer.name().lower() in [SIGHTINGS_TABLE, ENVIRONMENT_TABLE]:
                 field = QgsField("date", QVariant.Date)
@@ -195,11 +200,21 @@ class SammoExportAction(QDialog):
 
             # Add joined fields
             if layer.name().lower() in [SIGHTINGS_TABLE, FOLLOWERS_TABLE]:
-                joinLayer = QgsVectorLayer(
+                environJoinLayer = QgsVectorLayer(
+                    self.session.environmentLayer.source(),
+                    self.session.environmentLayer.name(),
+                )  # keepped alive until export is done
+                field = QgsField("_effortId", QVariant.String)
+                environJoinLayer.addExpressionField(
+                    "to_string(_effortGroup) + '_' + to_string(_effortLeg)",
+                    field,
+                )
+                speciesJoinLayer = QgsVectorLayer(
                     self.session.speciesLayer.source(),
                     self.session.speciesLayer.name(),
                 )  # keepped alive until export is done
-                layer.addJoin(self.sightingsLayerJoinInfo(joinLayer))
+                layer.addJoin(self.obsEnvLayerJoinInfo(environJoinLayer))
+                layer.addJoin(self.obsSpeLayerJoinInfo(speciesJoinLayer))
 
             elif layer.name() == self.session.environmentLayer.name():
                 joinLayer = QgsVectorLayer(
@@ -222,6 +237,7 @@ class SammoExportAction(QDialog):
                 layer.addJoin(
                     self.environmentLayerJoinPlateformInfo(joinLayer)
                 )
+                layer = self.addEndEffortFeature(layer)
 
             options = QgsVectorFileWriter.SaveVectorOptions()
             options.driverName = driver
@@ -230,12 +246,12 @@ class SammoExportAction(QDialog):
                 for field in layer.fields()
                 if field.name()
                 not in [
-                    "sightNum",
                     "validated",
                     "plateformId",
                     "_effortLeg",
                     "_effortGroup",
                     "_focalId",
+                    "_effortId",
                 ]
             ]
             QgsVectorFileWriter.writeAsVectorFormatV2(
@@ -247,16 +263,27 @@ class SammoExportAction(QDialog):
                 QgsCoordinateTransformContext(),
                 options,
             )
+            if layer.name() == self.session.environmentLayer.name():
+                self.removeEndEffort(layer)
             self.progressBar.setValue(int(100 / nb * (i + 1)))
         self.close()
 
-    def sightingsLayerJoinInfo(self, layer: QgsVectorLayer) -> None:
-        joinInfo = QgsVectorLayerJoinInfo()
-        joinInfo.setJoinLayer(layer)
-        joinInfo.setJoinFieldName("species")
-        joinInfo.setTargetFieldName("species")
-        joinInfo.setPrefix("species_")
-        joinInfo.setJoinFieldNamesSubset(
+    def obsEnvLayerJoinInfo(self, layer: QgsVectorLayer) -> None:
+        environmentJoinInfo = QgsVectorLayerJoinInfo()
+        environmentJoinInfo.setJoinLayer(layer)
+        environmentJoinInfo.setJoinFieldName("_effortId")
+        environmentJoinInfo.setTargetFieldName("_effortId")
+        environmentJoinInfo.setPrefix("")
+        environmentJoinInfo.setJoinFieldNamesSubset(["session", "routeType"])
+        return environmentJoinInfo
+
+    def obsSpeLayerJoinInfo(self, layer: QgsVectorLayer) -> None:
+        speciesJoinInfo = QgsVectorLayerJoinInfo()
+        speciesJoinInfo.setJoinLayer(layer)
+        speciesJoinInfo.setJoinFieldName("species")
+        speciesJoinInfo.setTargetFieldName("species")
+        speciesJoinInfo.setPrefix("species_")
+        speciesJoinInfo.setJoinFieldNamesSubset(
             [
                 "name_latin",
                 "name_eng",
@@ -269,7 +296,7 @@ class SammoExportAction(QDialog):
                 "taxon_fr"
             ]
         )
-        return joinInfo
+        return speciesJoinInfo
 
     def environmentLayerJoinObserverInfo(
         self, layer: QgsVectorLayer, side: str
@@ -292,3 +319,55 @@ class SammoExportAction(QDialog):
         joinInfo.setPrefix("")
         joinInfo.setJoinFieldNamesSubset(["plateform", "plateformHeight"])
         return joinInfo
+
+    def addEndEffortFeature(self, layer: QgsVectorLayer) -> QgsVectorLayer:
+        effortGroupValues = layer.uniqueValues(
+            layer.fields().indexOf("_effortGroup")
+        )
+        layer.startEditing()
+        for effortGroupValue in effortGroupValues:
+            expr = QgsExpression(f"_effortGroup = {effortGroupValue}")
+            request = QgsFeatureRequest(expr).addOrderBy("dateTime", False)
+            lastEffortFt = None
+            for lastEffortFt in layer.getFeatures(request):
+                break
+            if not lastEffortFt:
+                continue
+            expr = QgsExpression(
+                f"_effortGroup != {effortGroupValue} and "
+                f"status = '{StatusCode.display(StatusCode.BEGIN)}' and "
+                "dateTime > "
+                f"'{lastEffortFt['dateTime'].toPyDateTime().isoformat()}'"
+            )
+            request = QgsFeatureRequest(expr).addOrderBy("dateTime", True)
+            nextBegFt = None
+            for nextBegFt in layer.getFeatures(request):
+                break
+            if not nextBegFt:
+                nextBegFt = lastEffortFt
+                dt = QDateTime(nextBegFt["dateTime"]).addSecs(1)
+            else:
+                dt = QDateTime(nextBegFt["dateTime"]).addSecs(-1)
+            feat = QgsVectorLayerUtils.createFeature(layer)
+            feat.setGeometry(nextBegFt.geometry())
+            for attr in feat.fields().names():
+                if attr in ["fid", "dateTime", "status"]:
+                    continue
+                feat[attr] = lastEffortFt[attr]
+            feat["dateTime"] = dt
+            feat["status"] = StatusCode.display(StatusCode.END)
+            layer.addFeature(feat)
+        layer.commitChanges()
+        layer.startEditing()
+        return layer
+
+    def removeEndEffort(self, layer):
+        layer.startEditing()
+        expr = QgsExpression(
+            f"status = '{StatusCode.display(StatusCode.END)}'"
+        )
+        request = QgsFeatureRequest(expr)
+        endFts = [endFt.id() for endFt in layer.getFeatures(request)]
+        layer.deleteFeatures(endFts)
+        layer.commitChanges()
+        layer.startEditing()

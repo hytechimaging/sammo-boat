@@ -80,7 +80,6 @@ class SammoAttributeTable:
             "transect",
             "strate",
             "length",
-            "sightNum",
             "plateformHeight",
             "observer",
             "_effortGroup",
