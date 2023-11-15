@@ -195,8 +195,8 @@ class SammoDataBase:
 
     def _createFieldsForBehaviourSpeciesTable(self) -> QgsFields:
         fields = QgsFields()
+        fields.append(self._createFieldShortText("behav"))
         fields.append(self._createFieldShortText("behav_cat"))
-        fields.append(self._createFieldShortText("taxon"))
         return fields
 
     def _fieldsSightings(self) -> QgsFields:
