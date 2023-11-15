@@ -79,13 +79,11 @@ class SammoSettingsDialog(QDialog, FORM_CLASS):
         if not vl.featureCount():
             feat = QgsVectorLayerUtils.createFeature(vl)
             vl.addFeature(feat)
-        if (
-            vl in [
+        if vl in [
             self.session.surveyTypeLayer,
             self.session.boatLayer,
-            self.session.plateformLayer
-            ]
-        ):
+            self.session.plateformLayer,
+        ]:
             dlg = QDialog(self)
             dlg.setModal(True)
             dlg.setWindowTitle(vl.name())

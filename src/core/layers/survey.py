@@ -19,7 +19,7 @@ class SammoSurveyLayer(SammoLayer):
         self,
         db: SammoDataBase,
         boatLayer: SammoBoatLayer,
-        surveyTypeLayer: SammoSurveyTypeLayer
+        surveyTypeLayer: SammoSurveyTypeLayer,
     ):
         super().__init__(db, SURVEY_TABLE, "Survey")
         self.boatLayer = boatLayer

@@ -293,7 +293,7 @@ class SammoExportAction(QDialog):
                 "name_fr",
                 "group_fr",
                 "family_fr",
-                "taxon_fr"
+                "taxon_fr",
             ]
         )
         return speciesJoinInfo

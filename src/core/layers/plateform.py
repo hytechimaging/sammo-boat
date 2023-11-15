@@ -67,4 +67,4 @@ class SammoPlateformLayer(SammoLayer):
             "Value": "name",
         }
         setup = QgsEditorWidgetSetup("ValueRelation", cfg)
-        res = self.layer.setEditorWidgetSetup(idx, setup)
+        self.layer.setEditorWidgetSetup(idx, setup)

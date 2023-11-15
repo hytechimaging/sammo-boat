@@ -3,7 +3,7 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
-from qgis.core import QgsEditorWidgetSetup, QgsVectorLayer
+from qgis.core import QgsVectorLayer
 
 from ..database import (
     SURVEY_TYPE_TABLE,
