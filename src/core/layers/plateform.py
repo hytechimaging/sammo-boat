@@ -24,8 +24,10 @@ class SammoPlateformLayer(SammoLayer):
         idx = layer.fields().indexFromName("plateform")
         cfg = {}
         cfg["map"] = [
+            {"bridge": "bridge"},
             {"bridge_inside": "bridge_inside"},
             {"bridge_outside": "bridge_outside"},
+            {"upper_bridge": "upper_bridge"},
             {"upper_bridge_outside": "upper_bridge_outside"},
             {"upper_bridge_inside": "upper_bridge_inside"},
             {"deck": "deck"},
