@@ -96,8 +96,11 @@ class SammoDataBase:
         self._createTable(self._fieldsBoat(), BOAT_TABLE)
         self._populateTable(BOAT_TABLE, "boat.csv")
         self._createTable(self._fieldsSurvey(), SURVEY_TABLE)
+        self._populateTable(SURVEY_TABLE, "survey.csv")
         self._createTable(self._fieldsTransect(), TRANSECT_TABLE)
+        self._populateTable(TRANSECT_TABLE, "transect.csv")
         self._createTable(self._fieldsStrate(), STRATE_TABLE)
+        self._populateTable(STRATE_TABLE, "strate.csv")
         self._createTable(self._fieldsPlateform(), PLATEFORM_TABLE)
         self._populatePlateformTable()
 
@@ -291,7 +294,12 @@ class SammoDataBase:
         for attr in lines:
             ft = QgsFeature(lyr.fields())
             for k, v in attr.items():
-                ft[k] = v
+                if lyr.fields()[k].typeName() == "Integer":
+                    ft[k] = int(v)
+                elif lyr.fields()[k].typeName() == "Real":
+                    ft[k] = float(v)
+                else:
+                    ft[k] = v
             lyr.addFeature(ft)
         lyr.commitChanges()
 
@@ -333,7 +341,7 @@ class SammoDataBase:
 
     def _fieldsStrate(self) -> QgsFields:
         fields = QgsFields()
-        fields.append(self._createFieldShortText("state"))
+        fields.append(self._createFieldShortText("strate"))
         fields.append(self._createFieldShortText("subRegion"))
         fields.append(self._createFieldShortText("region"))
 

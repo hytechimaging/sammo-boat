@@ -305,6 +305,7 @@ class SammoSession:
             if self.transectLayer.featureCount() > 0
             else None
         )
+        print(transect, self.transectLayer.featureCount())
         if (
             not transect
             or not transect["transect"]
