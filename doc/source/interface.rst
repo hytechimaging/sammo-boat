@@ -120,6 +120,8 @@ data from two distinct session. The environment/sighting/follower tables will be
 merging, avoiding to copy identical entities captured on a previous day. Gps point
 will be also decimated to keep only one record per minutes.
 
+User can use the gps checkboxes to choose which session gps layer will be kept.
+
 6 - |environment| Environment button
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
