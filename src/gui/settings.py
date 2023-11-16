@@ -7,12 +7,13 @@ from pathlib import Path
 
 from qgis.PyQt import uic
 from qgis.utils import iface
-from qgis.PyQt.QtCore import QObject
-from qgis.core import QgsVectorLayerUtils
+from qgis.PyQt.QtCore import QObject, QDir
+from qgis.core import QgsVectorLayerUtils, QgsVectorLayer, QgsFeature
 from qgis.PyQt.QtWidgets import (
     QAction,
     QToolBar,
     QDialog,
+    QFileDialog,
     QVBoxLayout,
     QHBoxLayout,
 )
@@ -57,7 +58,7 @@ class SammoSettingsDialog(QDialog, FORM_CLASS):
         self.surveyButton.clicked.connect(self.surveyEdit)
         self.surveyTypeButton.clicked.connect(self.surveyEdit)
         self.transectButton.clicked.connect(self.surveyEdit)
-        self.strateButton.clicked.connect(self.surveyEdit)
+        self.transectImportButton.clicked.connect(self.importTransect)
         self.boatButton.clicked.connect(self.surveyEdit)
         self.plateformButton.clicked.connect(self.surveyEdit)
         self.closeButton.clicked.connect(self.close)
@@ -69,8 +70,6 @@ class SammoSettingsDialog(QDialog, FORM_CLASS):
             vl = self.session.surveyTypeLayer
         elif self.sender() == self.transectButton:
             vl = self.session.transectLayer
-        elif self.sender() == self.strateButton:
-            vl = self.session.strateLayer
         elif self.sender() == self.plateformButton:
             vl = self.session.plateformLayer
         elif self.sender() == self.boatButton:
@@ -83,6 +82,7 @@ class SammoSettingsDialog(QDialog, FORM_CLASS):
             self.session.surveyTypeLayer,
             self.session.boatLayer,
             self.session.plateformLayer,
+            self.session.transectLayer,
         ]:
             dlg = QDialog(self)
             dlg.setModal(True)
@@ -102,3 +102,49 @@ class SammoSettingsDialog(QDialog, FORM_CLASS):
         feat = next(vl.getFeatures())
         iface.openFeatureForm(vl, feat)
         vl.commitChanges()
+
+    def importTransect(self):
+        transect_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select a ogr transect file",
+            QDir.currentPath(),
+            filter="OGR file (*.shp *.gpkg)",
+            options=QFileDialog.DontUseNativeDialog,
+        )
+        if not transect_path:
+            return
+        lyr = QgsVectorLayer(transect_path, "importTransect", "ogr")
+        lyr.geometryType()
+        if lyr.geometryType() != 1:  # not Linestring
+            iface.messageBar().pushWarning(
+                "Geometry Error",
+                "Imported transect layer is not a LineString layer, "
+                "please provide a LineString layer",
+            )
+            return
+        elif lyr.crs().postgisSrid() != 4326:  # not EPSG:4326:
+            iface.messageBar().pushWarning(
+                "CRS Error", "Convert the transect layer in EPSG:4326 first"
+            )
+            return
+
+        self.session.transectLayer.startEditing()
+        for importedFt in lyr.getFeatures():
+            ft = QgsFeature(self.session.transectLayer.fields())
+            ft.setGeometry(importedFt.geometry())
+            for field in ft.fields():
+                if field.name() == "fid":
+                    continue
+                elif field.name() in lyr.fields().names():
+                    if field.type() is not lyr.fields()[field.name()].type():
+                        if field.typeName() == "Integer":
+                            value = int(importedFt[field.name()])
+                        elif field.typeName() == "Real":
+                            value = float(importedFt[field.name()])
+                        else:
+                            value = importedFt[field.name()]
+                    else:
+                        value = importedFt[field.name()]
+                    ft[field.name()] = value
+            self.session.transectLayer.addFeature(ft)
+        self.session.transectLayer.commitChanges()
