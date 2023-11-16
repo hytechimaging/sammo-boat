@@ -217,25 +217,36 @@ class SammoExportAction(QDialog):
                 layer.addJoin(self.obsSpeLayerJoinInfo(speciesJoinLayer))
 
             elif layer.name() == self.session.environmentLayer.name():
-                joinLayer = QgsVectorLayer(
+                obsJoinLayer = QgsVectorLayer(
                     self.session.observersLayer.source(),
                     self.session.observersLayer.name(),
                 )  # keepped alive until export is done
                 layer.addJoin(
-                    self.environmentLayerJoinObserverInfo(joinLayer, "left")
+                    self.environmentLayerJoinObserverInfo(obsJoinLayer, "left")
                 )
                 layer.addJoin(
-                    self.environmentLayerJoinObserverInfo(joinLayer, "rigth")
+                    self.environmentLayerJoinObserverInfo(
+                        obsJoinLayer, "rigth"
+                    )
                 )
                 layer.addJoin(
-                    self.environmentLayerJoinObserverInfo(joinLayer, "center")
+                    self.environmentLayerJoinObserverInfo(
+                        obsJoinLayer, "center"
+                    )
                 )
-                joinLayer = QgsVectorLayer(
+                plateformJoinLayer = QgsVectorLayer(
                     self.session.plateformLayer.source(),
                     self.session.plateformLayer.name(),
                 )
                 layer.addJoin(
-                    self.environmentLayerJoinPlateformInfo(joinLayer)
+                    self.environmentLayerJoinPlateformInfo(plateformJoinLayer)
+                )
+                transectJoinLayer = QgsVectorLayer(
+                    self.session.transectLayer.source(),
+                    self.session.transectLayer.name(),
+                )
+                layer.addJoin(
+                    self.environmentLayerJoinTransectInfo(transectJoinLayer)
                 )
                 layer = self.addEndEffortFeature(layer)
 
@@ -248,6 +259,7 @@ class SammoExportAction(QDialog):
                 not in [
                     "validated",
                     "plateformId",
+                    "transectId",
                     "_effortLeg",
                     "_effortGroup",
                     "_focalId",
@@ -293,7 +305,7 @@ class SammoExportAction(QDialog):
                 "name_fr",
                 "group_fr",
                 "family_fr",
-                "taxon_fr"
+                "taxon_fr",
             ]
         )
         return speciesJoinInfo
@@ -318,6 +330,15 @@ class SammoExportAction(QDialog):
         joinInfo.setTargetFieldName("plateformId")
         joinInfo.setPrefix("")
         joinInfo.setJoinFieldNamesSubset(["plateform", "plateformHeight"])
+        return joinInfo
+
+    def environmentLayerJoinTransectInfo(self, layer: QgsVectorLayer) -> None:
+        joinInfo = QgsVectorLayerJoinInfo()
+        joinInfo.setJoinLayer(layer)
+        joinInfo.setJoinFieldName("fid")
+        joinInfo.setTargetFieldName("transectId")
+        joinInfo.setPrefix("")
+        joinInfo.setJoinFieldNamesSubset(["transect", "strate", "length"])
         return joinInfo
 
     def addEndEffortFeature(self, layer: QgsVectorLayer) -> QgsVectorLayer:

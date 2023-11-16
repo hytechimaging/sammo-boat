@@ -19,6 +19,7 @@ from ..database import (
 )
 
 from .layer import SammoLayer
+from .transect import SammoTransectLayer
 from .plateform import SammoPlateformLayer
 from .observers import SammoObserversLayer
 
@@ -29,6 +30,7 @@ class SammoEnvironmentLayer(SammoLayer):
         db: SammoDataBase,
         observersLayer: SammoObserversLayer,
         plateformLayer: SammoPlateformLayer,
+        transectLayer: SammoTransectLayer,
     ):
         super().__init__(
             db,
@@ -39,6 +41,7 @@ class SammoEnvironmentLayer(SammoLayer):
         )
         self.observersLayer = observersLayer
         self.plateformLayer = plateformLayer
+        self.transectLayer = transectLayer
 
     def _init(self, layer: QgsVectorLayer):
         self._init_symbology(layer)
@@ -92,6 +95,29 @@ class SammoEnvironmentLayer(SammoLayer):
         form_config.setReadOnly(idx, False)
         layer.setEditFormConfig(form_config)
         layer.setFieldAlias(idx, "plateform")
+
+        # transect
+        idx = layer.fields().indexFromName("transectId")
+        cfg = {
+            "AllowMulti": False,
+            "AllowNull": True,
+            "Description": "transect",
+            "Key": "fid",
+            "Layer": self.transectLayer.layer.id(),
+            "LayerName": self.transectLayer.name,
+            "LayerProviderName": "ogr",
+            "LayerSource": self.transectLayer.uri,
+            "NofColumns": 1,
+            "OrderByValue": False,
+            "UseCompleter": False,
+            "Value": "transect",
+        }
+        setup = QgsEditorWidgetSetup("ValueRelation", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        form_config = layer.editFormConfig()
+        form_config.setReadOnly(idx, False)
+        layer.setEditFormConfig(form_config)
+        layer.setFieldAlias(idx, "transect")
 
         # route type
         idx = layer.fields().indexFromName("routeType")

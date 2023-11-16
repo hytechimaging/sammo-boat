@@ -14,6 +14,7 @@ from qgis.core import (
     QgsFeature,
     QgsProject,
     QgsWkbTypes,
+    QgsGeometry,
     QgsApplication,
     QgsFeatureSink,
     QgsVectorLayer,
@@ -37,8 +38,8 @@ ENVIRONMENT_TABLE = "environment"
 WORLD_TABLE = "world"
 BOAT_TABLE = "boat"
 SURVEY_TABLE = "survey"
+SURVEY_TYPE_TABLE = "survey_type"
 TRANSECT_TABLE = "transect"
-STRATE_TABLE = "strate"
 PLATEFORM_TABLE = "plateform"
 
 
@@ -95,12 +96,14 @@ class SammoDataBase:
         self._populateTable(BEHAVIOUR_SPECIES_TABLE, "behav.csv")
         self._createTable(self._fieldsBoat(), BOAT_TABLE)
         self._populateTable(BOAT_TABLE, "boat.csv")
+        self._createTable(self._fieldsSurveyType(), SURVEY_TYPE_TABLE)
+        self._populateTable(SURVEY_TYPE_TABLE, "survey_type.csv")
         self._createTable(self._fieldsSurvey(), SURVEY_TABLE)
         self._populateTable(SURVEY_TABLE, "survey.csv")
-        self._createTable(self._fieldsTransect(), TRANSECT_TABLE)
-        self._populateTable(TRANSECT_TABLE, "transect.csv")
-        self._createTable(self._fieldsStrate(), STRATE_TABLE)
-        self._populateTable(STRATE_TABLE, "strate.csv")
+        self._createTable(
+            self._fieldsTransect(), TRANSECT_TABLE, QgsWkbTypes.LineString
+        )
+        self._populateTable(TRANSECT_TABLE, "transect.csv", ";")
         self._createTable(self._fieldsPlateform(), PLATEFORM_TABLE)
         self._populatePlateformTable()
 
@@ -144,6 +147,7 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("right"))
         fields.append(QgsField("dateTime", QVariant.DateTime))
         fields.append(self._createFieldShortText("plateformId"))
+        fields.append(self._createFieldShortText("transectId"))
         fields.append(self._createFieldShortText("routeType"))
         fields.append(QgsField("speed", QVariant.Int))
         fields.append(QgsField("courseAverage", QVariant.Int))
@@ -163,9 +167,6 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("camera"))
         fields.append(QgsField("comment", QVariant.String, len=200))
         fields.append(self._createFieldShortText("center"))
-        fields.append(self._createFieldShortText("transect"))
-        fields.append(self._createFieldShortText("strate"))
-        fields.append(self._createFieldShortText("length"))
         fields.append(self._createFieldShortText("status", len=5))
 
         fields.append(self._createFieldShortText("soundFile", len=80))
@@ -281,20 +282,26 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("name"))
         return fields
 
-    def _populateTable(self, layer_id: str, csv_name: str) -> None:
+    def _populateTable(
+        self, layer_id: str, csv_name: str, delimiter=","
+    ) -> None:
         lyr = QgsVectorLayer(self.tableUri(layer_id), "no_matter", "ogr")
         file = Path(__file__).parent.parent.parent / "data" / csv_name
         lines = []
         if file.exists():
             with open(file.as_posix()) as f:
                 lines = [
-                    {k: v for k, v in row.items()} for row in csv.DictReader(f)
+                    {k: v for k, v in row.items()}
+                    for row in csv.DictReader(f, delimiter=delimiter)
                 ]
         lyr.startEditing()
         for attr in lines:
             ft = QgsFeature(lyr.fields())
             for k, v in attr.items():
-                if lyr.fields()[k].typeName() == "Integer":
+                if k == "wkt":
+                    geom = QgsGeometry.fromWkt(v)
+                    ft.setGeometry(geom)
+                elif lyr.fields()[k].typeName() == "Integer":
                     ft[k] = int(v)
                 elif lyr.fields()[k].typeName() == "Real":
                     ft[k] = float(v)
@@ -302,6 +309,11 @@ class SammoDataBase:
                     ft[k] = v
             lyr.addFeature(ft)
         lyr.commitChanges()
+
+    def _fieldsSurveyType(self) -> QgsFields:
+        fields = QgsFields()
+        fields.append(self._createFieldShortText("name"))
+        return fields
 
     def _populateBoatTable(self) -> None:
         boatLyr = QgsVectorLayer(self.tableUri(BOAT_TABLE), "boat", "ogr")
@@ -335,15 +347,8 @@ class SammoDataBase:
         fields = QgsFields()
         fields.append(self._createFieldShortText("transect"))
         fields.append(self._createFieldShortText("strate"))
-        fields.append(QgsField("length", QVariant.Int))
-
-        return fields
-
-    def _fieldsStrate(self) -> QgsFields:
-        fields = QgsFields()
-        fields.append(self._createFieldShortText("strate"))
         fields.append(self._createFieldShortText("subRegion"))
-        fields.append(self._createFieldShortText("region"))
+        fields.append(QgsField("length", QVariant.Int))
 
         return fields
 

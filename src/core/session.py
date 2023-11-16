@@ -39,13 +39,13 @@ from .layers import (
     SammoBoatLayer,
     SammoWorldLayer,
     SammoSurveyLayer,
-    SammoStrateLayer,
     SammoSpeciesLayer,
     SammoTransectLayer,
     SammoPlateformLayer,
     SammoFollowersLayer,
     SammoObserversLayer,
     SammoSightingsLayer,
+    SammoSurveyTypeLayer,
     SammoEnvironmentLayer,
     SammoBehaviourSpeciesLayer,
 )
@@ -65,8 +65,8 @@ class SammoSession:
         self._sightingsLayer: SammoSightingsLayer = None
         self._environmentLayer: SammoEnvironmentLayer = None
         self._surveyLayer: SammoSurveyLayer = None
+        self._surveyTypeLayer: SammoSurveyLayer = None
         self._transectLayer: SammoTransectLayer = None
-        self._strateLayer: SammoStrateLayer = None
         self._plateformLayer: SammoPlateformLayer = None
         self.lastGpsInfo: Dict[
             str,
@@ -133,9 +133,9 @@ class SammoSession:
         return None
 
     @property
-    def strateLayer(self) -> QgsVectorLayer:
-        if self._strateLayer:
-            return self._strateLayer.layer
+    def surveyTypeLayer(self) -> QgsVectorLayer:
+        if self._surveyLayer:
+            return self._surveyTypeLayer.layer
         return None
 
     @property
@@ -161,7 +161,7 @@ class SammoSession:
             self.speciesLayer,
             self.sightingsLayer,
             self.surveyLayer,
-            self.strateLayer,
+            self.surveyTypeLayer,
             self.boatLayer,
             self.plateformLayer,
             self.transectLayer,
@@ -177,9 +177,11 @@ class SammoSession:
         # Administrator table
         self._plateformLayer = SammoPlateformLayer(self.db)
         self._boatLayer = SammoBoatLayer(self.db, self._plateformLayer)
-        self._surveyLayer = SammoSurveyLayer(self.db, self._boatLayer)
+        self._surveyTypeLayer = SammoSurveyTypeLayer(self.db)
+        self._surveyLayer = SammoSurveyLayer(
+            self.db, self._boatLayer, self._surveyTypeLayer
+        )
         self._transectLayer = SammoTransectLayer(self.db)
-        self._strateLayer = SammoStrateLayer(self.db)
         self._observersLayer = SammoObserversLayer(self.db)
         self._behaviourSpeciesLayer = SammoBehaviourSpeciesLayer(self.db)
         self._speciesLayer = SammoSpeciesLayer(self.db)
@@ -192,7 +194,10 @@ class SammoSession:
             self.db, self._observersLayer, self._speciesLayer
         )
         self._environmentLayer = SammoEnvironmentLayer(
-            self.db, self._observersLayer, self._plateformLayer
+            self.db,
+            self._observersLayer,
+            self._plateformLayer,
+            self._transectLayer,
         )
 
         # create database if necessary
@@ -203,9 +208,10 @@ class SammoSession:
             self._worldLayer.addToProject(project)
             self._plateformLayer.addToProject(project)
             self._boatLayer.addToProject(project)
+            self._plateformLayer._link_boat(self._boatLayer)
+            self._surveyTypeLayer.addToProject(project)
             self._surveyLayer.addToProject(project)
             self._transectLayer.addToProject(project)
-            self._strateLayer.addToProject(project)
             self._gpsLayer.addToProject(project)
             self._behaviourSpeciesLayer.addToProject(project)
             self._speciesLayer.addToProject(project)
@@ -242,11 +248,12 @@ class SammoSession:
                 self._sightingsLayer,
                 self._environmentLayer,
                 self._surveyLayer,
+                self._surveyTypeLayer,
                 self._transectLayer,
-                self._strateLayer,
                 self._plateformLayer,
             ]:
                 layer._init(layer.layer)
+            self._plateformLayer._link_boat(self._boatLayer)
             self.environmentLayer.actions().clearActions()
             self._environmentLayer.addSoundAction(self.environmentLayer)
             self._environmentLayer.addDuplicateAction(self.environmentLayer)
@@ -299,33 +306,6 @@ class SammoSession:
             session_value,
         )
 
-    def transectValues(self, layer: QgsVectorLayer) -> tuple:
-        transect = (
-            next(self.transectLayer.getFeatures())
-            if self.transectLayer.featureCount() > 0
-            else None
-        )
-        print(transect, self.transectLayer.featureCount())
-        if (
-            not transect
-            or not transect["transect"]
-            or not transect["strate"]
-            or not transect["length"]
-        ):
-            iface.messageBar().pushWarning(
-                layer.name(),
-                "Administration table `transect` is not fulfilled,"
-                f" all {layer.name().lower()} attributes cannot be filled",
-            )
-            transect_value = ""
-            strate_value = ""
-            length_value = 0
-        else:
-            transect_value = transect["transect"]
-            strate_value = transect["strate"]
-            length_value = transect["length"]
-        return transect_value, strate_value, length_value
-
     def addEnvironmentFeature(self) -> QgsVectorLayer:
         layer = self.environmentLayer
         statusCode = StatusCode.display(
@@ -340,7 +320,6 @@ class SammoSession:
             ship_value,
             session_value,
         ) = self.surveyValues(layer)
-        transect_value, strate_value, length_value = self.transectValues(layer)
 
         # EffortGroup management
         effortGroup = max(
@@ -369,9 +348,6 @@ class SammoSession:
             session=session_value,
             computer=computer_value,
             shipName=ship_value,
-            transect=transect_value,
-            strate_value=strate_value,
-            length=length_value,
         )
         return layer
 
@@ -857,11 +833,12 @@ class SammoSession:
         # copy content of static layers only if output is empty
         staticLayers = [
             "speciesLayer",
-            "observersLayer",
             "surveyLayer",
-            "strateLayer",
             "transectLayer",
             "plateformLayer",
+            "observersLayer",
+            "surveyTypeLayer",
+            "behaviourSpeciesLayer",
         ]
         for layer in staticLayers:
             out = getattr(sessionOutput, layer)

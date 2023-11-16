@@ -11,12 +11,19 @@ from ..database import (
 )
 from .layer import SammoLayer
 from .boat import SammoBoatLayer
+from .survey_type import SammoSurveyTypeLayer
 
 
 class SammoSurveyLayer(SammoLayer):
-    def __init__(self, db: SammoDataBase, boatLayer: SammoBoatLayer):
+    def __init__(
+        self,
+        db: SammoDataBase,
+        boatLayer: SammoBoatLayer,
+        surveyTypeLayer: SammoSurveyTypeLayer,
+    ):
         super().__init__(db, SURVEY_TABLE, "Survey")
         self.boatLayer = boatLayer
+        self.surveyTypeLayer = surveyTypeLayer
 
     def _init(self, layer: QgsVectorLayer) -> None:
         self._init_widgets(layer)
@@ -36,19 +43,22 @@ class SammoSurveyLayer(SammoLayer):
 
         # survey
         idx = layer.fields().indexFromName("survey")
-        cfg = {}
-        cfg["map"] = [
-            {"PELGAS": "PELGAS"},
-            {"PELACUS_springtime": "PELACUS_springtime"},
-            {"IBTS": "IBTS"},
-            {"PELACUS_automn": "PELACUS_automn"},
-            {"CAMANOC": "CAMANOC"},
-            {"JUVENA": "JUVENA"},
-            {"CGFS": "CGFS"},
-            {"EVHOE": "EVHOE"},
-            {"MOOSE": "MOOSE"},
-        ]
-        setup = QgsEditorWidgetSetup("ValueMap", cfg)
+        cfg = {
+            "AllowMulti": False,
+            "AllowNull": False,
+            "Description": '"survey"',
+            "FilterExpression": "",
+            "Key": "name",
+            "Layer": self.surveyTypeLayer.layer.id(),
+            "LayerName": self.surveyTypeLayer.name,
+            "LayerProviderName": "ogr",
+            "LayerSource": self.surveyTypeLayer.uri,
+            "NofColumns": 1,
+            "OrderByValue": False,
+            "UseCompleter": False,
+            "Value": "name",
+        }
+        setup = QgsEditorWidgetSetup("ValueRelation", cfg)
         layer.setEditorWidgetSetup(idx, setup)
 
         # shipName
