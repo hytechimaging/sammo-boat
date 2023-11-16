@@ -5,11 +5,12 @@ __copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
 import os.path
 import platform
-from datetime import datetime
+from pathlib import Path
 from typing import Optional
+from datetime import datetime
 
-from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtGui import QKeySequence
+from qgis.PyQt.QtCore import Qt, QUrl
+from qgis.PyQt.QtGui import QKeySequence, QDesktopServices, QIcon
 from qgis.PyQt.QtWidgets import QToolBar, QShortcut, QTableView, QAction
 
 from qgis.core import (
@@ -57,6 +58,8 @@ class Sammo:
 
         self.sessionAction = self.createSessionAction()
         self.settingsAction = self.createSettingsAction()
+        self.helpAction = self.createHelpAction()
+        self.toolbar.addSeparator()
         self.saveAction = self.createSaveAction()
         self.exportAction = self.createExportAction()
         self.mergeAction = self.createMergeAction()
@@ -203,6 +206,13 @@ class Sammo:
         )
         return button
 
+    def createHelpAction(self) -> QAction:
+        button = QAction(QIcon("images/help.png"), "Help")
+        button.setToolTip("Help")
+        button.triggered.connect(self.openHelp)
+        self.toolbar.addAction(button)
+        return button
+
     def createMergeAction(self) -> SammoSessionAction:
         button = SammoMergeAction(self.mainWindow, self.toolbar)
         button.triggered.connect(self.onMergeAction)
@@ -263,6 +273,19 @@ class Sammo:
             QKeySequence("Ctrl+>"), self.mainWindow
         )
         self.zoomOutShortcut.activated.connect(self.iface.mapCanvas().zoomOut)
+
+    def openHelp(self):
+        QDesktopServices.openUrl(
+            QUrl.fromLocalFile(
+                (
+                    Path(__file__).parent /
+                    "doc" /
+                    "build" /
+                    "html" /
+                    "index.html"
+                ).as_posix()
+            )
+        )
 
     def unload(self):
         self.activateGPS()  # add End environment Status if needed

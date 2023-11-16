@@ -84,9 +84,10 @@ class SammoDataBase:
             self._createFieldsForGpsTable(), GPS_TABLE, QgsWkbTypes.Point
         )
 
-        self._createTable(self._fieldsObserver(), OBSERVERS_TABLE)
-
+        
         # administrator table
+        self._createTable(self._fieldsObserver(), OBSERVERS_TABLE)
+        self._populateTable(SPECIES_TABLE, "observers.csv")
         self._createTable(self._createFieldsForSpeciesTable(), SPECIES_TABLE)
         self._populateTable(SPECIES_TABLE, "species.csv")
         self._createTable(
