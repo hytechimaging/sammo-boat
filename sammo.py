@@ -278,11 +278,11 @@ class Sammo:
         QDesktopServices.openUrl(
             QUrl.fromLocalFile(
                 (
-                    Path(__file__).parent /
-                    "doc" /
-                    "build" /
-                    "html" /
-                    "index.html"
+                    Path(__file__).parent
+                    / "doc"
+                    / "build"
+                    / "html"
+                    / "index.html"
                 ).as_posix()
             )
         )
