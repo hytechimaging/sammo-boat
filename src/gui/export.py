@@ -96,6 +96,9 @@ class SammoExportAction(QDialog):
                 layer.addExpressionField("x($geometry) ", field)
                 field = QgsField("lat", QVariant.Double)
                 layer.addExpressionField("y($geometry) ", field)
+            if layer.geometryType() == QgsWkbTypes.LineGeometry:
+                field = QgsField("wkt", QVariant.String)
+                layer.addExpressionField("geom_to_wkt($geometry) ", field)
 
             if layer.name().lower() in [
                 SIGHTINGS_TABLE,
