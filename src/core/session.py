@@ -3,15 +3,12 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
-import os
 from pathlib import Path
-from shutil import copyfile
 from datetime import datetime
 from typing import List, Optional, Dict, Union
 
 from qgis.PyQt.QtGui import QColor
-from qgis.PyQt.QtWidgets import QProgressBar, QMessageBox
-from qgis.PyQt.QtCore import QDate
+from qgis.PyQt.QtWidgets import QMessageBox
 
 from qgis.utils import iface
 from qgis.core import (
@@ -695,158 +692,71 @@ class SammoSession:
             return
 
     @staticmethod
-    def merge(
-        sessionADir: str,
-        sessionBDir: str,
-        sessionAGps: bool,
-        sessionBGps: bool,
-        sessionOutputDir: str,
-        progressBar: QProgressBar,
-        date: Optional[QDate] = None,
+    def applyEnvAttr(
+        environmentLayer: QgsVectorLayer,
+        sightingsLayer: QgsVectorLayer,
+        followersLayer: QgsVectorLayer,
     ) -> None:
-        # open input session
-        sessionA = SammoSession()
-        sessionA.init(sessionADir, load=False)
-        sessionA.effortCheck(sessionA.environmentLayer)
-
-        sessionB = SammoSession()
-        sessionB.init(sessionBDir, load=False)
-        sessionB.effortCheck(sessionB.environmentLayer)
-
-        # create output session
-        sessionOutput = SammoSession()
-        sessionOutput.init(sessionOutputDir, load=False)
-
-        # copy sound files to output session
-        progressBar.setFormat("Copying sound files")
-        dateInt = int(date.toPyDate().strftime("%Y%m%d")) if date else 0
-        for session in [sessionA, sessionB]:
-            # all this can be replace with shutil.copytree with dirs_exist_ok,
-            # after python3.8
-            for subdir in session.audioFolder.glob("*"):
-                if not subdir.is_dir() or int(subdir.stem) < dateInt:
-                    continue
-                elif not (sessionOutput.audioFolder / subdir.name).exists():
-                    (sessionOutput.audioFolder / subdir.name).mkdir()
-                outputFolder = sessionOutput.audioFolder / subdir.name
-                for file in subdir.glob("*"):
-                    if (outputFolder / file.name).exists():
-                        os.remove(outputFolder / file.name)
-                    copyfile(file, outputFolder / file.name)
-
-        # copy features from dynamic layers
-        dynamicLayers = [
-            "environmentLayer",
-            "sightingsLayer",
-            "gpsLayer",
-            "followersLayer",
-        ]
-        dateRequest = QgsFeatureRequest()
-        if date:
-            dateString = date.toPyDate().strftime("%Y-%m-%d")
-            dateExpression = QgsExpression(
-                "to_date(datetime) >= " f"to_date('{dateString}')"
+        # Sightings
+        sightingsLayer.startEditing()
+        for feat in sightingsLayer.getFeatures():
+            strDateTime = (
+                feat["dateTime"].toPyDateTime().strftime("%Y-%m-%d %H:%M:%S")
             )
-            dateRequest = QgsFeatureRequest(dateExpression)
-        for layer in dynamicLayers:
-            out = getattr(sessionOutput, layer)
-            nb = 0
-            progressBar.setFormat(f"Copy {layer}, Total : %p%")
-
-            newFid = 0
-            lastFeature = SammoDataBase.lastFeature(out, True)
-            if lastFeature:
-                newFid = lastFeature["fid"] + 1
-            tot = (
-                getattr(sessionA, layer).featureCount()
-                + getattr(sessionB, layer).featureCount()
+            request = QgsFeatureRequest().setFilterExpression(
+                f"dateTime < to_datetime('{strDateTime}') "
             )
-            for vl in [getattr(sessionA, layer), getattr(sessionB, layer)]:
-                for feature in vl.getFeatures(dateRequest):
-                    nb += 1
-                    progressBar.setValue(int(100 / tot * (nb + 1)))
-                    attrs = feature.attributes()[1:]
-
-                    exist = False
-                    ft_datetime = (
-                        feature["datetime"]
-                        .toPyDateTime()
-                        .strftime("%Y-%m-%dT%H:%M:%S")
+            request.addOrderBy("dateTime", False)
+            for envFeat in environmentLayer.getFeatures(request):
+                if feat["side"] == "L":
+                    sightingsLayer.changeAttributeValue(
+                        feat.id(),
+                        sightingsLayer.fields().indexOf("observer"),
+                        envFeat["left"],
                     )
-                    request = QgsFeatureRequest(
-                        QgsExpression(
-                            "format_date(datetime, 'yyyy-MM-ddThh:mm:ss') = "
-                            f"'{ft_datetime}'"
-                        )
+                elif feat["side"] == "R":
+                    sightingsLayer.changeAttributeValue(
+                        feat.id(),
+                        sightingsLayer.fields().indexOf("observer"),
+                        envFeat["right"],
                     )
-                    for featureOut in out.getFeatures(request):
-                        if featureOut.attributes()[1:] == attrs:
-                            exist = True
-                            break
-
-                    if not exist:
-                        feature["fid"] = newFid
-                        newFid += 1
-
-        # gps layer
-        out = getattr(sessionOutput, "gpsLayer")
-        datetimeSet = set(
-            [
-                ft["datetime"].toPyDateTime().replace(second=0, microsecond=0)
-                for ft in out.getFeatures(dateRequest)
-            ]
-        )
-        nb = 0
-        progressBar.setFormat("Copy gpsLayer, Total : %p%")
-
-        newFid = 0
-        lastFeature = SammoDataBase.lastFeature(out, True)
-        if lastFeature:
-            newFid = lastFeature["fid"] + 1
-        tot = (
-            sessionA.gpsLayer.featureCount() + sessionB.gpsLayer.featureCount()
-        )
-        gpsVls = []
-        if sessionAGps:
-            gpsVls.append(sessionA.gpsLayer)
-        if sessionAGps:
-            gpsVls.append(sessionB.gpsLayer)
-        for vl in gpsVls:
-            for feature in vl.getFeatures(dateRequest):
-                nb += 1
-                progressBar.setValue(int(100 / tot * (nb + 1)))
-                dateTimeAttr = (
-                    feature["datetime"]
-                    .toPyDateTime()
-                    .replace(second=0, microsecond=0)
+                elif feat["side"] == "C":
+                    sightingsLayer.changeAttributeValue(
+                        feat.id(),
+                        sightingsLayer.fields().indexOf("observer"),
+                        envFeat["center"],
+                    )
+                sightingsLayer.changeAttributeValue(
+                    feat.id(),
+                    sightingsLayer.fields().indexOf("_effortGroup"),
+                    envFeat["_effortGroup"],
                 )
-                if dateTimeAttr in datetimeSet:
-                    continue
-                datetimeSet.add(dateTimeAttr)
-                feature["fid"] = newFid
-                newFid += 1
+                sightingsLayer.changeAttributeValue(
+                    feat.id(),
+                    sightingsLayer.fields().indexOf("_effortLeg"),
+                    envFeat["_effortLeg"],
+                )
+                break
+        sightingsLayer.commitChanges()
+        sightingsLayer.startEditing()
 
-                out.startEditing()
-                out.addFeature(feature)
-                out.commitChanges()
+        # Followers
+        followersLayer.startEditing()
+        for feat in followersLayer.getFeatures():
+            strDateTime = (
+                feat["dateTime"].toPyDateTime().strftime("%Y-%m-%d %H:%M:%S")
+            )
+            request = QgsFeatureRequest().setFilterExpression(
+                f"dateTime < to_datetime('{strDateTime}') "
+            )
+            request.addOrderBy("dateTime", False)
+            for envFeat in environmentLayer.getFeatures(request):
+                followersLayer.changeAttributeValue(
+                    feat.id(),
+                    followersLayer.fields().indexOf("_effortGroup"),
+                    envFeat["_effortGroup"],
+                )
+                break
 
-        # copy content of static layers only if output is empty
-        staticLayers = [
-            "speciesLayer",
-            "surveyLayer",
-            "transectLayer",
-            "plateformLayer",
-            "observersLayer",
-            "surveyTypeLayer",
-            "behaviourSpeciesLayer",
-        ]
-        for layer in staticLayers:
-            out = getattr(sessionOutput, layer)
-            if out.featureCount() < 1:
-                continue
-
-            out.startEditing()
-            vl = getattr(sessionA, layer)
-            for feature in vl.getFeatures(dateRequest):
-                out.addFeature(feature)
-            out.commitChanges()
+        followersLayer.commitChanges()
+        followersLayer.startEditing()

@@ -69,76 +69,12 @@ class SammoExportAction(QDialog):
             self.saveFolderEdit.setText(path)
             self.exportButton.setEnabled(True)
 
-    def applyEnvAttr(self):
-        environmentLayer = self.session.environmentLayer
-        # Sightings
-        sightingsLayer = self.session.sightingsLayer
-        sightingsLayer.startEditing()
-        for feat in sightingsLayer.getFeatures():
-            strDateTime = (
-                feat["dateTime"].toPyDateTime().strftime("%Y-%m-%d %H:%M:%S")
-            )
-            request = QgsFeatureRequest().setFilterExpression(
-                f"dateTime < to_datetime('{strDateTime}') "
-            )
-            request.addOrderBy("dateTime", False)
-            for envFeat in environmentLayer.getFeatures(request):
-                if feat["side"] == "L":
-                    sightingsLayer.changeAttributeValue(
-                        feat.id(),
-                        sightingsLayer.fields().indexOf("observer"),
-                        envFeat["left"],
-                    )
-                elif feat["side"] == "R":
-                    sightingsLayer.changeAttributeValue(
-                        feat.id(),
-                        sightingsLayer.fields().indexOf("observer"),
-                        envFeat["right"],
-                    )
-                elif feat["side"] == "C":
-                    sightingsLayer.changeAttributeValue(
-                        feat.id(),
-                        sightingsLayer.fields().indexOf("observer"),
-                        envFeat["center"],
-                    )
-                sightingsLayer.changeAttributeValue(
-                    feat.id(),
-                    sightingsLayer.fields().indexOf("_effortGroup"),
-                    envFeat["_effortGroup"],
-                )
-                sightingsLayer.changeAttributeValue(
-                    feat.id(),
-                    sightingsLayer.fields().indexOf("_effortLeg"),
-                    envFeat["_effortLeg"],
-                )
-                break
-        sightingsLayer.commitChanges()
-        sightingsLayer.startEditing()
-
-        # Followers
-        followersLayer = self.session.followersLayer
-        followersLayer.startEditing()
-        for feat in followersLayer.getFeatures():
-            strDateTime = (
-                feat["dateTime"].toPyDateTime().strftime("%Y-%m-%d %H:%M:%S")
-            )
-            request = QgsFeatureRequest().setFilterExpression(
-                f"dateTime < to_datetime('{strDateTime}') "
-            )
-            request.addOrderBy("dateTime", False)
-            for envFeat in environmentLayer.getFeatures(request):
-                followersLayer.changeAttributeValue(
-                    feat.id(),
-                    followersLayer.fields().indexOf("_effortGroup"),
-                    envFeat["_effortGroup"],
-                )
-                break
-
-        followersLayer.commitChanges()
-        followersLayer.startEditing()
-
     def export(self) -> None:
-        self.applyEnvAttr()
+        self.session.applyEnvAttr(
+            self.session.environmentLayer,
+            self.session.sightingsLayer,
+            self.session.followersLayer,
+        )
         driver = self.driverComboBox.currentText()
         if driver not in ["CSV", "GPKG"]:
             self.progressBar.setFormat("Unknown driver: aborting export")
