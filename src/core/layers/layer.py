@@ -56,6 +56,10 @@ class SammoLayer:
         self._hideWidgetFid(layer)
         self._init(layer)
 
+        layer.startEditing()
+        layer.commitChanges()
+        layer.startEditing()
+
     def _init(self, layer: QgsVectorLayer) -> None:
         pass
 
