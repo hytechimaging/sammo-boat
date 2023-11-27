@@ -27,7 +27,7 @@ class SammoAttributeTable:
     def refresh(
         table: QDialog,
         layerName: str,
-        filterExpr: str = "",
+        filterExpr: str = "True",
         focus: bool = True,
     ) -> None:
         table.findChild(QLineEdit, "mFilterQuery").setValue(filterExpr)
@@ -61,7 +61,7 @@ class SammoAttributeTable:
     def attributeTable(
         iface: QgisInterface,
         layer: QgsVectorLayer,
-        filterExpr: str = "",
+        filterExpr: str = "True",
         sortExpr: str = '"dateTime"',
     ) -> QDialog:
         # hide some columns
@@ -98,7 +98,7 @@ class SammoAttributeTable:
         layer.setAttributeTableConfig(config)
 
         # init attribute table
-        table = iface.showAttributeTable(layer, filterExpr or "True")
+        table = iface.showAttributeTable(layer, filterExpr)
 
         # hide some items
         last = table.layout().rowCount() - 1

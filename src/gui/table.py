@@ -118,7 +118,7 @@ class SammoTableDock(QDockWidget):
     def refresh(
         self,
         layer: QgsVectorLayer,
-        filterExpr: str = "",
+        filterExpr: str = "True",
         focus: bool = True,
     ) -> None:
         table = self._widget.tables[layer.name()]
