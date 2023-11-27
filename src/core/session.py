@@ -279,9 +279,8 @@ class SammoSession:
             or not survey["session"]
         ):
             iface.messageBar().pushWarning(
-                "Sightings",
-                f"Administration table `{layer.name().lower()}` "
-                "is not fulfilled,"
+                f"{layer.name().lower()}",
+                "Administration table `survey` is not fulfilled,"
                 " all sighting attributes cannot be filled",
             )
             survey_value = ""
