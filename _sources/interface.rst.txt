@@ -65,7 +65,7 @@ from the `Boat` table.
 `SurveyType`, `Transect`, `Boat` and `Plateform` buttons open their tables
 dialog as each can contains more than one entity.
 
-Espiecially for `Transect` table, it is possible to import a linear layer
+Especially for `Transect` table, it is possible to import a linear layer
 (EPSG:4326). The imported layer must have the same attribute names as the
 `Transect` table (transect,strate,subRegion,length). Transect entity reference
 will be available in the `Environment` table.
