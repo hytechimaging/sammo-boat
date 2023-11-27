@@ -207,7 +207,10 @@ class Sammo:
         return button
 
     def createHelpAction(self) -> QAction:
-        button = QAction(QIcon("images/help.png"), "Help")
+        button = QAction(
+            QIcon((Path(__file__).parent / "images"/ "help.png").as_posix()),
+            "Help"
+        )
         button.setToolTip("Help")
         button.triggered.connect(self.openHelp)
         self.toolbar.addAction(button)
