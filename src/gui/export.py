@@ -62,9 +62,7 @@ class SammoExportAction(QDialog):
     def clean(self):
         self.saveFolderEdit.setText("")
         self.driverComboBox.setCurrentIndex(0)
-        self.progressBar.setFormat(
-                f"%p%"
-            )
+        self.progressBar.setFormat("%p%")
         self.progressBar.setValue(0)
 
     def updateSaveFolder(self) -> None:
@@ -330,7 +328,7 @@ class SammoExportAction(QDialog):
         layer.startEditing()
         return layer
 
-    def removeEndEffort(self, layer):
+    def removeEndEffort(self, layer: QgsVectorLayer) -> None:
         layer.startEditing()
         expr = QgsExpression(
             f"status = '{StatusCode.display(StatusCode.END)}'"
