@@ -67,7 +67,7 @@ dialog as each can contains more than one entity.
 
 Especially for `Transect` table, it is possible to import a linear layer
 (EPSG:4326). The imported layer must have the same attribute names as the
-`Transect` table (transect,strate,subRegion,length). Transect entity reference
+`Transect` table (transect,strateType,subRegion,length). Transect entity reference
 will be available in the `Environment` table.
 
 3 - |save| Validation button
