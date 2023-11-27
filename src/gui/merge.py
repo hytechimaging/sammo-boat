@@ -153,7 +153,7 @@ class SammoMergeTask(QgsTask):
             return False
         return True
 
-    def merge(self):
+    def merge(self) -> None:
         # open input session
         sessionA = SammoSession()
         sessionA.init(self.sessionADir, load=False)
