@@ -54,9 +54,18 @@ class SammoExportAction(QDialog):
     def initGui(self, parent: QObject, toolbar: QToolBar) -> None:
         self.action = QAction(parent)
         self.action.triggered.connect(self.show)
+        self.action.triggered.connect(self.clean)
         self.action.setIcon(utils.icon("export.png"))
         self.action.setToolTip("Export session")
         toolbar.addAction(self.action)
+
+    def clean(self):
+        self.saveFolderEdit.setText("")
+        self.driverComboBox.setCurrentIndex(0)
+        self.progressBar.setFormat(
+                f"%p%"
+            )
+        self.progressBar.setValue(0)
 
     def updateSaveFolder(self) -> None:
         path = QFileDialog.getExistingDirectory(
