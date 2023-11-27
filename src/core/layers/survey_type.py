@@ -6,8 +6,8 @@ __copyright__ = "Copyright (c) 2023 Hytech Imaging"
 from qgis.core import QgsVectorLayer
 
 from ..database import (
-    SURVEY_TYPE_TABLE,
     SammoDataBase,
+    SURVEY_TYPE_TABLE,
 )
 from .layer import SammoLayer
 
