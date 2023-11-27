@@ -1,7 +1,7 @@
 # coding: utf8
 
 __contact__ = "info@hytech-imaging.fr"
-__copyright__ = "Copyright (c) 2022 Hytech Imaging"
+__copyright__ = "Copyright (c) 2023 Hytech Imaging"
 
 from qgis.core import QgsVectorLayer
 

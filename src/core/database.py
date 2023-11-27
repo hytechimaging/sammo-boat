@@ -86,7 +86,7 @@ class SammoDataBase:
 
         # administrator table
         self._createTable(self._fieldsObserver(), OBSERVERS_TABLE)
-        self._populateTable(SPECIES_TABLE, "observers.csv")
+        self._populateTable(OBSERVERS_TABLE, "observers.csv")
         self._createTable(self._createFieldsForSpeciesTable(), SPECIES_TABLE)
         self._populateTable(SPECIES_TABLE, "species.csv")
         self._createTable(

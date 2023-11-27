@@ -210,7 +210,7 @@ A status will be assigned automatically to each entity.
 The first status will be ``Begin``, then ``Add`` status will be created for the
 next entities until user changes the ``routeType`` attribute. User creates
 ``Add`` entities if the environmental variables change during the route. When the
-user changes the ``routeType`` attributes, the status attribute will be update to
+user changes the ``routeType`` attributes, the status attribute will be updated to
 ``Begin``. Entities with ``End`` status will be created only on export.
 
 .. _sightingtable:
