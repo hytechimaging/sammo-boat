@@ -482,7 +482,7 @@ class SammoSession:
             layer.commitChanges()
             layer.startEditing()
 
-    def validate(self, merge=False):
+    def validate(self, merge=False) -> None:
         selectedMode = bool(
             self.environmentLayer.selectedFeatureCount()
             + self.sightingsLayer.selectedFeatureCount()
@@ -491,7 +491,7 @@ class SammoSession:
 
         self.effortCheck(self.environmentLayer)
 
-        def validateFeatures(selectedLayer: QgsVectorLayer):
+        def validateFeatures(selectedLayer: QgsVectorLayer) -> None:
             selectedLayer.startEditing()
             featuresIterator = (
                 selectedLayer.getSelectedFeatures()
@@ -555,7 +555,7 @@ class SammoSession:
         sec: int,
         speed: Optional[float] = -9999.0,
         course: Optional[float] = -9999.0,
-    ):
+    ) -> None:
         survey = ""
         cycle = ""
         computer = ""
