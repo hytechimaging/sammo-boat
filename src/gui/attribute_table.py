@@ -78,7 +78,7 @@ class SammoAttributeTable:
             "shipName",
             "computer",
             "transect",
-            "strate",
+            "strateType",
             "length",
             "plateformHeight",
             "observer",

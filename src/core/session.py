@@ -612,7 +612,7 @@ class SammoSession:
                         "shipName",
                         "computer",
                         "transect",
-                        "strate",
+                        "strateType",
                         "length",
                         "comment",
                         "species",

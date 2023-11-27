@@ -372,7 +372,7 @@ class SammoEnvironmentLayer(SammoLayer):
             "shipName",
             "computer",
             "transect",
-            "strate",
+            "strateType",
             "length",
             "plateformHeight",
             "_effortGroup",

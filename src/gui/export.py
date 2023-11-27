@@ -284,7 +284,7 @@ class SammoExportAction(QDialog):
         joinInfo.setJoinFieldName("fid")
         joinInfo.setTargetFieldName("transectId")
         joinInfo.setPrefix("")
-        joinInfo.setJoinFieldNamesSubset(["transect", "strate", "length"])
+        joinInfo.setJoinFieldNamesSubset(["transect", "strateType", "length"])
         return joinInfo
 
     def addEndEffortFeature(self, layer: QgsVectorLayer) -> QgsVectorLayer:

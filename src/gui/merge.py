@@ -123,6 +123,7 @@ class SammoMergeDialog(QDialog, FORM_CLASS):
         else:
             iface.messageBar().pushInfo("MergeTask", "Merge success")
             self.ok.setText("Success")
+        self.mergeEnded.emit(self.sessionMergedDir.text())
         self.show()
 
 

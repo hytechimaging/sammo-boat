@@ -29,7 +29,7 @@ class SammoTransectLayer(SammoLayer):
 
     def _init_widgets(self, layer: QgsVectorLayer) -> None:
         # strate
-        idx = layer.fields().indexFromName("strate")
+        idx = layer.fields().indexFromName("strateType")
         cfg = {}
         cfg["map"] = [
             {"Neritic": "Neritic"},

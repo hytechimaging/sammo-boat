@@ -346,7 +346,7 @@ class SammoDataBase:
     def _fieldsTransect(self) -> QgsFields:
         fields = QgsFields()
         fields.append(self._createFieldShortText("transect"))
-        fields.append(self._createFieldShortText("strate"))
+        fields.append(self._createFieldShortText("strateType"))
         fields.append(self._createFieldShortText("subRegion"))
         fields.append(QgsField("length", QVariant.Int))
 
