@@ -16,6 +16,7 @@ from qgis.PyQt.QtWidgets import (
     QDialog,
     QWidget,
     QSplitter,
+    QTableView,
     QDockWidget,
     QVBoxLayout,
 )
@@ -126,13 +127,15 @@ class SammoTableDock(QDockWidget):
 
     def removeTable(self, name: str) -> None:
         if name in self._widget.tables:
+            self._widget.tables[name].findChild(
+                QTableView, "mTableView"
+            ).horizontalHeader().setStretchLastSection(False)
             self._widget.tables[name].accept()
             self._widget.tables.pop(name, None)
 
     def clean(self) -> None:
         if self._widget:
-            tableKeys = [k for k in self._widget.tables.keys()]
-            for name in tableKeys:
+            for name in self._widget.tables:
                 self.removeTable(name)
         self.iface.removeDockWidget(self)
         self.iface.mainWindow().setCorner(

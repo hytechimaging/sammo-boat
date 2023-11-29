@@ -97,8 +97,7 @@ class SammoFollowersTable(QDialog, FORM_CLASS):
 
         self.table.setParent(self)
         self.verticalLayout.addWidget(self.table)
-        if originDlg:  # version < 3.28 compatibility
-            originDlg.hide()
+        originDlg.hide()
 
     def rowCount(self):
         return (

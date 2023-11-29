@@ -44,8 +44,14 @@ class SammoSettingsAction(QObject):
         toolbar.addAction(self.action)
 
     def show(self):
-        dlg = SammoSettingsDialog(self.session)
-        dlg.exec_()
+        self.dlg = SammoSettingsDialog(self.session)
+        self.dlg.show()
+        self.dlg.accepted.connect(self.clear)
+
+    def clear(self):
+        if self.dlg:
+            for dlg in self.dlg.findChildren(QDialog):
+                dlg.setParent(None)
 
 
 class SammoSettingsDialog(QDialog, FORM_CLASS):
@@ -61,7 +67,7 @@ class SammoSettingsDialog(QDialog, FORM_CLASS):
         self.transectImportButton.clicked.connect(self.importTransect)
         self.boatButton.clicked.connect(self.surveyEdit)
         self.plateformButton.clicked.connect(self.surveyEdit)
-        self.closeButton.clicked.connect(self.close)
+        self.closeButton.clicked.connect(self.accept)
 
     def surveyEdit(self):
         if self.sender() == self.surveyButton:
@@ -89,12 +95,12 @@ class SammoSettingsDialog(QDialog, FORM_CLASS):
             dlg.setWindowTitle(vl.name())
             table = iface.showAttributeTable(vl)
             originDlg = table.parent()
+            table.setParent(None)
             hLayout = QHBoxLayout(dlg)
             vLayout = QVBoxLayout()
             hLayout.addLayout(vLayout)
             vLayout.addWidget(table)
-            if originDlg:  # version < 3.28 compatibility
-                originDlg.hide()
+            originDlg.hide()
             dlg.show()
             dlg.destroyed.connect(vl.commitChanges)
             dlg.destroyed.connect(self.session.plateformLayer.commitChanges)

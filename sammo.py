@@ -448,6 +448,7 @@ class Sammo:
         # init session
         self.loading = True
         QgsProject.instance().clear()
+        self.tableDock.clean()
         self.session.init(sessionDirectory)
         self.session.saveAll()
         self.loading = False
@@ -457,7 +458,6 @@ class Sammo:
 
         self.soundRecordingController.onNewSession(sessionDirectory)
 
-        self.tableDock.clean()
         self.tableDock.init(
             self.session.environmentLayer, self.session.sightingsLayer
         )
@@ -470,9 +470,15 @@ class Sammo:
             self.simuGpsAction.onNewSession()
 
     def cleanTableDock(self, layerId):
-        if layerId == self.session.environmentLayer.id():
+        if (
+            self.session.environmentLayer and
+            layerId == self.session.environmentLayer.id()
+        ):
             self.tableDock.removeTable(self.session.environmentLayer.name())
-        elif layerId == self.session.sightingsLayer.id():
+        elif (
+            self.session.sightingsLayer and
+            layerId == self.session.sightingsLayer.id()
+        ):
             self.tableDock.removeTable(self.session.sightingsLayer.name())
 
     def focusOn(self, old, new) -> None:
