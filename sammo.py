@@ -471,13 +471,13 @@ class Sammo:
 
     def cleanTableDock(self, layerId):
         if (
-            self.session.environmentLayer and
-            layerId == self.session.environmentLayer.id()
+            self.session.environmentLayer
+            and layerId == self.session.environmentLayer.id()
         ):
             self.tableDock.removeTable(self.session.environmentLayer.name())
         elif (
-            self.session.sightingsLayer and
-            layerId == self.session.sightingsLayer.id()
+            self.session.sightingsLayer
+            and layerId == self.session.sightingsLayer.id()
         ):
             self.tableDock.removeTable(self.session.sightingsLayer.name())
 
