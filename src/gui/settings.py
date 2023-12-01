@@ -27,6 +27,7 @@ FORM_CLASS, _ = uic.loadUiType(Path(__file__).parent / "ui/settings.ui")
 
 class SammoSettingsAction(QObject):
     reloadTables: pyqtSignal = pyqtSignal()
+
     def __init__(
         self, parent: QObject, toolbar: QToolBar, session: SammoSession
     ):

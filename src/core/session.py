@@ -250,7 +250,7 @@ class SammoSession:
                 self._plateformLayer,
             ]:
                 layer._init(layer.layer)
-                layer.layer.startEditing() # featureCount update
+                layer.layer.startEditing()  # featureCount update
                 layer.layer.commitChanges()
             self._plateformLayer._link_boat(self._boatLayer)
             self.environmentLayer.actions().clearActions()
