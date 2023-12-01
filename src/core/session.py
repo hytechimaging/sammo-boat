@@ -508,6 +508,9 @@ class SammoSession:
                 )
             selectedLayer.commitChanges()
             selectedLayer.startEditing()
+            selectedLayer.deselect(
+                [f.id() for f in selectedLayer.selectedFeatures()]
+            )
 
         for layer in (
             self.environmentLayer,
