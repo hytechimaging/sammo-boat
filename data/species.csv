@@ -12,57 +12,57 @@ FAD,behavShip,Activite humaine,Bouee,Peche,Dispositif de Concentration de Poisso
 FERRYB,behavShip,Activite humaine,Navire,Commerce,Ferry,Ferry,Human activity,Ship,Transport,Ferry,Ferry
 FISHBO,behavShip,Activite humaine,Navire,Peche,Bateau de peche pro,Fishing boat (professional),Human activity,Ship,Fishing activity,Fishing boat (professional),Barco pesca
 FISHFA,behavShip,Activite humaine,Autre activite,Service,Ferme aquacole,Fishing farm,Human activity,Other Activity,Service,Fishing farm,
-FISHTR,behavShip,Activite humaine,Dechet,Dechet de peche,Dechet de peche,"Fishing trash (net part, buoy)",Human activity,Trash,Fish trash,"Fishing trash (net part, buoy)",Basura pesca
-IRONTR,behavShip,Activite humaine,Dechet,Dechet autre,Dechet metal,Iron or Metal Trash,Human activity,Trash,Other trash,Iron or Metal trash,
+FISHTR,,Activite humaine,Dechet,Dechet de peche,Dechet de peche,"Fishing trash (net part, buoy)",Human activity,Trash,Fish trash,"Fishing trash (net part, buoy)",Basura pesca
+IRONTR,,Activite humaine,Dechet,Dechet autre,Dechet metal,Iron or Metal Trash,Human activity,Trash,Other trash,Iron or Metal trash,
 LONGBO,behavShip,Activite humaine,Navire,Peche,Bateau palangrier,Longliner,Human activity,Ship,Fishing activity,Longliner,Barco palangrero
 MINIBO,behavShip,Activite humaine,Navire,Commerce,Bateau minier,Mining boat,Human activity,Ship,Transport,Mining boat,
 MOTOBO,behavShip,Activite humaine,Navire,Plaisance,Bateau a petit moteur,Small motor boat,Human activity,Ship,Recreational boating,Small motor boat,Barco petitmotor
 NETBO,behavShip,Activite humaine,Navire,Peche,Bateau fileyeur,Gill-netter,Human activity,Ship,Fishing activity,Gill-netter,Barco enmalle
-OIL,behavShip,Activite humaine,Dechet,Dechet autre,Dechet hydrocarbure (nappe),Oil slick,Human activity,Trash,Other trash,Oil slick,Contaminacion hidrocarburo
+OIL,,Activite humaine,Dechet,Dechet autre,Dechet hydrocarbure (nappe),Oil slick,Human activity,Trash,Other trash,Oil slick,Contaminacion hidrocarburo
 PASSBO,behavShip,Activite humaine,Navire,Peche,"Bateau art dormant (fileyeur, caseyeur)",Boat using for Passive fishing gear,Human activity,Ship,Fishing activity,Boat using for Passive fishing gear,
 PATRAB,behavShip,Activite humaine,Navire,Peche,Bateau chalutboeuf,Pair trawler,Human activity,Ship,Fishing activity,Pair trawler,Barco baca arrastre
 PIROG,behavShip,Activite humaine,Navire,Peche,Pirogue de peche,Pirogue,Human activity,Ship,Fishing activity,Pirogue,
 PIRSPO,behavShip,Activite humaine,Navire,Plaisance,Pirogue sportive,Sport pirogue,Human activity,Ship,Recreational boating,Sport pirogue,
 PLANE,behavShip,Activite humaine,Autre activite,Avion,Avion,Plane,Human activity,Other Activity,Plane,Plane,Avion
-PLASTR,behavShip,Activite humaine,Dechet,Dechet autre,Dechet plastique,Plastic trash,Human activity,Trash,Other trash,Plastic trash,Basura plastico
+PLASTR,,Activite humaine,Dechet,Dechet autre,Dechet plastique,Plastic trash,Human activity,Trash,Other trash,Plastic trash,Basura plastico
 PLATFO,behavShip,Activite humaine,Autre activite,Plateforme,Plateforme,Platform,Human activity,Other Activity,Platform,Platform,Plataforma
 PLEABO,behavShip,Activite humaine,Navire,Plaisance,Bateau de plaisance ind.,Pleasure boat,Human activity,Ship,Recreational boating,Pleasure boat,Barco recreo
-POLYTR,behavShip,Activite humaine,Dechet,Dechet autre,Dechet polystyrene,Dechet polystyrene,Human activity,Trash,Other trash,Polystyrene trash,
+POLYTR,,Activite humaine,Dechet,Dechet autre,Dechet polystyrene,Dechet polystyrene,Human activity,Trash,Other trash,Polystyrene trash,
 POTBO,behavShip,Activite humaine,Navire,Peche,Bateau caseyeur,Pot vessel,Human activity,Ship,Fishing activity,Pot vessel,Barco nasero
 RESCUB,behavShip,Activite humaine,Navire,Etat,Bateau de secours,Search And Rescue vessel,Human activity,Ship,Administrative vessel,Search And Rescue vessel,Barco de Rescate
 RESEBO,behavShip,Activite humaine,Navire,Service,Navire scientifique,Research vessel (science),Human activity,Ship,Service,Research vessel (science),Navio oceanografico
-RUBBTR,behavShip,Activite humaine,Dechet,Dechet autre,Dechet caoutchouc,Rubber trash,Human activity,Trash,Other trash,Rubber trash,Basura goma
+RUBBTR,,Activite humaine,Dechet,Dechet autre,Dechet caoutchouc,Rubber trash,Human activity,Trash,Other trash,Rubber trash,Basura goma
 SAILBO,behavShip,Activite humaine,Navire,Plaisance,Bateau de plaisance a voile,Sailing boat,Human activity,Ship,Recreational boating,Sailing boat,Barco vela
 SEINBO,behavShip,Activite humaine,Navire,Peche,"Bateau senneur, bolincheur",Seiner,Human activity,Ship,Fishing activity,Seiner,"Barco boliche, cerqueros"
 SERVBO,behavShip,Activite humaine,Navire,Service,Bateau de maintenance,Service boat,Human activity,Ship,Service,service boat for wind farm,
 SKBO,behavShip,Activite humaine,Navire,Peche,Bateau fileyeur SK,Gill-netter SK boat,Human activity,Ship,Fishing activity,Gill-netter SK boat,
-SMALTR,behavShip,Activite humaine,Dechet,Dechet autre,Micro dechet,"Trash (plastic, wood, oil)",Human activity,Trash,Other trash,Macro litter,micro residuos
+SMALTR,,Activite humaine,Dechet,Dechet autre,Micro dechet,"Trash (plastic, wood, oil)",Human activity,Trash,Other trash,Macro litter,micro residuos
 TANKER,behavShip,Activite humaine,Navire,Commerce,"Bateau petrolier, chimiquier, gazier","Tanker (oil, gaz, chemical)",Human activity,Ship,Transport,"Tanker (oil, gaz, chemical)","Barco petrolero, gas, sustancia quimica"
 TAPOBO,behavShip,Activite humaine,Navire,Peche,Bateau fileyeur tapouille,Guianese Gill-netter,Human activity,Ship,Fishing activity,Guianese Gill-netter,
-TRASH,behavShip,Activite humaine,Dechet,Dechet autre,"Dechet (bois, plastic,..)","Trash (plastic, wood,..)",Human activity,Trash,Other trash,"Trash (plastic, wood,..)",Macro residuos
+TRASH,,Activite humaine,Dechet,Dechet autre,"Dechet (bois, plastic,..)","Trash (plastic, wood,..)",Human activity,Trash,Other trash,"Trash (plastic, wood,..)",Macro residuos
 TRAWLB,behavShip,Activite humaine,Navire,Peche,Bateau chalutier,Trawler,Human activity,Ship,Fishing activity,Trawler,Barco arrastrero
-WOODTR,behavShip,Activite humaine,Dechet,Dechet autre,Dechet bois (non naturel),Unnatural wood,Human activity,Trash,Other trash,Unnatural wood,Basura madera
-RUBPLA,behavShip,Activite humaine,Dechet,Dechet autre,Dechet caoutchouc,Rubber trash,Human activity,Trash,Other trash,Rubber trash,Basura goma
-METATR,behavShip,Activite humaine,Dechet,Dechet autre,Dechet metal,Metal trash,Human activity,Trash,Other trash,Metal trash,Basura de metal
-BAGPLA,behavShip,Activite humaine,Dechet,Dechet autre,Dechet sac platique,Plastic bag,Human activity,Trash,Other trash,Plastic bag,Bolsas de plastico
-BOTPLA,behavShip,Activite humaine,Dechet,Dechet autre,Dechet bouteille plastique,Bottle plastic,Human activity,Trash,Other trash,Bottle plastic,Botellas de plastico
-CLOPLA,behavShip,Activite humaine,Dechet,Dechet autre,Dechet vetement,Clothes with plastic,Human activity,Trash,Other trash,Clothes with plastic,Ropa con plastico
-BOXPLA,behavShip,Activite humaine,Dechet,Dechet autre,Dechet caisse plastique,Plastic box,Human activity,Trash,Other trash,Plastic box,Cajas en plastico
-SMAPLA,behavShip,Activite humaine,Dechet,Dechet autre,Dechet residu plastique,Small plastic,Human activity,Trash,Other trash,Small plastic,Pequeno trozos de plastico
-BIGPLA,behavShip,Activite humaine,Dechet,Dechet autre,Dechet bache plastique,Large plastic unity,Human activity,Trash,Other trash,Large plastic unity,Grande trozos de plastico
-SMAPOL,behavShip,Activite humaine,Dechet,Dechet autre,Dechet morceau polystyrene,Small foamed polystyrene,Human activity,Trash,Other trash,Small foamed polystyrene,Pequeno trozos de corcho
-BIGPOL,behavShip,Activite humaine,Dechet,Dechet autre,Dechet grand polystyrene,Big foamed polystyrene,Human activity,Trash,Other trash,Big foamed polystyrene,Grande trozos de corcho
-PALWOO,behavShip,Activite humaine,Dechet,Dechet autre,Dechet Palette,Wodden pallet,Human activity,Trash,Other trash,Wodden pallet,Palao
-BOXWOO,behavShip,Activite humaine,Dechet,Dechet autre,Dechet cagette,Wooden crates for packaging,Human activity,Trash,Other trash,Wooden crates for packaging,Caja en madera
-TABWOO,behavShip,Activite humaine,Dechet,Dechet autre,Dechet bois usine,Processed wooden items,Human activity,Trash,Other trash,Processed wooden items,Madera procesada
-CANMET,behavShip,Activite humaine,Dechet,Dechet autre,Dechet boite de conserve ou canette,Metal drinks of food cans,Human activity,Trash,Other trash,Metal drinks of food cans,Lata de bebida o comida
-DRUMET,behavShip,Activite humaine,Dechet,Dechet autre,Dechet bidon metal,Metal drums or barrels,Human activity,Trash,Other trash,Metal drums or barrels,Bidones de metal
-NETFIS,behavShip,Activite humaine,Dechet,Dechet de peche,Dechet filet de peche,Fishing net trash,Human activity,Trash,Fish trash,Fishing net trash,Redes de pesca
-ROPFIS,behavShip,Activite humaine,Dechet,Dechet de peche,Dechet bout et corde de peche,Fishing rope,Human activity,Trash,Fish trash,Fishing rope,Cabos
-BOXFIS,behavShip,Activite humaine,Dechet,Dechet de peche,Dechet caisse de peche solide,Fish boxes rigid,Human activity,Trash,Fish trash,Fish boxes rigid,Cajas de pescado rigida
-POLFIS,behavShip,Activite humaine,Dechet,Dechet de peche,Dechet caisse de peche polystyrene,Fish boxes polystyrene,Human activity,Trash,Fish trash,Fish boxes polystyrene,Cajas de pescado de corcho
-LINFIS,behavShip,Activite humaine,Dechet,Dechet de peche,Dechet fil de peche,Plastic fishing line,Human activity,Trash,Fish trash,Plastic fishing line,Sedal de pesca
-BUOFIS,behavShip,Activite humaine,Dechet,Dechet de peche,Dechet bouee,Plastic float or buoy,Human activity,Trash,Fish trash,Plastic float or buoy,Boya de pesca
+WOODTR,,Activite humaine,Dechet,Dechet autre,Dechet bois (non naturel),Unnatural wood,Human activity,Trash,Other trash,Unnatural wood,Basura madera
+RUBPLA,,Activite humaine,Dechet,Dechet autre,Dechet caoutchouc,Rubber trash,Human activity,Trash,Other trash,Rubber trash,Basura goma
+METATR,,Activite humaine,Dechet,Dechet autre,Dechet metal,Metal trash,Human activity,Trash,Other trash,Metal trash,Basura de metal
+BAGPLA,,Activite humaine,Dechet,Dechet autre,Dechet sac platique,Plastic bag,Human activity,Trash,Other trash,Plastic bag,Bolsas de plastico
+BOTPLA,,Activite humaine,Dechet,Dechet autre,Dechet bouteille plastique,Bottle plastic,Human activity,Trash,Other trash,Bottle plastic,Botellas de plastico
+CLOPLA,,Activite humaine,Dechet,Dechet autre,Dechet vetement,Clothes with plastic,Human activity,Trash,Other trash,Clothes with plastic,Ropa con plastico
+BOXPLA,,Activite humaine,Dechet,Dechet autre,Dechet caisse plastique,Plastic box,Human activity,Trash,Other trash,Plastic box,Cajas en plastico
+SMAPLA,,Activite humaine,Dechet,Dechet autre,Dechet residu plastique,Small plastic,Human activity,Trash,Other trash,Small plastic,Pequeno trozos de plastico
+BIGPLA,,Activite humaine,Dechet,Dechet autre,Dechet bache plastique,Large plastic unity,Human activity,Trash,Other trash,Large plastic unity,Grande trozos de plastico
+SMAPOL,,Activite humaine,Dechet,Dechet autre,Dechet morceau polystyrene,Small foamed polystyrene,Human activity,Trash,Other trash,Small foamed polystyrene,Pequeno trozos de corcho
+BIGPOL,,Activite humaine,Dechet,Dechet autre,Dechet grand polystyrene,Big foamed polystyrene,Human activity,Trash,Other trash,Big foamed polystyrene,Grande trozos de corcho
+PALWOO,,Activite humaine,Dechet,Dechet autre,Dechet Palette,Wodden pallet,Human activity,Trash,Other trash,Wodden pallet,Palao
+BOXWOO,,Activite humaine,Dechet,Dechet autre,Dechet cagette,Wooden crates for packaging,Human activity,Trash,Other trash,Wooden crates for packaging,Caja en madera
+TABWOO,,Activite humaine,Dechet,Dechet autre,Dechet bois usine,Processed wooden items,Human activity,Trash,Other trash,Processed wooden items,Madera procesada
+CANMET,,Activite humaine,Dechet,Dechet autre,Dechet boite de conserve ou canette,Metal drinks of food cans,Human activity,Trash,Other trash,Metal drinks of food cans,Lata de bebida o comida
+DRUMET,,Activite humaine,Dechet,Dechet autre,Dechet bidon metal,Metal drums or barrels,Human activity,Trash,Other trash,Metal drums or barrels,Bidones de metal
+NETFIS,,Activite humaine,Dechet,Dechet de peche,Dechet filet de peche,Fishing net trash,Human activity,Trash,Fish trash,Fishing net trash,Redes de pesca
+ROPFIS,,Activite humaine,Dechet,Dechet de peche,Dechet bout et corde de peche,Fishing rope,Human activity,Trash,Fish trash,Fishing rope,Cabos
+BOXFIS,,Activite humaine,Dechet,Dechet de peche,Dechet caisse de peche solide,Fish boxes rigid,Human activity,Trash,Fish trash,Fish boxes rigid,Cajas de pescado rigida
+POLFIS,,Activite humaine,Dechet,Dechet de peche,Dechet caisse de peche polystyrene,Fish boxes polystyrene,Human activity,Trash,Fish trash,Fish boxes polystyrene,Cajas de pescado de corcho
+LINFIS,,Activite humaine,Dechet,Dechet de peche,Dechet fil de peche,Plastic fishing line,Human activity,Trash,Fish trash,Plastic fishing line,Sedal de pesca
+BUOFIS,,Activite humaine,Dechet,Dechet de peche,Dechet bouee,Plastic float or buoy,Human activity,Trash,Fish trash,Plastic float or buoy,Boya de pesca
 FRONT,,Autre,Other,Parametres hydrologiques,Front de maree,Tidal front,Other,Other,Hydrologic parameters,Tidal front,Frente marea
 NONE,,Autre,Other,Other,Pas de suiveurs,No scavengers,Other,Other,Other,No scavengers,
 OTHER,,Autre,Other,Other,Autre observation,Other sighting,Other,Other,Other,Other sighting,
