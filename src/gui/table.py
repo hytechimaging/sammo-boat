@@ -131,12 +131,12 @@ class SammoTableDock(QDockWidget):
                 QTableView, "mTableView"
             ).horizontalHeader().setStretchLastSection(False)
             self._widget.tables[name].accept()
-            self._widget.tables.pop(name, None)
 
     def clean(self) -> None:
         if self._widget:
             for name in self._widget.tables:
                 self.removeTable(name)
+            self._widget.tables.clear()
         self.iface.removeDockWidget(self)
         self.iface.mainWindow().setCorner(
             Qt.BottomLeftCorner, Qt.LeftDockWidgetArea

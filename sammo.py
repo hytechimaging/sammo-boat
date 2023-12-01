@@ -204,6 +204,7 @@ class Sammo:
         button = SammoSettingsAction(
             self.mainWindow, self.toolbar, self.session
         )
+        button.reloadTables.connect(self.reloadTables)
         return button
 
     def createHelpAction(self) -> QAction:
@@ -480,6 +481,12 @@ class Sammo:
             and layerId == self.session.sightingsLayer.id()
         ):
             self.tableDock.removeTable(self.session.sightingsLayer.name())
+
+    def reloadTables(self) -> None:
+        self.tableDock.clean()
+        self.tableDock.init(
+            self.session.environmentLayer, self.session.sightingsLayer
+        )
 
     def focusOn(self, old, new) -> None:
         # Set the active on attribute table focus, to use undo/redo action

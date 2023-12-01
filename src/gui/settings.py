@@ -7,7 +7,7 @@ from pathlib import Path
 
 from qgis.PyQt import uic
 from qgis.utils import iface
-from qgis.PyQt.QtCore import QObject, QDir
+from qgis.PyQt.QtCore import QObject, QDir, pyqtSignal
 from qgis.core import QgsVectorLayerUtils, QgsVectorLayer, QgsFeature
 from qgis.PyQt.QtWidgets import (
     QAction,
@@ -18,6 +18,7 @@ from qgis.PyQt.QtWidgets import (
     QHBoxLayout,
 )
 
+
 from ..core import utils
 from ..core.session import SammoSession
 
@@ -25,6 +26,7 @@ FORM_CLASS, _ = uic.loadUiType(Path(__file__).parent / "ui/settings.ui")
 
 
 class SammoSettingsAction(QObject):
+    reloadTables: pyqtSignal = pyqtSignal()
     def __init__(
         self, parent: QObject, toolbar: QToolBar, session: SammoSession
     ):
@@ -45,6 +47,7 @@ class SammoSettingsAction(QObject):
 
     def show(self):
         self.dlg = SammoSettingsDialog(self.session)
+        self.dlg.reloadTables.connect(self.reloadTables)
         self.dlg.show()
         self.dlg.accepted.connect(self.clear)
 
@@ -55,6 +58,8 @@ class SammoSettingsAction(QObject):
 
 
 class SammoSettingsDialog(QDialog, FORM_CLASS):
+    reloadTables: pyqtSignal = pyqtSignal()
+
     def __init__(self, session):
         super().__init__()
         self.setupUi(self)
@@ -154,3 +159,4 @@ class SammoSettingsDialog(QDialog, FORM_CLASS):
                     ft[field.name()] = value
             self.session.transectLayer.addFeature(ft)
         self.session.transectLayer.commitChanges()
+        self.reloadTables.emit()
