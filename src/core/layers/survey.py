@@ -90,6 +90,8 @@ class SammoSurveyLayer(SammoLayer):
             {"LEG3": "LEG3"},
             {"LEG4": "LEG4"},
             {"LEG5": "LEG5"},
+            {"LEG6": "LEG6"},
+            {"LEG7": "LEG7"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
