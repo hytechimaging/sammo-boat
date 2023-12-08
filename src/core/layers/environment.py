@@ -380,7 +380,7 @@ class SammoEnvironmentLayer(SammoLayer):
             idx = layer.fields().indexFromName(field)
             form_config = layer.editFormConfig()
             form_config.setReadOnly(idx, True)
-            if field != "dateTime":
+            if field not in ["dateTime", "validated"]:
                 setup = QgsEditorWidgetSetup("Hidden", {})
                 layer.setEditorWidgetSetup(idx, setup)
             if field == "validated":
@@ -431,20 +431,24 @@ class SammoEnvironmentLayer(SammoLayer):
         style = QgsConditionalStyle(expr)
         style.setBackgroundColor(QColor("orange"))
         for fieldName in ["routeType", "speed", "courseAverage"]:
+            style.setName(fieldName)
             layer.conditionalStyles().setFieldStyles(fieldName, [style])
 
         # glareFrom
         expr = "if (\"glareSever\" = 'none', @value != 0, False)"
         style = QgsConditionalStyle(expr)
+        style.setName("glareSever")
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("glareFrom", [style])
 
         # glareTo
         style = QgsConditionalStyle(expr)
+        style.setName("glareTo")
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("glareTo", [style])
 
         # validated
-        style = QgsConditionalStyle("validated is True")
+        style = QgsConditionalStyle("validated")
+        style.setName("Validated")
         style.setBackgroundColor(QColor(178, 223, 138))
         layer.conditionalStyles().setRowStyles([style])

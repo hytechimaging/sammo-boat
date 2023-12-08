@@ -71,7 +71,7 @@ class SammoAttributeTable:
             "soundFile",
             "soundStart",
             "soundEnd",
-            "validated",
+            # "validated",
             "survey",
             "cycle",
             "session",
