@@ -23,7 +23,7 @@ class SammoTransectLayer(SammoLayer):
 
     def _init_symbology(self, layer) -> None:
         symbol = QgsLineSymbol.createSimple(
-            {"color": QColor("red"), "width": "1.5"}
+            {"color": QColor("black"), "width": "0.5"}
         )
         layer.renderer().setSymbol(symbol)
 
