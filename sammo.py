@@ -227,6 +227,14 @@ class Sammo:
             self.shortcutAction = QAction("Create shorcuts")
             self.shortcutAction.triggered.connect(shortcutCreation)
             self.iface.addPluginToMenu("Sammo-Boat", self.shortcutAction)
+        self.csvInitAction = QAction("Open init data folder")
+        self.csvInitAction.triggered.connect(self.initDataFolder)
+        self.iface.addPluginToMenu("Sammo-Boat", self.csvInitAction)
+
+    def initDataFolder(self) -> None:
+        QDesktopServices.openUrl(
+            QUrl.fromLocalFile((Path(__file__).parent / "data").as_posix())
+        )
 
     def initShortcuts(self) -> None:
         self.environmentShortcut = QShortcut(
