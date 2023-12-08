@@ -16,6 +16,12 @@ Otherwise a new database will be created in the folder with the needed table.
 Notice that administrator and auxiliary tables can be populated by csv files,
 if there are located in the data folder.
 
+.. image:: init_data_folder_action.png
+   :align: center
+
+|
+
+This action opens the folder where csv files are located
 
 Database
 --------
