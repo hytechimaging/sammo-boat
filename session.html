@@ -79,12 +79,16 @@
            <div itemprop="articleBody">
              
   <section id="session">
-<span id="id1"></span><h1>Session<a class="headerlink" href="#session" title="Permalink to this heading"></a></h1>
+<h1>Session<a class="headerlink" href="#session" title="Permalink to this heading"></a></h1>
 <p>Sammo-boat integrates a session system to works properly. To create a new session
 or load a existing session, user clicks on the <a class="reference internal" href="_images/session.png"><img alt="session" src="_images/session.png" style="height: 18px;" /></a> button in the
-Sammo-boat toolbar (cf. <a class="reference internal" href="interface.html#sessionbutton"><span class="std std-ref">1 -  Session button</span></a>). User will select a folder in the dialog. If there is already
-a <cite>sammo-boat.gpkg</cite> database in the folder, this session will be opened.
-Otherwise a new database will be created in the folder with the needed table.</p>
+Sammo-boat toolbar (cf. <a class="reference internal" href="interface.html#sessionbutton"><span class="std std-ref">1 -  Session button</span></a>). User will select a folder in the
+dialog.</p>
+<p>If there is already a <cite>sammo-boat.gpkg</cite> database in the folder, this session
+will be opened.</p>
+<p>Otherwise a new database will be created in the folder with the needed table.
+Notice that administrator and auxiliary tables can be populated by csv files,
+if there are located in the data folder.</p>
 <section id="database">
 <h2>Database<a class="headerlink" href="#database" title="Permalink to this heading"></a></h2>
 <p><cite>sammo-boat.gpkg</cite> is GeoPackage database suitable with OGC conventions.
@@ -94,18 +98,51 @@ to look at the database tables.</p>
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-<p>Some tables are administrator tables and should be populated with the survey information
-by an administrator :</p>
-<ul class="simple">
-<li><p>survey</p></li>
-<li><p>boat</p></li>
-<li><p>plateform</p></li>
-<li><p>strate</p></li>
-<li><p>transect</p></li>
-<li><p>observers</p></li>
-<li><p>species</p></li>
-</ul>
-<p>Most of these tables can be configured in the settings dialog (cf. <a class="reference internal" href="interface.html#settingsbutton"><span class="std std-ref">2 -  Settings button</span></a>)</p>
+<p>Some tables are administrator tables and should be populated with the survey
+information by an administrator. These tables can be fulfilled using the
+settings interface (cf. <a class="reference internal" href="interface.html#settingsbutton"><span class="std std-ref">2 -  Settings button</span></a>) or with csv files during the
+database initialization :</p>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Administrator tables</span><a class="headerlink" href="#id1" title="Permalink to this table"></a></caption>
+<tbody>
+<tr class="row-odd"><td><p><strong>Table</strong></p></td>
+<td><p><strong>csv file</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>survey</p></td>
+<td><p>survey.csv</p></td>
+</tr>
+<tr class="row-odd"><td><p>survey_type</p></td>
+<td><p>survey_type.csv</p></td>
+</tr>
+<tr class="row-even"><td><p>transect</p></td>
+<td><p>transect.csv</p></td>
+</tr>
+<tr class="row-odd"><td><p>boat</p></td>
+<td><p>boat.csv</p></td>
+</tr>
+<tr class="row-even"><td><p>plateform</p></td>
+<td><p>plateform.csv</p></td>
+</tr>
+</tbody>
+</table>
+<p>There is also three auxiliary tables that can be fulfilled with csv files :</p>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">Auxiliary tables</span><a class="headerlink" href="#id2" title="Permalink to this table"></a></caption>
+<tbody>
+<tr class="row-odd"><td><p><strong>Table</strong></p></td>
+<td><p><strong>csv file</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>observers</p></td>
+<td><p>observers.csv</p></td>
+</tr>
+<tr class="row-odd"><td><p>species</p></td>
+<td><p>species.csv</p></td>
+</tr>
+<tr class="row-even"><td><p>behaviour_species</p></td>
+<td><p>behav.csv</p></td>
+</tr>
+</tbody>
+</table>
 <p>The main tables used by operator will be the following:</p>
 <ul class="simple">
 <li><p>environment</p></li>
@@ -119,6 +156,8 @@ and the world table is only here to provide a map background.</p>
 <p>Do not alter tables by removing fields or your database may become
 unusable in the Sammo-boat plugin.</p>
 </div>
+<p>Here is the full UML diagram of the database:</p>
+<img alt="_images/uml_diagram.png" src="_images/uml_diagram.png" />
 </section>
 </section>
 

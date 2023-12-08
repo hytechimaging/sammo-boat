@@ -117,10 +117,16 @@
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-<p><cite>Survey</cite>, <cite>Transect</cite> and <cite>Strate</cite> buttons open the single entity of their table
-which can be modified to fulfill the session metadata.</p>
-<p><cite>Boat</cite> and <cite>Plateform</cite> buttons open their tables dialog as each can contains more
-than one entity.</p>
+<p><cite>Survey</cite> button opens the single entity of the table which can be modified to
+fulfill the session metadata. In the <cite>Survey</cite> table, <cite>survey</cite> attribute list
+values come from the <cite>SurveyType</cite> table, <cite>shipName</cite> attribute list values come
+from the <cite>Boat</cite> table.</p>
+<p><cite>SurveyType</cite>, <cite>Transect</cite>, <cite>Boat</cite> and <cite>Plateform</cite> buttons open their tables
+dialog as each can contains more than one entity.</p>
+<p>Especially for <cite>Transect</cite> table, it is possible to import a linear layer
+(EPSG:4326). The imported layer must have the same attribute names as the
+<cite>Transect</cite> table (transect,strateType,subRegion,length). Transect entity reference
+will be available in the <cite>Environment</cite> table.</p>
 </section>
 <section id="save-validation-button">
 <h3>3 - <a class="reference internal" href="_images/pen.png"><img alt="save" src="_images/pen.png" style="height: 18px;" /></a> Validation button<a class="headerlink" href="#save-validation-button" title="Permalink to this heading"></a></h3>
@@ -160,6 +166,7 @@ environment/sighting/follower tables. It can be useful to do the entity check.</
 data from two distinct session. The environment/sighting/follower tables will be
 merging, avoiding to copy identical entities captured on a previous day. Gps point
 will be also decimated to keep only one record per minutes.</p>
+<p>User can use the gps checkboxes to choose which session gps layer will be kept.</p>
 </section>
 <section id="environment-environment-button">
 <h3>6 - <a class="reference internal" href="_images/environment.png"><img alt="environment" src="_images/environment.png" style="height: 18px;" /></a> Environment button<a class="headerlink" href="#environment-environment-button" title="Permalink to this heading"></a></h3>
@@ -217,15 +224,13 @@ A status will be assigned automatically to each entity.</p>
 <p>The first status will be <code class="docutils literal notranslate"><span class="pre">Begin</span></code>, then <code class="docutils literal notranslate"><span class="pre">Add</span></code> status will be created for the
 next entities until user changes the <code class="docutils literal notranslate"><span class="pre">routeType</span></code> attribute. User creates
 <code class="docutils literal notranslate"><span class="pre">Add</span></code> entities if the environmental variables change during the route. When the
-user changes the <code class="docutils literal notranslate"><span class="pre">routeType</span></code> attributes, it duplicates the previous entity
-(<code class="docutils literal notranslate"><span class="pre">Begin</span></code> or <code class="docutils literal notranslate"><span class="pre">Add</span></code> status) and assignes the <code class="docutils literal notranslate"><span class="pre">End</span></code> status to the duplica.
-Environment status are check before the validation. A dialog should pop-up if
-there is a missing <code class="docutils literal notranslate"><span class="pre">Start</span></code> / <code class="docutils literal notranslate"><span class="pre">End</span></code> record to inform user. Use the duplicate
-action to fix it (cf. <a class="reference internal" href="action.html#duplicateaction"><span class="std std-ref">Duplicate action</span></a>).</p>
+user changes the <code class="docutils literal notranslate"><span class="pre">routeType</span></code> attributes, the status attribute will be updated to
+<code class="docutils literal notranslate"><span class="pre">Begin</span></code>. Entities with <code class="docutils literal notranslate"><span class="pre">End</span></code> status will be created only on export.</p>
 </section>
 <section id="sighting-table">
 <span id="sightingtable"></span><h3>12 - Sighting table<a class="headerlink" href="#sighting-table" title="Permalink to this heading"></a></h3>
-<p>The sighting table is used to modify sighting entity attributes. Sighting entity describes an observation made by the operator.</p>
+<p>The sighting table is used to modify sighting entity attributes.
+Sighting entity describes an observation made by the operator.</p>
 </section>
 <section id="map-canvas">
 <h3>13 - Map canvas<a class="headerlink" href="#map-canvas" title="Permalink to this heading"></a></h3>
@@ -234,6 +239,7 @@ displayed:</p>
 <ul class="simple">
 <li><p>world (as background map)</p></li>
 <li><p><a class="reference internal" href="_images/gps.svg"><img alt="gps_symbol" src="_images/gps.svg" width="18" /></a> gps</p></li>
+<li><p><img alt="transect_symbol" src="_images/transect.svg" /> transect</p></li>
 <li><p><a class="reference internal" href="_images/environment_symbol.svg"><img alt="environment_symbol" src="_images/environment_symbol.svg" width="18" /></a> environmenent</p></li>
 <li><p><a class="reference internal" href="_images/observation_symbol.svg"><img alt="sighting_symbol" src="_images/observation_symbol.svg" width="18" /></a> sighting</p></li>
 <li><p><a class="reference internal" href="_images/seabird_symbol.svg"><img alt="follower_symbol" src="_images/seabird_symbol.svg" width="18" /></a> follower</p></li>
