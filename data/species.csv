@@ -3,15 +3,15 @@ ADMIBO,behavShip,Activite humaine,Navire,Etat,"Bateau de l'Etat (douanes, marine
 AQUABO,behavShip,Activite humaine,Navire,Aquaculture,Bateau aquaculture,Aquaculture vessel,Human activity,Ship,Aquaculture,Aquaculture vessel,
 BOAT,behavShip,Activite humaine,Navire,Bateau non identifie,Bateau non identifie,Non identified ship,Human activity,Ship,Ship unidentif.,Non identified ship,Barco spp
 BULKBO,behavShip,Activite humaine,Navire,Commerce,Bateau vraquier,Bulk cargo,Human activity,Ship,Transport,Bulk cargo,Barco vracier
-BUOY,behavShip,Activite humaine,Bouee,Peche,Bouee de peche,"Fishing buoy, setnet",Human activity,Buoy,Fishing activity,"Fishing buoy, setnet",Boya pesca
+BUOY,,Activite humaine,Bouee,Peche,Bouee de peche,"Fishing buoy, setnet",Human activity,Buoy,Fishing activity,"Fishing buoy, setnet",Boya pesca
 CANOBO,behavShip,Activite humaine,Navire,Peche,Canot de peche artisanale,Small traditional fishing boat,Human activity,Ship,Fishing activity,Small traditional fishing boat,
 CARGOB,behavShip,Activite humaine,Navire,Commerce,Bateau transport marchandise,"Merchant ship (containership, cargo, tanker)",Human activity,Ship,Transport,"Merchant ship (containership, cargo, tanker)",Barco comercial
 CONTBO,behavShip,Activite humaine,Navire,Commerce,Bateau porte-container,Containership,Human activity,Ship,Transport,Containership,Barco porta contenedores
 CRUIBO,behavShip,Activite humaine,Navire,Plaisance,Bateau de croisiere,Cruise ship,Human activity,Ship,Recreational boating,Cruise ship,
-FAD,behavShip,Activite humaine,Bouee,Peche,Dispositif de Concentration de Poisson (DCP),Fishing Aggregating Device,Human activity,Buoy,Fishing activity,Fishing Aggregating Device,
+FAD,,Activite humaine,Bouee,Peche,Dispositif de Concentration de Poisson (DCP),Fishing Aggregating Device,Human activity,Buoy,Fishing activity,Fishing Aggregating Device,
 FERRYB,behavShip,Activite humaine,Navire,Commerce,Ferry,Ferry,Human activity,Ship,Transport,Ferry,Ferry
 FISHBO,behavShip,Activite humaine,Navire,Peche,Bateau de peche pro,Fishing boat (professional),Human activity,Ship,Fishing activity,Fishing boat (professional),Barco pesca
-FISHFA,behavShip,Activite humaine,Autre activite,Service,Ferme aquacole,Fishing farm,Human activity,Other Activity,Service,Fishing farm,
+FISHFA,,Activite humaine,Autre activite,Service,Ferme aquacole,Fishing farm,Human activity,Other Activity,Service,Fishing farm,
 FISHTR,,Activite humaine,Dechet,Dechet de peche,Dechet de peche,"Fishing trash (net part, buoy)",Human activity,Trash,Fish trash,"Fishing trash (net part, buoy)",Basura pesca
 IRONTR,,Activite humaine,Dechet,Dechet autre,Dechet metal,Iron or Metal Trash,Human activity,Trash,Other trash,Iron or Metal trash,
 LONGBO,behavShip,Activite humaine,Navire,Peche,Bateau palangrier,Longliner,Human activity,Ship,Fishing activity,Longliner,Barco palangrero
@@ -25,7 +25,7 @@ PIROG,behavShip,Activite humaine,Navire,Peche,Pirogue de peche,Pirogue,Human act
 PIRSPO,behavShip,Activite humaine,Navire,Plaisance,Pirogue sportive,Sport pirogue,Human activity,Ship,Recreational boating,Sport pirogue,
 PLANE,behavShip,Activite humaine,Autre activite,Avion,Avion,Plane,Human activity,Other Activity,Plane,Plane,Avion
 PLASTR,,Activite humaine,Dechet,Dechet autre,Dechet plastique,Plastic trash,Human activity,Trash,Other trash,Plastic trash,Basura plastico
-PLATFO,behavShip,Activite humaine,Autre activite,Plateforme,Plateforme,Platform,Human activity,Other Activity,Platform,Platform,Plataforma
+PLATFO,,Activite humaine,Autre activite,Plateforme,Plateforme,Platform,Human activity,Other Activity,Platform,Platform,Plataforma
 PLEABO,behavShip,Activite humaine,Navire,Plaisance,Bateau de plaisance ind.,Pleasure boat,Human activity,Ship,Recreational boating,Pleasure boat,Barco recreo
 POLYTR,,Activite humaine,Dechet,Dechet autre,Dechet polystyrene,Dechet polystyrene,Human activity,Trash,Other trash,Polystyrene trash,
 POTBO,behavShip,Activite humaine,Navire,Peche,Bateau caseyeur,Pot vessel,Human activity,Ship,Fishing activity,Pot vessel,Barco nasero
