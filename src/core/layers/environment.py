@@ -19,6 +19,7 @@ from ..database import (
 )
 
 from .layer import SammoLayer
+from .transect import SammoTransectLayer
 from .plateform import SammoPlateformLayer
 from .observers import SammoObserversLayer
 
@@ -29,6 +30,7 @@ class SammoEnvironmentLayer(SammoLayer):
         db: SammoDataBase,
         observersLayer: SammoObserversLayer,
         plateformLayer: SammoPlateformLayer,
+        transectLayer: SammoTransectLayer,
     ):
         super().__init__(
             db,
@@ -39,6 +41,7 @@ class SammoEnvironmentLayer(SammoLayer):
         )
         self.observersLayer = observersLayer
         self.plateformLayer = plateformLayer
+        self.transectLayer = transectLayer
 
     def _init(self, layer: QgsVectorLayer):
         self._init_symbology(layer)
@@ -92,6 +95,29 @@ class SammoEnvironmentLayer(SammoLayer):
         form_config.setReadOnly(idx, False)
         layer.setEditFormConfig(form_config)
         layer.setFieldAlias(idx, "plateform")
+
+        # transect
+        idx = layer.fields().indexFromName("transectId")
+        cfg = {
+            "AllowMulti": False,
+            "AllowNull": True,
+            "Description": "transect",
+            "Key": "fid",
+            "Layer": self.transectLayer.layer.id(),
+            "LayerName": self.transectLayer.name,
+            "LayerProviderName": "ogr",
+            "LayerSource": self.transectLayer.uri,
+            "NofColumns": 1,
+            "OrderByValue": False,
+            "UseCompleter": False,
+            "Value": "transect",
+        }
+        setup = QgsEditorWidgetSetup("ValueRelation", cfg)
+        layer.setEditorWidgetSetup(idx, setup)
+        form_config = layer.editFormConfig()
+        form_config.setReadOnly(idx, False)
+        layer.setEditFormConfig(form_config)
+        layer.setFieldAlias(idx, "transect")
 
         # route type
         idx = layer.fields().indexFromName("routeType")
@@ -346,7 +372,7 @@ class SammoEnvironmentLayer(SammoLayer):
             "shipName",
             "computer",
             "transect",
-            "strate",
+            "strateType",
             "length",
             "plateformHeight",
             "_effortGroup",
@@ -354,7 +380,7 @@ class SammoEnvironmentLayer(SammoLayer):
             idx = layer.fields().indexFromName(field)
             form_config = layer.editFormConfig()
             form_config.setReadOnly(idx, True)
-            if field != "dateTime":
+            if field not in ["dateTime", "validated"]:
                 setup = QgsEditorWidgetSetup("Hidden", {})
                 layer.setEditorWidgetSetup(idx, setup)
             if field == "validated":
@@ -374,7 +400,6 @@ class SammoEnvironmentLayer(SammoLayer):
         cfg["map"] = [
             {"Begin": "Begin"},
             {"Add": "Add"},
-            {"End": "End"},
         ]
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
@@ -406,20 +431,24 @@ class SammoEnvironmentLayer(SammoLayer):
         style = QgsConditionalStyle(expr)
         style.setBackgroundColor(QColor("orange"))
         for fieldName in ["routeType", "speed", "courseAverage"]:
+            style.setName(fieldName)
             layer.conditionalStyles().setFieldStyles(fieldName, [style])
 
         # glareFrom
         expr = "if (\"glareSever\" = 'none', @value != 0, False)"
         style = QgsConditionalStyle(expr)
+        style.setName("glareSever")
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("glareFrom", [style])
 
         # glareTo
         style = QgsConditionalStyle(expr)
+        style.setName("glareTo")
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("glareTo", [style])
 
         # validated
-        style = QgsConditionalStyle("validated is True")
+        style = QgsConditionalStyle("validated")
+        style.setName("Validated")
         style.setBackgroundColor(QColor(178, 223, 138))
         layer.conditionalStyles().setRowStyles([style])

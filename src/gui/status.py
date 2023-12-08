@@ -7,13 +7,15 @@ import os
 import sys
 
 from qgis.PyQt import uic
+from qgis.gui import QgisInterface
 from qgis.PyQt.QtCore import Qt, QSize, pyqtSignal
-from qgis.PyQt.QtWidgets import QFrame, QLabel, QDockWidget
+from qgis.core import QgsSettings, QgsFeatureRequest
+from qgis.PyQt.QtWidgets import QFrame, QLabel, QDockWidget, QWidget
 
-from qgis.core import QgsSettings, QgsFeatureRequest, QgsExpression
 
 from ..core.status import StatusCode
 from ..core.utils import pixmap, icon
+from ..core.session import SammoSession
 from ..core.thread_widget import ThreadWidget
 
 FORM_CLASS, _ = uic.loadUiType(
@@ -35,7 +37,7 @@ class StatusWidget(QFrame, FORM_CLASS):
         self.gpsButton.clicked.connect(self.activateGPS)
         self.init()
 
-    def updateNeedSave(self, status):
+    def updateNeedSave(self, status: bool):
         self.save.setStyleSheet(self._styleSheet(self.save, not status))
         self.save.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
 
@@ -46,7 +48,7 @@ class StatusWidget(QFrame, FORM_CLASS):
         px = pixmap(icon, QSize(64, 64))
         self.save.setPixmap(px)
 
-    def updateRecording(self, status):
+    def updateRecording(self, status: bool):
         self.record.setStyleSheet(self._styleSheet(self.record, status))
 
         icon_path = "record_ko.png"
@@ -56,7 +58,7 @@ class StatusWidget(QFrame, FORM_CLASS):
         self.record.setIcon(icon(icon_path))
         self.record.setEnabled(status)
 
-    def updateEffort(self, status):
+    def updateEffort(self, status: bool):
         self.effort.setStyleSheet(self._styleSheet(self.effort, status))
         self.effort.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
 
@@ -68,7 +70,12 @@ class StatusWidget(QFrame, FORM_CLASS):
         self.effort.setPixmap(px)
 
     def updateGps(
-        self, status, latitude="", longitude="", speed=-9999.0, course=-9999.0
+        self,
+        status: bool,
+        latitude: str = "",
+        longitude: str = "",
+        speed: float = -9999.0,
+        course: float = -9999.0,
     ):
         self.gpsButton.setStyleSheet(self._styleSheet(self.gpsButton, status))
         self.gpsFrame.setStyleSheet(self._styleSheet(self.gpsFrame, status))
@@ -96,7 +103,7 @@ class StatusWidget(QFrame, FORM_CLASS):
         self.updateEffort(False)
         self.updateGps(False)
 
-    def _styleSheet(self, widget, status):
+    def _styleSheet(self, widget: QWidget, status: bool):
         color = KO_COLOR
         if status:
             color = OK_COLOR
@@ -119,7 +126,7 @@ class SammoStatusDock(QDockWidget):
     recordInterrupted: pyqtSignal = pyqtSignal()
     activateGPS: pyqtSignal = pyqtSignal()
 
-    def __init__(self, iface, session):
+    def __init__(self, iface: QgisInterface, session: SammoSession):
         super().__init__("Sammo Status", iface.mainWindow())
         self.setObjectName("Sammo Status")
 
@@ -138,7 +145,7 @@ class SammoStatusDock(QDockWidget):
         self._widget = None
         self._init(iface.mainWindow())
 
-    def setEnabled(self, status):
+    def setEnabled(self, status: bool):
         if status:
             location = int(
                 QgsSettings().value(
@@ -194,7 +201,7 @@ class SammoStatusDock(QDockWidget):
             return False
 
         feat = None
-        request = QgsFeatureRequest(QgsExpression("routeType = 'prospection'"))
+        request = QgsFeatureRequest()
         request.addOrderBy("fid", False)
         for feat in layer.getFeatures(request):
             if feat["routeType"] == "prospection" and feat["status"] in [
@@ -203,12 +210,13 @@ class SammoStatusDock(QDockWidget):
             ]:
                 return True
             break
+        return False
 
-    def _onGpsOffline(self):
+    def _onGpsOffline(self) -> None:
         self._isGpsOffline = True
         self._widget.updateGps(False)
 
-    def _updateGpsWidgetColor(self):
+    def _updateGpsWidgetColor(self) -> None:
         if self._isGpsOffline:
             self._gpsWidget.setStyleSheet(self._styleSheet(False))
         else:
@@ -217,15 +225,15 @@ class SammoStatusDock(QDockWidget):
                 "color : rgb(0,255,0); }"
             )
 
-    def _startThread(self):
+    def _startThread(self) -> None:
         if not self._thread.isProceeding:
             self._thread.start()
 
-    def _endThread(self):
+    def _endThread(self) -> None:
         if self._thread and self._thread.isProceeding:
             self._thread.stop()
 
-    def _init(self, parent):
+    def _init(self, parent: QWidget) -> None:
         self._widget = StatusWidget(self)
         self._widget.recordInterrupted.connect(self.recordInterrupted)
         self._widget.activateGPS.connect(self.activateGPS)
@@ -234,7 +242,7 @@ class SammoStatusDock(QDockWidget):
         self.dockLocationChanged.connect(self._saveLastLocation)
         self.setWidget(self._widget)
 
-    def _saveLastLocation(self, location):
+    def _saveLastLocation(self, location: Qt.DockWidgetArea):
         QgsSettings().setValue(
             "Sammo/SammoStatusDock/Location/", int(location)
         )

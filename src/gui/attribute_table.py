@@ -27,7 +27,7 @@ class SammoAttributeTable:
     def refresh(
         table: QDialog,
         layerName: str,
-        filterExpr: str = "",
+        filterExpr: str = "True",
         focus: bool = True,
     ) -> None:
         table.findChild(QLineEdit, "mFilterQuery").setValue(filterExpr)
@@ -61,7 +61,7 @@ class SammoAttributeTable:
     def attributeTable(
         iface: QgisInterface,
         layer: QgsVectorLayer,
-        filterExpr: str = "",
+        filterExpr: str = "True",
         sortExpr: str = '"dateTime"',
     ) -> QDialog:
         # hide some columns
@@ -71,21 +71,21 @@ class SammoAttributeTable:
             "soundFile",
             "soundStart",
             "soundEnd",
-            "validated",
             "survey",
             "cycle",
             "session",
             "shipName",
             "computer",
             "transect",
-            "strate",
+            "strateType",
             "length",
-            "sightNum",
             "plateformHeight",
             "observer",
             "_effortGroup",
             "_effortLeg",
         ]
+        if iface.userProfileManager().userProfile().name() == "operator":
+            hiddens += ["validated"]
         if layer.name().lower() != ENVIRONMENT_TABLE:
             hiddens += ["effortGroup", "effortLeg"]
         config = layer.attributeTableConfig()
@@ -99,7 +99,7 @@ class SammoAttributeTable:
         layer.setAttributeTableConfig(config)
 
         # init attribute table
-        table = iface.showAttributeTable(layer, filterExpr or "True")
+        table = iface.showAttributeTable(layer, filterExpr)
 
         # hide some items
         last = table.layout().rowCount() - 1

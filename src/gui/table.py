@@ -16,12 +16,11 @@ from qgis.PyQt.QtWidgets import (
     QDialog,
     QWidget,
     QSplitter,
+    QTableView,
     QDockWidget,
     QVBoxLayout,
 )
 
-from ..core.status import StatusCode
-from ..core.database import ENVIRONMENT_TABLE
 from .attribute_table import SammoAttributeTable
 
 FORM_CLASS, _ = uic.loadUiType(
@@ -74,8 +73,8 @@ class TableWidget(QFrame, FORM_CLASS):
         self.verticalLayout.addWidget(splitter)
 
     def eventFilter(self, obj, event):
-        if type(obj) == QDialog:
-            if type(event) == QKeyEvent:
+        if type(obj) is QDialog:
+            if type(event) is QKeyEvent:
                 if event.key() == Qt.Key_Escape:
                     event.ignore()
                     return True
@@ -120,26 +119,24 @@ class SammoTableDock(QDockWidget):
     def refresh(
         self,
         layer: QgsVectorLayer,
-        filterExpr: str = "",
+        filterExpr: str = "True",
         focus: bool = True,
     ) -> None:
         table = self._widget.tables[layer.name()]
-        if layer.name().lower() == ENVIRONMENT_TABLE:
-            if filterExpr:
-                filterExpr += " and "
-            filterExpr += f"status != '{StatusCode.display(StatusCode.END)}'"
         SammoAttributeTable.refresh(table, layer.name(), filterExpr, focus)
 
     def removeTable(self, name: str) -> None:
         if name in self._widget.tables:
+            self._widget.tables[name].findChild(
+                QTableView, "mTableView"
+            ).horizontalHeader().setStretchLastSection(False)
             self._widget.tables[name].accept()
-            self._widget.tables.pop(name, None)
 
     def clean(self) -> None:
         if self._widget:
-            tableKeys = [k for k in self._widget.tables.keys()]
-            for name in tableKeys:
+            for name in self._widget.tables:
                 self.removeTable(name)
+            self._widget.tables.clear()
         self.iface.removeDockWidget(self)
         self.iface.mainWindow().setCorner(
             Qt.BottomLeftCorner, Qt.LeftDockWidgetArea

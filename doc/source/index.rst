@@ -15,7 +15,7 @@ In particular, this tool is used by the `Megascope <https://www.observatoire-pel
 
 SAMMO-Boat is a QGIS extension that redesigns interface and handles GPS and microphone support. The GPS trace, the effort data and observations are directly seen on the map. Observers focus on animal detection and can quickly fulfill this detection by relying on audio record. This record can be used afterwards to add the missing information and to validate observations according defined standards.
 
-.. image:: ../../images/interface.png
+.. image:: images/interface.png
    :align: center
    :width: 800
 

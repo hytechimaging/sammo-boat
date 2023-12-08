@@ -1,0 +1,465 @@
+species,behav_cat,taxon_fr,family_fr,group_fr,name_fr,name_latin,taxon_eng,family_eng,group_eng,name_eng,name_spa
+ADMIBO,behavShip,Activite humaine,Navire,Etat,"Bateau de l'Etat (douanes, marine)","Administrative boat (navy, custom, coast guard)",Human activity,Ship,Administrative vessel,"Administrative boat (navy, custom, coast guard)","Barco militar, guardacostas, adouana"
+AQUABO,behavShip,Activite humaine,Navire,Aquaculture,Bateau aquaculture,Aquaculture vessel,Human activity,Ship,Aquaculture,Aquaculture vessel,
+BOAT,behavShip,Activite humaine,Navire,Bateau non identifie,Bateau non identifie,Non identified ship,Human activity,Ship,Ship unidentif.,Non identified ship,Barco spp
+BULKBO,behavShip,Activite humaine,Navire,Commerce,Bateau vraquier,Bulk cargo,Human activity,Ship,Transport,Bulk cargo,Barco vracier
+BUOY,,Activite humaine,Bouee,Peche,Bouee de peche,"Fishing buoy, setnet",Human activity,Buoy,Fishing activity,"Fishing buoy, setnet",Boya pesca
+CANOBO,behavShip,Activite humaine,Navire,Peche,Canot de peche artisanale,Small traditional fishing boat,Human activity,Ship,Fishing activity,Small traditional fishing boat,
+CARGOB,behavShip,Activite humaine,Navire,Commerce,Bateau transport marchandise,"Merchant ship (containership, cargo, tanker)",Human activity,Ship,Transport,"Merchant ship (containership, cargo, tanker)",Barco comercial
+CONTBO,behavShip,Activite humaine,Navire,Commerce,Bateau porte-container,Containership,Human activity,Ship,Transport,Containership,Barco porta contenedores
+CRUIBO,behavShip,Activite humaine,Navire,Plaisance,Bateau de croisiere,Cruise ship,Human activity,Ship,Recreational boating,Cruise ship,
+FAD,,Activite humaine,Bouee,Peche,Dispositif de Concentration de Poisson (DCP),Fishing Aggregating Device,Human activity,Buoy,Fishing activity,Fishing Aggregating Device,
+FERRYB,behavShip,Activite humaine,Navire,Commerce,Ferry,Ferry,Human activity,Ship,Transport,Ferry,Ferry
+FISHBO,behavShip,Activite humaine,Navire,Peche,Bateau de peche pro,Fishing boat (professional),Human activity,Ship,Fishing activity,Fishing boat (professional),Barco pesca
+FISHFA,,Activite humaine,Autre activite,Service,Ferme aquacole,Fishing farm,Human activity,Other Activity,Service,Fishing farm,
+FISHTR,,Activite humaine,Dechet,Dechet de peche,Dechet de peche,"Fishing trash (net part, buoy)",Human activity,Trash,Fish trash,"Fishing trash (net part, buoy)",Basura pesca
+IRONTR,,Activite humaine,Dechet,Dechet autre,Dechet metal,Iron or Metal Trash,Human activity,Trash,Other trash,Iron or Metal trash,
+LONGBO,behavShip,Activite humaine,Navire,Peche,Bateau palangrier,Longliner,Human activity,Ship,Fishing activity,Longliner,Barco palangrero
+MINIBO,behavShip,Activite humaine,Navire,Commerce,Bateau minier,Mining boat,Human activity,Ship,Transport,Mining boat,
+MOTOBO,behavShip,Activite humaine,Navire,Plaisance,Bateau a petit moteur,Small motor boat,Human activity,Ship,Recreational boating,Small motor boat,Barco petitmotor
+NETBO,behavShip,Activite humaine,Navire,Peche,Bateau fileyeur,Gill-netter,Human activity,Ship,Fishing activity,Gill-netter,Barco enmalle
+OIL,,Activite humaine,Dechet,Dechet autre,Dechet hydrocarbure (nappe),Oil slick,Human activity,Trash,Other trash,Oil slick,Contaminacion hidrocarburo
+PASSBO,behavShip,Activite humaine,Navire,Peche,"Bateau art dormant (fileyeur, caseyeur)",Boat using for Passive fishing gear,Human activity,Ship,Fishing activity,Boat using for Passive fishing gear,
+PATRAB,behavShip,Activite humaine,Navire,Peche,Bateau chalutboeuf,Pair trawler,Human activity,Ship,Fishing activity,Pair trawler,Barco baca arrastre
+PIROG,behavShip,Activite humaine,Navire,Peche,Pirogue de peche,Pirogue,Human activity,Ship,Fishing activity,Pirogue,
+PIRSPO,behavShip,Activite humaine,Navire,Plaisance,Pirogue sportive,Sport pirogue,Human activity,Ship,Recreational boating,Sport pirogue,
+PLANE,behavShip,Activite humaine,Autre activite,Avion,Avion,Plane,Human activity,Other Activity,Plane,Plane,Avion
+PLASTR,,Activite humaine,Dechet,Dechet autre,Dechet plastique,Plastic trash,Human activity,Trash,Other trash,Plastic trash,Basura plastico
+PLATFO,,Activite humaine,Autre activite,Plateforme,Plateforme,Platform,Human activity,Other Activity,Platform,Platform,Plataforma
+PLEABO,behavShip,Activite humaine,Navire,Plaisance,Bateau de plaisance ind.,Pleasure boat,Human activity,Ship,Recreational boating,Pleasure boat,Barco recreo
+POLYTR,,Activite humaine,Dechet,Dechet autre,Dechet polystyrene,Dechet polystyrene,Human activity,Trash,Other trash,Polystyrene trash,
+POTBO,behavShip,Activite humaine,Navire,Peche,Bateau caseyeur,Pot vessel,Human activity,Ship,Fishing activity,Pot vessel,Barco nasero
+RESCUB,behavShip,Activite humaine,Navire,Etat,Bateau de secours,Search And Rescue vessel,Human activity,Ship,Administrative vessel,Search And Rescue vessel,Barco de Rescate
+RESEBO,behavShip,Activite humaine,Navire,Service,Navire scientifique,Research vessel (science),Human activity,Ship,Service,Research vessel (science),Navio oceanografico
+RUBBTR,,Activite humaine,Dechet,Dechet autre,Dechet caoutchouc,Rubber trash,Human activity,Trash,Other trash,Rubber trash,Basura goma
+SAILBO,behavShip,Activite humaine,Navire,Plaisance,Bateau de plaisance a voile,Sailing boat,Human activity,Ship,Recreational boating,Sailing boat,Barco vela
+SEINBO,behavShip,Activite humaine,Navire,Peche,"Bateau senneur, bolincheur",Seiner,Human activity,Ship,Fishing activity,Seiner,"Barco boliche, cerqueros"
+SERVBO,behavShip,Activite humaine,Navire,Service,Bateau de maintenance,Service boat,Human activity,Ship,Service,service boat for wind farm,
+SKBO,behavShip,Activite humaine,Navire,Peche,Bateau fileyeur SK,Gill-netter SK boat,Human activity,Ship,Fishing activity,Gill-netter SK boat,
+SMALTR,,Activite humaine,Dechet,Dechet autre,Micro dechet,"Trash (plastic, wood, oil)",Human activity,Trash,Other trash,Macro litter,micro residuos
+TANKER,behavShip,Activite humaine,Navire,Commerce,"Bateau petrolier, chimiquier, gazier","Tanker (oil, gaz, chemical)",Human activity,Ship,Transport,"Tanker (oil, gaz, chemical)","Barco petrolero, gas, sustancia quimica"
+TAPOBO,behavShip,Activite humaine,Navire,Peche,Bateau fileyeur tapouille,Guianese Gill-netter,Human activity,Ship,Fishing activity,Guianese Gill-netter,
+TRASH,,Activite humaine,Dechet,Dechet autre,"Dechet (bois, plastic,..)","Trash (plastic, wood,..)",Human activity,Trash,Other trash,"Trash (plastic, wood,..)",Macro residuos
+TRAWLB,behavShip,Activite humaine,Navire,Peche,Bateau chalutier,Trawler,Human activity,Ship,Fishing activity,Trawler,Barco arrastrero
+WOODTR,,Activite humaine,Dechet,Dechet autre,Dechet bois (non naturel),Unnatural wood,Human activity,Trash,Other trash,Unnatural wood,Basura madera
+RUBPLA,,Activite humaine,Dechet,Dechet autre,Dechet caoutchouc,Rubber trash,Human activity,Trash,Other trash,Rubber trash,Basura goma
+METATR,,Activite humaine,Dechet,Dechet autre,Dechet metal,Metal trash,Human activity,Trash,Other trash,Metal trash,Basura de metal
+BAGPLA,,Activite humaine,Dechet,Dechet autre,Dechet sac platique,Plastic bag,Human activity,Trash,Other trash,Plastic bag,Bolsas de plastico
+BOTPLA,,Activite humaine,Dechet,Dechet autre,Dechet bouteille plastique,Bottle plastic,Human activity,Trash,Other trash,Bottle plastic,Botellas de plastico
+CLOPLA,,Activite humaine,Dechet,Dechet autre,Dechet vetement,Clothes with plastic,Human activity,Trash,Other trash,Clothes with plastic,Ropa con plastico
+BOXPLA,,Activite humaine,Dechet,Dechet autre,Dechet caisse plastique,Plastic box,Human activity,Trash,Other trash,Plastic box,Cajas en plastico
+SMAPLA,,Activite humaine,Dechet,Dechet autre,Dechet residu plastique,Small plastic,Human activity,Trash,Other trash,Small plastic,Pequeno trozos de plastico
+BIGPLA,,Activite humaine,Dechet,Dechet autre,Dechet bache plastique,Large plastic unity,Human activity,Trash,Other trash,Large plastic unity,Grande trozos de plastico
+SMAPOL,,Activite humaine,Dechet,Dechet autre,Dechet morceau polystyrene,Small foamed polystyrene,Human activity,Trash,Other trash,Small foamed polystyrene,Pequeno trozos de corcho
+BIGPOL,,Activite humaine,Dechet,Dechet autre,Dechet grand polystyrene,Big foamed polystyrene,Human activity,Trash,Other trash,Big foamed polystyrene,Grande trozos de corcho
+PALWOO,,Activite humaine,Dechet,Dechet autre,Dechet Palette,Wodden pallet,Human activity,Trash,Other trash,Wodden pallet,Palao
+BOXWOO,,Activite humaine,Dechet,Dechet autre,Dechet cagette,Wooden crates for packaging,Human activity,Trash,Other trash,Wooden crates for packaging,Caja en madera
+TABWOO,,Activite humaine,Dechet,Dechet autre,Dechet bois usine,Processed wooden items,Human activity,Trash,Other trash,Processed wooden items,Madera procesada
+CANMET,,Activite humaine,Dechet,Dechet autre,Dechet boite de conserve ou canette,Metal drinks of food cans,Human activity,Trash,Other trash,Metal drinks of food cans,Lata de bebida o comida
+DRUMET,,Activite humaine,Dechet,Dechet autre,Dechet bidon metal,Metal drums or barrels,Human activity,Trash,Other trash,Metal drums or barrels,Bidones de metal
+NETFIS,,Activite humaine,Dechet,Dechet de peche,Dechet filet de peche,Fishing net trash,Human activity,Trash,Fish trash,Fishing net trash,Redes de pesca
+ROPFIS,,Activite humaine,Dechet,Dechet de peche,Dechet bout et corde de peche,Fishing rope,Human activity,Trash,Fish trash,Fishing rope,Cabos
+BOXFIS,,Activite humaine,Dechet,Dechet de peche,Dechet caisse de peche solide,Fish boxes rigid,Human activity,Trash,Fish trash,Fish boxes rigid,Cajas de pescado rigida
+POLFIS,,Activite humaine,Dechet,Dechet de peche,Dechet caisse de peche polystyrene,Fish boxes polystyrene,Human activity,Trash,Fish trash,Fish boxes polystyrene,Cajas de pescado de corcho
+LINFIS,,Activite humaine,Dechet,Dechet de peche,Dechet fil de peche,Plastic fishing line,Human activity,Trash,Fish trash,Plastic fishing line,Sedal de pesca
+BUOFIS,,Activite humaine,Dechet,Dechet de peche,Dechet bouee,Plastic float or buoy,Human activity,Trash,Fish trash,Plastic float or buoy,Boya de pesca
+FRONT,,Autre,Other,Parametres hydrologiques,Front de maree,Tidal front,Other,Other,Hydrologic parameters,Tidal front,Frente marea
+NONE,,Autre,Other,Other,Pas de suiveurs,No scavengers,Other,Other,Other,No scavengers,
+OTHER,,Autre,Other,Other,Autre observation,Other sighting,Other,Other,Other,Other sighting,
+PLANCT,,Autre,Plancton,Plancton,Plancton,Plankton sp.,Other,Plankton,Plankton,Plankton,
+SLICKS,,Autre,Other,Parametres hydrologiques,Nappe de convergence,Slick fields,Other,Other,Hydrologic parameters,Slick fields,Capa de convergencia
+AETNAR,behavMam,Autre faune marine,Elasmobranche,Raie,Raie leopard,Aetobatus narinari,Other Marine Wildlife,Elasmobranch,Ray,Spotted Eagle Ray,
+ALOVUL,behavMam,Autre faune marine,Elasmobranche,Requin,Requin renard commun,Alopias vulpinus,Other Marine Wildlife,Elasmobranch,Shark,Fox shark,Pez zorro
+BALCAR,behavMam,Autre faune marine,Poisson,Petit poisson,Baliste ind.,Balistes sp.,Other Marine Wildlife,Fish,Small fish,Gray triggerfish sp.,Pez ballesta
+CARCAR,behavMam,Autre faune marine,Elasmobranche,Requin,Grand requin blanc,Carcharodon carcharias,Other Marine Wildlife,Elasmobranch,Shark,Great white shark,
+CARLON,behavMam,Autre faune marine,Elasmobranche,Requin,Requin oceanique,Carcharhinus longimanus,Other Marine Wildlife,Elasmobranch,Shark,Oceanic Whitetip Shark,
+CETMAX,behavMam,Autre faune marine,Elasmobranche,Requin,Requin pelerin,Cetorhinus maximus,Other Marine Wildlife,Elasmobranch,Shark,Basking shark,Tiburon peregrino
+CHESPP,behavMam,Autre faune marine,Tortue,Chelonide,Tortue a ecailles ind.,Cheloniidae sp.,Other Marine Wildlife,Turtle,Cheloniid,Hard-shelled seaturtle sp.,Quelonia
+CARETT,behavMam,Autre faune marine,Tortue,Chelonide,Tortue caouanne,Caretta caretta,Other Marine Wildlife,Turtle,Cheloniid,Loggerhead turtle,Tortuga boba
+CHISPP,behavMam,Autre faune marine,Other fauna,Chiroptera,Chauve-souris ind.,Chiroptera sp.,Other Marine Wildlife,Bat,Chiroptera,Bat sp.,muercielago
+CORHIP,behavMam,Autre faune marine,Poisson,Grand poisson,Daurade coryphene,Coryphaena hippurus,Other Marine Wildlife,Fish,Large fish,Common dolphinfish,
+DASSPP,behavMam,Autre faune marine,Elasmobranche,Raie,Raie pastenague ind.,Dasyatis sp.,Other Marine Wildlife,Elasmobranch,Ray,Stingray sp.,
+DERCOR,behavMam,Autre faune marine,Tortue,Dermochelyide,Tortue luth,Dermochelys coriacea,Other Marine Wildlife,Turtle,Dermochelyid,Leatherback turtle,Tortuga Laud
+EXOCET,behavMam,Autre faune marine,Poisson,Petit poisson,Exocet ind.,Exocetus sp.,Other Marine Wildlife,Fish,Small fish,Flying fish sp.,Exoceti spp
+FISH,behavMam,Autre faune marine,Poisson,Grand poisson,Poisson ind.,Osteichyens sp.,Other Marine Wildlife,Fish,Large fish,Fish sp.,
+GALCUV,behavMam,Autre faune marine,Elasmobranche,Requin,Requin tigre,Galeocerdo cuvier,Other Marine Wildlife,Elasmobranch,Shark,Tiger shark,
+JELLY,behavMam,Autre faune marine,Other fauna,Cnidaria,Meduse ind.,Cnidaria sp.,Other Marine Wildlife,Cnidaria,Cnidaria,Jelly fish sp.,
+LAMNAS,behavMam,Autre faune marine,Elasmobranche,Requin,Requin-taupe commun,Lamna nasus,Other Marine Wildlife,Elasmobranch,Shark,Porbeagle,
+LARFIS,behavMam,Autre faune marine,Poisson,Grand poisson,Grand poisson ind.,Osteichyens sp.,Other Marine Wildlife,Fish,Large fish,Large Fish sp.,Pez spp
+MANBIR,behavMam,Autre faune marine,Elasmobranche,Raie,Raie manta,Manta birostris,Other Marine Wildlife,Elasmobranch,Ray,Manta ray,
+MOBMOB,behavMam,Autre faune marine,Elasmobranche,Raie,Raie diable de mer,Mobula mobular,Other Marine Wildlife,Elasmobranch,Ray,Giant devil ray,
+MOBSPP,behavMam,Autre faune marine,Elasmobranche,Raie,Diable de mer ind.,Mobula sp.,Other Marine Wildlife,Elasmobranch,Ray,Devil ray sp.,
+MOLMOL,behavMam,Autre faune marine,Poisson,Grand poisson,Poisson lune,Mola mola,Other Marine Wildlife,Fish,Large fish,Sunfish,Pez luna
+ODOFER,behavMam,Autre faune marine,Elasmobranche,Requin,Requin feroce,Odontaspis ferox,Other Marine Wildlife,Elasmobranch,Shark,Smalltooth sand tiger,Tiburon feroce
+PRIGLA,behavMam,Autre faune marine,Elasmobranche,Requin,Requin peau-bleue,Prionace glauca,Other Marine Wildlife,Elasmobranch,Shark,Blue shark,Tiburon azul
+RAYSPP,behavMam,Autre faune marine,Elasmobranche,Raie,Raie ind.,Rajimorphii sp.,Other Marine Wildlife,Elasmobranch,Ray,Ray sp.,
+RHITYP,behavMam,Autre faune marine,Elasmobranche,Requin,Requin baleine,Rhincodon typus,Other Marine Wildlife,Elasmobranch,Shark,Whale shark,
+SHARK,behavMam,Autre faune marine,Elasmobranche,Requin,Requin ind.,Selachimorpha sp.,Other Marine Wildlife,Elasmobranch,Shark,Shark sp.,Tiburon spp
+SMAFIS,behavMam,Autre faune marine,Poisson,Petit poisson,Petit poisson ind.,Osteichyens sp.,Other Marine Wildlife,Fish,Small fish,Small Fish sp.,Pez spp
+SPHSPP,behavMam,Autre faune marine,Elasmobranche,Requin,Requin marteau ind.,Sphyrna sp.,Other Marine Wildlife,Elasmobranch,Shark,Hammerhead shark sp.,
+THUALA,behavMam,Autre faune marine,Poisson,Grand poisson,Thon blanc Germon,Thunnus alalunga,Other Marine Wildlife,Fish,Large fish,Albacore tuna,Atun blanco
+THUSPP,behavMam,Autre faune marine,Poisson,Grand poisson,Thon / Bonite ind.,Thunnus / Sarda sp.,Other Marine Wildlife,Fish,Large fish,Tuna / Bonito sp.,Tunido spp
+THUTHY,behavMam,Autre faune marine,Poisson,Grand poisson,Thon rouge atlantique,Thunnus thynnus,Other Marine Wildlife,Fish,Large fish,Atlantic bluefin tuna,Atun aleta azul
+TURTLE,behavMam,Autre faune marine,Tortue,Tortue ind.,Tortue ind.,Cheloniidae / Dermochelyidae sp.,Other Marine Wildlife,Turtle,Turtle sp.,Turtle sp.,
+XIPGLA,behavMam,Autre faune marine,Poisson,Grand poisson,Espadon / Marlin / Voilier ind.,Xiphiidae / Istiophoridae sp.,Other Marine Wildlife,Fish,Large fish,"Swordfish, sailfish, marlin sp.",
+BALACU,behavMam,Mammifere marin,Balaenopteridae,Petit baleinopteride,Petit rorqual,Balaenoptera acutorostrata,Marine mammal,Baleinopteridae,Small Baleinopteriid,Minke whale,Rorcual aliblanco
+BALBON,behavMam,Mammifere marin,Balaenopteridae,Petit baleinopteride,Petit rorqual antarctique,Balaenoptera bonaerensis,Marine mammal,Baleinopteridae,Small Baleinopteriid,Antarctic minke whale,
+BALBOR,behavMam,Mammifere marin,Balaenopteridae,Grand baleinopteride,Rorqual boreal,Balaenoptera borealis,Marine mammal,Baleinopteridae,Large Baleinopteriid,Sei whale,
+BALEDE,behavMam,Mammifere marin,Balaenopteridae,Grand baleinopteride,Rorqual de Bryde,Balaenoptera edeni,Marine mammal,Baleinopteridae,Large Baleinopteriid,Bryde's whale,
+BALMUS,behavMam,Mammifere marin,Balaenopteridae,Grand baleinopteride,Rorqual bleu,Balaenoptera musculus,Marine mammal,Baleinopteridae,Large Baleinopteriid,Blue whale,
+BALOMU,behavMam,Mammifere marin,Balaenopteridae,Petit baleinopteride,Rorqual d'Omura,Balaenoptera omurai,Marine mammal,Baleinopteridae,Small Baleinopteriid,Omura's whale,
+BALPHY,behavMam,Mammifere marin,Balaenopteridae,Grand baleinopteride,Rorqual commun,Balaenoptera physalus,Marine mammal,Baleinopteridae,Large Baleinopteriid,Fin whale,Rorcual comun
+BALSPP,behavMam,Mammifere marin,Balaenopteridae,Grand baleinopteride,Rorqual ind.,Balaenopteridae sp.,Marine mammal,Baleinopteridae,Large Baleinopteriid,Balaenopterid sp.,Rorcual spp
+BERARN,behavMam,Mammifere marin,Ziphiidae,Autre baleine a bec,Berardie d'Arnoux,Berardius arnuxii,Marine mammal,Ziphiidae,Other beaked whale,Arnoux's Beaked Whale,
+CETSPP,behavMam,Mammifere marin,Cetacea,Cetace ind.,Cetace ind.,Cetacea sp.,Marine mammal,Cetacea,Cetacean unidentif.,Cetacea sp.,Cetaceo spp
+DELDEL,behavMam,Mammifere marin,Delphininae,Petit delphinine,Dauphin commun,Delphinus delphis,Marine mammal,Delphininae,Small Delphininae,Common dolphin,Delfin comun
+DELSPP,behavMam,Mammifere marin,Delphinidae,Delphinide ind.,Delphinide ind.,Delphinidae sp.,Marine mammal,Delphinidae,Delphiniid,Delphinid sp.,Delfinido spp
+DUGDUG,behavMam,Mammifere marin,Sirenien,Dugongidae,Dugong,Dugong dugon,Marine mammal,Sirenian,Dugongiid,Dugong,
+EUBAUS,behavMam,Mammifere marin,Balaenidae,Balaenidae,Baleine franche australe,Eubalaena australis,Marine mammal,Balaenidae ,Balaeniid,Southern right whale,
+FERATT,behavMam,Mammifere marin,Globicephalinae,Petit globicephaline,Orque pygmee,Feresa attenuata,Marine mammal,Globicephalinae,Small globicephalinae,Pygmy killer whale,
+GLOMAC,behavMam,Mammifere marin,Globicephalinae,Grand globicephaline,Globicephale tropical,Globicephala macrorhynchus,Marine mammal,Globicephalinae,Large globicephalinae,Short-finned pilot whale,
+GLOMEL,behavMam,Mammifere marin,Globicephalinae,Grand globicephaline,Globicephale noir,Globicephala melas,Marine mammal,Globicephalinae,Large globicephalinae,Long-finned pilot whale,Calderon comun
+GLOPSE,behavMam,Mammifere marin,Globicephalinae,Grand globicephaline,Globicephale / Pseudorque,Globicephala / Pseudorca sp.,Marine mammal,Globicephalinae,Large globicephalinae,pilot whale / False killer whale,
+GLOSPP,behavMam,Mammifere marin,Globicephalinae,Grand globicephaline,Globicephale noir / tropical,Globicephala sp.,Marine mammal,Globicephalinae,Large globicephalinae,Short / Long finned pilot whale,
+GRAGRI,behavMam,Mammifere marin,Globicephalinae,Petit globicephaline,Dauphin de Risso,Grampus griseus,Marine mammal,Globicephalinae,Small globicephalinae,Risso's dolphin,Delfin risso
+HALGRY,behavMam,Mammifere marin,Phocidae,Phoque,Phoque gris,Halichoerus grypus,Marine mammal,Phocidae,Seal,Grey seal (Atlantic seal),
+HYPAMP,behavMam,Mammifere marin,Ziphiidae,Autre baleine a bec,Hyperoodon boreal,Hyperoodon ampullatus,Marine mammal,Ziphiidae,Other beaked whale,Northern bottlenose whale,
+HYPPLA,behavMam,Mammifere marin,Ziphiidae,Autre baleine a bec,Hyperoodon austral,Hyperoodon planifrons,Marine mammal,Ziphiidae,Other beaked whale,Southern Bottlenose Whale,
+INDPAC,behavMam,Mammifere marin,Ziphiidae,Autre baleine a bec,Indopacete de Longman,Indopacetus pacificus,Marine mammal,Ziphiidae,Other beaked whale,Longman's beaked whale,
+KOGBRE,behavMam,Mammifere marin,Cachalot,Kogiidae,Cachalot pygmee,Kogia breviceps,Marine mammal,Cachalot,Kogiid,Pygmy sperm whale,
+KOGSIM,behavMam,Mammifere marin,Cachalot,Kogiidae,Cachalot nain,Kogia sima,Marine mammal,Cachalot,Kogiid,Dwarf sperm whale,
+KOGSPP,behavMam,Mammifere marin,Cachalot,Kogiide,Cachalot pygmee / nain,Kogia sp.,Marine mammal,Cachalot,Kogiid,Pygmy / Dwarf sperm whale,
+LAGACU,behavMam,Mammifere marin,Delphininae,Grand delphinine,Lagenorhynque a flancs blancs,Lagenorhynchus acutus,Marine mammal,Delphininae,Large delphininae,Atlantic white-sided dolphin,
+LAGALB,behavMam,Mammifere marin,Delphininae,Grand delphinine,Lagenorhynque a bec blanc,Lagenorhynchus albirostris,Marine mammal,Delphininae,Large delphininae,White-beaked dolphin,
+LAGCRU,behavMam,Mammifere marin,Delphininae,Grand delphinine,Lagenorhynque sablier,Lagenorhynchus cruciger,Marine mammal,Delphininae,Large delphininae,Hourglass dolphin,
+LAGHOS,behavMam,Mammifere marin,Delphininae,Grand delphinine,Dauphin de Fraser,Lagenodelphis hosei,Marine mammal,Delphininae,Large delphininae,Fraser's dolphin,
+LAGOBS,behavMam,Mammifere marin,Delphininae,Grand delphinine,Lagenorhynque obscur,Lagenorhynchus obscurus,Marine mammal,Delphininae,Large delphininae,Dusky dolphin,
+LARCET,behavMam,Mammifere marin,Cetacea,Cetace ind.,Grand cetace ind.,Large Cetacea sp.,Marine mammal,Cetacea,Cetacean unidentif,Large Cetacea sp.,Rorcual / Cachalote / Ballena
+LARDEL,behavMam,Mammifere marin,Delphininae,Grand delphinine,Grand delphinine,Large delphininae sp.,Marine mammal,Delphininae,Large delphininae,Large delphininae sp.,Grande Delfin spp
+LISPER,behavMam,Mammifere marin,Delphininae,Grand delphinine,Dauphin de Peron,Lissodelphis peronii,Marine mammal,Delphininae,Large delphininae,Southern right whale doplhin,
+MEDCET,behavMam,Mammifere marin,Cetacea,Cetace ind.,Moyen cetace ind.,Medium Cetacea sp.,Marine mammal,Cetacea,Cetacean unidentif.,Medium Cetacea sp.,Ballena de pico / R. aliblanco / Calderon / Orca
+MEGNOV,behavMam,Mammifere marin,Balaenopteridae,Grand baleinopteride,Baleine a bosse,Megaptera novaeangliae,Marine mammal,Baleinopteridae,Large Baleinopteriid,Humpback Whale,Ballena jorobada
+MESBID,behavMam,Mammifere marin,Ziphiidae,Mesoplodon,Mesoplodon de Sowerby,Mesoplodon bidens,Marine mammal,Ziphiidae,Mesoplodon,Sowerby's beaked whale,Ballena de pico de Sowerby
+MESDEN,behavMam,Mammifere marin,Ziphiidae,Mesoplodon,Mesoplodon de Blainville,Mesoplodon densirostris,Marine mammal,Ziphiidae,Mesoplodon,Blainville's beaked whale,Ballena de pico de Blainville
+MESEUR,behavMam,Mammifere marin,Ziphiidae,Mesoplodon,Mesoplodon de Gervais,Mesoplodon europaeus,Marine mammal,Ziphiidae,Mesoplodon,Gervais' beaked whale,
+MESGIN,behavMam,Mammifere marin,Ziphiidae,Mesoplodon,Mesoplodon japonais,Mesoplodon ginkgodens,Marine mammal,Ziphiidae,Mesoplodon,Ginkgo-toothed beaked whale,
+MESGRA,behavMam,Mammifere marin,Ziphiidae,Mesoplodon,Mesoplodon de Gray,Mesoplodon grayi,Marine mammal,Ziphiidae,Mesoplodon,Gray's beaked whale,
+MESMIR,behavMam,Mammifere marin,Ziphiidae,Mesoplodon,Mesoplodon de True,Mesoplodon mirus,Marine mammal,Ziphiidae,Mesoplodon,True's beaked whale,
+MESSPP,behavMam,Mammifere marin,Ziphiidae,Mesoplodon,Mesoplodon ind.,Mesoplodon sp.,Marine mammal,Ziphiidae,Mesoplodon,Mesoplodont whales sp.,Ballena de pico spp
+MONMON,behavMam,Mammifere marin,Phocidae,Phoque,Phoque moine,Monachus monachus,Marine mammal,Phocidae,Seal,Mediterranean Monk Seal,
+ORCORC,behavMam,Mammifere marin,Globicephalinae,Grand globicephaline,Orque,Orcinus orca,Marine mammal,Globicephalinae,Large globicephalinae,Killer whale,Orca
+PEPELE,behavMam,Mammifere marin,Globicephalinae,Petit globicephaline,Peponocephale,Peponocephala electra,Marine mammal,Globicephalinae,Small globicephalinae,Melon-headed whale,
+PEPFER,behavMam,Mammifere marin,Globicephalinae,Petit globicephaline,Peponocephale / orque pygmee,Peponocephala / Feresa sp.,Marine mammal,Globicephalinae,Small globicephalinae,Melon-headed / Pygmy killer whale,
+PHOCID,behavMam,Mammifere marin,Phocidae,Phoque,Phoque ind.,Phocidae sp.,Marine mammal,Phocidae,Seal,Seal sp.,foca spp
+PHOPHO,behavMam,Mammifere marin,Phocoenidae,Phocoenidae,Marsouin commun,Phocoena phocoena,Marine mammal,Phocoenidae,Phocoeniid,Harbour porpoise,Marsopa comun
+PHOVIT,behavMam,Mammifere marin,Phocidae,Phoque,Phoque veau-marin,Phoca vitulina,Marine mammal,Phocidae,Seal,Harbor seal (Common seal),foca comun
+PHYMAC,behavMam,Mammifere marin,Cachalot,Physeteridae,Cachalot macrocephale,Physeter macrocephalus,Marine mammal,Cachalot,Physeteriid,Sperm whale,Cachalote
+PSECRA,behavMam,Mammifere marin,Globicephalinae,Grand globicephaline,Pseudorque,Pseudorca crassidens,Marine mammal,Globicephalinae,Large globicephalinae,False killer whale,Orca bastarda
+SMACET,behavMam,Mammifere marin,Cetacea,Cetace ind.,Petit cetace ind.,Small Cetacea sp.,Marine mammal,Cetacea,Cetacean unidentif.,Small Cetacea sp.,Delfin / marsopa / Cachalote pigmeo
+SMADEL,behavMam,Mammifere marin,Delphininae,Petit delphinine,Petit delphinine ind.,Small delphininae sp.,Marine mammal,Delphininae,Small delphininae,Small delphininae sp.,Pequenito Delfin spp
+SOTGUI,behavMam,Mammifere marin,Delphininae,Petit delphinine,Dauphin de Guyane,Sotalia guianensis,Marine mammal,Delphininae,Small delphininae,Tucuxi,
+SOUCHI,behavMam,Mammifere marin,Delphininae,Grand delphinine,Dauphin a bosse,Sousa chinensis,Marine mammal,Delphininae,Large delphininae,Indo-Pacific hump-backed dolphin,
+STEATT,behavMam,Mammifere marin,Delphininae,Petit delphinine,Dauphin tachete pantropical,Stenella attenuata,Marine mammal,Delphininae,Small delphininae,Pantropical spotted dolphin,
+STEBRE,behavMam,Mammifere marin,Delphininae,Grand delphinine,Steno,Steno bredanensis,Marine mammal,Delphininae,Large delphininae,Rough-toothed dolphin,
+STECLY,behavMam,Mammifere marin,Delphininae,Petit delphinine,Dauphin clymene,Stenella clymene,Marine mammal,Delphininae,Small delphininae,Clymene dolphin (Short-snouted spinner dolphin),
+STECOE,behavMam,Mammifere marin,Delphininae,Petit delphinine,Dauphin bleu et blanc,Stenella coeruleoalba,Marine mammal,Delphininae,Small delphininae,Striped dolphin,Delfin listado
+STEDEL,behavMam,Mammifere marin,Delphininae,Petit delphinine,Dauphin bleu et blanc / commun,Stenella / Delphinus sp.,Marine mammal,Delphininae,Small delphininae,Striped / Common dolphin,
+STEFRO,behavMam,Mammifere marin,Delphininae,Petit delphinine,Dauphin tachete de l'Atlantique,Stenella frontalis,Marine mammal,Delphininae,Small delphininae,Atlantic spotted dolphin,
+STELON,behavMam,Mammifere marin,Delphininae,Petit delphinine,Dauphin a long bec,Stenella longirostris,Marine mammal,Delphininae,Small delphininae,Spinner dolphin (Long-snouter spinner dolphin),
+TRIMAN,behavMam,Mammifere marin,Sirenien,Trichechidae,Lamentin,Trichechus manatus,Marine mammal,Sirenian,Trichechiid,Manatee,
+TURADU,behavMam,Mammifere marin,Delphininae,Grand delphinine,Grand dauphin indo-pacifique,Tursiops aduncus,Marine mammal,Delphininae,Large delphininae,Indo-Pacific Bottlenose dolphin,
+TURSPP,behavMam,Mammifere marin,Delphininae,Grand delphinine,Grand dauphin oceanique / indo-pacifique,Tursiops sp.,Marine mammal,Delphininae,Large delphininae,Indo-Pacific / Common Bottlenose dolphin,
+TURTRU,behavMam,Mammifere marin,Delphininae,Grand delphinine,Grand dauphin,Tursiops truncatus,Marine mammal,Delphininae,Large delphininae,Bottlenose dolphin,Delfin mular
+ZIPCAV,behavMam,Mammifere marin,Ziphiidae,Autre baleine a bec,Baleine a bec de Cuvier,Ziphius cavirostris,Marine mammal,Ziphiidae,Other beaked whale,Cuvier's beaked whale,Zifio comun
+ZIPSPP,behavMam,Mammifere marin,Ziphiidae,Baleine a bec ind.,Baleine a bec ind.,Ziphiidae sp.,Marine mammal,Ziphiidae,Other beaked whale,Ziphiid sp. (Beaked whale),Zifio spp
+DEADBI,,Mort,Mort,Dead,Oiseau mort,Mortem Aves,Dead,Dead,Dead,Dead Bird,Pajaro muerto
+DEADMM,,Mort,Mort,Dead,Mammifere marin mort,Mortem Mammalia,Dead,Dead,Dead,Dead marine mammal ,Mamifero marino muerto
+ANASPP,behavBird,Oiseau cotier,Anatidae,Canard,Canard ind.,Anas / Aythya / Melanitta sp.,Coastal Bird,Anatidae,Duck,Duck sp.,Carricero spp
+ANATID,behavBird,Oiseau cotier,Anatidae,Canard,Anatide ind.,Anatidae sp.,Coastal Bird,Anatidae,Anatiid,Anatiid sp.,
+ANSSPP,behavBird,Oiseau cotier,Anatidae,Oie,Oie ind.,Anser sp.,Coastal Bird,Anatidae,Goose,Goose sp.,
+BRABER,behavBird,Oiseau cotier,Anatidae,Oie,Bernache cravant,Branta bernicla,Coastal Bird,Anatidae,Goose,Brent Goose,Barnacla Carinegra
+GAVADA,behavBird,Oiseau cotier,Gaviidae,Plongeon,Plongeon a bec blanc,Gavia adamsii,Coastal Bird,Gaviidae,Diver,Yellow-billed Diver,Carricero poliglota
+GAVARC,behavBird,Oiseau cotier,Gaviidae,Plongeon,Plongeon arctique,Gavia arctica,Coastal Bird,Gaviidae,Diver,Black-throated Diver,Colimbo artico
+GAVIMM,behavBird,Oiseau cotier,Gaviidae,Plongeon,Plongeon imbrin,Gavia immer,Coastal Bird,Gaviidae,Diver,Great Northern Diver,Colimbo grande
+GAVSPP,behavBird,Oiseau cotier,Gaviidae,Plongeon,Plongeon ind.,Gavia sp.,Coastal Bird,Gaviidae,Diver,Diver sp.,Colimbo spp
+GAVSTE,behavBird,Oiseau cotier,Gaviidae,Plongeon,Plongeon catmarin,Gavia stellata,Coastal Bird,Gaviidae,Diver,Red-throated Diver,Colimbo chico
+LARGRE,behavBird,Oiseau cotier,Podicipedidae,Grebe,Grand grebe ind.,Podiceps sp.,Coastal Bird,Podicipitidae,Grebe,Large grebe sp.,
+MELFUS,behavBird,Oiseau cotier,Anatidae,Macreuse,Macreuse brune,Melanitta fusca,Coastal Bird,Anatidae,Scoter,White-winged scoter,Negron especulado
+MELNIG,behavBird,Oiseau cotier,Anatidae,Macreuse,Macreuse noire,Melanitta nigra,Coastal Bird,Anatidae,Scoter,Black scoter,Negron comun
+MELSPP,behavBird,Oiseau cotier,Anatidae,Macreuse,Macreuse ind.,Melanitta sp.,Coastal Bird,Anatidae,Scoter,Scoter sp.,Negron spp
+MERSER,behavBird,Oiseau cotier,Anatidae,Harle,Harle huppe,Mergus serrator,Coastal Bird,Anatidae,Merganser,Red-breasted Merganser,Serreta mediana
+MERSPP,behavBird,Oiseau cotier,Anatidae,Harle,Harle ind.,Mergus sp.,Coastal Bird,Anatidae,Merganser,Merganser sp.,
+PODCRI,behavBird,Oiseau cotier,Podicipedidae,Grebe,Grebe huppe,Podiceps cristatus,Coastal Bird,Podicipitidae,Grebe,Great crested grebe,Somormujo lavanco
+PODGRI,behavBird,Oiseau cotier,Podicipedidae,Grebe,Grebe jougris,Podiceps griseus,Coastal Bird,Podicipitidae,Grebe,Red-necked grebe,Grebio
+PODSPP,behavBird,Oiseau cotier,Podicipedidae,Grebe,Grebe ind.,Podiceps sp.,Coastal Bird,Podicipitidae,Grebe,Grebe sp.,Zampullin spp
+SMAGRE,behavBird,Oiseau cotier,Podicipedidae,Grebe,Petit grebe ind.,Podiceps sp.,Coastal Bird,Podicipitidae,Grebe,Small grebe sp.,
+SOMMOL,behavBird,Oiseau cotier,Anatidae,Canard,Eider a duvet,Somateria mollissima,Coastal Bird,Anatidae,Duck,Eider duck,Eider comun
+TADTAD,behavBird,Oiseau cotier,Anatidae,Canard,Tadorne de Belon,Tadorna tadorna,Coastal Bird,Anatidae,Duck,Common shelduck,Tarro blanco
+ALCSPP,behavBird,Oiseau marin,Alcidae,Alcide ind.,Alcide ind.,Alcidae sp.,Seabird,Alcidae,Auk,Auk sp.,Alcido spp
+ALCTOR,behavBird,Oiseau marin,Alcidae,Pingouin ou Guillemot,Pingouin torda,Alca torda,Seabird,Alcidae,Razobill or Guillemot,Razorbill,Alca spp
+ALCURI,behavBird,Oiseau marin,Alcidae,Pingouin ou Guillemot,Pingouin ou Guillemot,Alca / Uria sp.,Seabird,Alcidae,Razobill or Guillemot,Razobill or Guillemot,Alacarao
+ALLALL,behavBird,Oiseau marin,Alcidae,Autre Alcide,Mergule nain,Alle Alle,Seabird,Alcidae,Other auk,Little auk,Mergulo atlantico
+ANOMIN,behavBird,Oiseau marin,Sternidae,Noddi,Noddi noir,Anous minutus,Seabird,Sternidae,Noddy,Black noddy,
+ANOSPP,behavBird,Oiseau marin,Sternidae,Noddi,Noddi marron ind.,Anous sp.,Seabird,Sternidae,Noddy,Noddy sp.,
+ANOSTO,behavBird,Oiseau marin,Sternidae,Noddi,Noddi brun,Anous stolidus,Seabird,Sternidae,Noddy,Brown Noddy,
+BLAGUL,behavBird,Oiseau marin,Laridae,Goeland noir,Goeland noir ind.,Larus sp.,Seabird,Laridae,Black gull,Large black gull sp.,
+BROPET,behavBird,Oiseau marin,Procellariidae,Procellaride marron,Grand procellaride marron,Brown procellariidae sp.,Seabird,Procellariidae,Brown procellariid,Brown petrel / shearwater sp.,
+BROTER,behavBird,Oiseau marin,Sternidae,Sterne brune,Sterne fuligineuse / bridee,Onychoprion sp.,Seabird,Sternidae,Brown tern,Sooty / Bridled Tern,
+BULBUL,behavBird,Oiseau marin,Procellariidae,Procellaride marron,Petrel de Bulwer,Bulweria bulwerii,Seabird,Procellariidae,Brown procellariid,Bulwer's petrel,
+CALDIO,behavBird,Oiseau marin,Procellariidae,Grand puffin,Puffin cendre / de Scopoli,Calonectris diomedea,Seabird,Procellariidae,Large shearwater,Cory / Scopoli's shearwater,Pardela cenicienta
+CATSKU,behavBird,Oiseau marin,Stercorariidae,Autre Labbe,Grand labbe,Catharacta skua,Seabird,Stercorariidae,Other skua,Skua,Pagalo grande
+CHLHYB,behavBird,Oiseau marin,Sternidae,Sterne grise,Guifette moustac,Chlidonias hybridus,Seabird,Sternidae,Grey tern,Wiskered tern,Fumarel cariblanco
+CHLNIG,behavBird,Oiseau marin,Sternidae,Sterne grise,Guifette noire,Chlidonias niger,Seabird,Sternidae,Grey tern,Black Tern,Fumarel comun
+CHLSPP,behavBird,Oiseau marin,Sternidae,Sterne grise,Guifette ind.,Chlidonias sp.,Seabird,Sternidae,Grey tern,Marsh tern sp.,Fumarel spp
+CORMSP,behavBird,Oiseau marin,Phalacrocoracidae,Cormoran,Cormoran ind.,Phalacrocorax sp.,Seabird,Phalacrocoracidae,Cormorant,Cormorant or shag sp.,Cormoran spp
+DIOSPP,behavBird,Oiseau marin,Diomedeidae,Albatros,Albatros ind.,Diomedeidae sp.,Seabird,Diomedeidae,Albatros,Albatross sp.,
+FRAARC,behavBird,Oiseau marin,Alcidae,Autre Alcide,Macareux moine,Fratercula arctica,Seabird,Alcidae,Other auk,Atlantic puffin,Frailecillo spp
+FREARI,behavBird,Oiseau marin,Fregatidae,Fregate,Fregate ariel,Fregata ariel,Seabird,Fregatidae,Frigatebird,Lesser frigatebird,
+FREGRA,behavBird,Oiseau marin,Hydrobatidae,Oceanite,Oceanite a ventre blanc,Fregetta grallaria,Seabird,Hydrobatidae,Storm-petrel,White-bellied Storm Petrel,
+FREMAG,behavBird,Oiseau marin,Fregatidae,Fregate,Fregate superbe,Fregata magnificens,Seabird,Fregatidae,Frigatebird,Magnificent Frigatebird,
+FREMIN,behavBird,Oiseau marin,Fregatidae,Fregate,Grande fregate,Fregata minor,Seabird,Fregatidae,Frigatebird,Great frigatebird,
+FRESPP,behavBird,Oiseau marin,Fregatidae,Fregate,Fregate ind.,Fregata sp.,Seabird,Fregatidae,Frigatebird,Frigatebird sp.,
+FRETRO,behavBird,Oiseau marin,Hydrobatidae,Oceanite,Oceanite a ventre noir,Fregetta tropica,Seabird,Hydrobatidae,Storm-petrel,Black-bellied Storm Petrel,
+FULGLA,behavBird,Oiseau marin,Procellariidae,Fulmar,Fulmar boreal,Fulmarus glacialis,Seabird,Procellariidae,Fulmar,Northern fulmar,Fulmar boreal
+GREGUL,behavBird,Oiseau marin,Laridae,Goeland gris,Goeland gris ind.,Larus sp.,Seabird,Laridae,Grey gull,Large grey gull sp.,
+GREPET,behavBird,Oiseau marin,Procellariidae,Petrel gris,Petrel gris ind.,Pterodroma  sp.,Seabird,Procellariidae,Grey petrel,Grey petrel sp.,
+GRETER,behavBird,Oiseau marin,Sternidae,Sterne grise,Sterne grise ind.,Sternidae sp.,Seabird,Sternidae,Grey tern,Grey tern sp.,
+GYGALB,behavBird,Oiseau marin,Sternidae,Sterne grise,Gygis blanche,Gygis sp.,Seabird,Sternidae,Grey tern,White Tern,
+HYDPEL,behavBird,Oiseau marin,Hydrobatidae,Oceanite,Oceanite tempete,Hydrobates pelagicus,Seabird,Hydrobatidae,Storm-petrel,European storm-petrel,Paino comun
+LARARG,behavBird,Oiseau marin,Laridae,Goeland gris,Goeland argente,Larus argentatus,Seabird,Laridae,Grey gull,European herring gull,Gaviota argentea
+LARATR,behavBird,Oiseau marin,Laridae,Mouette,Mouette atricille,Leucophaeus atricilla,Seabird,Laridae,Small gull,Laughing  gull,
+LARAUD,behavBird,Oiseau marin,Laridae,Moyen goeland gris,Goeland d'Audouin,Ichthyaetus audouinii,Seabird,Laridae,Medium grey gull,Audouin's gull,Gaviota de Audouin
+LARCAC,behavBird,Oiseau marin,Laridae,Goeland gris,Goeland pontique,Larus cachinnans,Seabird,Laridae,Grey gull,Caspian gull,Gaviota de patas amarillas
+LARCAN,behavBird,Oiseau marin,Laridae,Moyen goeland gris,Goeland cendre,Larus canus,Seabird,Laridae,Medium grey gull,Common gull,Gaviota cana
+LARFUS,behavBird,Oiseau marin,Laridae,Goeland noir,Goeland brun,Larus fuscus,Seabird,Laridae,Black gull,Lesser black-backed gull,Gaviota sombria
+LARGEN,behavBird,Oiseau marin,Laridae,Mouette,Goeland railleur,Chroicocephalus genei,Seabird,Laridae,Small gull,Slender-billed gull,
+LARGLA,behavBird,Oiseau marin,Laridae,Autre goeland,Goeland a ailes blanches,Larus glaucoides,Seabird,Laridae,Other gull,Iceland gull,Gaviota groenlandesa
+LARGUL,behavBird,Oiseau marin,Laridae,Autre goeland,Grand Goeland ind.,Large laridae sp.,Seabird,Laridae,Other gull,Large gull sp.,Grande gaviota spp
+LARHYP,behavBird,Oiseau marin,Laridae,Autre goeland,Goeland bourgmestre,Larus hyperboreus,Seabird,Laridae,Other gull,Glaucous gull,Gavion hiperboreo
+LARMAR,behavBird,Oiseau marin,Laridae,Goeland noir,Goeland marin,Larus marinus,Seabird,Laridae,Black gull,Great black-backed gull,Gavion atlantico
+LARMEL,behavBird,Oiseau marin,Laridae,Mouette,Mouette melanocephale,Ichthyaetus melanocephalus,Seabird,Laridae,Small gull,Mediterranean gull,Gaviota cabecinegra
+LARMIC,behavBird,Oiseau marin,Laridae,Goeland gris,Goeland leucophee,Larus michahellis,Seabird,Laridae,Grey gull,Yellow-legged gull,Gaviota patiamarilla
+LARMIN,behavBird,Oiseau marin,Laridae,Mouette,Mouette pygmee,Hydrocoloeus minutus,Seabird,Laridae,Small gull,Little gull,Gaviota enana
+LARNOV,behavBird,Oiseau marin,Laridae,Mouette,Mouette argentee,Chroicocephalus novaehollandiae,Seabird,Laridae,Small gull,Silver gull,
+LARPIP,behavBird,Oiseau marin,Laridae,Mouette,Mouette de Franklin,Leucophaeus pipixcan,Seabird,Laridae,Small gull,Franklin's gull,Gaviota Pipizcan
+LARRID,behavBird,Oiseau marin,Laridae,Mouette,Mouette rieuse,Chroicocephalus ridibundus,Seabird,Laridae,Small gull,Black-headed gull,Gaviota reidora
+LARSAB,behavBird,Oiseau marin,Laridae,Mouette,Mouette de Sabine,Xema sabini,Seabird,Laridae,Small gull,Sabine's gull,Gaviota de Sabine
+LARSHE,behavBird,Oiseau marin,Procellariidae,Grand puffin,Grand puffin ind.,Calonectris / Ardenna sp.,Seabird,Procellariidae,Large shearwater,Large shearwater sp.,
+LARSPP,behavBird,Oiseau marin,Laridae,Laride ind.,Laride ind.,Laridae sp.,Seabird,Laridae,Lariid ,Lariid sp.,Gaviota spp
+MEDGUL,behavBird,Oiseau marin,Laridae,Moyen goeland gris,Petit goeland gris ind.,Medium laridae sp.,Seabird,Laridae,Medium grey gull,Medium gull sp.,
+MEDTER,behavBird,Oiseau marin,Sternidae,Sterne grise,Sterne moyenne ind.,Sterna sp.,Seabird,Sternidae,Grey tern,Medium tern sp.,
+OCELEU,behavBird,Oiseau marin,Hydrobatidae,Oceanite,Oceanite culblanc,Oceanodroma leucorhoa,Seabird,Hydrobatidae,Storm-petrel,Leach's storm-petrel,Paino de Leach
+OCEOCE,behavBird,Oiseau marin,Hydrobatidae,Oceanite,Oceanite de Wilson,Oceanites oceanicus,Seabird,Hydrobatidae,Storm-petrel,Wilson's storm-petrel,Paino Wilson
+OCESPP,behavBird,Oiseau marin,Hydrobatidae,Oceanite,Oceanite ind.,Hydrobatidae sp.,Seabird,Hydrobatidae,Storm-petrel,Storm-petrel sp.,Paino spp
+PELOCC,behavBird,Oiseau marin,Pelecanidae,Pelican,Pelican brun,Pelecanus occidentalis,Seabird,Pelecanidae,Pelican,Brown Pelican,
+PELSPP,behavBird,Oiseau marin,Pelecanidae,Pelican,Pelican ind.,Pelecanus sp.,Seabird,Pelecanidae,Pelican,Pelican sp.,
+PETSPP,behavBird,Oiseau marin,Procellariidae,Petrel ind.,Petrel ind.,Pterodroma / Pseudobulweria sp.,Seabird,Procellariidae,Petrel,Petrel sp.,
+PHAAET,behavBird,Oiseau marin,Phaethontidae,Phaeton,Phaeton a bec rouge,Phaethon aethereus,Seabird,Phaethontidae,Tropicbird,Red-billed Tropicbird,
+PHAARI,behavBird,Oiseau marin,Phalacrocoracidae,Cormoran,Cormoran huppe,Phalacrocorax aristotelis,Seabird,Phalacrocoracidae,Cormorant,European shag,Cormoran monudo
+PHACAR,behavBird,Oiseau marin,Phalacrocoracidae,Cormoran,Grand cormoran,Phalacrocorax carbo,Seabird,Phalacrocoracidae,Cormorant,Great cormorant,Cormoran grande
+PHAFUL,behavBird,Oiseau marin,Charadriidae,Limicole,Phalarope a bec large,Phalaropus fulicarius,Seabird,Shorebird,Charadriidae,Grey Phalarope,Falaropo picogrueso
+PHALEP,behavBird,Oiseau marin,Phaethontidae,Phaeton,Phaeton a bec jaune,Phaethon lepturus,Seabird,Phaethontidae,Tropicbird,White-tailed Tropicbird,
+PHAPYG,behavBird,Oiseau marin,Phalacrocoracidae,Cormoran,Cormoran pygmee,Phalacrocorax pygmeus,Seabird,Phalacrocoracidae,Cormorant,Pygmy cormorant,
+PHARUB,behavBird,Oiseau marin,Phaethontidae,Phaeton,Phaeton a brins rouges,Phaethon rubricauda,Seabird,Phaethontidae,Tropicbird,Red-tailed Tropicbird,
+PHASPP,behavBird,Oiseau marin,Phaethontidae,Phaeton,Phaeton ind.,Phaethon sp.,Seabird,Phaethontidae,Tropicbird,Tropicbird sp.,
+PROCER,behavBird,Oiseau marin,Sternidae,Noddi,Noddi bleu,Procelsterna cerulea,Seabird,Sternidae,Noddy,Blue Noddy,
+PROSPP,behavBird,Oiseau marin,Procellariidae,Procellaride ,Procellaride ind.,Procellariidae sp.,Seabird,Procellariidae,Procellariid,Procellariid sp.,
+PSEROS,behavBird,Oiseau marin,Procellariidae,Procellaride marron,Petrel de Tahiti,Pseudobulweria rostrata,Seabird,Procellariidae,Brown procellariid,Tahiti petrel,
+PTEBAR,behavBird,Oiseau marin,Procellariidae,Procellaride marron,Petrel de Barau,Pterodroma baraui,Seabird,Procellariidae,Brown procellariid,Barau's petrel,
+PUFCAR,behavBird,Oiseau marin,Procellariidae,Puffin,Puffin a pieds pales,Ardenna carneipes,Seabird,Procellariidae,Shearwater,Flesh-footed Shearwater,
+PUFGRA,behavBird,Oiseau marin,Procellariidae,Grand puffin,Puffin majeur,Ardenna gravis,Seabird,Procellariidae,Large shearwater,Great shearwater,Pardela capirotada
+PUFGRI,behavBird,Oiseau marin,Procellariidae,Grand puffin,Puffin fuligineux,Ardenna grisea,Seabird,Procellariidae,Large shearwater,Sooty shearwater,Pardela sombria
+PUFLHE,behavBird,Oiseau marin,Procellariidae,Puffin,Puffin d'Audubon,Puffinus lherminieri,Seabird,Procellariidae,Shearwater,Audubon's shearwater,
+PUFMAU,behavBird,Oiseau marin,Procellariidae,Petit puffin,Puffin des Baleares,Puffinus mauretanicus,Seabird,Procellariidae,Small shearwater,Mediterranean shearwater,Pardela balear
+PUFPAC,behavBird,Oiseau marin,Procellariidae,Puffin,Puffin du Pacifique,Ardenna pacifica,Seabird,Procellariidae,Shearwater,Wedge-tailed shearwater,
+PUFPUF,behavBird,Oiseau marin,Procellariidae,Petit puffin,Puffin des anglais,Puffinus puffinus,Seabird,Procellariidae,Small shearwater,Manx shearwater,Pardela pichoneta
+PUFSPP,behavBird,Oiseau marin,Procellariidae,Puffin,Puffin ind.,Puffinus / Ardenna / Calonectris sp.,Seabird,Procellariidae,Shearwater,Shearwater sp.,Pardela spp
+PUFYEL,behavBird,Oiseau marin,Procellariidae,Petit puffin,Puffin yelkouan,Puffinus yelkouan,Seabird,Procellariidae,Small shearwater,Yelkouan shearwater,Pardelas mediterranea
+RISTRI,behavBird,Oiseau marin,Laridae,Mouette,Mouette tridactyle,Rissa tridactyla,Seabird,Laridae,Small gull,Kittiwake gull,Gaviota tridactila
+SMAGUL,behavBird,Oiseau marin,Laridae,Mouette,Mouette ind.,Small laridae sp.,Seabird,Laridae,Small gull,Small gull sp.,Pequenita gaviota spp
+SMASHE,behavBird,Oiseau marin,Procellariidae,Petit puffin,Petit Puffin ind.,Puffinus sp.,Seabird,Procellariidae,Small shearwater,Small shearwater sp.,
+LARTER,behavBird,Oiseau marin,Sternidae,Sterne grise,Grande sterne grise ind.,Thalasseus sp.,Seabird,Sternidae,Grey tern,large tern sp.,
+SMATER,behavBird,Oiseau marin,Sternidae,Sterne grise,Petite sterne grise ind.,Sternula / Chlidonias sp.,Seabird,Sternidae,Grey tern,Small tern sp.,
+STEALB,behavBird,Oiseau marin,Sternidae,Sterne grise,Sterne naine,Sternula albifrons,Seabird,Sternidae,Grey tern,Little Tern,Charrancito
+STEANA,behavBird,Oiseau marin,Sternidae,Sterne brune,Sterne bridee,Onychoprion anaethetus,Seabird,Sternidae,Brown tern,Bridled Tern,
+STEARC,behavBird,Oiseau marin,Sternidae,Sterne grise,Sterne arctique,Sterna paradisaea,Seabird,Sternidae,Grey tern,Artic tern,Charran artico
+STEBEN,behavBird,Oiseau marin,Sternidae,Sterne grise,Sterne voyageuse,Thalasseus bengalensis,Seabird,Sternidae,Grey tern,Lesser crested tern,
+STECAS,behavBird,Oiseau marin,Sternidae,Sterne grise,Sterne caspienne,Hydroprogne caspia,Seabird,Sternidae,Grey tern,Caspian tern,
+STEDOU,behavBird,Oiseau marin,Sternidae,Sterne grise,Sterne de Dougall,Sterna dougallii,Seabird,Sternidae,Grey tern,Roseate Tern,Charran Rosado
+STEDUS,behavBird,Oiseau marin,Stercorariidae,Petit labbe,Labbe a longue queue,Stercorarius longicaudus,Seabird,Stercorariidae,Small skua,Long-tailed Skua,Pagalo rabero
+STEFUS,behavBird,Oiseau marin,Sternidae,Sterne brune,Sterne fuligineuse,Onychoprion fuscatus,Seabird,Sternidae,Brown tern,Sooty Tern,
+STEHIR,behavBird,Oiseau marin,Sternidae,Sterne grise,Sterne pierregarin,Sterna hirundo,Seabird,Sternidae,Grey tern,Common Tern,Charran comun
+STEMAX,behavBird,Oiseau marin,Sternidae,Sterne grise,Sterne royale,Thalasseus maximus,Seabird,Sternidae,Grey tern,Royal Tern,
+STENIL,behavBird,Oiseau marin,Sternidae,Sterne grise,Sterne hansel,Sterna nilotica,Seabird,Sternidae,Grey tern,Gull-billed tern,Pagaza piconegra
+STEPAR,behavBird,Oiseau marin,Stercorariidae,Petit labbe,Labbe parasite,Stercorarius parasiticus,Seabird,Stercorariidae,Small skua,Parasitic jaeger,Pagalo parasito
+STEPOM,behavBird,Oiseau marin,Stercorariidae,Petit labbe,Labbe pomarin,Stercorarius pomarinus,Seabird,Stercorariidae,Small skua,Pomarine skua,Pagalo pomarino
+STERCO,behavBird,Oiseau marin,Stercorariidae,Petit labbe,Labbe ind.,Stercorarius sp.,Seabird,Stercorariidae,Small skua,Jaeger sp.,
+STESAN,behavBird,Oiseau marin,Sternidae,Sterne grise,Sterne caugek,Thalasseus sandvicensis,Seabird,Sternidae,Grey tern,Sandwich Tern,Charran patinegro
+STESPP,behavBird,Oiseau marin,Sternidae,Sterne,Sterne ind.,Sternidae sp.,Seabird,Sternidae,Tern,Tern sp.,Charran spp
+SULBAS,behavBird,Oiseau marin,Sulidae,Fou,Fou de Bassan,Morus bassanus,Seabird,Sulidae,Booby,Northern gannet,Alcatraz
+SULDAC,behavBird,Oiseau marin,Sulidae,Fou,Fou masque,Sula dactylatra,Seabird,Sulidae,Booby,Blue-faced booby,
+SULLEU,behavBird,Oiseau marin,Sulidae,Fou,Fou brun,Sula leucogaster,Seabird,Sulidae,Booby,Brown booby,
+SULSPP,behavBird,Oiseau marin,Sulidae,Fou,Petit fou ind.,Sula sp.,Seabird,Sulidae,Booby,Booby sp.,
+SULSUL,behavBird,Oiseau marin,Sulidae,Fou,Fou a pieds rouges,Sula sula,Seabird,Sulidae,Booby,Red-footed booby,
+THACHL,behavBird,Oiseau marin,Diomedeidae,Albatros,Albatros a bec jaune,Thalassarche chlororynchos,Seabird,Diomedeidae,Albatros,Yellow-nosed Albatros,Albatros Clororrinco
+THAMEL,behavBird,Oiseau marin,Diomedeidae,Albatros,Albatros a sourcils noirs,Thalassarche melanophris,Seabird,Diomedeidae,Albatros,Black-browed Albatros,Albatros Ojeroso
+URIAAL,behavBird,Oiseau marin,Alcidae,Pingouin ou Guillemot,Guillemot de troil,Uria aalge,Seabird,Alcidae,Razobill or Guillemot,Common guillemot,Arao comun
+MICFUS,behavBird,Oiseau marin,Laridae,Autre goeland,Goeland ardoise ind.,Larus michahellis / fuscus,Seabird,Laridae,Other gull,Slategray gull sp,Gaviota pizarra spp
+CEPGRY,behavBird,Oiseau marin,Alcidae,Autre Alcide,Guillemot a miroir,Cepphus grylle,Seabird,Alcidae,Other auk,Black guillemot,Arao aliblanco
+SBIRSP,behavBird,Oiseau marin,Oiseau marin,Oiseau ind.,Oiseau marin ind.,Aves sp.,Seabird,Seabird,Seabird unid.,Seabird sp.,ave marina sp.
+ACCNIS,behavBird,Oiseau terrestre,Accipitridae,Rapace,Epervier d'Europe,Accipiter nisus,Land Bird,Accipitridae,Bird of prey,European Sparrowhawk,Gavilan comun
+ACRPAL,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Rousserolle verderolle,Acrocephalus palustris,Land Bird,Other bird,Passerine,Marsh warbler,Carricero poliglota
+ACRSCH,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Phragmite des joncs,Acrocephalus schoenobaenus,Land Bird,Other bird,Passerine,Sedge Warbler,Carricerin comun
+ACRSCI,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Rousserolle effarvate,Acrocephalus scirpaceus,Land Bird,Other bird,Passerine,Eurasian Reed Warbler,Carricero comun
+ACRSPP,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Rousserolle ind.,Acrocephalus sp.,Land Bird,Other bird,Passerine,Warbler sp.,Carricero spp
+ACTHYP,behavBird,Oiseau terrestre,Scolopacidae,Limicole,Chevalier guignette,Actitis hypoleucos,Land Bird,Scolopacidae,Shorebird,Common sandpiper,Andarrios chico
+ALAARV,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Alouette des champs,Alauda arvensis,Land Bird,Other bird,Passerine,Eurasian skylark,Alondra comun
+ALASPP,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Alouette ind.,Alauda sp.,Land Bird,Other bird,Passerine,Skylark sp.,Alondra spp
+ANAACU,behavBird,Oiseau terrestre,Anatidae,Canard,Canard pilet,Anas acuta,Land Bird,Anatidae,Duck,Northern Pintail,Anade rabudo
+ANACLY,behavBird,Oiseau terrestre,Anatidae,Canard,Canard souchet,Anas clypeata,Land Bird,Anatidae,Duck,Northern Shoveler,Pato cuchara
+ANACRE,behavBird,Oiseau terrestre,Anatidae,Canard,Sarcelle d'hiver,Anas crecca,Land Bird,Anatidae,Duck,Common teal,Cerceta comun
+ANAPEN,behavBird,Oiseau terrestre,Anatidae,Canard,Canard siffleur,Anas penelope,Land Bird,Anatidae,Duck,Eurasian Wigeon,Anade silbon
+ANAPLA,behavBird,Oiseau terrestre,Anatidae,Canard,Canard colvert,Anas platyrhynchos,Land Bird,Anatidae,Duck,Mallard,Anade real
+ANASTR,behavBird,Oiseau terrestre,Anatidae,Canard,Canard chipeau,Anas strepera,Land Bird,Anatidae,Duck,Gadwall,Anade friso
+ANSALB,behavBird,Oiseau terrestre,Anatidae,Oie,Oie rieuse,Anser albifrons,Land Bird,Anatidae,Goose,Greater White-fronted Goose,Ansar careto
+ANSANS,behavBird,Oiseau terrestre,Anatidae,Oie,Oie cendree,Anser anser,Land Bird,Anatidae,Goose,Greylag Goose,Ansar comon
+ANTPET,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Pipit maritime,Anthus petrosus,Land Bird,Other bird,Passerine,Eurasian rock pipit,Bisbita costero
+ANTPRA,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Pipit farlouse,Anthus pratensis,Land Bird,Other bird,Passerine,Meadow pipit,Bisbita comun
+ANTSPP,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Pipit ind.,Anthus sp.,Land Bird,Other bird,Passerine,Pipit sp.,Bisbita spp
+ANTTRI,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Pipit des arbres,Anthus trivialis,Land Bird,Other bird,Passerine,Tree pipit,Pepito
+APUAPU,behavBird,Oiseau terrestre,Apodidae,Martinet,Martinet noir,Apus apus,Land Bird,Other bird,Swift,Common swift,Vencejo comun
+APUSPP,behavBird,Oiseau terrestre,Apodidae,Martinet,Martinet ind.,Apus sp.,Land Bird,Other bird,Swift,Swift sp.,Vencejo spp
+ARDCIN,behavBird,Oiseau terrestre,Ardeidae,Echassier,Heron cendre,Ardea cinerea,Land Bird,Ardeidae,Shorebird,Grey heron,Garza real
+ARDPUR,behavBird,Oiseau terrestre,Ardeidae,Echassier,Heron pourpre,Ardea purpurea,Land Bird,Ardeidae,Shorebird,Purple heron,Garza pourpre
+ARDSPP,behavBird,Oiseau terrestre,Ardeidae,Echassier,Heron ind.,Ardea sp.,Land Bird,Ardeidae,Shorebird,Heron sp.,Garza spp
+AREINT,behavBird,Oiseau terrestre,Scolopacidae,Limicole,Tournepierre a collier,Arenaria interpres,Land Bird,Scolopacidae,Shorebird,Turnstone,Vuelvepiedras comun
+ASIFLA,behavBird,Oiseau terrestre,Autre oiseau,Rapace,Hibou des marais,Asio flammeus,Land Bird,Other bird,Bird of prey,Short-eared owl,Lechuza campestre
+ASIOTU,behavBird,Oiseau terrestre,Autre oiseau,Rapace,Hibou moyen-duc,Asio otus,Land Bird,Other bird,Bird of prey,Long-eared owl,Buho chico
+AYTMAR,behavBird,Oiseau terrestre,Anatidae,Canard,Fuligule milouinan,Aythya marila,Land Bird,Anatidae,Duck,Greater Scaup,Porran bastardo
+BIRSPP,behavBird,Oiseau terrestre,Autre oiseau,Oiseau ind.,Oiseau ind.,Aves sp.,Land Bird,Other bird,Bird unidentif.,Bird unidentif.,
+BRACAN,behavBird,Oiseau terrestre,Anatidae,Oie,Bernache du Canada,Branta canadensis,Coastal Bird,Anatidae,Goose,Canada Goose,Barnacla Canadiense
+BUBIBI,behavBird,Oiseau terrestre,Ardeidae,Echassier,Heron garde-boeufs,Bubulcus ibis,Land Bird,Ardeidae,Shorebird,Cattle egret,Garcilla bueyera
+CALALB,behavBird,Oiseau terrestre,Scolopacidae,Limicole,Becasseau sanderling,Calidris alba,Land Bird,Scolopacidae,Shorebird,Sanderling,Correlimos tridactilo
+CALALP,behavBird,Oiseau terrestre,Scolopacidae,Limicole,Becasseau variable,Calidris alpina,Land Bird,Scolopacidae,Shorebird,Dunlin,Correlimos comun
+CALCAN,behavBird,Oiseau terrestre,Scolopacidae,Limicole,Becasseau maubeche,Calidris canutus,Land Bird,Scolopacidae,Shorebird,Red Knot,Correlimos gordo
+CALMAR,behavBird,Oiseau terrestre,Scolopacidae,Limicole,Becasseau violet,Calidris maritima,Land Bird,Scolopacidae,Shorebird,Purple Sandpiper,Correlimos Oscuro
+CALMIN,behavBird,Oiseau terrestre,Scolopacidae,Limicole,Becasseau minute,Calidris minuta,Land Bird,Scolopacidae,Shorebird,Little Stint,Correlimos menudo
+CALSPP,behavBird,Oiseau terrestre,Scolopacidae,Limicole,Becasseau ind.,Calidris sp.,Land Bird,Scolopacidae,Shorebird,Sandpiper sp.,Correlimos spp
+CAPEUR,behavBird,Oiseau terrestre,Caprimulgidae,Engoulevent,Engoulevent d'Europe,Caprimulgus europaeus,Land Bird,Other bird,Caprimulgidae,European Nightjar,Chotacabras gris
+CARCAN,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Linotte melodieuse,Carduelis cannabina,Land Bird,Other bird,Passerine,Common Linnet,Fringilido
+CARCHL,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Verdier d'Europe,Carduelis chloris,Land Bird,Other bird,Passerine,European Greenfinch,Verderon comun
+CARLIS,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Chardonneret,Carduelis carduelis,Land Bird,Other bird,Passerine,European Goldfinch,Jilguero
+CARSPI,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Tarin des aulnes,Carduelis spinus,Land Bird,Other bird,Passerine,Eurasian Siskin,piafo
+CASALB,behavBird,Oiseau terrestre,Ardeidae,Echassier,Grande aigrette,Casmerodius albus,Land Bird,Ardeidae,Shorebird,Great egret,Garceta Grande
+CHAALE,behavBird,Oiseau terrestre,Charadriidae,Limicole,Gravelot a collier interrompu,Charadrius alexandrinus,Land Bird,Shorebird,Shorebird,Kentish Plover,Chorlitejo Patinegro
+CHAHIA,behavBird,Oiseau terrestre,Charadriidae,Limicole,Grand gravelot,Charadrius hiaticula,Land Bird,Shorebird,Shorebird,Ringed Plover,Chorlitejo grande
+CHASPP,behavBird,Oiseau terrestre,Charadriidae,Limicole,Gravelot ind.,Charadrius sp.,Land Bird,Charadriidae,Shorebird,Plover sp.,Chorlitejo spp
+CIRAER,behavBird,Oiseau terrestre,Autre oiseau,Rapace,Busard des roseaux,Circus aeruginosus,Land Bird,Other bird,Bird of prey,Eurasian Marsh Harrier,Aguilucho lagunero
+CIRCYA,behavBird,Oiseau terrestre,Accipitridae,Rapace,Busard Saint-Martin,Circus cyaneus,Land Bird,Other bird,Bird of prey,Hen Harrier,Aguilucho Palido
+CIRSPP,behavBird,Oiseau terrestre,Autre oiseau,Rapace,Busard ind.,Circus sp.,Land Bird,Other bird,Bird of prey,Harrier sp.,Aguilucho spp
+CISJUN,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Cisticole des joncs,Cisticola juncidis,Land Bird,Other bird,Passerine,Zitting Cisticola,Buitron comun
+COLLIV,behavBird,Oiseau terrestre,Autre oiseau,Pigeon,Pigeon domestique Biset ,Columba livia,Land Bird,Other bird,Pigeon,Rock Pigeon,Paloma bravia
+COLOEN,behavBird,Oiseau terrestre,Autre oiseau,Pigeon,Pigeon colombin,Columba oenas,Land Bird,Other bird,Pigeon,Stock Pigeon,Andarrios chico
+COLPAL,behavBird,Oiseau terrestre,Autre oiseau,Pigeon,Pigeon ramier,Columba palomba,Land Bird,Other bird,Pigeon,Common Wood Pigeon,Paloma torcaz
+COLSPP,behavBird,Oiseau terrestre,Autre oiseau,Pigeon,Pigeon ind.,Columba sp.,Land Bird,Other bird,Pigeon,Pigeon sp.,Paloma spp
+CORCOR,behavBird,Oiseau terrestre,Autre oiseau,Corbeau,Corneille noire,Corvus corone,Land Bird,Other bird,Corvidae,Carrion crow,Corneja
+CYGOLO,behavBird,Oiseau terrestre,Anatidae,Oie,Cygne tubercule,Cygnus olor,Land Bird,Anatidae,Goose,Mute swan,Cisne vulgar
+DELURB,behavBird,Oiseau terrestre,Autre oiseau,Hirondelle,Hirondelle de fenetre,Delichon urbica,Land Bird,Other bird,Swallow,House martin,Avion comun
+EGRGAR,behavBird,Oiseau terrestre,Ardeidae,Echassier,Aigrette garzette,Egretta garzetta,Land Bird,Ardeidae,Shorebird,Little egret,Garceta comun
+EGRSPP,behavBird,Oiseau terrestre,Ardeidae,Echassier,Aigrette ind.,Egretta sp.,Land Bird,Ardeidae,Shorebird,Egret sp.,Garceta spp
+EMBSPP,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Bruant ind.,Emberiza sp.,Land Bird,Other bird,Passerine,Hammer sp.,Escribano spp
+ERIRUB,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Rouge gorge,Erithacus rubecula,Land Bird,Other bird,Passerine,European robin,Petirrojo spp
+FALCOL,behavBird,Oiseau terrestre,Autre oiseau,Rapace,Faucon emerillon,Falco columbarius,Land Bird,Other bird,Bird of prey,Merlin,Esmerejon
+FALELE,behavBird,Oiseau terrestre,Falconidae,Rapace,Faucon d'Eleonore,Falco eleonorae,Land Bird,Falconidae,Bird of prey,Eleonora's falcon,Halcon de Eleonora
+FALPER,behavBird,Oiseau terrestre,Autre oiseau,Rapace,Faucon pelerin,Falco peregrinus,Land Bird,Other bird,Bird of prey,Peregrine falcon,Halcon peregrino
+FALSPP,behavBird,Oiseau terrestre,Autre oiseau,Rapace,Faucon ind.,Falco sp.,Land Bird,Other bird,Bird of prey,Falcon sp.,Halcon spp
+FALSUB,behavBird,Oiseau terrestre,Autre oiseau,Rapace,Faucon hobereau,Falco subbuteo,Land Bird,Other bird,Bird of prey,Eurasian hobby,Alcotan europeo
+FALTIN,behavBird,Oiseau terrestre,Autre oiseau,Rapace,Faucon crecerelle,Falco tinnunculus,Land Bird,Other bird,Bird of prey,Common kestrel,Cernicalo comun
+FICHYP,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Gobemouche noir,ficedula hypoleuca,Land Bird,Other bird,Passerine,Pied Flycatcher,Papamoscas cerrojillo
+FICPAR,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Gobemouche nain,Ficedula parva,Land Bird,Other bird,Passerine,Red-breasted Flycatcher,Papamoscas papirrojo
+FRICOE,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Pinson des arbres,Fringilla coelebs,Land Bird,Other bird,Passerine,Chaffinch,Pinzon
+FRIMON,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Pinson du Nord,Fringilla montifringilla,Land Bird,Other bird,Passerine,Brambling,Pinsono glacio
+FULATR,behavBird,Oiseau terrestre,Anatidae,Canard,Foulque macroule,Fulica atra,Land Bird,Anatidae,Duck,coot sp,
+GALCHL,behavBird,Oiseau terrestre,Rallidae,Canard,Poule d'eau,Gallinula chloropus,Land Bird,Rallidae,Duck,Common moorhen,Polla de agua
+GALGAL,behavBird,Oiseau terrestre,Scolopacidae,Limicole,Becassine des marais,Gallinago gallinago,Land Bird,Shorebird,Shorebird,Common snipe,
+HAEOST,behavBird,Oiseau terrestre,Haematopodidae,Limicole,Huitrier pie,Haematopus ostralegus,Land Bird,Haematopodidae,Shorebird,Eurasian Oystercatcher,Ostralego pica
+HALALB,behavBird,Oiseau terrestre,Accipitridae,Rapace,Pygargue a queue blanche,Haliaeetus albicilla,Land Bird,Accipitridae,Bird of prey,White-tailed eagle,Pigargo Europeo
+HIPSPP,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Hypolais ind.,Hippolais sp.,Land Bird,Other bird,Passerine,Warbler sp.,Zarcero spp
+HIRRUS,behavBird,Oiseau terrestre,Autre oiseau,Hirondelle,Hirondelle rustique,Hirundo rustica,Land Bird,Other bird,Swallow,Barn swallow,Golondrina comun
+HIRSPP,behavBird,Oiseau terrestre,Autre oiseau,Hirondelle,Hirondelle ind.,Hirundo sp.,Land Bird,Other bird,Swallow,Swallow sp.,Golondrina spp
+LBIRSP,behavBird,Oiseau terrestre,Autre oiseau,Oiseau ind.,Oiseau terrestre ind.,Aves sp.,Land Bird,Other bird,Bird unidentif.,Land Bird unidentif.,Ave terrestre
+LANCOL,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Pie grieche ecorcheur,Lanius collurio,Land Bird,Other bird,Passerine,Red-backed Shrike,Alcaudon dorsirrojo
+LANEXC,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Pie grieche grise,Lanius excubitor,Land Bird,Other bird,Passerine,Great Grey Shrike,Alcaudon real
+LIMICO,behavBird,Oiseau terrestre,Limicole,Limicole,Limicole ind.,Limicole sp.,Land Bird,Shorebird,Shorebird,Shorebird unidentif.,Limicola spp
+LIMLAP,behavBird,Oiseau terrestre,Scolopacidae,Limicole,Barge rousse,Limosa lapponica,Land Bird,Shorebird,Shorebird,Bar-tailed Godwit,Aguja colipinta
+LOCLUS,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Locustelle luscinioide,Locustella luscinioides,Land Bird,Other bird,Passerine,Savi's warbler,Buscarla unicolor
+LOXCUR,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Bec croise des sapins,Loxia curvirostra,Land Bird,Other bird,Passerine,Common Crossbill,Piquituerto escoces
+LUSMEG,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Rossignol philomele,Luscinia megarhynchos,Land Bird,Other bird,Passerine,Common Nightingale,Ruisenor
+MILMIG,behavBird,Oiseau terrestre,Autre oiseau,Rapace,Milan noir,Milvus migrans,Land Bird,Other bird,Bird of prey,Black Kite,Milano negro
+MOTALB,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Bergeronnette grise,Motacilla alba,Land Bird,Other bird,Passerine,White Wagtail,Lavandera blanca
+MOTCIN,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Bergeronnette des ruisseaux,Motacilla cinerea,Land Bird,Other bird,Passerine,Grey Wagtail,Lavandera cascadena
+MOTFLA,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Bergeronnette printaniere,Motacilla flava,Land Bird,Other bird,Passerine,Yellow Wagtail,Lavandera boyera
+MOTSPP,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Bergeronnette ind.,Motacilla spp,Land Bird,Other bird,Passerine,Wagtail sp.,Lavandera spp
+MOTYAR,behavBird,Oiseau terrestre,Motacillidae,Passereau,Bergeronnette de Yarrell,Motacilla Yarelli,Land Bird,Other bird,Passerine,Pied wagtail,Lavandera yarrellii
+MUSSTR,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Gobemouche gris,Muscicapa striata,Land Bird,Other bird,Passerine,Spotted Flycatcher,Papamoscas gris
+NUMARQ,behavBird,Oiseau terrestre,Scolopacidae,Limicole,Courlis cendre,Numenius arquata,Land Bird,Shorebird,Shorebird,Eurasian Curlew,Zarapito real
+NUMPHA,behavBird,Oiseau terrestre,Scolopacidae,Limicole,Courlis corlieu,Numenius phaeopus,Land Bird,Shorebird,Shorebird,Whimbrel,Zarapito trinador
+NUMSPP,behavBird,Oiseau terrestre,Scolopacidae,Limicole,Courlis ind.,Numenius sp.,Land Bird,Shorebird,Shorebird,Curlew sp.,Zarapito spp
+OENHIS,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Traquet oreillard,Oenanthe hispanica,Land Bird,Other bird,Passerine,Black-eared Wheatear,Collalba rubia
+OENOEN,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Traquet motteux,Oenanthe oenanthe,Land Bird,Other bird,Passerine,Northern Wheatear,Collalba gris
+ORIORI,behavBird,Oiseau terrestre,Sturnidae,Passereau,Loriot d'Europe,Oriolus oriolus,Land Bird,Other bird,Passerine,Eurasian Golden Oriole,Oropendola europea
+PANHAL,behavBird,Oiseau terrestre,Autre oiseau,Rapace,Balbuzard pecheur,Pandion haliaetus,Land Bird,Other bird,Bird of prey,Osprey,Aguila pescadora
+PASSER,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Passereau ind.,Passeriformes sp.,Land Bird,Other bird,Passerine,Passerine bird sp.,Paseriforme spp
+PERAPI,behavBird,Oiseau terrestre,Autre oiseau,Rapace,Bondree apivore,Pernis apivorus,Land Bird,Other bird,Bird of prey,European Honey-buzzard,Abejero europeo
+PHIPUG,behavBird,Oiseau terrestre,Scolopacidae,Limicole,Combattant varie,Philomachus pugnax,Land Bird,Shorebird,Shorebird,Ruff,Combatiente
+PHOENI,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Rouge queue a front blanc,Phoenicurus phoenicurus,Land Bird,Other bird,Passerine,Common Redstart,Colirrojo real
+PHOOCH,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Rouge queue noir,Phoenicurus ochruros,Land Bird,Other bird,Passerine,Black Redstart,Colirojo tizon
+PHOROS,behavBird,Oiseau terrestre,Phoenicopteridae,Echassier,Flamant rose,Phoenicopterus roseus,Land Bird,Phoenicopteridae,Shorebird,Greater flamingo,
+PHYCOL,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Pouillot veloce,Phylloscopus collybita,Land Bird,Other bird,Passerine,Common Chiffchaff,Mosquitero comun
+PHYINO,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Pouillot a grands sourcils,Phyloscopus inornatus,Land Bird,Other bird,Passerine,Yellow-browed Warbler,Mosquitero bilistado
+PHYPRO,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Pouillot de Pallas,Phylloscopus proregulus,Land Bird,Other bird,Passerine,Pallas's Warbler,Mosquitero de Pallas
+PHYSPP,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Pouillot ind.,Phylloscopus sp.,Land Bird,Other bird,Passerine,Chiffchaff sp.,Mosquitero spp
+PHYTRO,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Pouillot fitis,Phylloscopus trochilus,Land Bird,Other bird,Passerine,Willow Warbler,Mosquitero musical
+PLALEU,behavBird,Oiseau terrestre,Ardeidae,Echassier,Spatule blanche,Platalea leucorodia,Land Bird,Ardeidae,Shorebird,Eurasian Spoonbill,Espatula comun
+PLENIV,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Bruant des neiges,Plectrophenax nivalis,Land Bird,Other bird,Passerine,Snow Bunting,Escribano Nival
+PLUAPR,behavBird,Oiseau terrestre,Charadriidae,Limicole,Pluvier dore,Pluvialis apricaria,Land Bird,Charadriidae,Shorebird,European gloden plover,Pluvilitos doratos
+PLUSPP,behavBird,Oiseau terrestre,Charadriidae,Limicole,Pluvier ind.,Pluvialis sp.,Land Bird,Charadriidae,Shorebird,Plover sp.,Chorlito spp
+PLUSQU,behavBird,Oiseau terrestre,Charadriidae,Limicole,Pluvier argente,Pluvialis squatarola,Land Bird,Charadriidae,Shorebird,Grey Plover,Chorlito gris
+PRUMOD,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Accenteur mouchet,Prunella modularis,Land Bird,Other bird,Passerine,Hedge Accentor,Acentor comun
+RAPSPP,behavBird,Oiseau terrestre,Autre oiseau,Rapace,Rapace ind.,Falconiformes sp.,Land Bird,Other bird,Bird of prey,Bird of prey unidentif.,Rapaz spp
+REGIGN,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Roitelet triple bandeau,Regulus ignicapilla,Land Bird,Other bird,Passerine,Common Firecrest,Reyezuelo
+REGREG,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Roitelet huppe,Regulus regulus,Land Bird,Other bird,Passerine,Goldcrest,Reyezuelo sencillo
+RIPRIP,behavBird,Oiseau terrestre,Autre oiseau,Hirondelle,Hirondelle de rivage,Riparia riparia,Land Bird,Other bird,Swallow,Sand Martin,Hirundo
+SAXTOR,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Tarier patre,Saxicola torquata,Land Bird,Other bird,Passerine,European Stonechat,Tarabilla comun
+SERSER,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Serin cini,Serinus serinus,Land Bird,Other bird,Passerine,European Serin,Verdecillo
+STRDEC,behavBird,Oiseau terrestre,Autre oiseau,Tourterelle,Tourterelle turque,Streptopelia decaocto,Land Bird,Other bird,Dove,Eurasian Collared Dove,Tortola turca
+STRSPP,behavBird,Oiseau terrestre,Autre oiseau,Tourterelle,Tourterelle ind.,Streptopelia sp.,Land Bird,Other bird,Dove,Dove sp.,Tortola spp
+STRTUR,behavBird,Oiseau terrestre,Autre oiseau,Tourterelle,Tourterelle bois,Streptopelia turtur,Land Bird,Other bird,Dove,European Turtle Dove,Tortola comun
+STUSPP,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Etourneau ind.,Sturnus sp.,Land Bird,Other bird,Passerine,Starling sp.,Estornino spp
+STUVUL,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Etourneau sansonnet,Sturnus vulgaris,Land Bird,Other bird,Passerine,Common Starling,Estornino
+SYLATR,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Fauvette a tete noire,Sylvia atricapilla,Land Bird,Other bird,Passerine,Blackcap,Curruca capirotada
+SYLBOR,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Fauvette des jardins,Sylvia borin,Land Bird,Other bird,Passerine,Garden Warbler,Curruca mosquitera
+SYLCAN,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Fauvette passerinette,Sylvia cantillans,Land Bird,Other bird,Passerine,Subalpine Warbler,Curruca carrasquena
+SYLCOM,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Fauvette grisette,Sylvia communis,Land Bird,Other bird,Passerine,Common Whitethroat,Curruca zarcera
+SYLMEL,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Fauvette melanocephale,Sylvia melanocephala,Land Bird,Other bird,Passerine,Sardinian Warbler,Curruca cabecinegra
+SYLSPP,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Fauvette ind.,Sylvia sp.,Land Bird,Other bird,Passerine,Warbler sp.,Curruca spp
+TRISPP,behavBird,Oiseau terrestre,Scolopacidae,Limicole,Chevalier ind.,Tringa sp.,Land Bird,Shorebird,Shorebird,Shank sp..,Archibebe spp
+TRITOT,behavBird,Oiseau terrestre,Scolopacidae,Limicole,Chevalier gambette,Tringa totanus,Land Bird,Shorebird,Shorebird,Common Redshank,Archibebe comun
+TROTRO,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Troglodyte mignon,Troglodytes troglodytes,Land Bird,Other bird,Passerine,Eurasian wren,Chochin
+TURDUS,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Grive ind.,Turdus sp.,Land Bird,Other bird,Passerine,Trush sp.,Zorzal spp
+TURILI,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Grive mauvis,Turdus iliacus,Land Bird,Other bird,Passerine,Redwing,Alondra comun
+TURMER,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Merle noir,Turdus merula,Land Bird,Other bird,Passerine,Common Blackbird,Mirlo comun
+TURPHI,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Grive musicienne,Turdus philomelos,Land Bird,Other bird,Passerine,Song Thrush,Grive musicienne
+TURPIL,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Grive Litorne,Turdus pilaris,Land Bird,Other bird,Passerine,Fieldfare,Zorzal real
+UPUEPO,behavBird,Oiseau terrestre,Autre oiseau,Huppe,Huppe fasciee,Upupa epops,Land Bird,Other bird,Hoopoe,Hoopoe,Abubilla
+VANVAN,behavBird,Oiseau terrestre,Charadriidae,Limicole,Vanneau huppe,Vanellus vanellus,Land Bird,Charadriidae,Shorebird,Northern Lapwing,Avefria Palustria
+TURVIS,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Grive draine,Turdus viscivorus,Land Bird,Other bird,Passerine,Mistle Trush,Zorzal Charlo
+AEGCAU,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Mesange a longue queue,Aegithalos caudatus,Land Bird,Other bird,Passerine,Long-tailed Tit,Mito comun
+EMBSCH,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Bruant des roseaux,Emberiza schoenicus,Land Bird,Other bird,Passerine,Reed Bunting,Escribano Palustre
+PARMAJ,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Mesange charbonniere,Parus major,Land Bird,Other bird,Passerine,Great Tit,Carbonero comun
+PASDOM,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Moineau domestique,Passer domesticus,Land Bird,Other bird,Passerine,House Sparrow,Gorrion comun
+AYTFUL,behavBird,Oiseau terrestre,Anatidae,Grand canard,Fuligule morillon,Aythya fuligula,Land Bird,Anatidae,Duck,Tufted Duck,Porran monudo
+BUTBUT,behavBird,Oiseau terrestre,Autre oiseau,Rapace,Buse variable,Buteo buteo,Land Bird,Other bird,Bird of prey,Common buzzard,Busardo ratonero
+ALCATT,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Martin pecheur d Europe,Alcedo atthis,Land Bird,Other bird,Passerine,Common Kingfisher,Martin pescador comun
+OTUSCO,behavBird,Oiseau terrestre,Autre oiseau,Rapace,Hibou petit-duc,Otus scops,Land Bird,Other bird,Bird of prey,Eurasian Scops Owl,Autillo europeo
+SYLCUR,behavBird,Oiseau terrestre,Autre oiseau,Passereau,Fauvette babillarde,Sylvia curruca,Land Bird,Other bird,Passerine,Lesser Whitethroat,Curruca zarcerilla

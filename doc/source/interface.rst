@@ -57,11 +57,18 @@ This button allows to open the settings dialog, to configure administrators tabl
 
 |
 
-`Survey`, `Transect` and `Strate` buttons open the single entity of their table
-which can be modified to fulfill the session metadata.
+`Survey` button opens the single entity of the table which can be modified to
+fulfill the session metadata. In the `Survey` table, `survey` attribute list
+values come from the `SurveyType` table, `shipName` attribute list values come
+from the `Boat` table.
 
-`Boat` and `Plateform` buttons open their tables dialog as each can contains more
-than one entity.
+`SurveyType`, `Transect`, `Boat` and `Plateform` buttons open their tables
+dialog as each can contains more than one entity.
+
+Especially for `Transect` table, it is possible to import a linear layer
+(EPSG:4326). The imported layer must have the same attribute names as the
+`Transect` table (transect,strateType,subRegion,length). Transect entity reference
+will be available in the `Environment` table.
 
 3 - |save| Validation button
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -112,6 +119,8 @@ If there is more than one observer on the boat, this feature can be used to merg
 data from two distinct session. The environment/sighting/follower tables will be
 merging, avoiding to copy identical entities captured on a previous day. Gps point
 will be also decimated to keep only one record per minutes.
+
+User can use the gps checkboxes to choose which session gps layer will be kept.
 
 6 - |environment| Environment button
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -201,18 +210,16 @@ A status will be assigned automatically to each entity.
 The first status will be ``Begin``, then ``Add`` status will be created for the
 next entities until user changes the ``routeType`` attribute. User creates
 ``Add`` entities if the environmental variables change during the route. When the
-user changes the ``routeType`` attributes, it duplicates the previous entity
-(``Begin`` or ``Add`` status) and assignes the ``End`` status to the duplica.
-Environment status are check before the validation. A dialog should pop-up if 
-there is a missing ``Start`` / ``End`` record to inform user. Use the duplicate
-action to fix it (cf. :ref:`duplicateaction`).
+user changes the ``routeType`` attributes, the status attribute will be updated to
+``Begin``. Entities with ``End`` status will be created only on export.
 
 .. _sightingtable:
 
 12 - Sighting table
 ~~~~~~~~~~~~~~~~~~~~
 
-The sighting table is used to modify sighting entity attributes. Sighting entity describes an observation made by the operator.
+The sighting table is used to modify sighting entity attributes.
+Sighting entity describes an observation made by the operator.
 
 13 - Map canvas
 ~~~~~~~~~~~~~~~
@@ -222,6 +229,8 @@ displayed:
 
 .. |gps_symbol| image:: images/gps.svg
   :width: 18
+
+.. |transect_symbol| image:: images/transect.svg
 
 .. |environment_symbol| image:: ../../images/environment_symbol.svg
   :width: 18
@@ -233,7 +242,8 @@ displayed:
   :width: 18
 
 - world (as background map)
-- |gps_symbol| gps 
+- |gps_symbol| gps
+- |transect_symbol| transect
 - |environment_symbol| environmenent 
 - |sighting_symbol| sighting 
 - |follower_symbol| follower 

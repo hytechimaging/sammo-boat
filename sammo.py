@@ -5,11 +5,12 @@ __copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
 import os.path
 import platform
-from datetime import datetime
+from pathlib import Path
 from typing import Optional
+from datetime import datetime
 
-from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtGui import QKeySequence
+from qgis.PyQt.QtCore import Qt, QUrl
+from qgis.PyQt.QtGui import QKeySequence, QDesktopServices, QIcon
 from qgis.PyQt.QtWidgets import QToolBar, QShortcut, QTableView, QAction
 
 from qgis.core import (
@@ -21,7 +22,6 @@ from qgis.core import (
     QgsFeatureRequest,
 )
 
-from .src.core.status import StatusCode
 from .src.core.gps import SammoGpsReader
 from .src.core.session import SammoSession
 from .src.core.utils import shortcutCreation
@@ -58,6 +58,8 @@ class Sammo:
 
         self.sessionAction = self.createSessionAction()
         self.settingsAction = self.createSettingsAction()
+        self.helpAction = self.createHelpAction()
+        self.toolbar.addSeparator()
         self.saveAction = self.createSaveAction()
         self.exportAction = self.createExportAction()
         self.mergeAction = self.createMergeAction()
@@ -158,15 +160,6 @@ class Sammo:
         if reader.receivers(reader.frame):
             reader.frame.disconnect(self.onGpsFrame)
             self.statusDock.desactivateGPS()
-            if self.session.environmentLayer.featureCount() and next(
-                self.session.environmentLayer.getFeatures(
-                    QgsFeatureRequest().addOrderBy("dateTime", False)
-                )
-            )["status"] != StatusCode.display(StatusCode.END):
-                self.session.addEnvironmentFeature(StatusCode.END)
-                self.tableDock.refresh(
-                    self.session.environmentLayer, self.filterExpr
-                )
         elif not (reader.worker and reader.worker._gps):
             self.iface.messageBar().pushCritical(
                 "No GPS detected", "retry later"
@@ -211,6 +204,17 @@ class Sammo:
         button = SammoSettingsAction(
             self.mainWindow, self.toolbar, self.session
         )
+        button.reloadTables.connect(self.reloadTables)
+        return button
+
+    def createHelpAction(self) -> QAction:
+        button = QAction(
+            QIcon((Path(__file__).parent / "images" / "help.png").as_posix()),
+            "Help",
+        )
+        button.setToolTip("Help")
+        button.triggered.connect(self.openHelp)
+        self.toolbar.addAction(button)
         return button
 
     def createMergeAction(self) -> SammoSessionAction:
@@ -223,6 +227,14 @@ class Sammo:
             self.shortcutAction = QAction("Create shorcuts")
             self.shortcutAction.triggered.connect(shortcutCreation)
             self.iface.addPluginToMenu("Sammo-Boat", self.shortcutAction)
+        self.csvInitAction = QAction("Open init data folder")
+        self.csvInitAction.triggered.connect(self.initDataFolder)
+        self.iface.addPluginToMenu("Sammo-Boat", self.csvInitAction)
+
+    def initDataFolder(self) -> None:
+        QDesktopServices.openUrl(
+            QUrl.fromLocalFile((Path(__file__).parent / "data").as_posix())
+        )
 
     def initShortcuts(self) -> None:
         self.environmentShortcut = QShortcut(
@@ -273,6 +285,19 @@ class Sammo:
             QKeySequence("Ctrl+>"), self.mainWindow
         )
         self.zoomOutShortcut.activated.connect(self.iface.mapCanvas().zoomOut)
+
+    def openHelp(self):
+        QDesktopServices.openUrl(
+            QUrl.fromLocalFile(
+                (
+                    Path(__file__).parent
+                    / "doc"
+                    / "build"
+                    / "html"
+                    / "index.html"
+                ).as_posix()
+            )
+        )
 
     def unload(self):
         self.activateGPS()  # add End environment Status if needed
@@ -405,7 +430,13 @@ class Sammo:
             # we udpate the database if we don't need to wait for speed/course
             if not self.gps_wait:
                 self.session.addGps(
-                    longitude, latitude, h, m, s, speed, course
+                    longitude,
+                    latitude,
+                    h,
+                    m,
+                    s,
+                    self.session.lastGpsInfo["gprmc"]["speed"],
+                    self.session.lastGpsInfo["gprmc"]["course"],
                 )
                 self.session.lastCaptureTime = gpsNow
 
@@ -426,6 +457,7 @@ class Sammo:
         # init session
         self.loading = True
         QgsProject.instance().clear()
+        self.tableDock.clean()
         self.session.init(sessionDirectory)
         self.session.saveAll()
         self.loading = False
@@ -435,7 +467,6 @@ class Sammo:
 
         self.soundRecordingController.onNewSession(sessionDirectory)
 
-        self.tableDock.clean()
         self.tableDock.init(
             self.session.environmentLayer, self.session.sightingsLayer
         )
@@ -448,10 +479,22 @@ class Sammo:
             self.simuGpsAction.onNewSession()
 
     def cleanTableDock(self, layerId):
-        if layerId == self.session.environmentLayer.id():
+        if (
+            self.session.environmentLayer
+            and layerId == self.session.environmentLayer.id()
+        ):
             self.tableDock.removeTable(self.session.environmentLayer.name())
-        elif layerId == self.session.sightingsLayer.id():
+        elif (
+            self.session.sightingsLayer
+            and layerId == self.session.sightingsLayer.id()
+        ):
             self.tableDock.removeTable(self.session.sightingsLayer.name())
+
+    def reloadTables(self) -> None:
+        self.tableDock.clean()
+        self.tableDock.init(
+            self.session.environmentLayer, self.session.sightingsLayer
+        )
 
     def focusOn(self, old, new) -> None:
         # Set the active on attribute table focus, to use undo/redo action

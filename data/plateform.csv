@@ -1,9 +1,11 @@
 ship,plateform,plateformHeight
 Thalassa,deck,8
-Thalassa,bridge,14
-Thalassa,upper_bridge,16.5
+Thalassa,bridge_inside,14
+Thalassa,upper_bridge_outside,16.5
 Europe,deck,4
-Europe,bridge,4
+Europe,bridge_inside,4
 PourquoiPas,deck,16.3
-PourquoiPas,bridge,18.6
-PourquoiPas,upper_bridge,21.6
+PourquoiPas,bridge_inside,18.6
+PourquoiPas,upper_bridge_outside,21.6
+MiguelOliver,bridge_inside,8
+MiguelOliver,bridge_outside,8

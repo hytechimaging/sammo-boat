@@ -3,16 +3,14 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
-import os
 from pathlib import Path
-from shutil import copyfile
 from datetime import datetime
 from typing import List, Optional, Dict, Union
 
 from qgis.PyQt.QtGui import QColor
-from qgis.PyQt.QtWidgets import QProgressBar, QMessageBox
-from qgis.PyQt.QtCore import QDate, QDateTime
+from qgis.PyQt.QtWidgets import QMessageBox
 
+from qgis.utils import iface
 from qgis.core import (
     QgsProject,
     QgsGeometry,
@@ -38,14 +36,15 @@ from .layers import (
     SammoBoatLayer,
     SammoWorldLayer,
     SammoSurveyLayer,
-    SammoStrateLayer,
     SammoSpeciesLayer,
     SammoTransectLayer,
     SammoPlateformLayer,
     SammoFollowersLayer,
     SammoObserversLayer,
     SammoSightingsLayer,
+    SammoSurveyTypeLayer,
     SammoEnvironmentLayer,
+    SammoBehaviourSpeciesLayer,
 )
 from .sound_recording_controller import RecordType
 
@@ -57,13 +56,14 @@ class SammoSession:
         self._gpsLayer: SammoGpsLayer = None
         self._worldLayer: SammoWorldLayer = None
         self._speciesLayer: SammoSpeciesLayer = None
+        self._behaviourSpeciesLayer: SammoBehaviourSpeciesLayer = None
         self._followersLayer: SammoFollowersLayer = None
         self._observersLayer: SammoObserversLayer = None
         self._sightingsLayer: SammoSightingsLayer = None
         self._environmentLayer: SammoEnvironmentLayer = None
         self._surveyLayer: SammoSurveyLayer = None
+        self._surveyTypeLayer: SammoSurveyLayer = None
         self._transectLayer: SammoTransectLayer = None
-        self._strateLayer: SammoStrateLayer = None
         self._plateformLayer: SammoPlateformLayer = None
         self.lastGpsInfo: Dict[
             str,
@@ -108,6 +108,10 @@ class SammoSession:
         return self._speciesLayer.layer
 
     @property
+    def behaviourSpeciesLayer(self) -> QgsVectorLayer:
+        return self._behaviourSpeciesLayer.layer
+
+    @property
     def sightingsLayer(self) -> QgsVectorLayer:
         if self._sightingsLayer:
             return self._sightingsLayer.layer
@@ -126,9 +130,9 @@ class SammoSession:
         return None
 
     @property
-    def strateLayer(self) -> QgsVectorLayer:
-        if self._strateLayer:
-            return self._strateLayer.layer
+    def surveyTypeLayer(self) -> QgsVectorLayer:
+        if self._surveyLayer:
+            return self._surveyTypeLayer.layer
         return None
 
     @property
@@ -150,10 +154,11 @@ class SammoSession:
             self.gpsLayer,
             self.followersLayer,
             self.observersLayer,
+            self.behaviourSpeciesLayer,
             self.speciesLayer,
             self.sightingsLayer,
             self.surveyLayer,
-            self.strateLayer,
+            self.surveyTypeLayer,
             self.boatLayer,
             self.plateformLayer,
             self.transectLayer,
@@ -169,19 +174,27 @@ class SammoSession:
         # Administrator table
         self._plateformLayer = SammoPlateformLayer(self.db)
         self._boatLayer = SammoBoatLayer(self.db, self._plateformLayer)
-        self._surveyLayer = SammoSurveyLayer(self.db, self._boatLayer)
+        self._surveyTypeLayer = SammoSurveyTypeLayer(self.db)
+        self._surveyLayer = SammoSurveyLayer(
+            self.db, self._boatLayer, self._surveyTypeLayer
+        )
         self._transectLayer = SammoTransectLayer(self.db)
-        self._strateLayer = SammoStrateLayer(self.db)
         self._observersLayer = SammoObserversLayer(self.db)
+        self._behaviourSpeciesLayer = SammoBehaviourSpeciesLayer(self.db)
         self._speciesLayer = SammoSpeciesLayer(self.db)
 
         self._gpsLayer = SammoGpsLayer(self.db)
-        self._sightingsLayer = SammoSightingsLayer(self.db)
+        self._sightingsLayer = SammoSightingsLayer(
+            self.db, self._behaviourSpeciesLayer
+        )
         self._followersLayer = SammoFollowersLayer(
             self.db, self._observersLayer, self._speciesLayer
         )
         self._environmentLayer = SammoEnvironmentLayer(
-            self.db, self._observersLayer, self._plateformLayer
+            self.db,
+            self._observersLayer,
+            self._plateformLayer,
+            self._transectLayer,
         )
 
         # create database if necessary
@@ -192,10 +205,12 @@ class SammoSession:
             self._worldLayer.addToProject(project)
             self._plateformLayer.addToProject(project)
             self._boatLayer.addToProject(project)
+            self._plateformLayer._link_boat(self._boatLayer)
+            self._surveyTypeLayer.addToProject(project)
             self._surveyLayer.addToProject(project)
             self._transectLayer.addToProject(project)
-            self._strateLayer.addToProject(project)
             self._gpsLayer.addToProject(project)
+            self._behaviourSpeciesLayer.addToProject(project)
             self._speciesLayer.addToProject(project)
             self._sightingsLayer.addToProject(project)
             self._observersLayer.addToProject(project)
@@ -223,17 +238,21 @@ class SammoSession:
                 self._gpsLayer,
                 self._boatLayer,
                 self._worldLayer,
+                self._behaviourSpeciesLayer,
                 self._speciesLayer,
                 self._followersLayer,
                 self._observersLayer,
                 self._sightingsLayer,
                 self._environmentLayer,
                 self._surveyLayer,
+                self._surveyTypeLayer,
                 self._transectLayer,
-                self._strateLayer,
                 self._plateformLayer,
             ]:
                 layer._init(layer.layer)
+                layer.layer.startEditing()  # featureCount update
+                layer.layer.commitChanges()
+            self._plateformLayer._link_boat(self._boatLayer)
             self.environmentLayer.actions().clearActions()
             self._environmentLayer.addSoundAction(self.environmentLayer)
             self._environmentLayer.addDuplicateAction(self.environmentLayer)
@@ -247,44 +266,72 @@ class SammoSession:
                 self.updateRouteTypeStatus
             )
 
-    def addEnvironmentFeature(
-        self, status: Optional[StatusCode] = None
-    ) -> QgsVectorLayer:
+    def surveyValues(self, layer: QgsVectorLayer) -> tuple:
+        survey = (
+            next(self.surveyLayer.getFeatures())
+            if self.surveyLayer.featureCount() > 0
+            else None
+        )
+        if (
+            not survey
+            or not survey["survey"]
+            or not survey["cycle"]
+            or not survey["computer"]
+            or not survey["shipName"]
+            or not survey["session"]
+        ):
+            iface.messageBar().pushWarning(
+                f"{layer.name().lower()}",
+                "Administration table `survey` is not fulfilled,"
+                " all sighting attributes cannot be filled",
+            )
+            survey_value = ""
+            cycle_value = ""
+            computer_value = ""
+            ship_value = ""
+            session_value = ""
+        else:
+            survey_value = survey["survey"]
+            cycle_value = survey["cycle"]
+            computer_value = survey["computer"]
+            ship_value = survey["shipName"]
+            session_value = survey["session"]
+        return (
+            survey_value,
+            cycle_value,
+            computer_value,
+            ship_value,
+            session_value,
+        )
+
+    def addEnvironmentFeature(self) -> QgsVectorLayer:
         layer = self.environmentLayer
         statusCode = StatusCode.display(
-            status
-            if status
-            else (
-                StatusCode.BEGIN
-                if (
-                    layer.featureCount()
-                    and next(
-                        layer.getFeatures(
-                            QgsFeatureRequest().addOrderBy("dateTime", False)
-                        )
-                    )["status"]
-                    == StatusCode.display(StatusCode.END)
-                )
-                else StatusCode(int(bool(layer.featureCount())))
-            )
+            StatusCode(int(bool(layer.featureCount())))
         )
-        effortGroup = layer.maximumValue(
-            layer.fields().indexOf("_effortGroup")
+
+        # Administration table values
+        (
+            survey_value,
+            cycle_value,
+            computer_value,
+            ship_value,
+            session_value,
+        ) = self.surveyValues(layer)
+
+        # EffortGroup management
+        effortGroup = max(
+            layer.maximumValue(layer.fields().indexOf("_effortGroup")), 0
         )
-        shipName = ""
-        if self.surveyLayer.featureCount() > 0:
-            shipName = next(self.surveyLayer.getFeatures())["shipName"]
         if effortGroup and statusCode == StatusCode.display(StatusCode.BEGIN):
             effortGroup += 1
-
         effortLeg = 0
         for ft in layer.getFeatures(
             QgsFeatureRequest(QgsExpression(f"_effortGroup = {effortGroup}"))
         ):
             if ft["_effortLeg"] > effortLeg:
                 effortLeg = ft["_effortLeg"]
-        if statusCode != StatusCode.display(StatusCode.END):
-            effortLeg += 1
+        effortLeg += 1
 
         self._addFeature(
             layer,
@@ -294,7 +341,11 @@ class SammoSession:
             _effortLeg=effortLeg or 1,
             speed=self.lastGpsInfo["gprmc"]["speed"],
             courseAverage=self.lastGpsInfo["gprmc"]["course"],
-            shipName=shipName,
+            survey=survey_value,
+            cycle=cycle_value,
+            session=session_value,
+            computer=computer_value,
+            shipName=ship_value,
         )
         return layer
 
@@ -304,14 +355,12 @@ class SammoSession:
         # feature, the index of the modified attribute and the new value of
         # this attribute.
         # If the attribute changed is routeType, we will check the previous
-        # feature to check if the routeType change between the two feature.
+        # feature to check if the routeType changes between the two feature.
         # If it's so, the status of the feature that has been changed is set on
-        # StatusCode.BEGIN to start a new route, and a new feature is created
-        # with a StatusCode.END to end the previous route.
+        # StatusCode.BEGIN to start a new route.
 
         if not self.environmentLayer or idx not in [
             self.environmentLayer.fields().indexOf("routeType"),
-            self.environmentLayer.fields().indexOf("status"),
         ]:
             return
         elif (
@@ -323,43 +372,13 @@ class SammoSession:
             for prevFeat in self.environmentLayer.getFeatures(request):
                 if prevFeat["fid"] == feat["fid"]:
                     continue
-                elif prevFeat["status"] == StatusCode.display(
-                    StatusCode.END
-                ) or feat["status"] == StatusCode.display(StatusCode.END):
-                    return
-                elif (
-                    prevFeat["status"]
-                    in [
-                        StatusCode.display(StatusCode.BEGIN),
-                        StatusCode.display(StatusCode.ADD),
-                    ]
-                    and prevFeat["routeType"] == feat["routeType"]
-                ):
-                    self.environmentLayer.changeAttributeValue(
-                        fid,
-                        self.environmentLayer.fields().indexOf("status"),
-                        StatusCode.display(StatusCode.ADD),
-                    )
+                elif prevFeat["routeType"] == feat["routeType"]:
                     self.environmentLayer.changeAttributeValue(
                         fid,
                         self.environmentLayer.fields().indexOf("_effortGroup"),
                         prevFeat["_effortGroup"],
                     )
                 elif prevFeat["routeType"] != feat["routeType"]:
-                    ft = QgsVectorLayerUtils.createFeature(
-                        self.environmentLayer
-                    )
-                    ft.setGeometry(feat.geometry())
-                    for attr in feat.fields().names():
-                        if attr in ["fid", "routeType", "dateTime", "status"]:
-                            continue
-                        ft[attr] = feat[attr]
-                    ft["routeType"] = prevFeat["routeType"]
-                    ft["dateTime"] = QDateTime(feat["dateTime"])
-                    ft["status"] = StatusCode.display(StatusCode.END)
-                    ft["_effortLeg"] = prevFeat["_effortLeg"]
-                    self.environmentLayer.addFeature(ft)
-
                     self.environmentLayer.changeAttributeValue(
                         fid,
                         self.environmentLayer.fields().indexOf("status"),
@@ -375,46 +394,54 @@ class SammoSession:
                         self.environmentLayer.fields().indexOf("_effortLeg"),
                         1,
                     )
-                    self.environmentLayer.changeAttributeValue(
-                        fid,
-                        self.environmentLayer.fields().indexOf("dateTime"),
-                        ft["dateTime"].addSecs(1),
-                    )
-                break
-
-        elif (
-            self.environmentLayer
-            and idx == self.environmentLayer.fields().indexOf("status")
-        ):
-            feat = self.environmentLayer.getFeature(fid)
-            if feat["status"] != StatusCode.display(StatusCode.END):
-                return
-            request = QgsFeatureRequest().addOrderBy("dateTime", False)
-            for prevFeat in self.environmentLayer.getFeatures(request):
-                if prevFeat["fid"] == feat["fid"]:
-                    continue
-                self.environmentLayer.changeAttributeValue(
-                    fid,
-                    self.environmentLayer.fields().indexOf("_effortLeg"),
-                    prevFeat["_effortLeg"],
-                )
                 break
 
     def addSightingsFeature(self) -> QgsVectorLayer:
         layer = self.sightingsLayer
-        self._addFeature(layer, geom=self.lastGpsInfo["geometry"])
+        survey_value, cycle_value, computer_value, _, _ = self.surveyValues(
+            layer
+        )
+        effortGroup = 1
+        effortLeg = 1
+        if self.environmentLayer and self.environmentLayer.featureCount():
+            ft = self.db.lastFeature(self.environmentLayer)
+            effortGroup = ft["_effortGroup"]
+            effortLeg = ft["_effortLeg"]
+        self._addFeature(
+            layer,
+            geom=self.lastGpsInfo["geometry"],
+            survey=survey_value,
+            cycle=cycle_value,
+            computer=computer_value,
+            _effortGroup=effortGroup,
+            _effortLeg=effortLeg,
+        )
         return layer
 
     def addFollowersFeature(
         self, dt: str, geom: QgsGeometry, focalId: int, duplicate: bool
     ) -> None:
         layer = self.followersLayer
+        survey_value, cycle_value, computer_value, _, _ = self.surveyValues(
+            layer
+        )
+        effortGroup = 1
+        effortLeg = 1
+        if self.environmentLayer and self.environmentLayer.featureCount():
+            ft = self.db.lastFeature(self.environmentLayer)
+            effortGroup = ft["_effortGroup"]
+            effortLeg = ft["_effortLeg"]
         self._addFeature(
             layer,
             dt,
             geom,
             duplicate,
             _focalId=focalId,
+            survey=survey_value,
+            cycle=cycle_value,
+            computer=computer_value,
+            _effortGroup=effortGroup,
+            _effortLeg=effortLeg,
         )
 
     def needsSaving(self) -> None:
@@ -456,177 +483,43 @@ class SammoSession:
             layer.commitChanges()
             layer.startEditing()
 
-    def validate(self, merge=False):
+    def validate(self, merge=False) -> None:
         selectedMode = bool(
             self.environmentLayer.selectedFeatureCount()
             + self.sightingsLayer.selectedFeatureCount()
             + self.followersLayer.selectedFeatureCount()
         )
 
-        survey = (
-            next(self.surveyLayer.getFeatures())
-            if self.surveyLayer.featureCount() > 0
-            else None
-        )
-        transect = (
-            next(self.transectLayer.getFeatures())
-            if self.transectLayer.featureCount() > 0
-            else None
-        )
-        environmentLayer = self.environmentLayer
-        environmentLayer.startEditing()
+        self.effortCheck(self.environmentLayer)
 
-        # effort status check
-        effortIds = environmentLayer.uniqueValues(
-            environmentLayer.fields().indexOf("_effortGroup")
-        )
-        errors = []
-        for effortId in effortIds:
-            effortIt = environmentLayer.getFeatures(
-                QgsFeatureRequest().setFilterExpression(
-                    f"_effortGroup = {effortId}"
-                )
+        def validateFeatures(selectedLayer: QgsVectorLayer) -> None:
+            selectedLayer.startEditing()
+            featuresIterator = (
+                selectedLayer.getSelectedFeatures()
+                if selectedMode
+                else selectedLayer.getFeatures()
             )
-            statusCodes = {ft["datetime"]: ft["status"] for ft in effortIt}
-            if (
-                StatusCode.display(StatusCode.BEGIN)
-                not in statusCodes.values()
-            ):
-                errors.append(
-                    f"Missing BEGIN code for effortGroup {effortId} (before "
-                    f"{min(statusCodes).toPyDateTime().isoformat()} record)"
-                )
-            elif (
-                StatusCode.display(StatusCode.END) not in statusCodes.values()
-            ):
-                errors.append(
-                    f"Missing END code for effortGroup {effortId} (after "
-                    f"{max(statusCodes).toPyDateTime().isoformat()} record)"
-                )
-        if errors:
-            errors.append("Please, resolve errors before validation")
-            QMessageBox.warning(
-                None, "Errors detected in effort status", "\n".join(errors)
-            )
-            return
-
-        featuresIterator = (
-            environmentLayer.getSelectedFeatures()
-            if selectedMode
-            else environmentLayer.getFeatures()
-        )
-        for feat in featuresIterator:
-            if feat["validated"]:
-                continue
-            if survey:
-                for attr in [
-                    "survey",
-                    "cycle",
-                    "session",
-                    "computer",
-                ]:
-                    if attr == "computer" and feat["computer"]:
-                        continue
-                    environmentLayer.changeAttributeValue(
-                        feat.id(),
-                        environmentLayer.fields().indexOf(attr),
-                        survey[attr],
-                    )
-            if transect:
-                for attr in ["transect", "strate", "length"]:
-                    environmentLayer.changeAttributeValue(
-                        feat.id(),
-                        environmentLayer.fields().indexOf(attr),
-                        transect[attr],
-                    )
-
-            idx = environmentLayer.fields().indexOf("validated")
-            environmentLayer.changeAttributeValue(
-                feat.id(),
-                idx,
-                not merge,
-            )
-        environmentLayer.commitChanges()
-        environmentLayer.startEditing()
-
-        sightingsLayer = self.sightingsLayer
-        sightingsLayer.startEditing()
-        featuresIterator = (
-            sightingsLayer.getSelectedFeatures()
-            if selectedMode
-            else sightingsLayer.getFeatures()
-        )
-        for feat in featuresIterator:
-            if feat["validated"]:
-                continue
-            if survey:
-                for attr in [
-                    "survey",
-                    "cycle",
-                    "computer",
-                ]:
-                    if attr == "computer" and feat["computer"]:
-                        continue
-                    sightingsLayer.changeAttributeValue(
-                        feat.id(),
-                        sightingsLayer.fields().indexOf(attr),
-                        survey[attr],
-                    )
-
-            if survey:
-                sightingsLayer.changeAttributeValue(
+            for feat in featuresIterator:
+                if feat["validated"]:
+                    continue
+                idx = selectedLayer.fields().indexOf("validated")
+                selectedLayer.changeAttributeValue(
                     feat.id(),
-                    sightingsLayer.fields().indexOf("sightNum"),
-                    "-".join(
-                        [
-                            str(survey["survey"]),
-                            str(survey["session"]),
-                            str(survey["computer"]),
-                            str(feat["fid"]),
-                        ]
-                    ),
+                    idx,
+                    not merge,
                 )
-            idx = sightingsLayer.fields().indexOf("validated")
-            sightingsLayer.changeAttributeValue(
-                feat.id(),
-                idx,
-                not merge,
-            )
-        sightingsLayer.commitChanges()
-        sightingsLayer.startEditing()
-
-        followersLayer = self.followersLayer
-        followersLayer.startEditing()
-        featuresIterator = (
-            followersLayer.getSelectedFeatures()
-            if selectedMode
-            else followersLayer.getFeatures()
-        )
-        idx = followersLayer.fields().indexOf("validated")
-        for feat in featuresIterator:
-            if survey:
-                for attr in [
-                    "survey",
-                    "cycle",
-                    "session",
-                    "computer",
-                ]:
-                    if attr == "computer" and feat["computer"]:
-                        continue
-                    followersLayer.changeAttributeValue(
-                        feat.id(),
-                        followersLayer.fields().indexOf(attr),
-                        survey[attr],
-                    )
-
-            followersLayer.changeAttributeValue(
-                feat.id(),
-                idx,
-                not merge,
+            selectedLayer.commitChanges()
+            selectedLayer.startEditing()
+            selectedLayer.deselect(
+                [f.id() for f in selectedLayer.selectedFeatures()]
             )
 
-        followersLayer.commitChanges()
-        followersLayer.startEditing()
+        for layer in (
+            self.environmentLayer,
+            self.sightingsLayer,
+            self.followersLayer,
+        ):
+            validateFeatures(layer)
 
     def onStopSoundRecordingForEvent(
         self,
@@ -666,7 +559,7 @@ class SammoSession:
         sec: int,
         speed: Optional[float] = -9999.0,
         course: Optional[float] = -9999.0,
-    ):
+    ) -> None:
         survey = ""
         cycle = ""
         computer = ""
@@ -703,6 +596,11 @@ class SammoSession:
         feat["dateTime"] = dt
         if geom:
             feat.setGeometry(geom)
+        else:
+            iface.messageBar().pushWarning(
+                f"{layer.name().lower()}",
+                "No geometry available, please check gps status",
+            )
 
         lastFeat = SammoDataBase.lastFeature(layer)
         if lastFeat:
@@ -724,7 +622,7 @@ class SammoSession:
                         "shipName",
                         "computer",
                         "transect",
-                        "strate",
+                        "strateType",
                         "length",
                         "comment",
                         "species",
@@ -773,154 +671,101 @@ class SammoSession:
         return ""
 
     @staticmethod
-    def merge(
-        sessionADir: str,
-        sessionBDir: str,
-        sessionOutputDir: str,
-        progressBar: QProgressBar,
-        date: Optional[QDate] = None,
-    ) -> None:
-        # open input session
-        sessionA = SammoSession()
-        sessionA.init(sessionADir, load=False)
-        sessionA.validate(True)
-
-        sessionB = SammoSession()
-        sessionB.init(sessionBDir, load=False)
-        sessionB.validate(True)
-
-        # create output session
-        sessionOutput = SammoSession()
-        sessionOutput.init(sessionOutputDir, load=False)
-
-        # copy sound files to output session
-        progressBar.setFormat("Copying sound files")
-        dateInt = int(date.toPyDate().strftime("%Y%m%d")) if date else 0
-        for session in [sessionA, sessionB]:
-            # all this can be replace with shutil.copytree with dirs_exist_ok,
-            # after python3.8
-            for subdir in session.audioFolder.glob("*"):
-                if not subdir.is_dir() or int(subdir.stem) < dateInt:
-                    continue
-                elif not (sessionOutput.audioFolder / subdir.name).exists():
-                    (sessionOutput.audioFolder / subdir.name).mkdir()
-                outputFolder = sessionOutput.audioFolder / subdir.name
-                for file in subdir.glob("*"):
-                    if (outputFolder / file.name).exists():
-                        os.remove(outputFolder / file.name)
-                    copyfile(file, outputFolder / file.name)
-
-        # copy features from dynamic layers
-        dynamicLayers = [
-            "environmentLayer",
-            "sightingsLayer",
-            "gpsLayer",
-            "followersLayer",
-        ]
-        dateRequest = QgsFeatureRequest()
-        if date:
-            dateString = date.toPyDate().strftime("%Y-%m-%d")
-            dateExpression = QgsExpression(
-                "to_date(datetime) >= " f"to_date('{dateString}')"
-            )
-            dateRequest = QgsFeatureRequest(dateExpression)
-        for layer in dynamicLayers:
-            out = getattr(sessionOutput, layer)
-            nb = 0
-            progressBar.setFormat(f"Copy {layer}, Total : %p%")
-
-            newFid = 0
-            lastFeature = SammoDataBase.lastFeature(out, True)
-            if lastFeature:
-                newFid = lastFeature["fid"] + 1
-            tot = (
-                getattr(sessionA, layer).featureCount()
-                + getattr(sessionB, layer).featureCount()
-            )
-            for vl in [getattr(sessionA, layer), getattr(sessionB, layer)]:
-                for feature in vl.getFeatures(dateRequest):
-                    nb += 1
-                    progressBar.setValue(int(100 / tot * (nb + 1)))
-                    attrs = feature.attributes()[1:]
-
-                    exist = False
-                    ft_datetime = (
-                        feature["datetime"]
-                        .toPyDateTime()
-                        .strftime("%Y-%m-%dT%H:%M:%S")
-                    )
-                    request = QgsFeatureRequest(
-                        QgsExpression(
-                            "format_date(datetime, 'yyyy-MM-ddThh:mm:ss') = "
-                            f"'{ft_datetime}'"
-                        )
-                    )
-                    for featureOut in out.getFeatures(request):
-                        if featureOut.attributes()[1:] == attrs:
-                            exist = True
-                            break
-
-                    if not exist:
-                        feature["fid"] = newFid
-                        newFid += 1
-
-                        print(out.startEditing())
-                        print(out.addFeature(feature))
-                        print(out.commitChanges())
-
-        # gps layer
-        out = getattr(sessionOutput, "gpsLayer")
-        datetimeSet = set(
-            [
-                ft["datetime"].toPyDateTime().replace(second=0, microsecond=0)
-                for ft in out.getFeatures(dateRequest)
-            ]
+    def effortCheck(environmentLayer) -> None:
+        # effort status check
+        effortIds = environmentLayer.uniqueValues(
+            environmentLayer.fields().indexOf("_effortGroup")
         )
-        nb = 0
-        progressBar.setFormat("Copy gpsLayer, Total : %p%")
-
-        newFid = 0
-        lastFeature = SammoDataBase.lastFeature(out, True)
-        if lastFeature:
-            newFid = lastFeature["fid"] + 1
-        tot = (
-            sessionA.gpsLayer.featureCount() + sessionB.gpsLayer.featureCount()
-        )
-        for vl in [sessionA.gpsLayer, sessionB.gpsLayer]:
-            for feature in vl.getFeatures(dateRequest):
-                nb += 1
-                progressBar.setValue(int(100 / tot * (nb + 1)))
-                dateTimeAttr = (
-                    feature["datetime"]
-                    .toPyDateTime()
-                    .replace(second=0, microsecond=0)
+        errors = []
+        for effortId in effortIds:
+            effortIt = environmentLayer.getFeatures(
+                QgsFeatureRequest().setFilterExpression(
+                    f"_effortGroup = {effortId}"
                 )
-                if dateTimeAttr in datetimeSet:
-                    continue
-                datetimeSet.add(dateTimeAttr)
-                feature["fid"] = newFid
-                newFid += 1
+            )
+            statusCodes = {ft["datetime"]: ft["status"] for ft in effortIt}
+            if (
+                StatusCode.display(StatusCode.BEGIN)
+                not in statusCodes.values()
+            ):
+                errors.append(
+                    f"Missing BEGIN code for effortGroup {effortId} (before "
+                    f"{min(statusCodes).toPyDateTime().isoformat()} record)"
+                )
 
-                out.startEditing()
-                out.addFeature(feature)
-                out.commitChanges()
+        if errors:
+            errors.append("Please, resolve errors before validation")
+            QMessageBox.warning(
+                None, "Errors detected in effort status", "\n".join(errors)
+            )
+            return
 
-        # copy content of static layers only if output is empty
-        staticLayers = [
-            "speciesLayer",
-            "observersLayer",
-            "surveyLayer",
-            "strateLayer",
-            "transectLayer",
-            "plateformLayer",
-        ]
-        for layer in staticLayers:
-            out = getattr(sessionOutput, layer)
-            if out.featureCount() < 1:
-                continue
+    @staticmethod
+    def applyEnvAttr(
+        environmentLayer: QgsVectorLayer,
+        sightingsLayer: QgsVectorLayer,
+        followersLayer: QgsVectorLayer,
+    ) -> None:
+        # Sightings
+        sightingsLayer.startEditing()
+        for feat in sightingsLayer.getFeatures():
+            strDateTime = (
+                feat["dateTime"].toPyDateTime().strftime("%Y-%m-%d %H:%M:%S")
+            )
+            request = QgsFeatureRequest().setFilterExpression(
+                f"dateTime < to_datetime('{strDateTime}') "
+            )
+            request.addOrderBy("dateTime", False)
+            for envFeat in environmentLayer.getFeatures(request):
+                if feat["side"] == "L":
+                    sightingsLayer.changeAttributeValue(
+                        feat.id(),
+                        sightingsLayer.fields().indexOf("observer"),
+                        envFeat["left"],
+                    )
+                elif feat["side"] == "R":
+                    sightingsLayer.changeAttributeValue(
+                        feat.id(),
+                        sightingsLayer.fields().indexOf("observer"),
+                        envFeat["right"],
+                    )
+                elif feat["side"] == "C":
+                    sightingsLayer.changeAttributeValue(
+                        feat.id(),
+                        sightingsLayer.fields().indexOf("observer"),
+                        envFeat["center"],
+                    )
+                sightingsLayer.changeAttributeValue(
+                    feat.id(),
+                    sightingsLayer.fields().indexOf("_effortGroup"),
+                    envFeat["_effortGroup"],
+                )
+                sightingsLayer.changeAttributeValue(
+                    feat.id(),
+                    sightingsLayer.fields().indexOf("_effortLeg"),
+                    envFeat["_effortLeg"],
+                )
+                break
+        sightingsLayer.commitChanges()
+        sightingsLayer.startEditing()
 
-            out.startEditing()
-            vl = getattr(sessionA, layer)
-            for feature in vl.getFeatures(dateRequest):
-                out.addFeature(feature)
-            out.commitChanges()
+        # Followers
+        followersLayer.startEditing()
+        for feat in followersLayer.getFeatures():
+            strDateTime = (
+                feat["dateTime"].toPyDateTime().strftime("%Y-%m-%d %H:%M:%S")
+            )
+            request = QgsFeatureRequest().setFilterExpression(
+                f"dateTime < to_datetime('{strDateTime}') "
+            )
+            request.addOrderBy("dateTime", False)
+            for envFeat in environmentLayer.getFeatures(request):
+                followersLayer.changeAttributeValue(
+                    feat.id(),
+                    followersLayer.fields().indexOf("_effortGroup"),
+                    envFeat["_effortGroup"],
+                )
+                break
+
+        followersLayer.commitChanges()
+        followersLayer.startEditing()
