@@ -71,7 +71,6 @@ class SammoAttributeTable:
             "soundFile",
             "soundStart",
             "soundEnd",
-            # "validated",
             "survey",
             "cycle",
             "session",
@@ -85,6 +84,8 @@ class SammoAttributeTable:
             "_effortGroup",
             "_effortLeg",
         ]
+        if iface.userProfileManager().userProfile().name() == "operator":
+            hiddens += ["validated"]
         if layer.name().lower() != ENVIRONMENT_TABLE:
             hiddens += ["effortGroup", "effortLeg"]
         config = layer.attributeTableConfig()
