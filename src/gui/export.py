@@ -289,11 +289,11 @@ class SammoExportAction(QDialog):
 
     def addEndEffortFeature(self, layer: QgsVectorLayer) -> QgsVectorLayer:
         effortGroupValues = layer.uniqueValues(
-            layer.fields().indexOf("_effortGroup")
+            layer.fields().indexOf("effortGroup")
         )
         layer.startEditing()
         for effortGroupValue in effortGroupValues:
-            expr = QgsExpression(f"_effortGroup = {effortGroupValue}")
+            expr = QgsExpression(f"effortGroup = '{effortGroupValue}'")
             request = QgsFeatureRequest(expr).addOrderBy("dateTime", False)
             lastEffortFt = None
             for lastEffortFt in layer.getFeatures(request):
@@ -301,7 +301,7 @@ class SammoExportAction(QDialog):
             if not lastEffortFt:
                 continue
             expr = QgsExpression(
-                f"_effortGroup != {effortGroupValue} and "
+                f"effortGroup != '{effortGroupValue}' and "
                 f"status = '{StatusCode.display(StatusCode.BEGIN)}' and "
                 "dateTime > "
                 f"'{lastEffortFt['dateTime'].toPyDateTime().isoformat()}'"
@@ -310,7 +310,10 @@ class SammoExportAction(QDialog):
             nextBegFt = None
             for nextBegFt in layer.getFeatures(request):
                 break
-            if not nextBegFt:
+            if not nextBegFt or (
+                QDateTime(lastEffortFt["dateTime"]).date()
+                != QDateTime(nextBegFt["dateTime"]).date()
+            ):
                 nextBegFt = lastEffortFt
                 dt = QDateTime(nextBegFt["dateTime"]).addSecs(1)
             else:
