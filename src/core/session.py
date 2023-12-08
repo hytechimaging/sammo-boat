@@ -596,6 +596,11 @@ class SammoSession:
         feat["dateTime"] = dt
         if geom:
             feat.setGeometry(geom)
+        else:
+            iface.messageBar().pushWarning(
+                f"{layer.name().lower()}",
+                "No geometry available, please check gps status",
+            )
 
         lastFeat = SammoDataBase.lastFeature(layer)
         if lastFeat:
