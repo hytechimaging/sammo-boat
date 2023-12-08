@@ -5,9 +5,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 -----
+## [v1.4.0] - 2023-12-08
+
+### Add
+
+- Transect management (import, selection in environment table)
+- Action to open csv data folder
+
+
+### Modified
+
+- `End` environment entities are only created for export
+- Merge processes in background
+- Keep only one side gps entities during Merge process
+- Fixes `speed` and `course` attributes in gps layer
+- Add some fields in species table
+- Fixes relation between boat and survey table
+- Fixes `state` field into `StrateType`
+- Add field `session` and `routeType` in sighting and follower export
+- Merge behaviour fields into one behaviourSpecies field
+- Prevent crash on `stretchLastSection` option
+
+-----
 ## [v1.3.2] - 2023-05-09
 
-## Modified
+### Modified
 
 - EffortGroup became a complex id and it is copied into Sighting/Followers entities during export
 - EffortLeg added and copied in Sighting entities export
@@ -22,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v1.3.1] - 2023-01-04
 
-## Modified
+### Modified
 
 - Remove gps shortcut
 - Fix typographic error in documentation
@@ -46,7 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unvalidated filter to help validation
 - Boat layer
 
-## Modified
+### Modified
 
 - GPS can be enable/disable (button + shortcut). Disable GPS also finishes effort
 - Merge : dateCheckbox checked by default
@@ -63,7 +85,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v1.2.3] - 2022-07-06
 
-## Modified
+### Modified
 
 - Plateform (environment table) is not a read-only column anymore.
 
@@ -206,6 +228,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+[v1.4.0]: https://github.com/hytechimaging/sammo-boat/releases/tag/v1.4.0
 [v1.3.2]: https://github.com/hytechimaging/sammo-boat/releases/tag/v1.3.2
 [v1.3.1]: https://github.com/hytechimaging/sammo-boat/releases/tag/v1.3.1
 [v1.3.0]: https://github.com/hytechimaging/sammo-boat/releases/tag/v1.3.0
