@@ -3,9 +3,10 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
+from pathlib import Path
 from qgis.PyQt import QtCore
 from qgis.gui import QgisInterface
-from qgis.core import QgsVectorLayer
+from qgis.core import QgsVectorLayer, QgsApplication
 from qgis.PyQt.QtWidgets import (
     QFrame,
     QAction,
@@ -84,7 +85,7 @@ class SammoAttributeTable:
             "_effortGroup",
             "_effortLeg",
         ]
-        if iface.userProfileManager().userProfile().name() == "operator":
+        if Path(QgsApplication.qgisSettingsDirPath()).name == "operator":
             hiddens += ["validated"]
         if layer.name().lower() != ENVIRONMENT_TABLE:
             hiddens += ["effortGroup", "effortLeg"]
