@@ -1,4 +1,4 @@
-VERSION := "1.4.0"
+VERSION := "1.4.1"
 TMPDIR := "/tmp/sammo-boat-$(VERSION)"
 
 venv:
