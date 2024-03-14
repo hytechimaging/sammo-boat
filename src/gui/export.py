@@ -163,23 +163,30 @@ class SammoExportAction(QDialog):
                 layer.addJoin(self.obsSpeLayerJoinInfo(speciesJoinLayer))
 
             elif layer.name() == self.session.environmentLayer.name():
-                obsJoinLayer = QgsVectorLayer(
+                obsJoinLayerLeft = QgsVectorLayer(
                     self.session.observersLayer.source(),
-                    self.session.observersLayer.name(),
+                    f"{self.session.observersLayer.name()}_left",
                 )  # keepped alive until export is done
-                layer.addJoin(
-                    self.environmentLayerJoinObserverInfo(obsJoinLayer, "left")
-                )
-                layer.addJoin(
-                    self.environmentLayerJoinObserverInfo(
-                        obsJoinLayer, "rigth"
-                    )
-                )
-                layer.addJoin(
-                    self.environmentLayerJoinObserverInfo(
-                        obsJoinLayer, "center"
-                    )
-                )
+                left_join = self.environmentLayerJoinObserverInfo(
+                    obsJoinLayerLeft, "left"
+                )  # keepped alive until export is done
+                layer.addJoin(left_join)
+                obsJoinLayerRight = QgsVectorLayer(
+                    self.session.observersLayer.source(),
+                    f"{self.session.observersLayer.name()}_right",
+                )  # keepped alive until export is done
+                right_join = self.environmentLayerJoinObserverInfo(
+                    obsJoinLayerRight, "right"
+                )  # keepped alive until export is done
+                layer.addJoin(right_join)
+                obsJoinLayerCenter = QgsVectorLayer(
+                    self.session.observersLayer.source(),
+                    f"{self.session.observersLayer.name()}_center",
+                )  # keepped alive until export is done
+                center_join = self.environmentLayerJoinObserverInfo(
+                    obsJoinLayerCenter, "center"
+                )  # keepped alive until export is done
+                layer.addJoin(center_join)
                 plateformJoinLayer = QgsVectorLayer(
                     self.session.plateformLayer.source(),
                     self.session.plateformLayer.name(),

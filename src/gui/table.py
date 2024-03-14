@@ -39,9 +39,9 @@ class TableWidget(QFrame, FORM_CLASS):
         self.setupUi(self)
 
         self.tables = {}
-        self.tables[
-            environmentLayer.name()
-        ] = SammoAttributeTable.attributeTable(iface, environmentLayer)
+        self.tables[environmentLayer.name()] = (
+            SammoAttributeTable.attributeTable(iface, environmentLayer)
+        )
         self.tables[environmentLayer.name()].setMinimumSize(QSize(10, 10))
         self.tables[environmentLayer.name()].installEventFilter(self)
         self.tables[sightingLayer.name()] = SammoAttributeTable.attributeTable(
