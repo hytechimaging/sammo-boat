@@ -27,7 +27,7 @@ from .layer import SammoLayer, NULL
 
 class SammoFollowersLayer(SammoLayer):
     def __init__(self, db: SammoDataBase, observersLayer, speciesLayer):
-        super().__init__(db, FOLLOWERS_TABLE, "Followers", True)
+        super().__init__(db, FOLLOWERS_TABLE, "Followers", True, True)
         self.observersLayer = observersLayer
         self.speciesLayer = speciesLayer
 

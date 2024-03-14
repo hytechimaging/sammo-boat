@@ -93,7 +93,7 @@ class DuplicateDialog(QDialog):
             self.HEffortLayout.addWidget(self.effortComboBox)
             self.VLayout.addLayout(self.HEffortLayout)
 
-            self.updateGeometry()
+        self.updateGeometry()
 
         self.HBottomLayout = QHBoxLayout()
         self.HBottomLayout.addWidget(self.cancelButton)

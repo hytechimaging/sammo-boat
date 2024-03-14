@@ -261,6 +261,7 @@ class SammoSession:
             self._sightingsLayer.addDuplicateAction(self.sightingsLayer)
             self.followersLayer.actions().clearActions()
             self._followersLayer.addSoundAction(self.followersLayer)
+            self._sightingsLayer.addDuplicateAction(self.followersLayer)
             QgsSettings().setValue("qgis/enableMacros", "SessionOnly")
             self.environmentLayer.attributeValueChanged.connect(
                 self.updateRouteTypeStatus
