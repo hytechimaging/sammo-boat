@@ -37,10 +37,7 @@ class SammoAttributeTable:
 
         view = table.findChild(QTableView, "mTableView")
         view.resizeColumnsToContents()
-        if layerName.casefold() in [
-            SIGHTINGS_TABLE,
-            FOLLOWERS_TABLE,
-        ]:
+        if layerName.casefold() == SIGHTINGS_TABLE:
             for i in range(view.model().columnCount()):
                 if view.model().headerData(i, 1) == "species":
                     index = view.model().index(0, i)
@@ -48,6 +45,11 @@ class SammoAttributeTable:
             for i in range(view.model().columnCount()):
                 if view.model().headerData(i, 1) == "routeType":
                     index = view.model().index(0, i)
+        elif layerName.casefold() == FOLLOWERS_TABLE:
+            for i in range(view.model().columnCount()):
+                if view.model().headerData(i, 1) == "species":
+                    print(view.model().rowCount())
+                    index = view.model().index(view.model().rowCount() - 1, i)
 
         if not focus:
             return

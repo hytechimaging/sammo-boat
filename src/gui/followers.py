@@ -116,7 +116,7 @@ class SammoFollowersTable(QDialog, FORM_CLASS):
         filterExpr = (
             f"epoch(\"dateTime\") = epoch(to_datetime('{self.datetime}'))"
         )
-        SammoAttributeTable.refresh(self.table, "Followers", filterExpr)
+        SammoAttributeTable.refresh(self.table, "Followers", filterExpr, True)
 
     def eventFilter(self, obj, event):
         if type(event) is QKeyEvent:
