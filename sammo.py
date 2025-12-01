@@ -11,8 +11,13 @@ from datetime import datetime
 
 from qgis.PyQt.QtCore import Qt, QUrl
 from qgis.PyQt.QtGui import QKeySequence, QDesktopServices, QIcon
-from qgis.PyQt.QtWidgets import QToolBar, QShortcut, QTableView, QAction
-
+from qgis.PyQt.QtWidgets import (
+    QToolBar,
+    QShortcut,
+    QTableView,
+    QAction,
+    QDialog,
+)
 from qgis.core import (
     QgsProject,
     QgsPointXY,
@@ -25,6 +30,7 @@ from qgis.core import (
 from .src.core.gps import SammoGpsReader
 from .src.core.session import SammoSession
 from .src.core.utils import shortcutCreation
+from .src.core.database import FOLLOWERS_TABLE
 from .src.core.thread_simu_gps import ThreadSimuGps
 from .src.core.sound_recording_controller import (
     RecordType,
@@ -353,7 +359,7 @@ class Sammo:
     def saveAll(self) -> None:
         self.session.saveAll()
 
-    def validate(self) -> None:
+    def validate(self, followersTable: Optional[QDialog]) -> None:
         self.session.validate()
         self.session.saveAll()
         self.tableDock.refresh(
@@ -362,6 +368,10 @@ class Sammo:
         self.tableDock.refresh(
             self.session.sightingsLayer, self.filterExpr, False
         )
+        if followersTable:
+            SammoAttributeTable.refresh(
+                followersTable, FOLLOWERS_TABLE, self.filterExpr, False
+            )
 
     def onGpsFrame(
         self,
@@ -547,7 +557,10 @@ class Sammo:
     def onFollowersAction(self, validation: Optional[QAction] = None):
         if validation == self.followersAction.followerTable:
             table = SammoAttributeTable.attributeTable(
-                self.iface, self.session.followersLayer, self.filterExpr
+                self.iface,
+                self.session.followersLayer,
+                self.filterExpr,
+                validate_callback=self.validate,
             )
             table.setWindowFlags(
                 Qt.Window
