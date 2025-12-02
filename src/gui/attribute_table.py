@@ -4,6 +4,7 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 from pathlib import Path
+from typing import Optional
 from qgis.PyQt import QtCore
 from qgis.gui import QgisInterface
 from qgis.core import QgsVectorLayer, QgsApplication
@@ -16,6 +17,7 @@ from qgis.PyQt.QtWidgets import (
     QTableView,
 )
 
+from ..core import utils
 from ..core.database import SIGHTINGS_TABLE, ENVIRONMENT_TABLE, FOLLOWERS_TABLE
 
 
@@ -48,7 +50,6 @@ class SammoAttributeTable:
         elif layerName.casefold() == FOLLOWERS_TABLE:
             for i in range(view.model().columnCount()):
                 if view.model().headerData(i, 1) == "species":
-                    print(view.model().rowCount())
                     index = view.model().index(view.model().rowCount() - 1, i)
 
         if not focus:
@@ -66,6 +67,7 @@ class SammoAttributeTable:
         layer: QgsVectorLayer,
         filterExpr: str = "True",
         sortExpr: str = '"dateTime"',
+        validate_callback: Optional[callable] = None,
     ) -> QDialog:
         # hide some columns
         hiddens = [
@@ -114,7 +116,22 @@ class SammoAttributeTable:
         for idx in range(layout.count()):
             layout.itemAt(idx).widget().hide()
 
-        SammoAttributeTable.toolbar(table).hide()
+        # SammoAttributeTable.toolbar(table).hide()
+        toolbar = SammoAttributeTable.toolbar(table)
+        toolbar_actions = toolbar.actions()
+        for idx in range(len(toolbar_actions)):
+            toolbar_actions[idx].setVisible(False)
+        if validate_callback:
+            validateAction = QAction(table)
+            validateAction.setObjectName("Follower_validate")
+            validateAction.triggered.connect(
+                lambda x: validate_callback(table)
+            )
+            validateAction.setIcon(utils.icon("pen_valid.png"))
+            validateAction.setToolTip("Validate (all or current selection)")
+            validateAction.setText("Validate (all or current selection)")
+            toolbar.addAction(validateAction)
+            table.setModal(True)
 
         # update table view
         view = table.findChild(QTableView, "mTableView")

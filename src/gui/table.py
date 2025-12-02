@@ -109,6 +109,8 @@ class SammoTableDock(QDockWidget):
         self.iface.mainWindow().setCorner(
             Qt.BottomRightCorner, Qt.BottomDockWidgetArea
         )
+        environmentLayer.configChanged.connect(self.fixHiddenColumn)
+        sightingsLayer.configChanged.connect(self.fixHiddenColumn)
         self.refresh(environmentLayer)
         self.refresh(sightingsLayer)
         QgsSettings().setValue("qgis/attributeTableLastView", lastView)
@@ -144,3 +146,15 @@ class SammoTableDock(QDockWidget):
         self.iface.mainWindow().setCorner(
             Qt.BottomRightCorner, Qt.RightDockWidgetArea
         )
+
+    def fixHiddenColumn(self):
+        layer = self.sender()
+        for ind, c in enumerate(layer.attributeTableConfig().columns()):
+            if c.name == "validated" and c.hidden:
+                config = layer.attributeTableConfig()
+                columns = config.columns()
+                for col in columns:
+                    if col.name == "validated":
+                        col.hidden = False
+                config.setColumns(columns)
+                layer.setAttributeTableConfig(config)
