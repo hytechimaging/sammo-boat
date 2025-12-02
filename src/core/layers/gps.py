@@ -8,11 +8,12 @@ from datetime import datetime
 from qgis.PyQt.QtGui import QColor
 
 from qgis.core import (
-    QgsVectorLayer,
-    QgsGeometry,
-    QgsFeature,
-    QgsVectorLayerUtils,
+    Qgis,
     QgsPointXY,
+    QgsFeature,
+    QgsGeometry,
+    QgsVectorLayer,
+    QgsVectorLayerUtils,
 )
 
 from ..database import (
@@ -33,7 +34,10 @@ class SammoGpsLayer(SammoLayer):
         symbol.setSize(2)
 
         layer.setAutoRefreshInterval(1000)
-        layer.setAutoRefreshEnabled(True)
+        if Qgis.QGIS_VERSION_INT >= 33400:
+            layer.setAutoRefreshMode(Qgis.AutoRefreshMode.ReloadData)
+        else:
+            layer.setAutoRefreshEnabled(True)
 
     def add(
         self,

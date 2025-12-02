@@ -73,6 +73,7 @@ class SammoAttributeTable:
         hiddens = [
             "copy",
             "fid",
+            "endDateTime",
             "soundFile",
             "soundStart",
             "soundEnd",

@@ -376,6 +376,7 @@ class SammoEnvironmentLayer(SammoLayer):
             "length",
             "plateformHeight",
             "_effortGroup",
+            "endDateTime",
         ]:
             idx = layer.fields().indexFromName(field)
             form_config = layer.editFormConfig()
