@@ -55,24 +55,6 @@ class DuplicateDialog(QDialog):
         self.datetimeEdit.dateTimeChanged.connect(self.updateGeometry)
         self.VLayout.addWidget(self.geometryLabel)
         if self.layer.name() == "Environment":
-            self.HStatusLayout = QHBoxLayout()
-            self.statusLabel = QLabel("Status :")
-            self.statusComboBox = QComboBox()
-            self.statusComboBox.addItems(
-                [
-                    [k for k in element.keys()][0]
-                    for element in self.layer.editorWidgetSetup(
-                        self.layer.fields().indexOf("status")
-                    ).config()["map"]
-                ]
-            )
-            self.statusComboBox.setCurrentIndex(
-                self.statusComboBox.findText(self.toDuplicate["status"])
-            )
-            self.HStatusLayout.addWidget(self.statusLabel)
-            self.HStatusLayout.addWidget(self.statusComboBox)
-            self.VLayout.addLayout(self.HStatusLayout)
-
             self.HEffortLayout = QHBoxLayout()
             self.effortLabel = QLabel("effortGroup :")
             self.effortComboBox = QComboBox()
@@ -112,7 +94,6 @@ class DuplicateDialog(QDialog):
 
             feat["datetime"] = self.datetimeEdit.dateTime()
             if self.layer.name() == "Environment":
-                feat["status"] = self.statusComboBox.currentText()
                 feat["_effortGroup"] = int(self.effortComboBox.currentText())
 
             self.layer.startEditing()
@@ -126,11 +107,6 @@ class DuplicateDialog(QDialog):
                 self.datetimeEdit.dateTime(),
             )
             if self.layer.name() == "Environment":
-                self.layer.changeAttributeValue(
-                    self.toDuplicate.id(),
-                    self.layer.fields().indexOf("status"),
-                    self.statusComboBox.currentText(),
-                )
                 self.layer.changeAttributeValue(
                     self.toDuplicate.id(),
                     self.layer.fields().indexOf("_effortGroup"),

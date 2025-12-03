@@ -395,16 +395,6 @@ class SammoEnvironmentLayer(SammoLayer):
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
 
-        # glare severity
-        idx = layer.fields().indexFromName("status")
-        cfg = {}
-        cfg["map"] = [
-            {"Begin": "Begin"},
-            {"Add": "Add"},
-        ]
-        setup = QgsEditorWidgetSetup("ValueMap", cfg)
-        layer.setEditorWidgetSetup(idx, setup)
-
         # left/right/center
         for field in ["left", "right", "center"]:
             idx = layer.fields().indexFromName(field)

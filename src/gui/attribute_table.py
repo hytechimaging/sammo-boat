@@ -117,12 +117,9 @@ class SammoAttributeTable:
         for idx in range(layout.count()):
             layout.itemAt(idx).widget().hide()
 
-        # SammoAttributeTable.toolbar(table).hide()
-        toolbar = SammoAttributeTable.toolbar(table)
-        toolbar_actions = toolbar.actions()
-        for idx in range(len(toolbar_actions)):
-            toolbar_actions[idx].setVisible(False)
+        SammoAttributeTable.toolbar(table).hide()
         if validate_callback:
+            toolbar = QToolBar()
             validateAction = QAction(table)
             validateAction.setObjectName("Follower_validate")
             validateAction.triggered.connect(
@@ -132,6 +129,7 @@ class SammoAttributeTable:
             validateAction.setToolTip("Validate (all or current selection)")
             validateAction.setText("Validate (all or current selection)")
             toolbar.addAction(validateAction)
+            table.layout().addWidget(toolbar, 0, 0)
             table.setModal(True)
 
         # update table view
