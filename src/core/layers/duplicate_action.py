@@ -7,7 +7,6 @@ from qgis import utils
 from qgis.PyQt.QtWidgets import (
     QLabel,
     QDialog,
-    QComboBox,
     QCheckBox,
     QPushButton,
     QHBoxLayout,
@@ -18,6 +17,7 @@ from qgis.core import (
     QgsProject,
     QgsFeature,
     QgsGeometry,
+    QgsExpression,
     QgsVectorLayer,
     QgsGeometryUtils,
     QgsFeatureRequest,
@@ -46,35 +46,21 @@ class DuplicateDialog(QDialog):
         # datetime
         self.HLayout = QHBoxLayout()
         self.datetimeLabel = QLabel("Datetime :")
-        self.datetimeEdit = QDateTimeEdit(self.toDuplicate["datetime"])
+        self.datetimeEdit = QDateTimeEdit(self.toDuplicate["dateTime"])
         self.datetimeEdit.setDisplayFormat("dd/MM/yyyy hh:mm:ss")
         self.HLayout.addWidget(self.datetimeLabel)
         self.HLayout.addWidget(self.datetimeEdit)
+        self.endDatetimeLabel = QLabel("End Datetime :")
+        self.endDatetimeEdit = QDateTimeEdit(self.toDuplicate["endDateTime"])
+        self.endDatetimeEdit.setDisplayFormat("dd/MM/yyyy hh:mm:ss")
+        self.HendLayout = QHBoxLayout()
+        self.HendLayout.addWidget(self.endDatetimeLabel)
+        self.HendLayout.addWidget(self.endDatetimeEdit)
         self.VLayout.addLayout(self.HLayout)
+        self.VLayout.addLayout(self.HendLayout)
         self.geometryLabel = QLabel("")
         self.datetimeEdit.dateTimeChanged.connect(self.updateGeometry)
         self.VLayout.addWidget(self.geometryLabel)
-        if self.layer.name() == "Environment":
-            self.HEffortLayout = QHBoxLayout()
-            self.effortLabel = QLabel("effortGroup :")
-            self.effortComboBox = QComboBox()
-            self.effortComboBox.addItems(
-                [
-                    str(element)
-                    for element in self.layer.uniqueValues(
-                        self.layer.fields().indexOf("_effortGroup")
-                    )
-                ]
-            )
-            self.effortComboBox.setCurrentIndex(
-                self.effortComboBox.findText(
-                    str(self.toDuplicate["_effortGroup"])
-                )
-            )
-            self.HEffortLayout.addWidget(self.effortLabel)
-            self.HEffortLayout.addWidget(self.effortComboBox)
-            self.VLayout.addLayout(self.HEffortLayout)
-
         self.updateGeometry()
 
         self.HBottomLayout = QHBoxLayout()
@@ -92,12 +78,28 @@ class DuplicateDialog(QDialog):
                     continue
                 feat[name] = self.toDuplicate[name]
 
-            feat["datetime"] = self.datetimeEdit.dateTime()
-            if self.layer.name() == "Environment":
-                feat["_effortGroup"] = int(self.effortComboBox.currentText())
+            dt = self.datetimeEdit.dateTime()
+            endDt = self.endDatetimeEdit.dateTime()
+            feat["datetime"] = dt
+            feat["endDateTime"] = endDt
 
             self.layer.startEditing()
             self.layer.addFeature(feat)
+
+            request = QgsFeatureRequest(
+                QgsExpression(
+                    "dateTime < to_datetime("
+                    f"'{dt.toPyDateTime().isoformat()}')"
+                )
+            )
+            prevFeat = None
+            for prevFeat in self.layer.getFeatures(request):
+                break
+            if prevFeat:
+                if prevFeat["endDateTime"] > feat["dateTime"]:
+                    prevFeat["endDateTime"] = self.datetimeEdit.dateTime()
+                    self.layer.updateFeature(prevFeat)
+
         else:
             self.layer.startEditing()
             self.layer.changeGeometry(self.toDuplicate.id(), self.interpolated)
@@ -106,12 +108,11 @@ class DuplicateDialog(QDialog):
                 self.layer.fields().indexOf("dateTime"),
                 self.datetimeEdit.dateTime(),
             )
-            if self.layer.name() == "Environment":
-                self.layer.changeAttributeValue(
-                    self.toDuplicate.id(),
-                    self.layer.fields().indexOf("_effortGroup"),
-                    int(self.effortComboBox.currentText()),
-                )
+            self.layer.changeAttributeValue(
+                self.toDuplicate.id(),
+                self.layer.fields().indexOf("endDateTime"),
+                self.endDatetimeEdit.dateTime(),
+            )
         self.layer.commitChanges()
         self.layer.startEditing()
         self.close()

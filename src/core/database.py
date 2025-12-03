@@ -220,6 +220,8 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("survey"))
         fields.append(self._createFieldShortText("cycle"))
         fields.append(self._createFieldShortText("computer"))
+        fields.append(QgsField("_effortGroup", QMetaType.Type.Int))
+        fields.append(QgsField("_effortLeg", QMetaType.Type.Int))
 
         return fields
 
@@ -243,6 +245,8 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("survey"))
         fields.append(self._createFieldShortText("cycle"))
         fields.append(self._createFieldShortText("computer"))
+        fields.append(QgsField("_effortGroup", QMetaType.Type.Int))
+        fields.append(QgsField("_effortLeg", QMetaType.Type.Int))
 
         return fields
 

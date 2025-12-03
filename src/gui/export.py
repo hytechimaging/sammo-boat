@@ -80,6 +80,7 @@ class SammoExportAction(QDialog):
 
     def export(self) -> None:
         success = self.session.effortCheck(self.session.environmentLayer)
+        self.generateEffortNum()
         if not success:
             self.progressBar.setFormat("Fix environnment endDateTime first")
             return
@@ -97,7 +98,7 @@ class SammoExportAction(QDialog):
             # Export is done from copy to avoid bug with join field, due to
             # the table dock.
             layer = QgsVectorLayer(layer.source(), layer.name())
-            if layer.name() in [FOLLOWERS_TABLE, SIGHTINGS_TABLE]:
+            if layer.name().lower() in [FOLLOWERS_TABLE, SIGHTINGS_TABLE]:
                 self.session.applyEnvAttr(self.session.environmentLayer, layer)
 
             # Add Lon/Lat field
@@ -165,7 +166,7 @@ class SammoExportAction(QDialog):
                 layer.addJoin(self.obsEnvLayerJoinInfo(environJoinLayer))
                 layer.addJoin(self.obsSpeLayerJoinInfo(speciesJoinLayer))
 
-            elif layer.name() == self.session.environmentLayer.name():
+            elif layer.name().lower() == ENVIRONMENT_TABLE:
                 obsJoinLayerLeft = QgsVectorLayer(
                     self.session.observersLayer.source(),
                     f"{self.session.observersLayer.name()}_left",
@@ -232,7 +233,7 @@ class SammoExportAction(QDialog):
                 QgsCoordinateTransformContext(),
                 options,
             )
-            if layer.name() == self.session.environmentLayer.name():
+            if layer.name().lower() == ENVIRONMENT_TABLE:
                 self.removeEndEffort(layer)
             self.progressBar.setValue(int(100 / nb * (i + 1)))
         self.close()
@@ -409,3 +410,26 @@ class SammoExportAction(QDialog):
                 pt1.x(), pt1.y(), pt2.x(), pt2.y(), beforePercent
             )
         )
+
+    def generateEffortNum(self) -> None:
+        request = QgsFeatureRequest().addOrderBy("dateTime")
+        for i, feat in enumerate(
+            self.session.environmentLayer.getFeatures(request)
+        ):
+            print(
+                self.session.environmentLayer.fields().indexOf("_effortGroup"),
+                self.session.environmentLayer.fields().indexOf("_effortLeg"),
+                i + 1,
+            )
+            self.session.environmentLayer.changeAttributeValue(
+                feat.id(),
+                self.session.environmentLayer.fields().indexOf("_effortGroup"),
+                i + 1,
+            )
+            self.session.environmentLayer.changeAttributeValue(
+                feat.id(),
+                self.session.environmentLayer.fields().indexOf("_effortLeg"),
+                1,
+            )
+        self.session.environmentLayer.commitChanges()
+        self.session.environmentLayer.startEditing()

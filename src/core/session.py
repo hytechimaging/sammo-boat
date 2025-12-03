@@ -314,17 +314,10 @@ class SammoSession:
         ) = self.surveyValues(layer)
 
         # EffortGroup management
-        effortGroup = max(
-            layer.maximumValue(layer.fields().indexOf("_effortGroup")), 0
-        )
-        if effortGroup:
-            effortGroup += 1
         self.addEnvironmentEndDateTime()
         self._addFeature(
             layer,
             geom=self.lastGpsInfo["geometry"],
-            _effortGroup=effortGroup or 1,
-            _effortLeg=1,
             speed=self.lastGpsInfo["gprmc"]["speed"],
             courseAverage=self.lastGpsInfo["gprmc"]["course"],
             survey=survey_value,
@@ -347,20 +340,12 @@ class SammoSession:
         survey_value, cycle_value, computer_value, _, _ = self.surveyValues(
             layer
         )
-        effortGroup = 1
-        effortLeg = 1
-        if self.environmentLayer and self.environmentLayer.featureCount():
-            ft = self.db.lastFeature(self.environmentLayer)
-            effortGroup = ft["_effortGroup"]
-            effortLeg = ft["_effortLeg"]
         self._addFeature(
             layer,
             geom=self.lastGpsInfo["geometry"],
             survey=survey_value,
             cycle=cycle_value,
             computer=computer_value,
-            _effortGroup=effortGroup,
-            _effortLeg=effortLeg,
         )
         return layer
 
@@ -371,12 +356,6 @@ class SammoSession:
         survey_value, cycle_value, computer_value, _, _ = self.surveyValues(
             layer
         )
-        effortGroup = 1
-        effortLeg = 1
-        if self.environmentLayer and self.environmentLayer.featureCount():
-            ft = self.db.lastFeature(self.environmentLayer)
-            effortGroup = ft["_effortGroup"]
-            effortLeg = ft["_effortLeg"]
         self._addFeature(
             layer,
             dt,
@@ -386,8 +365,6 @@ class SammoSession:
             survey=survey_value,
             cycle=cycle_value,
             computer=computer_value,
-            _effortGroup=effortGroup,
-            _effortLeg=effortLeg,
         )
 
     def needsSaving(self) -> None:
@@ -622,7 +599,8 @@ class SammoSession:
         for ft in environmentLayer.getFeatures():
             if ft["endDateTime"] == NULL:
                 errors.append(
-                    f"Missing endDateTime for effortGroup {ft['_effortGroup']}"
+                    "Missing endDateTime for effort starting at "
+                    f"{ft['dateTime'].toPyDateTime().isoformat()}"
                 )
 
         if errors:
@@ -660,7 +638,7 @@ class SammoSession:
                 if layer.name() == SIGHTINGS_TABLE:
                     if feat["side"] in sideKeys.keys():
                         feat["observer"] = envFeat[sideKeys[feat["side"]]]
-                    feat["_effortLeg"] = envFeat["_effortLeg"]
+                feat["_effortLeg"] = envFeat["_effortLeg"]
                 feat["_effortGroup"] = envFeat["_effortGroup"]
                 layer.updateFeature(feat)
             layer.commitChanges()

@@ -375,7 +375,6 @@ class SammoEnvironmentLayer(SammoLayer):
             "strateType",
             "length",
             "plateformHeight",
-            "_effortGroup",
             "endDateTime",
         ]:
             idx = layer.fields().indexFromName(field)
