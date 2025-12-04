@@ -4,7 +4,7 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
 from qgis.PyQt.QtGui import QColor
-from qgis.PyQt.QtCore import QVariant
+from qgis.PyQt.QtCore import QMetaType
 
 from qgis.core import (
     QgsField,
@@ -176,7 +176,7 @@ class SammoFollowersLayer(SammoLayer):
         layer.setEditorWidgetSetup(idx, setup)
         layer.setDefaultValueDefinition(idx, QgsDefaultValue("''"))
 
-        field = QgsField("focalId", QVariant.String)
+        field = QgsField("focalId", QMetaType.Type.QString)
         layer.addExpressionField(
             "concat(format_date(dateTime,'ddMMyyyy'), '_', computer"
             ",'_F', _focalId)",

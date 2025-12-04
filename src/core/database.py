@@ -7,7 +7,7 @@ import csv
 import os.path
 from pathlib import Path
 
-from qgis.PyQt.QtCore import QVariant
+from qgis.PyQt.QtCore import QMetaType
 from qgis.core import (
     QgsField,
     QgsFields,
@@ -23,8 +23,6 @@ from qgis.core import (
     QgsCoordinateReferenceSystem,
     QgsCoordinateTransformContext,
 )
-
-from .status import StatusCode
 
 DB_NAME = "sammo-boat.gpkg"
 
@@ -123,17 +121,8 @@ class SammoDataBase:
         for feature in layer.getFeatures(
             QgsFeatureRequest().addOrderBy("fid", False)
         ):
-            if (
-                layer.name().casefold() == ENVIRONMENT_TABLE
-                and feature["status"] == StatusCode.display(StatusCode.END)
-                and not mergeAction
-            ):
-                continue
-            if not feat:
-                feat = feature
-            elif feature.id() > feat.id():
-                feat = feature
-
+            feat = feature
+            break
         return feat
 
     def _createFieldsForEnvironmentTable(self) -> QgsFields:
@@ -145,36 +134,38 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("computer"))
         fields.append(self._createFieldShortText("left"))
         fields.append(self._createFieldShortText("right"))
-        fields.append(QgsField("dateTime", QVariant.DateTime))
+        fields.append(QgsField("dateTime", QMetaType.Type.QDateTime))
+        fields.append(QgsField("endDateTime", QMetaType.Type.QDateTime))
         fields.append(self._createFieldShortText("plateformId"))
         fields.append(self._createFieldShortText("transectId"))
         fields.append(self._createFieldShortText("routeType"))
-        fields.append(QgsField("speed", QVariant.Int))
-        fields.append(QgsField("courseAverage", QVariant.Int))
-        fields.append(QgsField("seaState", QVariant.Int))
-        fields.append(QgsField("windDirection", QVariant.Int))
-        fields.append(QgsField("windForce", QVariant.Int))
-        fields.append(QgsField("swellDirection", QVariant.Int))
-        fields.append(QgsField("swellHeight", QVariant.Double))
-        fields.append(QgsField("glareFrom", QVariant.Int))
-        fields.append(QgsField("glareTo", QVariant.Int))
+        fields.append(QgsField("speed", QMetaType.Type.Int))
+        fields.append(QgsField("courseAverage", QMetaType.Type.Int))
+        fields.append(QgsField("seaState", QMetaType.Type.Int))
+        fields.append(QgsField("windDirection", QMetaType.Type.Int))
+        fields.append(QgsField("windForce", QMetaType.Type.Int))
+        fields.append(QgsField("swellDirection", QMetaType.Type.Int))
+        fields.append(QgsField("swellHeight", QMetaType.Type.Double))
+        fields.append(QgsField("glareFrom", QMetaType.Type.Int))
+        fields.append(QgsField("glareTo", QMetaType.Type.Int))
         fields.append(self._createFieldShortText("glareSever"))
-        fields.append(QgsField("cloudCover", QVariant.Int))
+        fields.append(QgsField("cloudCover", QMetaType.Type.Int))
         fields.append(self._createFieldShortText("visibility", 3))
-        fields.append(QgsField("subjectiveMam", QVariant.String, len=2))
-        fields.append(QgsField("subjectiveBirds", QVariant.String, len=2))
-        fields.append(QgsField("nObservers", QVariant.Int))
+        fields.append(QgsField("subjectiveMam", QMetaType.Type.QString, len=2))
+        fields.append(
+            QgsField("subjectiveBirds", QMetaType.Type.QString, len=2)
+        )
+        fields.append(QgsField("nObservers", QMetaType.Type.Int))
         fields.append(self._createFieldShortText("camera"))
-        fields.append(QgsField("comment", QVariant.String, len=200))
+        fields.append(QgsField("comment", QMetaType.Type.QString, len=200))
         fields.append(self._createFieldShortText("center"))
-        fields.append(self._createFieldShortText("status", len=5))
 
         fields.append(self._createFieldShortText("soundFile", len=80))
         fields.append(self._createFieldShortText("soundStart"))
         fields.append(self._createFieldShortText("soundEnd"))
-        fields.append(QgsField("validated", QVariant.Bool))
-        fields.append(QgsField("_effortGroup", QVariant.Int))
-        fields.append(QgsField("_effortLeg", QVariant.Int))
+        fields.append(QgsField("validated", QMetaType.Type.Bool))
+        fields.append(QgsField("_effortGroup", QMetaType.Type.Int))
+        fields.append(QgsField("_effortLeg", QMetaType.Type.Int))
 
         return fields
 
@@ -205,62 +196,66 @@ class SammoDataBase:
 
     def _fieldsSightings(self) -> QgsFields:
         fields = QgsFields()
-        fields.append(QgsField("dateTime", QVariant.DateTime))
+        fields.append(QgsField("dateTime", QMetaType.Type.QDateTime))
         fields.append(self._createFieldShortText("observer"))
         fields.append(self._createFieldShortText("side"))
         fields.append(self._createFieldShortText("species"))
-        fields.append(QgsField("podSize", QVariant.Int))
-        fields.append(QgsField("podSizeMin", QVariant.Int))
-        fields.append(QgsField("podSizeMax", QVariant.Int))
+        fields.append(QgsField("podSize", QMetaType.Type.Int))
+        fields.append(QgsField("podSizeMin", QMetaType.Type.Int))
+        fields.append(QgsField("podSizeMax", QMetaType.Type.Int))
         fields.append(self._createFieldShortText("age"))
-        fields.append(QgsField("distance", QVariant.Int))
-        fields.append(QgsField("angle", QVariant.Int))
-        fields.append(QgsField("direction", QVariant.Int))
+        fields.append(QgsField("distance", QMetaType.Type.Int))
+        fields.append(QgsField("angle", QMetaType.Type.Int))
+        fields.append(QgsField("direction", QMetaType.Type.Int))
         fields.append(self._createFieldShortText("behaviour"))
         fields.append(self._createFieldShortText("behavSpecies"))
         fields.append(self._createFieldShortText("behavGroup"))
-        fields.append(QgsField("comment", QVariant.String, len=200))
+        fields.append(QgsField("comment", QMetaType.Type.QString, len=200))
         fields.append(self._createFieldShortText("soundFile", len=80))
         fields.append(self._createFieldShortText("soundStart"))
         fields.append(self._createFieldShortText("soundEnd"))
-        fields.append(QgsField("validated", QVariant.Bool))
-        fields.append(QgsField("_effortGroup", QVariant.Int))
-        fields.append(QgsField("_effortLeg", QVariant.Int))
+        fields.append(QgsField("validated", QMetaType.Type.Bool))
+        fields.append(QgsField("_effortGroup", QMetaType.Type.Int))
+        fields.append(QgsField("_effortLeg", QMetaType.Type.Int))
         fields.append(self._createFieldShortText("survey"))
         fields.append(self._createFieldShortText("cycle"))
         fields.append(self._createFieldShortText("computer"))
+        fields.append(QgsField("_effortGroup", QMetaType.Type.Int))
+        fields.append(QgsField("_effortLeg", QMetaType.Type.Int))
 
         return fields
 
     def _createFieldsForFollowersTable(self) -> QgsFields:
         fields = QgsFields()
-        fields.append(QgsField("_focalId", QVariant.Int))
+        fields.append(QgsField("_focalId", QMetaType.Type.Int))
         fields.append(self._createFieldShortText("back"))
-        fields.append(QgsField("dateTime", QVariant.DateTime))
+        fields.append(QgsField("dateTime", QMetaType.Type.QDateTime))
         fields.append(self._createFieldShortText("fishActivity"))
         fields.append(self._createFieldShortText("species"))
-        fields.append(QgsField("podSize", QVariant.Int))
+        fields.append(QgsField("podSize", QMetaType.Type.Int))
         fields.append(self._createFieldShortText("age"))
         fields.append(self._createFieldShortText("unlucky"))
-        fields.append(QgsField("comment", QVariant.String, len=200))
+        fields.append(QgsField("comment", QMetaType.Type.QString, len=200))
         fields.append(self._createFieldShortText("soundFile", len=80))
         fields.append(self._createFieldShortText("soundStart"))
         fields.append(self._createFieldShortText("soundEnd"))
-        fields.append(QgsField("validated", QVariant.Bool))
-        fields.append(QgsField("_effortGroup", QVariant.Int))
-        fields.append(QgsField("_effortLeg", QVariant.Int))
+        fields.append(QgsField("validated", QMetaType.Type.Bool))
+        fields.append(QgsField("_effortGroup", QMetaType.Type.Int))
+        fields.append(QgsField("_effortLeg", QMetaType.Type.Int))
         fields.append(self._createFieldShortText("survey"))
         fields.append(self._createFieldShortText("cycle"))
         fields.append(self._createFieldShortText("computer"))
+        fields.append(QgsField("_effortGroup", QMetaType.Type.Int))
+        fields.append(QgsField("_effortLeg", QMetaType.Type.Int))
 
         return fields
 
     def _createFieldsForGpsTable(self) -> QgsFields:
         fields = QgsFields()
-        fields.append(QgsField("dateTime", QVariant.DateTime))
-        fields.append(QgsField("gpsDateTime", QVariant.DateTime))
-        fields.append(QgsField("speed", QVariant.Double))
-        fields.append(QgsField("course", QVariant.Int))
+        fields.append(QgsField("dateTime", QMetaType.Type.QDateTime))
+        fields.append(QgsField("gpsDateTime", QMetaType.Type.QDateTime))
+        fields.append(QgsField("speed", QMetaType.Type.Double))
+        fields.append(QgsField("course", QMetaType.Type.Int))
         fields.append(self._createFieldShortText("survey"))
         fields.append(self._createFieldShortText("cycle"))
         fields.append(self._createFieldShortText("computer"))
@@ -348,7 +343,7 @@ class SammoDataBase:
         fields.append(self._createFieldShortText("transect"))
         fields.append(self._createFieldShortText("strateType"))
         fields.append(self._createFieldShortText("subRegion"))
-        fields.append(QgsField("length", QVariant.Int))
+        fields.append(QgsField("length", QMetaType.Type.Int))
 
         return fields
 
@@ -356,7 +351,7 @@ class SammoDataBase:
         fields = QgsFields()
         fields.append(self._createFieldShortText("ship"))
         fields.append(self._createFieldShortText("plateform"))
-        fields.append(QgsField("plateformHeight", QVariant.Double))
+        fields.append(QgsField("plateformHeight", QMetaType.Type.Double))
 
         return fields
 
@@ -418,7 +413,7 @@ class SammoDataBase:
 
     @staticmethod
     def _createFieldShortText(fieldName, len=50) -> QgsField:
-        return QgsField(fieldName, QVariant.String, len=len)
+        return QgsField(fieldName, QMetaType.Type.QString, len=len)
 
     def _copyWorldTable(self) -> None:
         """
@@ -429,7 +424,7 @@ class SammoDataBase:
         opts.layerName = WORLD_TABLE
         opts.actionOnExistingFile = QgsVectorFileWriter.CreateOrOverwriteLayer
         layer = QgsVectorLayer(self._worldMapPath(), "World")
-        QgsVectorFileWriter.writeAsVectorFormatV2(
+        QgsVectorFileWriter.writeAsVectorFormatV3(
             layer, self.path, QgsCoordinateTransformContext(), opts
         )
 

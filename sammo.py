@@ -120,7 +120,7 @@ class Sammo:
     def createSimuGps(
         self, serial: bool
     ) -> [SammoSimuGpsAction, ThreadSimuGps]:
-        if not os.environ.get("SAMMO_DEBUG"):
+        if not os.environ.get("SAMMO_SIMU"):
             return [None, None]
         button = SammoSimuGpsAction(self.mainWindow, self.toolbar, serial)
         if serial:
@@ -151,13 +151,13 @@ class Sammo:
         self.saveAll()
         reader = self.gpsReader
         if (
-            os.environ.get("SAMMO_DEBUG")
+            os.environ.get("SAMMO_SIMU")
             and self.threadSerialSimuGps
             and self.simuGpsSerialAction.button.isChecked()
         ):
             reader = self.threadSerialSimuGps
         elif (
-            os.environ.get("SAMMO_DEBUG")
+            os.environ.get("SAMMO_SIMU")
             and self.threadSimuGps
             and self.simuGpsAction.button.isChecked()
         ):
@@ -166,6 +166,7 @@ class Sammo:
         if reader.receivers(reader.frame):
             reader.frame.disconnect(self.onGpsFrame)
             self.statusDock.desactivateGPS()
+            self.session.addEnvironmentEndDateTime()
         elif not (reader.worker and reader.worker._gps):
             self.iface.messageBar().pushCritical(
                 "No GPS detected", "retry later"

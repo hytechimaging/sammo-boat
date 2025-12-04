@@ -6,7 +6,7 @@ __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 from pathlib import Path
 
 from qgis.PyQt import uic
-from qgis.PyQt.QtCore import QObject, QVariant, QDateTime
+from qgis.PyQt.QtCore import QObject, QDateTime, QMetaType
 from qgis.PyQt.QtWidgets import (
     QAction,
     QDialog,
@@ -17,8 +17,10 @@ from qgis.PyQt.QtWidgets import (
 from qgis.core import (
     QgsField,
     QgsWkbTypes,
+    QgsGeometry,
     QgsExpression,
     QgsVectorLayer,
+    QgsGeometryUtils,
     QgsFeatureRequest,
     QgsVectorLayerUtils,
     QgsVectorFileWriter,
@@ -77,11 +79,11 @@ class SammoExportAction(QDialog):
             self.exportButton.setEnabled(True)
 
     def export(self) -> None:
-        self.session.applyEnvAttr(
-            self.session.environmentLayer,
-            self.session.sightingsLayer,
-            self.session.followersLayer,
-        )
+        success = self.session.effortCheck(self.session.environmentLayer)
+        self.generateEffortNum()
+        if not success:
+            self.progressBar.setFormat("Fix environnment endDateTime first")
+            return
         driver = self.driverComboBox.currentText()
         if driver not in ["CSV", "GPKG"]:
             self.progressBar.setFormat("Unknown driver: aborting export")
@@ -96,15 +98,17 @@ class SammoExportAction(QDialog):
             # Export is done from copy to avoid bug with join field, due to
             # the table dock.
             layer = QgsVectorLayer(layer.source(), layer.name())
+            if layer.name().lower() in [FOLLOWERS_TABLE, SIGHTINGS_TABLE]:
+                self.session.applyEnvAttr(self.session.environmentLayer, layer)
 
             # Add Lon/Lat field
             if layer.geometryType() == QgsWkbTypes.PointGeometry:
-                field = QgsField("lon", QVariant.Double)
+                field = QgsField("lon", QMetaType.Type.Double)
                 layer.addExpressionField("x($geometry) ", field)
-                field = QgsField("lat", QVariant.Double)
+                field = QgsField("lat", QMetaType.Type.Double)
                 layer.addExpressionField("y($geometry) ", field)
             if layer.geometryType() == QgsWkbTypes.LineGeometry:
-                field = QgsField("wkt", QVariant.String)
+                field = QgsField("wkt", QMetaType.Type.QString)
                 layer.addExpressionField("geom_to_wkt($geometry) ", field)
 
             if layer.name().lower() in [
@@ -112,32 +116,32 @@ class SammoExportAction(QDialog):
                 ENVIRONMENT_TABLE,
                 FOLLOWERS_TABLE,
             ]:
-                field = QgsField("effortGroup", QVariant.String)
+                field = QgsField("effortGroup", QMetaType.Type.QString)
                 layer.addExpressionField(
                     "concat(format_date(dateTime,'ddMMyyyy'), '_', computer"
                     ",'_G', _effortGroup)",
                     field,
                 )
-                field = QgsField("effortLeg", QVariant.String)
+                field = QgsField("effortLeg", QMetaType.Type.QString)
                 layer.addExpressionField(
                     "concat(format_date(dateTime,'ddMMyyyy'), '_', computer"
                     ",'_L', _effortLeg)",
                     field,
                 )
-                field = QgsField("_effortId", QVariant.String)
+                field = QgsField("_effortId", QMetaType.Type.QString)
                 layer.addExpressionField(
                     "to_string(_effortGroup) + '_' + to_string(_effortLeg)",
                     field,
                 )
 
             if layer.name().lower() in [SIGHTINGS_TABLE, ENVIRONMENT_TABLE]:
-                field = QgsField("date", QVariant.Date)
+                field = QgsField("date", QMetaType.Type.QDate)
                 layer.addExpressionField('to_date("dateTime")', field)
-                field = QgsField("hhmmss", QVariant.Time)
+                field = QgsField("hhmmss", QMetaType.Type.QTime)
                 layer.addExpressionField('to_time("dateTime")', field)
 
             elif layer.name().lower() == FOLLOWERS_TABLE:
-                field = QgsField("focalId", QVariant.String)
+                field = QgsField("focalId", QMetaType.Type.QString)
                 layer.addExpressionField(
                     "concat(format_date(dateTime,'ddMMyyyy'), '_', computer"
                     ",'_F', _focalId)",
@@ -150,7 +154,7 @@ class SammoExportAction(QDialog):
                     self.session.environmentLayer.source(),
                     self.session.environmentLayer.name(),
                 )  # keepped alive until export is done
-                field = QgsField("_effortId", QVariant.String)
+                field = QgsField("_effortId", QMetaType.Type.QString)
                 environJoinLayer.addExpressionField(
                     "to_string(_effortGroup) + '_' + to_string(_effortLeg)",
                     field,
@@ -162,7 +166,7 @@ class SammoExportAction(QDialog):
                 layer.addJoin(self.obsEnvLayerJoinInfo(environJoinLayer))
                 layer.addJoin(self.obsSpeLayerJoinInfo(speciesJoinLayer))
 
-            elif layer.name() == self.session.environmentLayer.name():
+            elif layer.name().lower() == ENVIRONMENT_TABLE:
                 obsJoinLayerLeft = QgsVectorLayer(
                     self.session.observersLayer.source(),
                     f"{self.session.observersLayer.name()}_left",
@@ -217,6 +221,7 @@ class SammoExportAction(QDialog):
                     "_effortGroup",
                     "_focalId",
                     "_effortId",
+                    "endDateTime",
                 ]
             ]
             QgsVectorFileWriter.writeAsVectorFormatV2(
@@ -228,7 +233,7 @@ class SammoExportAction(QDialog):
                 QgsCoordinateTransformContext(),
                 options,
             )
-            if layer.name() == self.session.environmentLayer.name():
+            if layer.name().lower() == ENVIRONMENT_TABLE:
                 self.removeEndEffort(layer)
             self.progressBar.setValue(int(100 / nb * (i + 1)))
         self.close()
@@ -295,43 +300,33 @@ class SammoExportAction(QDialog):
         return joinInfo
 
     def addEndEffortFeature(self, layer: QgsVectorLayer) -> QgsVectorLayer:
-        effortGroupValues = layer.uniqueValues(
-            layer.fields().indexOf("effortGroup")
-        )
         layer.startEditing()
-        for effortGroupValue in effortGroupValues:
-            expr = QgsExpression(f"effortGroup = '{effortGroupValue}'")
-            request = QgsFeatureRequest(expr).addOrderBy("dateTime", False)
-            lastEffortFt = None
-            for lastEffortFt in layer.getFeatures(request):
-                break
-            if not lastEffortFt:
-                continue
-            expr = QgsExpression(
-                f"effortGroup != '{effortGroupValue}' and "
-                f"status = '{StatusCode.display(StatusCode.BEGIN)}' and "
-                "dateTime > "
-                f"'{lastEffortFt['dateTime'].toPyDateTime().isoformat()}'"
-            )
-            request = QgsFeatureRequest(expr).addOrderBy("dateTime", True)
-            nextBegFt = None
-            for nextBegFt in layer.getFeatures(request):
-                break
-            if not nextBegFt or (
-                QDateTime(lastEffortFt["dateTime"]).date()
-                != QDateTime(nextBegFt["dateTime"]).date()
-            ):
-                nextBegFt = lastEffortFt
-                dt = QDateTime(nextBegFt["dateTime"]).addSecs(1)
-            else:
-                dt = QDateTime(nextBegFt["dateTime"]).addSecs(-1)
+        status_field = QgsField("status", QMetaType.Type.QString, len=5)
+        layer.dataProvider().addAttributes([status_field])
+        layer.commitChanges()
+        layer.startEditing()
+        status_idx = layer.fields().indexOf("status")
+        changes = {}
+
+        for feat in layer.getFeatures():
+            changes[feat.id()] = {
+                status_idx: StatusCode.display(StatusCode.BEGIN),
+            }
+        layer.dataProvider().changeAttributeValues(changes)
+        layer.commitChanges()
+        layer.startEditing()
+
+        for begin_feature in layer.getFeatures(
+            QgsFeatureRequest().addOrderBy("endDateTime", True)
+        ):
             feat = QgsVectorLayerUtils.createFeature(layer)
-            feat.setGeometry(nextBegFt.geometry())
+            geom = self.interpolateGeom(begin_feature["endDateTime"])
+            feat.setGeometry(geom)
             for attr in feat.fields().names():
-                if attr in ["fid", "dateTime", "status"]:
+                if attr in ["fid", "datetime", "status"]:
                     continue
-                feat[attr] = lastEffortFt[attr]
-            feat["dateTime"] = dt
+                feat[attr] = begin_feature[attr]
+            feat["datetime"] = begin_feature["endDateTime"]
             feat["status"] = StatusCode.display(StatusCode.END)
             layer.addFeature(feat)
         layer.commitChanges()
@@ -348,3 +343,93 @@ class SammoExportAction(QDialog):
         layer.deleteFeatures(endFts)
         layer.commitChanges()
         layer.startEditing()
+        layer.deleteAttributes(
+            [
+                layer.fields().indexOf("status"),
+                layer.fields().indexOf("effortDateTime"),
+            ]
+        )
+        layer.commitChanges()
+        layer.startEditing()
+
+    def interpolateGeom(self, dt: QDateTime) -> QgsGeometry:
+        request = QgsFeatureRequest().setFilterExpression(
+            f"datetime = to_datetime('{dt.toPyDateTime().isoformat()}')"
+        )
+        ftsExact = [ft for ft in self.session.gpsLayer.getFeatures(request)]
+        if ftsExact:
+            return ftsExact[0].geometry()
+
+        request = QgsFeatureRequest().setFilterExpression(
+            f"datetime <= to_datetime('{dt.toPyDateTime().isoformat()}')"
+        )
+        request = request.addOrderBy("dateTime", False)
+        bft = None
+        for bft in self.session.gpsLayer.getFeatures(request):
+            break
+        ftBefore = None
+        if bft:
+            ftBefore = bft
+
+        request = QgsFeatureRequest().setFilterExpression(
+            f"datetime >= to_datetime('{dt.toPyDateTime().isoformat()}')"
+        )
+        request = request.addOrderBy("dateTime")
+        aft = None
+        for aft in self.session.gpsLayer.getFeatures(request):
+            break
+        ftAfter = None
+        if aft:
+            ftAfter = aft
+
+        if not ftBefore or not ftAfter:
+            return QgsGeometry()
+
+        duration = (
+            ftAfter["datetime"].toPyDateTime()
+            - ftBefore["datetime"].toPyDateTime()
+        ).total_seconds()
+        beforePercent = (
+            (
+                dt.toPyDateTime() - ftBefore["datetime"].toPyDateTime()
+            ).total_seconds()
+            / duration
+            if duration
+            else 0
+        )
+        geom1 = ftBefore.geometry()
+        geom2 = ftAfter.geometry()
+        if geom1.isNull() or geom2.isNull():
+            return QgsGeometry()
+
+        pt1 = geom1.asPoint()
+        pt2 = geom2.asPoint()
+
+        return QgsGeometry.fromPointXY(
+            QgsGeometryUtils.interpolatePointOnLine(
+                pt1.x(), pt1.y(), pt2.x(), pt2.y(), beforePercent
+            )
+        )
+
+    def generateEffortNum(self) -> None:
+        request = QgsFeatureRequest().addOrderBy("dateTime")
+        for i, feat in enumerate(
+            self.session.environmentLayer.getFeatures(request)
+        ):
+            print(
+                self.session.environmentLayer.fields().indexOf("_effortGroup"),
+                self.session.environmentLayer.fields().indexOf("_effortLeg"),
+                i + 1,
+            )
+            self.session.environmentLayer.changeAttributeValue(
+                feat.id(),
+                self.session.environmentLayer.fields().indexOf("_effortGroup"),
+                i + 1,
+            )
+            self.session.environmentLayer.changeAttributeValue(
+                feat.id(),
+                self.session.environmentLayer.fields().indexOf("_effortLeg"),
+                1,
+            )
+        self.session.environmentLayer.commitChanges()
+        self.session.environmentLayer.startEditing()

@@ -105,11 +105,13 @@ class SammoLayer:
 
         major, minor, _ = qgisVersion()
         if 2 < major < 4 and minor < 29:  # Check API break
-            ac = QgsAction(1, "Duplicate record", code, False)
+            ac = QgsAction(
+                1, "Duplicate or modify current record", code, False
+            )
         else:
             ac = QgsAction(
                 Qgis.AttributeActionType.GenericPython,
-                "Duplicate record",
+                "Duplicate or modify current record",
                 code,
                 False,
             )

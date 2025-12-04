@@ -7,16 +7,15 @@ from pathlib import Path
 from datetime import datetime
 from typing import List, Optional, Dict, Union
 
+from qgis.utils import iface
 from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtWidgets import QMessageBox
-
-from qgis.utils import iface
 from qgis.core import (
+    NULL,
     QgsProject,
     QgsGeometry,
     QgsMapLayer,
     QgsSettings,
-    QgsExpression,
     QgsApplication,
     QgsVectorLayer,
     QgsFeatureRequest,
@@ -26,10 +25,10 @@ from qgis.core import (
 )
 
 from . import utils
-from .status import StatusCode
 from .database import (
     DB_NAME,
     SammoDataBase,
+    SIGHTINGS_TABLE,
 )
 from .layers import (
     SammoGpsLayer,
@@ -263,9 +262,6 @@ class SammoSession:
             self._followersLayer.addSoundAction(self.followersLayer)
             self._sightingsLayer.addDuplicateAction(self.followersLayer)
             QgsSettings().setValue("qgis/enableMacros", "SessionOnly")
-            self.environmentLayer.attributeValueChanged.connect(
-                self.updateRouteTypeStatus
-            )
 
     def surveyValues(self, layer: QgsVectorLayer) -> tuple:
         survey = (
@@ -283,7 +279,7 @@ class SammoSession:
         ):
             iface.messageBar().pushWarning(
                 f"{layer.name().lower()}",
-                "Administration table `survey` is not fulfilled,"
+                "Administration table `survey` is not fulffilled,"
                 " all sighting attributes cannot be filled",
             )
             survey_value = ""
@@ -307,9 +303,6 @@ class SammoSession:
 
     def addEnvironmentFeature(self) -> QgsVectorLayer:
         layer = self.environmentLayer
-        statusCode = StatusCode.display(
-            StatusCode(int(bool(layer.featureCount())))
-        )
 
         # Administration table values
         (
@@ -321,25 +314,10 @@ class SammoSession:
         ) = self.surveyValues(layer)
 
         # EffortGroup management
-        effortGroup = max(
-            layer.maximumValue(layer.fields().indexOf("_effortGroup")), 0
-        )
-        if effortGroup and statusCode == StatusCode.display(StatusCode.BEGIN):
-            effortGroup += 1
-        effortLeg = 0
-        for ft in layer.getFeatures(
-            QgsFeatureRequest(QgsExpression(f"_effortGroup = {effortGroup}"))
-        ):
-            if ft["_effortLeg"] > effortLeg:
-                effortLeg = ft["_effortLeg"]
-        effortLeg += 1
-
+        self.addEnvironmentEndDateTime()
         self._addFeature(
             layer,
             geom=self.lastGpsInfo["geometry"],
-            status=statusCode,
-            _effortGroup=effortGroup or 1,
-            _effortLeg=effortLeg or 1,
             speed=self.lastGpsInfo["gprmc"]["speed"],
             courseAverage=self.lastGpsInfo["gprmc"]["course"],
             survey=survey_value,
@@ -350,72 +328,24 @@ class SammoSession:
         )
         return layer
 
-    def updateRouteTypeStatus(self, fid: int, idx: int, value: object) -> None:
-        # This method is triggered by an attribute change in the environnement
-        # layer. The signal attributeValueChanged send the fid of the concerned
-        # feature, the index of the modified attribute and the new value of
-        # this attribute.
-        # If the attribute changed is routeType, we will check the previous
-        # feature to check if the routeType changes between the two feature.
-        # If it's so, the status of the feature that has been changed is set on
-        # StatusCode.BEGIN to start a new route.
-
-        if not self.environmentLayer or idx not in [
-            self.environmentLayer.fields().indexOf("routeType"),
-        ]:
-            return
-        elif (
-            self.environmentLayer
-            and idx == self.environmentLayer.fields().indexOf("routeType")
-        ):
-            feat = self.environmentLayer.getFeature(fid)
-            request = QgsFeatureRequest().addOrderBy("dateTime", False)
-            for prevFeat in self.environmentLayer.getFeatures(request):
-                if prevFeat["fid"] == feat["fid"]:
-                    continue
-                elif prevFeat["routeType"] == feat["routeType"]:
-                    self.environmentLayer.changeAttributeValue(
-                        fid,
-                        self.environmentLayer.fields().indexOf("_effortGroup"),
-                        prevFeat["_effortGroup"],
-                    )
-                elif prevFeat["routeType"] != feat["routeType"]:
-                    self.environmentLayer.changeAttributeValue(
-                        fid,
-                        self.environmentLayer.fields().indexOf("status"),
-                        StatusCode.display(StatusCode.BEGIN),
-                    )
-                    self.environmentLayer.changeAttributeValue(
-                        fid,
-                        self.environmentLayer.fields().indexOf("_effortGroup"),
-                        prevFeat["_effortGroup"] + 1,
-                    )
-                    self.environmentLayer.changeAttributeValue(
-                        fid,
-                        self.environmentLayer.fields().indexOf("_effortLeg"),
-                        1,
-                    )
-                break
+    def addEnvironmentEndDateTime(self):
+        layer = self.environmentLayer
+        ft = self.db.lastFeature(layer)
+        if ft and not ft["endDateTime"]:
+            ft["endDateTime"] = utils.now()
+            layer.updateFeature(ft)
 
     def addSightingsFeature(self) -> QgsVectorLayer:
         layer = self.sightingsLayer
         survey_value, cycle_value, computer_value, _, _ = self.surveyValues(
             layer
         )
-        effortGroup = 1
-        effortLeg = 1
-        if self.environmentLayer and self.environmentLayer.featureCount():
-            ft = self.db.lastFeature(self.environmentLayer)
-            effortGroup = ft["_effortGroup"]
-            effortLeg = ft["_effortLeg"]
         self._addFeature(
             layer,
             geom=self.lastGpsInfo["geometry"],
             survey=survey_value,
             cycle=cycle_value,
             computer=computer_value,
-            _effortGroup=effortGroup,
-            _effortLeg=effortLeg,
         )
         return layer
 
@@ -426,12 +356,6 @@ class SammoSession:
         survey_value, cycle_value, computer_value, _, _ = self.surveyValues(
             layer
         )
-        effortGroup = 1
-        effortLeg = 1
-        if self.environmentLayer and self.environmentLayer.featureCount():
-            ft = self.db.lastFeature(self.environmentLayer)
-            effortGroup = ft["_effortGroup"]
-            effortLeg = ft["_effortLeg"]
         self._addFeature(
             layer,
             dt,
@@ -441,8 +365,6 @@ class SammoSession:
             survey=survey_value,
             cycle=cycle_value,
             computer=computer_value,
-            _effortGroup=effortGroup,
-            _effortLeg=effortLeg,
         )
 
     def needsSaving(self) -> None:
@@ -490,8 +412,6 @@ class SammoSession:
             + self.sightingsLayer.selectedFeatureCount()
             + self.followersLayer.selectedFeatureCount()
         )
-
-        self.effortCheck(self.environmentLayer)
 
         def validateFeatures(selectedLayer: QgsVectorLayer) -> None:
             selectedLayer.startEditing()
@@ -612,6 +532,7 @@ class SammoSession:
                     if name in [
                         "fid",
                         "dateTime",
+                        "endDateTime",
                         "speed",
                         "courseAverage",
                         "validated",
@@ -672,26 +593,14 @@ class SammoSession:
         return ""
 
     @staticmethod
-    def effortCheck(environmentLayer) -> None:
+    def effortCheck(environmentLayer) -> bool:
         # effort status check
-        effortIds = environmentLayer.uniqueValues(
-            environmentLayer.fields().indexOf("_effortGroup")
-        )
         errors = []
-        for effortId in effortIds:
-            effortIt = environmentLayer.getFeatures(
-                QgsFeatureRequest().setFilterExpression(
-                    f"_effortGroup = {effortId}"
-                )
-            )
-            statusCodes = {ft["datetime"]: ft["status"] for ft in effortIt}
-            if (
-                StatusCode.display(StatusCode.BEGIN)
-                not in statusCodes.values()
-            ):
+        for ft in environmentLayer.getFeatures():
+            if ft["endDateTime"] == NULL:
                 errors.append(
-                    f"Missing BEGIN code for effortGroup {effortId} (before "
-                    f"{min(statusCodes).toPyDateTime().isoformat()} record)"
+                    "Missing endDateTime for effort starting at "
+                    f"{ft['dateTime'].toPyDateTime().isoformat()}"
                 )
 
         if errors:
@@ -699,74 +608,38 @@ class SammoSession:
             QMessageBox.warning(
                 None, "Errors detected in effort status", "\n".join(errors)
             )
-            return
+            return False
+        return True
 
     @staticmethod
     def applyEnvAttr(
         environmentLayer: QgsVectorLayer,
-        sightingsLayer: QgsVectorLayer,
-        followersLayer: QgsVectorLayer,
+        layer: QgsVectorLayer,
     ) -> None:
         # Sightings
-        sightingsLayer.startEditing()
-        for feat in sightingsLayer.getFeatures():
-            strDateTime = (
-                feat["dateTime"].toPyDateTime().strftime("%Y-%m-%d %H:%M:%S")
+        layer.startEditing()
+        sideKeys = {"L": "left", "R": "right", "C": "center"}
+        for envFeat in environmentLayer.getFeatures():
+            startDateTime = (
+                envFeat["dateTime"]
+                .toPyDateTime()
+                .strftime("%Y-%m-%d %H:%M:%S")
+            )
+            endDateTime = (
+                envFeat["endDateTime"]
+                .toPyDateTime()
+                .strftime("%Y-%m-%d %H:%M:%S")
             )
             request = QgsFeatureRequest().setFilterExpression(
-                f"dateTime < to_datetime('{strDateTime}') "
+                f"dateTime > to_datetime('{startDateTime}') and "
+                f"datetime < to_datetime('{endDateTime}')"
             )
-            request.addOrderBy("dateTime", False)
-            for envFeat in environmentLayer.getFeatures(request):
-                if feat["side"] == "L":
-                    sightingsLayer.changeAttributeValue(
-                        feat.id(),
-                        sightingsLayer.fields().indexOf("observer"),
-                        envFeat["left"],
-                    )
-                elif feat["side"] == "R":
-                    sightingsLayer.changeAttributeValue(
-                        feat.id(),
-                        sightingsLayer.fields().indexOf("observer"),
-                        envFeat["right"],
-                    )
-                elif feat["side"] == "C":
-                    sightingsLayer.changeAttributeValue(
-                        feat.id(),
-                        sightingsLayer.fields().indexOf("observer"),
-                        envFeat["center"],
-                    )
-                sightingsLayer.changeAttributeValue(
-                    feat.id(),
-                    sightingsLayer.fields().indexOf("_effortGroup"),
-                    envFeat["_effortGroup"],
-                )
-                sightingsLayer.changeAttributeValue(
-                    feat.id(),
-                    sightingsLayer.fields().indexOf("_effortLeg"),
-                    envFeat["_effortLeg"],
-                )
-                break
-        sightingsLayer.commitChanges()
-        sightingsLayer.startEditing()
-
-        # Followers
-        followersLayer.startEditing()
-        for feat in followersLayer.getFeatures():
-            strDateTime = (
-                feat["dateTime"].toPyDateTime().strftime("%Y-%m-%d %H:%M:%S")
-            )
-            request = QgsFeatureRequest().setFilterExpression(
-                f"dateTime < to_datetime('{strDateTime}') "
-            )
-            request.addOrderBy("dateTime", False)
-            for envFeat in environmentLayer.getFeatures(request):
-                followersLayer.changeAttributeValue(
-                    feat.id(),
-                    followersLayer.fields().indexOf("_effortGroup"),
-                    envFeat["_effortGroup"],
-                )
-                break
-
-        followersLayer.commitChanges()
-        followersLayer.startEditing()
+            for feat in layer.getFeatures(request):
+                if layer.name() == SIGHTINGS_TABLE:
+                    if feat["side"] in sideKeys.keys():
+                        feat["observer"] = envFeat[sideKeys[feat["side"]]]
+                feat["_effortLeg"] = envFeat["_effortLeg"]
+                feat["_effortGroup"] = envFeat["_effortGroup"]
+                layer.updateFeature(feat)
+            layer.commitChanges()
+            layer.startEditing()

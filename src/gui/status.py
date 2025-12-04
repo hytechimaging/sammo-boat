@@ -7,13 +7,11 @@ import os
 import sys
 
 from qgis.PyQt import uic
+from qgis.core import QgsSettings
 from qgis.gui import QgisInterface
 from qgis.PyQt.QtCore import Qt, QSize, pyqtSignal
-from qgis.core import QgsSettings, QgsFeatureRequest
 from qgis.PyQt.QtWidgets import QFrame, QLabel, QDockWidget, QWidget
 
-
-from ..core.status import StatusCode
 from ..core.utils import pixmap, icon
 from ..core.session import SammoSession
 from ..core.thread_widget import ThreadWidget
@@ -200,16 +198,9 @@ class SammoStatusDock(QDockWidget):
         if not layer:
             return False
 
-        feat = None
-        request = QgsFeatureRequest()
-        request.addOrderBy("fid", False)
-        for feat in layer.getFeatures(request):
-            if feat["routeType"] == "prospection" and feat["status"] in [
-                StatusCode.display(StatusCode.BEGIN),
-                StatusCode.display(StatusCode.ADD),
-            ]:
-                return True
-            break
+        feat = self.session.db.lastFeature(layer)
+        if feat and feat["routeType"] == "prospection":
+            return True
         return False
 
     def _onGpsOffline(self) -> None:
