@@ -53,56 +53,63 @@ class DuplicateDialog(QDialog):
         self.datetimeEdit.setDisplayFormat("dd/MM/yyyy hh:mm:ss")
         self.HLayout.addWidget(self.datetimeLabel)
         self.HLayout.addWidget(self.datetimeEdit)
-        self.endDatetimeLabel = QLabel("End Datetime :")
-        self.endDatetimeEdit = QDateTimeEdit()
-        if self.toDuplicate["endDateTime"] != NULL:
-            self.endDatetimeEdit.setDateTime(self.toDuplicate["endDateTime"])
-        self.endDatetimeEdit.setDisplayFormat("dd/MM/yyyy hh:mm:ss")
-        self.HendLayout = QHBoxLayout()
-        self.HendLayout.addWidget(self.endDatetimeLabel)
-        self.HendLayout.addWidget(self.endDatetimeEdit)
         self.VLayout.addLayout(self.HLayout)
-        self.VLayout.addLayout(self.HendLayout)
+        if self.layer.name().lower() == "environment":
+            self.endDatetimeLabel = QLabel("End Datetime :")
+            self.endDatetimeEdit = QDateTimeEdit()
+            if self.toDuplicate["endDateTime"] != NULL:
+                self.endDatetimeEdit.setDateTime(
+                    self.toDuplicate["endDateTime"]
+                )
+            self.endDatetimeEdit.setDisplayFormat("dd/MM/yyyy hh:mm:ss")
+            self.HendLayout = QHBoxLayout()
+            self.HendLayout.addWidget(self.endDatetimeLabel)
+            self.HendLayout.addWidget(self.endDatetimeEdit)
+            self.VLayout.addLayout(self.HendLayout)
 
-        obsLyr = QgsProject.instance().mapLayersByName("Observers")[0]
-        obsIdx = obsLyr.fields().indexOf("observer")
-        obsValues = obsLyr.uniqueValues(obsIdx)
+            obsLyr = QgsProject.instance().mapLayersByName("Observers")[0]
+            obsIdx = obsLyr.fields().indexOf("observer")
+            obsValues = obsLyr.uniqueValues(obsIdx)
 
-        self.observerLayout = QHBoxLayout()
-        self.leftComboBox = QComboBox()
-        self.centerComboBox = QComboBox()
-        self.rightComboBox = QComboBox()
-        for side, comboBox in zip(
-            ["(Left)", "(Center)", "(Right)"],
-            [self.leftComboBox, self.centerComboBox, self.rightComboBox],
-        ):
-            comboBox.addItem(side, NULL)
-        for name in obsValues:
-            self.leftComboBox.addItem(name, name)
-            self.centerComboBox.addItem(name, name)
-            self.rightComboBox.addItem(name, name)
-        for comboBox in [
-            self.leftComboBox,
-            self.centerComboBox,
-            self.rightComboBox,
-        ]:
-            if comboBox.currentIndex() == -1:
-                comboBox.setCurrentIndex(0)
+            self.observerLayout = QHBoxLayout()
+            self.leftComboBox = QComboBox()
+            self.centerComboBox = QComboBox()
+            self.rightComboBox = QComboBox()
+            for side, comboBox in zip(
+                ["(Left)", "(Center)", "(Right)"],
+                [self.leftComboBox, self.centerComboBox, self.rightComboBox],
+            ):
+                comboBox.addItem(side, NULL)
+            for name in obsValues:
+                self.leftComboBox.addItem(name, name)
+                self.centerComboBox.addItem(name, name)
+                self.rightComboBox.addItem(name, name)
+            for comboBox in [
+                self.leftComboBox,
+                self.centerComboBox,
+                self.rightComboBox,
+            ]:
+                if comboBox.currentIndex() == -1:
+                    comboBox.setCurrentIndex(0)
 
-        self.observerLayout.addWidget(self.leftComboBox)
-        self.observerLayout.addWidget(self.centerComboBox)
-        self.observerLayout.addWidget(self.rightComboBox)
+            self.observerLayout.addWidget(self.leftComboBox)
+            self.observerLayout.addWidget(self.centerComboBox)
+            self.observerLayout.addWidget(self.rightComboBox)
 
-        self.leftComboBox.setCurrentIndex(
-            max(self.leftComboBox.findData(self.toDuplicate["left"]), 0)
-        )
-        self.centerComboBox.setCurrentIndex(
-            max(self.centerComboBox.findData(self.toDuplicate["center"]), 0)
-        )
-        self.rightComboBox.setCurrentIndex(
-            max(self.rightComboBox.findData(self.toDuplicate["right"]), 0)
-        )
-        self.VLayout.addLayout(self.observerLayout)
+            self.leftComboBox.setCurrentIndex(
+                max(self.leftComboBox.findData(self.toDuplicate["left"]), 0)
+            )
+            self.centerComboBox.setCurrentIndex(
+                max(
+                    self.centerComboBox.findData(
+                        self.toDuplicate["center"]
+                    ), 0
+                )
+            )
+            self.rightComboBox.setCurrentIndex(
+                max(self.rightComboBox.findData(self.toDuplicate["right"]), 0)
+            )
+            self.VLayout.addLayout(self.observerLayout)
 
         self.geometryLabel = QLabel("")
         self.datetimeEdit.dateTimeChanged.connect(self.updateGeometry)
@@ -127,28 +134,29 @@ class DuplicateDialog(QDialog):
             dt = self.datetimeEdit.dateTime()
             endDt = self.endDatetimeEdit.dateTime()
             feat["datetime"] = dt
-            feat["endDateTime"] = endDt
-            feat["left"] = self.leftComboBox.currentData()
-            feat["center"] = self.centerComboBox.currentData()
-            feat["right"] = self.rightComboBox.currentData()
-
+            if self.layer.name().lower() == "environment":
+                feat["endDateTime"] = endDt
+                feat["left"] = self.leftComboBox.currentData()
+                feat["center"] = self.centerComboBox.currentData()
+                feat["right"] = self.rightComboBox.currentData()
             self.layer.startEditing()
             self.layer.addFeature(feat)
 
-            request = QgsFeatureRequest(
-                QgsExpression(
-                    "dateTime < to_datetime("
-                    f"'{dt.toPyDateTime().isoformat()}')"
+            # Update previous feature if needed
+            if self.layer.name().lower() == "environment":
+                request = QgsFeatureRequest(
+                    QgsExpression(
+                        "dateTime < to_datetime("
+                        f"'{dt.toPyDateTime().isoformat()}')"
+                    )
                 )
-            )
-            prevFeat = None
-            for prevFeat in self.layer.getFeatures(request):
-                break
-            if prevFeat:
-                if prevFeat["endDateTime"] > feat["dateTime"]:
-                    prevFeat["endDateTime"] = self.datetimeEdit.dateTime()
-                    self.layer.updateFeature(prevFeat)
-
+                prevFeat = None
+                for prevFeat in self.layer.getFeatures(request):
+                    break
+                if prevFeat:
+                    if prevFeat["endDateTime"] > feat["dateTime"]:
+                        prevFeat["endDateTime"] = self.datetimeEdit.dateTime()
+                        self.layer.updateFeature(prevFeat)
         else:
             self.layer.startEditing()
             self.layer.changeGeometry(self.toDuplicate.id(), self.interpolated)
@@ -157,26 +165,27 @@ class DuplicateDialog(QDialog):
                 self.layer.fields().indexOf("dateTime"),
                 self.datetimeEdit.dateTime(),
             )
-            self.layer.changeAttributeValue(
-                self.toDuplicate.id(),
-                self.layer.fields().indexOf("endDateTime"),
-                self.endDatetimeEdit.dateTime(),
-            )
-            self.layer.changeAttributeValue(
-                self.toDuplicate.id(),
-                self.layer.fields().indexOf("left"),
-                self.leftComboBox.currentData(),
-            )
-            self.layer.changeAttributeValue(
-                self.toDuplicate.id(),
-                self.layer.fields().indexOf("center"),
-                self.centerComboBox.currentData(),
-            )
-            self.layer.changeAttributeValue(
-                self.toDuplicate.id(),
-                self.layer.fields().indexOf("right"),
-                self.rightComboBox.currentData(),
-            )
+            if self.layer.name().lower() == "environment":
+                self.layer.changeAttributeValue(
+                    self.toDuplicate.id(),
+                    self.layer.fields().indexOf("endDateTime"),
+                    self.endDatetimeEdit.dateTime(),
+                )
+                self.layer.changeAttributeValue(
+                    self.toDuplicate.id(),
+                    self.layer.fields().indexOf("left"),
+                    self.leftComboBox.currentData(),
+                )
+                self.layer.changeAttributeValue(
+                    self.toDuplicate.id(),
+                    self.layer.fields().indexOf("center"),
+                    self.centerComboBox.currentData(),
+                )
+                self.layer.changeAttributeValue(
+                    self.toDuplicate.id(),
+                    self.layer.fields().indexOf("right"),
+                    self.rightComboBox.currentData(),
+                )
         self.layer.commitChanges()
         self.layer.startEditing()
         self.close()
