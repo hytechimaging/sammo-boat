@@ -8,12 +8,14 @@ from qgis.PyQt.QtWidgets import (
     QLabel,
     QDialog,
     QCheckBox,
+    QComboBox,
     QPushButton,
     QHBoxLayout,
     QVBoxLayout,
     QDateTimeEdit,
 )
 from qgis.core import (
+    NULL,
     QgsProject,
     QgsFeature,
     QgsGeometry,
@@ -43,6 +45,7 @@ class DuplicateDialog(QDialog):
         self.checkBox = QCheckBox("Duplicate ?")
         self.checkBox.setChecked(True)
         self.VLayout.addWidget(self.checkBox)
+        self.checkBox.stateChanged.connect(self.validateLabelChange)
         # datetime
         self.HLayout = QHBoxLayout()
         self.datetimeLabel = QLabel("Datetime :")
@@ -51,13 +54,56 @@ class DuplicateDialog(QDialog):
         self.HLayout.addWidget(self.datetimeLabel)
         self.HLayout.addWidget(self.datetimeEdit)
         self.endDatetimeLabel = QLabel("End Datetime :")
-        self.endDatetimeEdit = QDateTimeEdit(self.toDuplicate["endDateTime"])
+        self.endDatetimeEdit = QDateTimeEdit()
+        if self.toDuplicate["endDateTime"] != NULL:
+            self.endDatetimeEdit.setDateTime(self.toDuplicate["endDateTime"])
         self.endDatetimeEdit.setDisplayFormat("dd/MM/yyyy hh:mm:ss")
         self.HendLayout = QHBoxLayout()
         self.HendLayout.addWidget(self.endDatetimeLabel)
         self.HendLayout.addWidget(self.endDatetimeEdit)
         self.VLayout.addLayout(self.HLayout)
         self.VLayout.addLayout(self.HendLayout)
+
+        obsLyr = QgsProject.instance().mapLayersByName("Observers")[0]
+        obsIdx = obsLyr.fields().indexOf("observer")
+        obsValues = obsLyr.uniqueValues(obsIdx)
+
+        self.observerLayout = QHBoxLayout()
+        self.leftComboBox = QComboBox()
+        self.centerComboBox = QComboBox()
+        self.rightComboBox = QComboBox()
+        for side, comboBox in zip(
+            ["(Left)", "(Center)", "(Right)"],
+            [self.leftComboBox, self.centerComboBox, self.rightComboBox],
+        ):
+            comboBox.addItem(side, NULL)
+        for name in obsValues:
+            self.leftComboBox.addItem(name, name)
+            self.centerComboBox.addItem(name, name)
+            self.rightComboBox.addItem(name, name)
+        for comboBox in [
+            self.leftComboBox,
+            self.centerComboBox,
+            self.rightComboBox,
+        ]:
+            if comboBox.currentIndex() == -1:
+                comboBox.setCurrentIndex(0)
+
+        self.observerLayout.addWidget(self.leftComboBox)
+        self.observerLayout.addWidget(self.centerComboBox)
+        self.observerLayout.addWidget(self.rightComboBox)
+
+        self.leftComboBox.setCurrentIndex(
+            max(self.leftComboBox.findData(self.toDuplicate["left"]), 0)
+        )
+        self.centerComboBox.setCurrentIndex(
+            max(self.centerComboBox.findData(self.toDuplicate["center"]), 0)
+        )
+        self.rightComboBox.setCurrentIndex(
+            max(self.rightComboBox.findData(self.toDuplicate["right"]), 0)
+        )
+        self.VLayout.addLayout(self.observerLayout)
+
         self.geometryLabel = QLabel("")
         self.datetimeEdit.dateTimeChanged.connect(self.updateGeometry)
         self.VLayout.addWidget(self.geometryLabel)
@@ -82,6 +128,9 @@ class DuplicateDialog(QDialog):
             endDt = self.endDatetimeEdit.dateTime()
             feat["datetime"] = dt
             feat["endDateTime"] = endDt
+            feat["left"] = self.leftComboBox.currentData()
+            feat["center"] = self.centerComboBox.currentData()
+            feat["right"] = self.rightComboBox.currentData()
 
             self.layer.startEditing()
             self.layer.addFeature(feat)
@@ -112,6 +161,21 @@ class DuplicateDialog(QDialog):
                 self.toDuplicate.id(),
                 self.layer.fields().indexOf("endDateTime"),
                 self.endDatetimeEdit.dateTime(),
+            )
+            self.layer.changeAttributeValue(
+                self.toDuplicate.id(),
+                self.layer.fields().indexOf("left"),
+                self.leftComboBox.currentData(),
+            )
+            self.layer.changeAttributeValue(
+                self.toDuplicate.id(),
+                self.layer.fields().indexOf("center"),
+                self.centerComboBox.currentData(),
+            )
+            self.layer.changeAttributeValue(
+                self.toDuplicate.id(),
+                self.layer.fields().indexOf("right"),
+                self.rightComboBox.currentData(),
             )
         self.layer.commitChanges()
         self.layer.startEditing()
@@ -189,6 +253,12 @@ class DuplicateDialog(QDialog):
         self.geometryLabel.setText(
             f"Interpolated position : {self.interpolated.asWkt(3)}"
         )
+
+    def validateLabelChange(self, state: int) -> None:
+        if state:
+            self.validateButton.setText("Duplicate with changes")
+            return
+        self.validateButton.setText("Apply changes")
 
 
 toDuplicate = int("[%fid%]")

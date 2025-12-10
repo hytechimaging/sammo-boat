@@ -488,6 +488,7 @@ class Sammo:
         if self.simuGpsAction:
             self.simuGpsSerialAction.onNewSession()
             self.simuGpsAction.onNewSession()
+        self.updateObs()
 
     def cleanTableDock(self, layerId):
         if (
@@ -544,7 +545,7 @@ class Sammo:
     def onEnvironmentAction(self) -> None:
         self.soundRecordingController.onStartEnvironment()
         self.iface.mapCanvas().setFocus()
-        layer = self.session.addEnvironmentFeature()
+        layer = self.session.addEnvironmentFeature(self.statusDock.observers)
         self.tableDock.refresh(layer, self.filterExpr)
         self.soundRecordingController.onStopEventWhichNeedSoundRecord(60)
 
@@ -657,12 +658,26 @@ class Sammo:
             self.soundRecordingController.interruptRecording()
             self.soundRecordingController.unload()
             self.session = SammoSession()
+            self.session.updateObs.connect(self.updateObs)
             self.statusDock.session = self.session
             self.settingsAction.session = self.session
             self.tableDock.clean()
+            self.updateObs()
             return
 
         self.onCreateSession(sessionDir)
+
+    def updateObs(self) -> None:
+        if self.session._observersLayer:
+            self.statusDock._widget.updateObs(
+                sorted(
+                    self.session.observersLayer.uniqueValues(
+                        self.session.observersLayer.fields().indexOf(
+                            "observer"
+                        )
+                    )
+                )
+            )
 
     @staticmethod
     def pluginFolder():

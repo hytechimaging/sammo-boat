@@ -10,6 +10,7 @@ from typing import List, Optional, Dict, Union
 from qgis.utils import iface
 from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtWidgets import QMessageBox
+from qgis.PyQt.QtCore import pyqtSignal, QObject
 from qgis.core import (
     NULL,
     QgsProject,
@@ -48,8 +49,11 @@ from .layers import (
 from .sound_recording_controller import RecordType
 
 
-class SammoSession:
+class SammoSession(QObject):
+    updateObs: pyqtSignal = pyqtSignal()
+
     def __init__(self):
+        super().__init__()
         self.db = SammoDataBase()
 
         self._gpsLayer: SammoGpsLayer = None
@@ -251,6 +255,11 @@ class SammoSession:
                 layer._init(layer.layer)
                 layer.layer.startEditing()  # featureCount update
                 layer.layer.commitChanges()
+            self._observersLayer.layer.featureAdded.connect(self._updateObs)
+            self._observersLayer.layer.featureDeleted.connect(self._updateObs)
+            self._observersLayer.layer.afterCommitChanges.connect(
+                self._updateObs
+            )
             self._plateformLayer._link_boat(self._boatLayer)
             self.environmentLayer.actions().clearActions()
             self._environmentLayer.addSoundAction(self.environmentLayer)
@@ -301,7 +310,9 @@ class SammoSession:
             session_value,
         )
 
-    def addEnvironmentFeature(self) -> QgsVectorLayer:
+    def addEnvironmentFeature(
+        self, observers: tuple[str, str, str]
+    ) -> QgsVectorLayer:
         layer = self.environmentLayer
 
         # Administration table values
@@ -325,6 +336,9 @@ class SammoSession:
             session=session_value,
             computer=computer_value,
             shipName=ship_value,
+            left=observers[0],
+            center=observers[1],
+            right=observers[2],
         )
         return layer
 
@@ -643,3 +657,6 @@ class SammoSession:
                 layer.updateFeature(feat)
             layer.commitChanges()
             layer.startEditing()
+
+    def _updateObs(self, fid: int = 0):
+        self.updateObs.emit()
