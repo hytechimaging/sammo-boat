@@ -531,7 +531,9 @@ class SammoSession(QObject):
 
         if not dt:
             dt = QDateTime(datetime.fromisoformat(utils.now()))
-            dt = QDateTime(dt.date(), dt.time(), Qt.UTC)
+        else:
+            dt = QDateTime(datetime.fromisoformat(dt))
+        dt = QDateTime(dt.date(), dt.time(), Qt.UTC)
         feat["dateTime"] = dt
         if geom:
             feat.setGeometry(geom)
