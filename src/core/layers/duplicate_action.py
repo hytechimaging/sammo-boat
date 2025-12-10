@@ -4,6 +4,7 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2022 Hytech Imaging"
 
 from qgis import utils
+from qgis.PyQt.QtCore import Qt, QDateTime
 from qgis.PyQt.QtWidgets import (
     QLabel,
     QDialog,
@@ -49,14 +50,18 @@ class DuplicateDialog(QDialog):
         # datetime
         self.HLayout = QHBoxLayout()
         self.datetimeLabel = QLabel("Datetime :")
-        self.datetimeEdit = QDateTimeEdit(self.toDuplicate["dateTime"])
+        self.datetimeEdit = QDateTimeEdit()
+        self.datetimeEdit.setTimeSpec(Qt.UTC)
         self.datetimeEdit.setDisplayFormat("dd/MM/yyyy hh:mm:ss")
+        self.datetimeEdit.setDateTime(self.toDuplicate["dateTime"])
         self.HLayout.addWidget(self.datetimeLabel)
         self.HLayout.addWidget(self.datetimeEdit)
         self.VLayout.addLayout(self.HLayout)
         if self.layer.name().lower() == "environment":
             self.endDatetimeLabel = QLabel("End Datetime :")
             self.endDatetimeEdit = QDateTimeEdit()
+            self.endDatetimeEdit.setTimeSpec(Qt.UTC)
+            self.endDatetimeEdit.setDisplayFormat("dd/MM/yyyy hh:mm:ss")
             if self.toDuplicate["endDateTime"] != NULL:
                 self.endDatetimeEdit.setDateTime(
                     self.toDuplicate["endDateTime"]
@@ -101,9 +106,7 @@ class DuplicateDialog(QDialog):
             )
             self.centerComboBox.setCurrentIndex(
                 max(
-                    self.centerComboBox.findData(
-                        self.toDuplicate["center"]
-                    ), 0
+                    self.centerComboBox.findData(self.toDuplicate["center"]), 0
                 )
             )
             self.rightComboBox.setCurrentIndex(
@@ -133,8 +136,10 @@ class DuplicateDialog(QDialog):
 
             dt = self.datetimeEdit.dateTime()
             endDt = self.endDatetimeEdit.dateTime()
+            dt = QDateTime(dt.date(), dt.time(), Qt.UTC)
             feat["datetime"] = dt
             if self.layer.name().lower() == "environment":
+                endDt = QDateTime(endDt.date(), endDt.time(), Qt.UTC)
                 feat["endDateTime"] = endDt
                 feat["left"] = self.leftComboBox.currentData()
                 feat["center"] = self.centerComboBox.currentData()
@@ -160,16 +165,20 @@ class DuplicateDialog(QDialog):
         else:
             self.layer.startEditing()
             self.layer.changeGeometry(self.toDuplicate.id(), self.interpolated)
+            dt = self.datetimeEdit.dateTime()
+            dt = QDateTime(dt.date(), dt.time(), Qt.UTC)
             self.layer.changeAttributeValue(
                 self.toDuplicate.id(),
                 self.layer.fields().indexOf("dateTime"),
-                self.datetimeEdit.dateTime(),
+                dt,
             )
             if self.layer.name().lower() == "environment":
+                endDt = self.endDatetimeEdit.dateTime()
+                endDt = QDateTime(endDt.date(), endDt.time(), Qt.UTC)
                 self.layer.changeAttributeValue(
                     self.toDuplicate.id(),
                     self.layer.fields().indexOf("endDateTime"),
-                    self.endDatetimeEdit.dateTime(),
+                    endDt,
                 )
                 self.layer.changeAttributeValue(
                     self.toDuplicate.id(),

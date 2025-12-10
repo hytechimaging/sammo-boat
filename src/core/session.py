@@ -10,7 +10,7 @@ from typing import List, Optional, Dict, Union
 from qgis.utils import iface
 from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtWidgets import QMessageBox
-from qgis.PyQt.QtCore import pyqtSignal, QObject
+from qgis.PyQt.QtCore import Qt, QObject, pyqtSignal, QDateTime
 from qgis.core import (
     NULL,
     QgsProject,
@@ -346,7 +346,10 @@ class SammoSession(QObject):
         layer = self.environmentLayer
         ft = self.db.lastFeature(layer)
         if ft and not ft["endDateTime"]:
-            ft["endDateTime"] = utils.now()
+            dt = QDateTime(datetime.fromisoformat(utils.now()))
+            dt = QDateTime(dt.date(), dt.time(), Qt.UTC)
+            ft["endDateTime"] = dt
+
             layer.updateFeature(ft)
 
     def addSightingsFeature(self) -> QgsVectorLayer:
@@ -527,7 +530,8 @@ class SammoSession(QObject):
         feat = QgsVectorLayerUtils.createFeature(layer)
 
         if not dt:
-            dt = utils.now()
+            dt = QDateTime(datetime.fromisoformat(utils.now()))
+            dt = QDateTime(dt.date(), dt.time(), Qt.UTC)
         feat["dateTime"] = dt
         if geom:
             feat.setGeometry(geom)
