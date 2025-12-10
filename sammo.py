@@ -550,6 +550,14 @@ class Sammo:
         self.soundRecordingController.onStopEventWhichNeedSoundRecord(60)
 
     def onSightingsAction(self):
+        if (
+            not self.session.environmentLayer
+            or not self.session.environmentLayer.featureCount()
+        ):
+            self.iface.messageBar().pushWarning(
+                "No effort in environment layer.", "Create an effort first."
+            )
+            return
         self.soundRecordingController.onStartSightings()
         self.iface.mapCanvas().setFocus()
         layer = self.session.addSightingsFeature()
@@ -574,6 +582,14 @@ class Sammo:
             table.show()
             return
 
+        if (
+            not self.session.environmentLayer
+            or not self.session.environmentLayer.featureCount()
+        ):
+            self.iface.messageBar().pushWarning(
+                "No effort in environment layer.", "Create an effort first."
+            )
+            return
         self.soundRecordingController.onStartFollowers()
 
         self.followersTable = SammoFollowersTable(
