@@ -607,7 +607,9 @@ class SammoSession(QObject):
         return ""
 
     @staticmethod
-    def effortCheck(environmentLayer) -> bool:
+    def effortCheck(
+        environmentLayer, interative: bool = True
+    ) -> tuple[bool, str]:
         # effort status check
         errors = []
         for ft in environmentLayer.getFeatures():
@@ -618,12 +620,13 @@ class SammoSession(QObject):
                 )
 
         if errors:
-            errors.append("Please, resolve errors before validation")
-            QMessageBox.warning(
-                None, "Errors detected in effort status", "\n".join(errors)
-            )
-            return False
-        return True
+            if interative:
+                errors.append("Please, resolve errors before validation")
+                QMessageBox.warning(
+                    None, "Errors detected in effort status", "\n".join(errors)
+                )
+            return (False, "\n".join(errors))
+        return (True, "")
 
     @staticmethod
     def applyEnvAttr(

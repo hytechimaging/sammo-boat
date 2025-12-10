@@ -123,7 +123,7 @@ class SammoMergeDialog(QDialog, FORM_CLASS):
         else:
             iface.messageBar().pushInfo("MergeTask", "Merge success")
             self.ok.setText("Success")
-        self.mergeEnded.emit(self.sessionMergedDir.text())
+            self.mergeEnded.emit(self.sessionMergedDir.text())
         self.show()
 
 
@@ -158,11 +158,14 @@ class SammoMergeTask(QgsTask):
         # open input session
         sessionA = SammoSession()
         sessionA.init(self.sessionADir, load=False)
-        sessionA.effortCheck(sessionA.environmentLayer)
-
+        ok, errors = sessionA.effortCheck(sessionA.environmentLayer, False)
+        if not ok:
+            raise Exception("Session A : " + errors)
         sessionB = SammoSession()
         sessionB.init(self.sessionBDir, load=False)
-        sessionB.effortCheck(sessionB.environmentLayer)
+        ok, errors = sessionB.effortCheck(sessionB.environmentLayer, False)
+        if not ok:
+            raise Exception("Session B : " + errors)
 
         # create output session
         sessionOutput = SammoSession()
