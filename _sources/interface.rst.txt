@@ -18,6 +18,9 @@ Most Sammo-boat tools are available in the plugin toolbar.
 .. |settings| image:: ../../images/settings.png
   :height: 18
 
+.. |help| image:: ../../images/help.png
+  :height: 18
+
 .. |save| image:: ../../images/pen.png
   :height: 18
 
@@ -70,7 +73,18 @@ Especially for `Transect` table, it is possible to import a linear layer
 `Transect` table (transect,strateType,subRegion,length). Transect entity reference
 will be available in the `Environment` table.
 
-3 - |save| Validation button
+3 - |help| Documentation button
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. image:: images/validate_button.png
+   :align: center
+   :width: 400
+
+|
+
+`Documentation` button opens the Sammo-boat documentation.
+
+4 - |save| Validation button
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
@@ -95,7 +109,7 @@ At the end, there is also two filters that can be activated to filter
 environment/sighting/follower tables. It can be useful to do the entity check.
 
 
-4 - |export| Export button
+5 - |export| Export button
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This button is used to export session into csv or gpkg files.
@@ -106,7 +120,10 @@ This button is used to export session into csv or gpkg files.
 
 User have to mention the export folder and the driver.
 
-5 - |merge| Merge button
+A warning message will be displayed if an effort has no end datetime in the
+environment layer.
+
+6 - |merge| Merge button
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 This button is used to merge session. It will open the following dialog :
@@ -122,7 +139,10 @@ will be also decimated to keep only one record per minutes.
 
 User can use the gps checkboxes to choose which session gps layer will be kept.
 
-6 - |environment| Environment button
+A warning message will be displayed if an effort has no end datetime in the
+environment layer of one session.
+
+7 - |environment| Environment button
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This button add a new environment record in the environment table. The focus is
@@ -130,7 +150,7 @@ set on the table (11) in order that the user can fulfill the attributes
 (cf :ref:`environmenttable`). This action can also be done by using the ``Shift+e``
 shortcut.
 
-7 - |sighting| Sighting button
+8 - |sighting| Sighting button
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This button add a new sighting record in the sighting table. The focus is
@@ -138,7 +158,7 @@ set on the table (12) in order that the user can fulfill the attributes
 (cf :ref:`sightingtable`). This action can also be done by using the ``Space``
 shortcut.
 
-8 - |follower| Follower button
+9 - |follower| Follower button
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This button is used to handle follower entities. The main action is used to add
@@ -160,7 +180,7 @@ records before the validation.
 Status Panel
 ------------
 
-9 - GPS button
+10 - GPS button
 ~~~~~~~~~~~~~~
 
 .. |gps_ok| image:: ../../images/gps_ok.png
@@ -175,7 +195,7 @@ box will appear to warn the user. Otherwise |gps_ko| will turn into |gps_ok|.
 The GPS infos are displayed aside the button. Futhermore, a new gps entity is
 created per minut.
 
-10 - Microphone button
+11 - Microphone button
 ~~~~~~~~~~~~~~~~~~~~~~
 
 .. |record_ok| image:: ../../images/record_ok.png
@@ -191,6 +211,17 @@ Each entity will be attached with its sound record. By default the record lasts
 one minute. If user wants to short it, he can click on the |record_ok| button
 to turn it into |record_ko|.
 
+12 - Observer selection
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Three combo box are available to select which observer are present on left, center
+and right side. The available value are generated from the observer table.
+
+When the operator adds a new effort entity in the environment layer, the left/center/right
+fields will be populated from the current values in these combo boxes.
+
+If needed, these values can be modified by using the "Duplicate or change current feature"
+action.
 
 Tables and map
 --------------
@@ -207,11 +238,8 @@ Environment entity describes environmental variables during the session.
 To keep trace of different routes, according their ``routeType`` attribute.
 A status will be assigned automatically to each entity.
 
-The first status will be ``Begin``, then ``Add`` status will be created for the
-next entities until user changes the ``routeType`` attribute. User creates
-``Add`` entities if the environmental variables change during the route. When the
-user changes the ``routeType`` attributes, the status attribute will be updated to
-``Begin``. Entities with ``End`` status will be created only on export.
+Only the ``Begin`` status entity will be created by the operator. Entities with
+``End`` status will be created only on export.
 
 .. _sightingtable:
 

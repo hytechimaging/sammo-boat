@@ -49,17 +49,19 @@
 <li class="toctree-l2"><a class="reference internal" href="#toolbar">Toolbar</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#session-session-button">1 -  Session button</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#settings-settings-button">2 -  Settings button</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#save-validation-button">3 -  Validation button</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#export-export-button">4 -  Export button</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#merge-merge-button">5 -  Merge button</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#environment-environment-button">6 -  Environment button</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#sighting-sighting-button">7 -  Sighting button</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#follower-follower-button">8 -  Follower button</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#help-documentation-button">3 -  Documentation button</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#save-validation-button">4 -  Validation button</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#export-export-button">5 -  Export button</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#merge-merge-button">6 -  Merge button</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#environment-environment-button">7 -  Environment button</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sighting-sighting-button">8 -  Sighting button</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#follower-follower-button">9 -  Follower button</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#status-panel">Status Panel</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#gps-button">9 - GPS button</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#microphone-button">10 - Microphone button</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#gps-button">10 - GPS button</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#microphone-button">11 - Microphone button</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#observer-selection">12 - Observer selection</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#tables-and-map">Tables and map</a><ul>
@@ -128,8 +130,17 @@ dialog as each can contains more than one entity.</p>
 <cite>Transect</cite> table (transect,strateType,subRegion,length). Transect entity reference
 will be available in the <cite>Environment</cite> table.</p>
 </section>
+<section id="help-documentation-button">
+<h3>3 - <a class="reference internal" href="_images/help.png"><img alt="help" src="_images/help.png" style="height: 18px;" /></a> Documentation button<a class="headerlink" href="#help-documentation-button" title="Link to this heading"></a></h3>
+<a class="reference internal image-reference" href="_images/validate_button.png"><img alt="_images/validate_button.png" class="align-center" src="_images/validate_button.png" style="width: 400px;" />
+</a>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p><cite>Documentation</cite> button opens the Sammo-boat documentation.</p>
+</section>
 <section id="save-validation-button">
-<h3>3 - <a class="reference internal" href="_images/pen.png"><img alt="save" src="_images/pen.png" style="height: 18px;" /></a> Validation button<a class="headerlink" href="#save-validation-button" title="Link to this heading"></a></h3>
+<h3>4 - <a class="reference internal" href="_images/pen.png"><img alt="save" src="_images/pen.png" style="height: 18px;" /></a> Validation button<a class="headerlink" href="#save-validation-button" title="Link to this heading"></a></h3>
 <a class="reference internal image-reference" href="_images/validate_button.png"><img alt="_images/validate_button.png" class="align-center" src="_images/validate_button.png" style="width: 400px;" />
 </a>
 <div class="line-block">
@@ -148,16 +159,18 @@ validate these particular entities.</p>
 environment/sighting/follower tables. It can be useful to do the entity check.</p>
 </section>
 <section id="export-export-button">
-<h3>4 - <a class="reference internal" href="_images/export.png"><img alt="export" src="_images/export.png" style="height: 18px;" /></a> Export button<a class="headerlink" href="#export-export-button" title="Link to this heading"></a></h3>
+<h3>5 - <a class="reference internal" href="_images/export.png"><img alt="export" src="_images/export.png" style="height: 18px;" /></a> Export button<a class="headerlink" href="#export-export-button" title="Link to this heading"></a></h3>
 <p>This button is used to export session into csv or gpkg files.</p>
 <img alt="_images/export_dialog.png" src="_images/export_dialog.png" />
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
 <p>User have to mention the export folder and the driver.</p>
+<p>A warning message will be displayed if an effort has no end datetime in the
+environment layer.</p>
 </section>
 <section id="merge-merge-button">
-<h3>5 - <a class="reference internal" href="_images/merge.png"><img alt="merge" src="_images/merge.png" style="height: 18px;" /></a> Merge button<a class="headerlink" href="#merge-merge-button" title="Link to this heading"></a></h3>
+<h3>6 - <a class="reference internal" href="_images/merge.png"><img alt="merge" src="_images/merge.png" style="height: 18px;" /></a> Merge button<a class="headerlink" href="#merge-merge-button" title="Link to this heading"></a></h3>
 <p>This button is used to merge session. It will open the following dialog :</p>
 <img alt="_images/merge_dialog.png" src="_images/merge_dialog.png" />
 <div class="line-block">
@@ -168,23 +181,25 @@ data from two distinct session. The environment/sighting/follower tables will be
 merging, avoiding to copy identical entities captured on a previous day. Gps point
 will be also decimated to keep only one record per minutes.</p>
 <p>User can use the gps checkboxes to choose which session gps layer will be kept.</p>
+<p>A warning message will be displayed if an effort has no end datetime in the
+environment layer of one session.</p>
 </section>
 <section id="environment-environment-button">
-<h3>6 - <a class="reference internal" href="_images/environment.png"><img alt="environment" src="_images/environment.png" style="height: 18px;" /></a> Environment button<a class="headerlink" href="#environment-environment-button" title="Link to this heading"></a></h3>
+<h3>7 - <a class="reference internal" href="_images/environment.png"><img alt="environment" src="_images/environment.png" style="height: 18px;" /></a> Environment button<a class="headerlink" href="#environment-environment-button" title="Link to this heading"></a></h3>
 <p>This button add a new environment record in the environment table. The focus is
 set on the table (11) in order that the user can fulfill the attributes
 (cf <a class="reference internal" href="#environmenttable"><span class="std std-ref">11 - Environment table</span></a>). This action can also be done by using the <code class="docutils literal notranslate"><span class="pre">Shift+e</span></code>
 shortcut.</p>
 </section>
 <section id="sighting-sighting-button">
-<h3>7 - <a class="reference internal" href="_images/sightings.png"><img alt="sighting" src="_images/sightings.png" style="height: 18px;" /></a> Sighting button<a class="headerlink" href="#sighting-sighting-button" title="Link to this heading"></a></h3>
+<h3>8 - <a class="reference internal" href="_images/sightings.png"><img alt="sighting" src="_images/sightings.png" style="height: 18px;" /></a> Sighting button<a class="headerlink" href="#sighting-sighting-button" title="Link to this heading"></a></h3>
 <p>This button add a new sighting record in the sighting table. The focus is
 set on the table (12) in order that the user can fulfill the attributes
 (cf <a class="reference internal" href="#sightingtable"><span class="std std-ref">12 - Sighting table</span></a>). This action can also be done by using the <code class="docutils literal notranslate"><span class="pre">Space</span></code>
 shortcut.</p>
 </section>
 <section id="follower-follower-button">
-<h3>8 - <a class="reference internal" href="_images/seabird.png"><img alt="follower" src="_images/seabird.png" style="height: 18px;" /></a> Follower button<a class="headerlink" href="#follower-follower-button" title="Link to this heading"></a></h3>
+<h3>9 - <a class="reference internal" href="_images/seabird.png"><img alt="follower" src="_images/seabird.png" style="height: 18px;" /></a> Follower button<a class="headerlink" href="#follower-follower-button" title="Link to this heading"></a></h3>
 <p>This button is used to handle follower entities. The main action is used to add
 new follower records by opening the follower dialog.</p>
 <img alt="_images/follower_dialog.png" src="_images/follower_dialog.png" />
@@ -198,19 +213,28 @@ records before the validation.</p>
 <section id="status-panel">
 <h2>Status Panel<a class="headerlink" href="#status-panel" title="Link to this heading"></a></h2>
 <section id="gps-button">
-<h3>9 - GPS button<a class="headerlink" href="#gps-button" title="Link to this heading"></a></h3>
+<h3>10 - GPS button<a class="headerlink" href="#gps-button" title="Link to this heading"></a></h3>
 <p>The GPS button is used to enable/disable the GPS. If no GPS is found, a message
 box will appear to warn the user. Otherwise <a class="reference internal" href="_images/gps_ko.png"><img alt="gps_ko" src="_images/gps_ko.png" style="height: 32px;" /></a> will turn into <a class="reference internal" href="_images/gps_ok.png"><img alt="gps_ok" src="_images/gps_ok.png" style="height: 32px;" /></a>.</p>
 <p>The GPS infos are displayed aside the button. Futhermore, a new gps entity is
 created per minut.</p>
 </section>
 <section id="microphone-button">
-<h3>10 - Microphone button<a class="headerlink" href="#microphone-button" title="Link to this heading"></a></h3>
+<h3>11 - Microphone button<a class="headerlink" href="#microphone-button" title="Link to this heading"></a></h3>
 <p>By adding a environment/sighting/follower entity, the plugin starts recording.
 User will notice it by seeing the <a class="reference internal" href="_images/record_ko.png"><img alt="record_ko" src="_images/record_ko.png" style="height: 32px;" /></a> turning into <a class="reference internal" href="_images/record_ok.png"><img alt="record_ok" src="_images/record_ok.png" style="height: 32px;" /></a>.
 Each entity will be attached with its sound record. By default the record lasts
 one minute. If user wants to short it, he can click on the <a class="reference internal" href="_images/record_ok.png"><img alt="record_ok" src="_images/record_ok.png" style="height: 32px;" /></a> button
 to turn it into <a class="reference internal" href="_images/record_ko.png"><img alt="record_ko" src="_images/record_ko.png" style="height: 32px;" /></a>.</p>
+</section>
+<section id="observer-selection">
+<h3>12 - Observer selection<a class="headerlink" href="#observer-selection" title="Link to this heading"></a></h3>
+<p>Three combo box are available to select which observer are present on left, center
+and right side. The available value are generated from the observer table.</p>
+<p>When the operator adds a new effort entity in the environment layer, the left/center/right
+fields will be populated from the current values in these combo boxes.</p>
+<p>If needed, these values can be modified by using the “Duplicate or change current feature”
+action.</p>
 </section>
 </section>
 <section id="tables-and-map">
@@ -222,11 +246,8 @@ attributes are duplicated from the previous entity.</p>
 <p>Environment entity describes environmental variables during the session.
 To keep trace of different routes, according their <code class="docutils literal notranslate"><span class="pre">routeType</span></code> attribute.
 A status will be assigned automatically to each entity.</p>
-<p>The first status will be <code class="docutils literal notranslate"><span class="pre">Begin</span></code>, then <code class="docutils literal notranslate"><span class="pre">Add</span></code> status will be created for the
-next entities until user changes the <code class="docutils literal notranslate"><span class="pre">routeType</span></code> attribute. User creates
-<code class="docutils literal notranslate"><span class="pre">Add</span></code> entities if the environmental variables change during the route. When the
-user changes the <code class="docutils literal notranslate"><span class="pre">routeType</span></code> attributes, the status attribute will be updated to
-<code class="docutils literal notranslate"><span class="pre">Begin</span></code>. Entities with <code class="docutils literal notranslate"><span class="pre">End</span></code> status will be created only on export.</p>
+<p>Only the <code class="docutils literal notranslate"><span class="pre">Begin</span></code> status entity will be created by the operator. Entities with
+<code class="docutils literal notranslate"><span class="pre">End</span></code> status will be created only on export.</p>
 </section>
 <section id="sighting-table">
 <span id="sightingtable"></span><h3>12 - Sighting table<a class="headerlink" href="#sighting-table" title="Link to this heading"></a></h3>

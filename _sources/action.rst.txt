@@ -42,11 +42,11 @@ For the environment table, it opens the following dialog:
 
 |
 
-User can modify the datetime of the duplicat. From this datetime, the entity
-geometry will be determined by interpolating the closest gps points. Futhermore,
-user can modify the status and the effortGroup attributes
-(cf. :ref:`environmenttable`) in order to fix missing environment entities. Other
-attributes can be modified in the environment table.
+User can modify the start and end datetime of the duplicat. From the start datetime,
+the entity geometry will be determined by interpolating the closest gps points.
+Futhermore, user can modify the observers fields (cf. :ref:`environmenttable`)
+in order to fix missing environment entities. Other attributes can be modified
+in the environment table.
 
 For sighting and follower tables, it opens the following dialog:
 
