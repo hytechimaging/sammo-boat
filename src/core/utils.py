@@ -39,7 +39,7 @@ def pixmap(name: str, size: QSize) -> QPixmap:
 
 
 def now() -> str:
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
 
 def base64File(path: str) -> str:

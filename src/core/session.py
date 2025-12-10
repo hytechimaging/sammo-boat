@@ -522,7 +522,7 @@ class SammoSession(QObject):
     def _addFeature(
         self,
         layer: QgsVectorLayer,
-        dt: str = "",
+        dt: str | None = None,
         geom: QgsGeometry = QgsGeometry(),
         duplicate: bool = False,
         **kwargs,
@@ -533,6 +533,7 @@ class SammoSession(QObject):
             dt = QDateTime(datetime.fromisoformat(utils.now()))
             dt = QDateTime(dt.date(), dt.time(), Qt.UTC)
         feat["dateTime"] = dt
+
         if geom:
             feat.setGeometry(geom)
         else:

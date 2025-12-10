@@ -4,11 +4,12 @@ __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
 import os
+from datetime import datetime
 
 from qgis.PyQt import uic
 from qgis.core import QgsSettings
 from qgis.PyQt.QtGui import QKeyEvent
-from qgis.PyQt.QtCore import QObject, Qt, QEvent
+from qgis.PyQt.QtCore import QObject, Qt, QEvent, QDateTime
 from qgis.PyQt.QtWidgets import (
     QMenu,
     QAction,
@@ -83,7 +84,13 @@ class SammoFollowersTable(QDialog, FORM_CLASS):
             )
 
         # the same datetime is used for all followers added in this session
-        self.datetime = utils.now()
+        qdt = QDateTime(
+            datetime.fromisoformat(
+                datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            )
+        )
+        qdt = QDateTime(qdt.date(), qdt.time(), Qt.UTC)
+        self.datetime = qdt.toString("yyyy-MM-dd hh:mm:ss")
         filterExpr = (
             f"epoch(\"dateTime\") = epoch(to_datetime('{self.datetime}'))"
         )
