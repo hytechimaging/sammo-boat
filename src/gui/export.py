@@ -167,6 +167,12 @@ class SammoExportAction(QDialog):
                 layer.addJoin(self.obsSpeLayerJoinInfo(speciesJoinLayer))
 
             elif layer.name().lower() == ENVIRONMENT_TABLE:
+                field = QgsField("nObservers", QMetaType.Type.Int)
+                layer.addExpressionField(
+                    'to_int("left" is not NULL) + to_int("right" is not NULL) '
+                    '+ to_int("center" is not NULL)',
+                    field,
+                )
                 obsJoinLayerLeft = QgsVectorLayer(
                     self.session.observersLayer.source(),
                     f"{self.session.observersLayer.name()}_left",

@@ -44,6 +44,11 @@ class SammoEnvironmentLayer(SammoLayer):
         self.transectLayer = transectLayer
 
     def _init(self, layer: QgsVectorLayer):
+        for fieldName in ["nObservers", "status"]:
+            if fieldName in layer.fields().names():
+                layer.dataProvider().deleteAttributes(
+                    [layer.fields().indexOf(fieldName)]
+                )
         self._init_symbology(layer)
         self._init_widgets(layer)
         self._init_conditional_style(layer)
@@ -339,19 +344,6 @@ class SammoEnvironmentLayer(SammoLayer):
         setup = QgsEditorWidgetSetup("ValueMap", cfg)
         layer.setEditorWidgetSetup(idx, setup)
 
-        # n observers
-        idx = layer.fields().indexFromName("nObservers")
-        cfg = {
-            "AllowNull": False,
-            "Max": 4,
-            "Min": 0,
-            "Precision": 0,
-            "Step": 1,
-            "Style": "SpinBox",
-        }
-        setup = QgsEditorWidgetSetup("Range", cfg)
-        layer.setEditorWidgetSetup(idx, setup)
-
         # camera
         idx = layer.fields().indexFromName("camera")
         cfg = {}
@@ -412,6 +404,9 @@ class SammoEnvironmentLayer(SammoLayer):
                 "UseCompleter": False,
                 "Value": "observer",
             }
+            form_config = layer.editFormConfig()
+            form_config.setReadOnly(idx, True)
+            layer.setEditFormConfig(form_config)
             setup = QgsEditorWidgetSetup("ValueRelation", cfg)
             layer.setEditorWidgetSetup(idx, setup)
 

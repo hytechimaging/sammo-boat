@@ -9,7 +9,7 @@ import sys
 from qgis.PyQt import uic
 from qgis.core import QgsSettings
 from qgis.gui import QgisInterface
-from qgis.PyQt.QtCore import Qt, QSize, pyqtSignal
+from qgis.PyQt.QtCore import Qt, QSize, pyqtSignal, NULL
 from qgis.PyQt.QtWidgets import QFrame, QLabel, QDockWidget, QWidget
 
 from ..core.utils import pixmap, icon
@@ -118,6 +118,27 @@ class StatusWidget(QFrame, FORM_CLASS):
     def interrupt(self):
         self.updateRecording(False)
         self.recordInterrupted.emit()
+
+    def updateObs(self, obs: list[str]):
+        self.leftComboBox.clear()
+        self.centerComboBox.clear()
+        self.rightComboBox.clear()
+        for side, comboBox in zip(
+            ["(Left)", "(Center)", "(Right)"],
+            [self.leftComboBox, self.centerComboBox, self.rightComboBox],
+        ):
+            comboBox.addItem(side, NULL)
+        for name in obs:
+            self.leftComboBox.addItem(name, name)
+            self.centerComboBox.addItem(name, name)
+            self.rightComboBox.addItem(name, name)
+        for comboBox in [
+            self.leftComboBox,
+            self.centerComboBox,
+            self.rightComboBox,
+        ]:
+            if comboBox.currentIndex() == -1:
+                comboBox.setCurrentIndex(0)
 
 
 class SammoStatusDock(QDockWidget):
@@ -236,4 +257,12 @@ class SammoStatusDock(QDockWidget):
     def _saveLastLocation(self, location: Qt.DockWidgetArea):
         QgsSettings().setValue(
             "Sammo/SammoStatusDock/Location/", int(location)
+        )
+
+    @property
+    def observers(self) -> tuple[str, str, str]:
+        return (
+            self._widget.leftComboBox.currentData(),
+            self._widget.centerComboBox.currentData(),
+            self._widget.rightComboBox.currentData(),
         )

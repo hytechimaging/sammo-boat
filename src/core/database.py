@@ -155,7 +155,6 @@ class SammoDataBase:
         fields.append(
             QgsField("subjectiveBirds", QMetaType.Type.QString, len=2)
         )
-        fields.append(QgsField("nObservers", QMetaType.Type.Int))
         fields.append(self._createFieldShortText("camera"))
         fields.append(QgsField("comment", QMetaType.Type.QString, len=200))
         fields.append(self._createFieldShortText("center"))
