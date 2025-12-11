@@ -66,6 +66,7 @@ class SammoFollowersTable(QDialog, FORM_CLASS):
         super().__init__()
         self.iface = iface
         self.geom = geom
+        self.followerLayer = followerLayer
 
         self.setupUi(self)
         self.addButton.setIcon(utils.icon("plus.png"))
@@ -73,12 +74,12 @@ class SammoFollowersTable(QDialog, FORM_CLASS):
         lastView = int(QgsSettings().value("qgis/attributeTableLastView", 0))
         QgsSettings().setValue("qgis/attributeTableLastView", 0)
 
-        if not followerLayer.featureCount():
+        if not self.followerLayer.featureCount():
             self.focalId = 1
         else:
             self.focalId = (
-                followerLayer.maximumValue(
-                    followerLayer.fields().indexOf("_focalId")
+                self.followerLayer.maximumValue(
+                    self.followerLayer.fields().indexOf("_focalId")
                 )
                 + 1
             )
@@ -96,7 +97,7 @@ class SammoFollowersTable(QDialog, FORM_CLASS):
         )
         sortExpr = "fid"
         self.table = SammoAttributeTable.attributeTable(
-            iface, followerLayer, filterExpr, sortExpr
+            iface, self.followerLayer, filterExpr, sortExpr
         )
         originDlg = self.table.parent()
         self.table.installEventFilter(self)
