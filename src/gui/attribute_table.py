@@ -90,8 +90,6 @@ class SammoAttributeTable:
             "_effortGroup",
             "_effortLeg",
         ]
-        if Path(QgsApplication.qgisSettingsDirPath()).name == "operator":
-            hiddens += ["validated"]
         if layer.name().lower() != ENVIRONMENT_TABLE:
             hiddens += ["effortGroup", "effortLeg"]
         config = layer.attributeTableConfig()
