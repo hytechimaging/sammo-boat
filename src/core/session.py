@@ -270,6 +270,9 @@ class SammoSession(QObject):
             self.followersLayer.actions().clearActions()
             self._followersLayer.addSoundAction(self.followersLayer)
             self._sightingsLayer.addDuplicateAction(self.followersLayer)
+            self.followersLayer.configChanged.connect(
+                self.fixFollowersHiddenColumn
+            )
             QgsSettings().setValue("qgis/enableMacros", "SessionOnly")
 
     def surveyValues(self, layer: QgsVectorLayer) -> tuple:
@@ -668,3 +671,16 @@ class SammoSession(QObject):
 
     def _updateObs(self, fid: int = 0):
         self.updateObs.emit()
+
+    def fixFollowersHiddenColumn(self):
+        for ind, c in enumerate(
+            self.followersLayer.attributeTableConfig().columns()
+        ):
+            if c.name == "validated" and c.hidden:
+                config = self.followersLayer.attributeTableConfig()
+                columns = config.columns()
+                for col in columns:
+                    if col.name == "validated":
+                        col.hidden = False
+                config.setColumns(columns)
+                self.followersLayer.setAttributeTableConfig(config)

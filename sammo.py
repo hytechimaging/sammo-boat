@@ -572,6 +572,8 @@ class Sammo:
                 self.filterExpr,
                 validate_callback=self.validate,
             )
+            originDlg = table.parent()
+            table.setParent(self.iface.mainWindow())
             table.setWindowFlags(
                 Qt.Window
                 | Qt.CustomizeWindowHint
@@ -579,6 +581,7 @@ class Sammo:
                 | Qt.WindowCloseButtonHint
                 | Qt.WindowStaysOnTopHint
             )
+            originDlg.hide()
             table.show()
             return
 

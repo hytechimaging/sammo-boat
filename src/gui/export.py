@@ -422,11 +422,6 @@ class SammoExportAction(QDialog):
         for i, feat in enumerate(
             self.session.environmentLayer.getFeatures(request)
         ):
-            print(
-                self.session.environmentLayer.fields().indexOf("_effortGroup"),
-                self.session.environmentLayer.fields().indexOf("_effortLeg"),
-                i + 1,
-            )
             self.session.environmentLayer.changeAttributeValue(
                 feat.id(),
                 self.session.environmentLayer.fields().indexOf("_effortGroup"),
