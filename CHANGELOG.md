@@ -5,6 +5,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 -----
+## [v1.5.0] - 2025-12-12
+
+### Add
+
+- nObserver is based on left/center/right attribute
+- All datetime are displayed in UTC
+
+### Modified
+
+- Refactoring status code : ADD status is removed
+- EffortGroup id is based on the datetime
+- Fixes change of EffortGroup between days
+- Observer fields (left/center/right) management with the status dock
+- Fixes validated color
+
+-----
 ## [v1.4.2] - 2024-08-22
 
 ### Modified
@@ -247,6 +263,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+[v1.5.0]: https://github.com/hytechimaging/sammo-boat/releases/tag/v1.5.0
 [v1.4.2]: https://github.com/hytechimaging/sammo-boat/releases/tag/v1.4.2
 [v1.4.1]: https://github.com/hytechimaging/sammo-boat/releases/tag/v1.4.1
 [v1.4.0]: https://github.com/hytechimaging/sammo-boat/releases/tag/v1.4.0
