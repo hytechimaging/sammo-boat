@@ -3,11 +3,10 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-from pathlib import Path
 from typing import Optional
 from qgis.PyQt import QtCore
 from qgis.gui import QgisInterface
-from qgis.core import QgsVectorLayer, QgsApplication
+from qgis.core import QgsVectorLayer
 from qgis.PyQt.QtWidgets import (
     QFrame,
     QAction,
