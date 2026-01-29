@@ -294,9 +294,7 @@ class SammoSightingsLayer(SammoLayer):
 
         # angle
         style = QgsConditionalStyle(
-            """
-            (@value > 91 and @value < 269) or @value is NULL
-        """
+            "(@value > 91 and @value < 269) or @value is NULL"
         )
         style.setBackgroundColor(QColor("orange"))
         layer.conditionalStyles().setFieldStyles("angle", [style])
