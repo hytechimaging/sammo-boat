@@ -14,7 +14,6 @@ from qgis.PyQt.QtCore import QSize, QFile
 from qgis.PyQt.QtGui import QIcon, QPixmap
 from qgis.core import QgsApplication, Qgis
 
-
 ROOT_DIR = Path(__file__).parent.parent.parent
 
 

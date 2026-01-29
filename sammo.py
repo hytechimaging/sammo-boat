@@ -12,11 +12,12 @@ from datetime import datetime
 from qgis.PyQt.QtCore import Qt, QUrl
 from qgis.PyQt.QtGui import QKeySequence, QDesktopServices, QIcon
 from qgis.PyQt.QtWidgets import (
+    QAction,
+    QDialog,
     QToolBar,
     QShortcut,
     QTableView,
-    QAction,
-    QDialog,
+    QMessageBox,
 )
 from qgis.core import (
     QgsProject,
@@ -90,6 +91,7 @@ class Sammo:
 
         iface.projectRead.connect(self.onProjectLoaded)
         iface.newProjectCreated.connect(self.onProjectLoaded)
+        self.noEffortManagement = False
 
         self.initShortcuts()
         QgsApplication.instance().focusChanged.connect(self.focusOn)
@@ -550,14 +552,22 @@ class Sammo:
         self.soundRecordingController.onStopEventWhichNeedSoundRecord(60)
 
     def onSightingsAction(self):
-        if (
-            not self.session.environmentLayer
-            or not self.session.environmentLayer.featureCount()
+        if not self.session.environmentLayer or (
+            not self.noEffortManagement
+            and not self.session.environmentLayer.featureCount()
         ):
-            self.iface.messageBar().pushWarning(
-                "No effort in environment layer.", "Create an effort first."
-            )
-            return
+            if (
+                QMessageBox.question(
+                    self.iface.mainWindow(),
+                    "No effort",
+                    "Confirm that you are not in charge "
+                    "of the effort management ?",
+                )
+                == QMessageBox.Yes
+            ):
+                self.noEffortManagement = True
+            else:
+                return
         self.soundRecordingController.onStartSightings()
         self.iface.mapCanvas().setFocus()
         layer = self.session.addSightingsFeature()
@@ -585,14 +595,22 @@ class Sammo:
             table.show()
             return
 
-        if (
-            not self.session.environmentLayer
-            or not self.session.environmentLayer.featureCount()
+        if not self.session.environmentLayer or (
+            not self.noEffortManagement
+            and not self.session.environmentLayer.featureCount()
         ):
-            self.iface.messageBar().pushWarning(
-                "No effort in environment layer.", "Create an effort first."
-            )
-            return
+            if (
+                QMessageBox.question(
+                    self.iface.mainWindow(),
+                    "No effort",
+                    "Confirm that you are not in charge "
+                    "of the effort management ?",
+                )
+                == QMessageBox.Yes
+            ):
+                self.noEffortManagement = True
+            else:
+                return
         self.soundRecordingController.onStartFollowers()
 
         self.followersTable = SammoFollowersTable(

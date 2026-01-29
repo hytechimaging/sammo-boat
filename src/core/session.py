@@ -525,7 +525,7 @@ class SammoSession(QObject):
     def _addFeature(
         self,
         layer: QgsVectorLayer,
-        dt: str | None = None,
+        dt: Optional[str] = None,
         geom: QgsGeometry = QgsGeometry(),
         duplicate: bool = False,
         **kwargs,

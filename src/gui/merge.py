@@ -240,18 +240,6 @@ class SammoMergeTask(QgsTask):
                         out.startEditing()
                         out.addFeature(feature)
                         out.commitChanges()
-
-            if layer == "environmentLayer":
-                SammoSession.applyEnvAttr(
-                    sessionOutput.environmentLayer,
-                    sessionA.sightingsLayer,
-                    sessionA.followersLayer,
-                )
-                SammoSession.applyEnvAttr(
-                    sessionOutput.environmentLayer,
-                    sessionB.sightingsLayer,
-                    sessionB.followersLayer,
-                )
             progress += 20
             self.setProgress(progress)
         # gps layer
