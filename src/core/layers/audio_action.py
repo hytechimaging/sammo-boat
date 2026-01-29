@@ -113,7 +113,7 @@ class AudioPlayer(QObject):
 
 
 class AudioPlayerDialog(QDialog):
-    def __init__(self, filename):
+    def __init__(self, filename: str) -> None:
         super().__init__()
         self.player: AudioPlayer
         self.thread: AudioThread
@@ -185,5 +185,5 @@ class AudioPlayerDialog(QDialog):
 
 
 filename = Path("{}") / "[% soundFile %]"
-dlg = AudioPlayerDialog(filename)
+dlg = AudioPlayerDialog(filename.as_posix())
 dlg.show()

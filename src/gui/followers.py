@@ -3,7 +3,7 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-import os
+from pathlib import Path
 from datetime import datetime
 
 from qgis.PyQt import uic
@@ -21,10 +21,6 @@ from qgis.PyQt.QtWidgets import (
 
 from ..core import utils
 from .attribute_table import SammoAttributeTable
-
-FORM_CLASS, _ = uic.loadUiType(
-    os.path.join(os.path.dirname(__file__), "ui/follower.ui")
-)
 
 
 class SammoFollowersAction(QObject):
@@ -61,14 +57,14 @@ class SammoFollowersAction(QObject):
         del self.action
 
 
-class SammoFollowersTable(QDialog, FORM_CLASS):
+class SammoFollowersTable(QDialog):
     def __init__(self, iface, geom, followerLayer):
         super().__init__()
         self.iface = iface
         self.geom = geom
         self.followerLayer = followerLayer
 
-        self.setupUi(self)
+        uic.loadUi(Path(__file__).parent / "ui/follower.ui", self)
         self.addButton.setIcon(utils.icon("plus.png"))
 
         lastView = int(QgsSettings().value("qgis/attributeTableLastView", 0))

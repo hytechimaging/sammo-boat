@@ -244,7 +244,9 @@ class SammoExportAction(QDialog):
             self.progressBar.setValue(int(100 / nb * (i + 1)))
         self.close()
 
-    def obsEnvLayerJoinInfo(self, layer: QgsVectorLayer) -> None:
+    def obsEnvLayerJoinInfo(
+        self, layer: QgsVectorLayer
+    ) -> QgsVectorLayerJoinInfo:
         environmentJoinInfo = QgsVectorLayerJoinInfo()
         environmentJoinInfo.setJoinLayer(layer)
         environmentJoinInfo.setJoinFieldName("_effortId")
@@ -253,7 +255,9 @@ class SammoExportAction(QDialog):
         environmentJoinInfo.setJoinFieldNamesSubset(["session", "routeType"])
         return environmentJoinInfo
 
-    def obsSpeLayerJoinInfo(self, layer: QgsVectorLayer) -> None:
+    def obsSpeLayerJoinInfo(
+        self, layer: QgsVectorLayer
+    ) -> QgsVectorLayerJoinInfo:
         speciesJoinInfo = QgsVectorLayerJoinInfo()
         speciesJoinInfo.setJoinLayer(layer)
         speciesJoinInfo.setJoinFieldName("species")
@@ -276,7 +280,7 @@ class SammoExportAction(QDialog):
 
     def environmentLayerJoinObserverInfo(
         self, layer: QgsVectorLayer, side: str
-    ) -> None:
+    ) -> QgsVectorLayerJoinInfo:
         joinInfo = QgsVectorLayerJoinInfo()
         joinInfo.setJoinLayer(layer)
         joinInfo.setJoinFieldName("observer")
@@ -287,7 +291,9 @@ class SammoExportAction(QDialog):
         )
         return joinInfo
 
-    def environmentLayerJoinPlateformInfo(self, layer: QgsVectorLayer) -> None:
+    def environmentLayerJoinPlateformInfo(
+        self, layer: QgsVectorLayer
+    ) -> QgsVectorLayerJoinInfo:
         joinInfo = QgsVectorLayerJoinInfo()
         joinInfo.setJoinLayer(layer)
         joinInfo.setJoinFieldName("fid")
@@ -296,7 +302,9 @@ class SammoExportAction(QDialog):
         joinInfo.setJoinFieldNamesSubset(["plateform", "plateformHeight"])
         return joinInfo
 
-    def environmentLayerJoinTransectInfo(self, layer: QgsVectorLayer) -> None:
+    def environmentLayerJoinTransectInfo(
+        self, layer: QgsVectorLayer
+    ) -> QgsVectorLayerJoinInfo:
         joinInfo = QgsVectorLayerJoinInfo()
         joinInfo.setJoinLayer(layer)
         joinInfo.setJoinFieldName("fid")

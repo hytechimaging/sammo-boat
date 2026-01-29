@@ -22,8 +22,6 @@ from qgis.PyQt.QtWidgets import (
 from ..core import utils
 from ..core.session import SammoSession
 
-FORM_CLASS, _ = uic.loadUiType(Path(__file__).parent / "ui/settings.ui")
-
 
 class SammoSettingsAction(QObject):
     reloadTables: pyqtSignal = pyqtSignal()
@@ -58,12 +56,12 @@ class SammoSettingsAction(QObject):
                 dlg.setParent(None)
 
 
-class SammoSettingsDialog(QDialog, FORM_CLASS):
+class SammoSettingsDialog(QDialog):
     reloadTables: pyqtSignal = pyqtSignal()
 
     def __init__(self, session):
         super().__init__()
-        self.setupUi(self)
+        uic.loadUi(Path(__file__).parent / "ui/settings.ui", self)
         self.setModal(False)
         self.session = session
 

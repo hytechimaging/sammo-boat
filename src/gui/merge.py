@@ -24,13 +24,11 @@ from ..core import utils
 from ..core.session import SammoSession
 from ..core.database import SammoDataBase
 
-FORM_CLASS, _ = uic.loadUiType(Path(__file__).parent / "ui/merge.ui")
-
 
 class SammoMergeAction(QObject):
     triggered = pyqtSignal()
 
-    def __init__(self, parent: QObject, toolbar: QToolBar):
+    def __init__(self, parent: QObject, toolbar: QToolBar) -> None:
         super().__init__()
         self.action: QAction = None
         self.initGui(parent, toolbar)
@@ -52,12 +50,12 @@ class SammoMergeAction(QObject):
         self.triggered.emit()
 
 
-class SammoMergeDialog(QDialog, FORM_CLASS):
+class SammoMergeDialog(QDialog):
     mergeEnded = pyqtSignal(str)
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
-        self.setupUi(self)
+        uic.loadUi(Path(__file__).parent / "ui/merge.ui", self)
 
         self.dateEdit.setDate(QDate.currentDate())
         self.ok.clicked.connect(self.merge)

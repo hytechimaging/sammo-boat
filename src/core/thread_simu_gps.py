@@ -85,7 +85,7 @@ class ThreadSimuGps(OtherThread):
         self._testFilePath = testFilePath
         # always begins at the second line because the first is for titles
         self.indexOfNextGpsPoint: int = 1
-        self.worker = None
+        self.worker: WorkerSimuGps
 
     def start(self):
         self.worker = WorkerSimuGps(
@@ -101,7 +101,7 @@ class ThreadSimuGps(OtherThread):
         super().stop()
 
     @staticmethod
-    def getDatetime(line: str) -> (int, int, int):
+    def getDatetime(line: str) -> tuple[int, int, int]:
         # "2021-10-28 15:32:10"
         components = line.split(" ")
         time = components[1].split(":")

@@ -3,10 +3,10 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-from typing import Optional
 from qgis.PyQt import QtCore
 from qgis.gui import QgisInterface
 from qgis.core import QgsVectorLayer
+from typing import Optional, Callable
 from qgis.PyQt.QtWidgets import (
     QFrame,
     QAction,
@@ -66,7 +66,7 @@ class SammoAttributeTable:
         layer: QgsVectorLayer,
         filterExpr: str = "True",
         sortExpr: str = '"dateTime"',
-        validate_callback: Optional[callable] = None,
+        validate_callback: Optional[Callable] = None,
     ) -> QDialog:
         # hide some columns
         hiddens = [

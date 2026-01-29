@@ -40,7 +40,7 @@ class WorkerForOtherThread(QObject):
 
 
 class OtherThread(QObject):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.isProceeding: bool = False
 

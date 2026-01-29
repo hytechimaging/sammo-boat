@@ -22,7 +22,7 @@ class SammoPlateformLayer(SammoLayer):
     def _init_widgets(self, layer: QgsVectorLayer) -> None:
         # plateform
         idx = layer.fields().indexFromName("plateform")
-        cfg = {}
+        cfg: dict = {}
         cfg["map"] = [
             {"bridge": "bridge"},
             {"bridge_inside": "bridge_inside"},

@@ -3,8 +3,7 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-import os
-
+from pathlib import Path
 from qgis.PyQt import uic
 from qgis.gui import QgisInterface
 from qgis.PyQt.QtGui import QKeyEvent
@@ -23,12 +22,8 @@ from qgis.PyQt.QtWidgets import (
 
 from .attribute_table import SammoAttributeTable
 
-FORM_CLASS, _ = uic.loadUiType(
-    os.path.join(os.path.dirname(__file__), "ui/table.ui")
-)
 
-
-class TableWidget(QFrame, FORM_CLASS):
+class TableWidget(QFrame):
     def __init__(
         self,
         iface: QgisInterface,
@@ -36,7 +31,7 @@ class TableWidget(QFrame, FORM_CLASS):
         sightingLayer: QgsVectorLayer,
     ):
         super().__init__()
-        self.setupUi(self)
+        uic.loadUi(Path(__file__).parent / "ui/table.ui", self)
 
         self.tables = {}
         self.tables[environmentLayer.name()] = (

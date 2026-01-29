@@ -23,7 +23,7 @@ class WorkerGpsExtractor(WorkerForOtherThread):
         float, float, int, int, int, float, float
     )
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self._gps: Optional[serial.Serial] = None
         self.isGpsOnline: bool = False
@@ -199,16 +199,14 @@ class SammoFrame:
         self.longitude: float = 0.0
         self.latitude: float = 0.0
         self.hour: int = 0
-        self.minute: int = 0
-        self.second: int = 0
+        self.minutes: int = 0
+        self.seconds: int = 0
         self.speed: float = -9999.0
         self.course: float = -9999.0
-        self.dateTime: Tuple[int, int, int] = line
-        self.positionData: Tuple[float, float] = line
 
     @property
     def dateTime(self) -> Tuple[int, int, int]:
-        return self.hour, self.minutes, self.secondes
+        return self.hour, self.minutes, self.seconds
 
     @property
     def positionData(self) -> Tuple[float, float]:
@@ -222,6 +220,8 @@ class SammoFrame:
 class SammoGpggaFrame(SammoFrame):
     def __init__(self, line: str):
         super().__init__(line)
+        self.dateTime = line
+        self.positionData = line
 
     @property
     def dateTime(self) -> Tuple[int, int, int]:
@@ -233,7 +233,7 @@ class SammoGpggaFrame(SammoFrame):
         time = components[1]
         self.hour = int(time[0:2])
         self.minutes = int(time[2:4])
-        self.secondes = int(float(time[4:]))
+        self.seconds = int(float(time[4:]))
 
     @property
     def positionData(self) -> Tuple[float, float]:
@@ -244,7 +244,9 @@ class SammoGpggaFrame(SammoFrame):
         components = line.split(",")
         time = components[1]
         if not time:
-            return sys.float_info.max, sys.float_info.max
+            self.latitude = sys.float_info.max
+            self.longitude = sys.float_info.max
+            return
 
         latitudeAsTxt = components[2]
         latitude_deg = latitudeAsTxt[0:2]
@@ -267,6 +269,8 @@ class SammoGpggaFrame(SammoFrame):
 class SammoGprmcFrame(SammoFrame):
     def __init__(self, line: str):
         super().__init__(line)
+        self.dateTime = line
+        self.positionData = line
         self.track: Tuple[float, float] = line
 
     @property
@@ -279,7 +283,7 @@ class SammoGprmcFrame(SammoFrame):
         time = components[1]
         self.hour = int(time[0:2])
         self.minutes = int(time[2:4])
-        self.secondes = int(float(time[4:]))
+        self.seconds = int(float(time[4:]))
 
     @property
     def positionData(self) -> Tuple[float, float]:
@@ -290,7 +294,9 @@ class SammoGprmcFrame(SammoFrame):
         components = line.split(",")
         time = components[1]
         if not time:
-            return sys.float_info.max, sys.float_info.max
+            self.latitude = sys.float_info.max
+            self.longitude = sys.float_info.max
+            return
 
         latitudeAsTxt = components[3]
         latitude_deg = latitudeAsTxt[0:2]

@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Optional
 from datetime import datetime
 
+from qgis.gui import QgisInterface
 from qgis.PyQt.QtCore import Qt, QUrl
 from qgis.PyQt.QtGui import QKeySequence, QDesktopServices, QIcon
 from qgis.PyQt.QtWidgets import (
@@ -53,7 +54,7 @@ from .src.gui.followers import SammoFollowersAction, SammoFollowersTable
 
 
 class Sammo:
-    def __init__(self, iface):
+    def __init__(self, iface: QgisInterface) -> None:
         self.iface = iface
         self.toolbar: QToolBar = self.iface.addToolBar("Sammo ToolBar")
         self.toolbar.setObjectName("Sammo ToolBar")
@@ -121,9 +122,9 @@ class Sammo:
 
     def createSimuGps(
         self, serial: bool
-    ) -> [SammoSimuGpsAction, ThreadSimuGps]:
+    ) -> tuple[Optional[SammoSimuGpsAction], Optional[ThreadSimuGps]]:
         if not os.environ.get("SAMMO_SIMU"):
-            return [None, None]
+            return (None, None)
         button = SammoSimuGpsAction(self.mainWindow, self.toolbar, serial)
         if serial:
             button.onChangeSimuGpsStatusSignal.connect(
@@ -142,7 +143,7 @@ class Sammo:
                 self.pluginFolder(), "src", "core", "gps_simu.csv"
             )
         threadGps = ThreadSimuGps(self.session, testFilePath)
-        return [button, threadGps]
+        return (button, threadGps)
 
     def createGpsReader(self) -> SammoGpsReader:
         gps = SammoGpsReader()
@@ -155,12 +156,14 @@ class Sammo:
         if (
             os.environ.get("SAMMO_SIMU")
             and self.threadSerialSimuGps
+            and self.simuGpsSerialAction
             and self.simuGpsSerialAction.button.isChecked()
         ):
             reader = self.threadSerialSimuGps
         elif (
             os.environ.get("SAMMO_SIMU")
             and self.threadSimuGps
+            and self.simuGpsAction
             and self.simuGpsAction.button.isChecked()
         ):
             reader = self.threadSimuGps
@@ -395,6 +398,8 @@ class Sammo:
         ):
             # a GPRMC frame is coming after a GPGGA frame with the same
             # datetime but speed/course are valid
+            if not type(self.session.lastGpsInfo["gprmc"]) is dict:
+                return
             self.session.lastGpsInfo["gprmc"]["speed"] = speed
             self.session.lastGpsInfo["gprmc"]["course"] = course
             self.session.lastGpsInfo["gprmc"]["datetime"] = now
@@ -408,10 +413,17 @@ class Sammo:
                 speed != -9999.0
                 or course != -9999.0
                 or (
-                    gpsNow - self.session.lastGpsInfo["gprmc"]["datetime"]
-                ).total_seconds()
-                > 59
+                    type(self.session.lastGpsInfo["gprmc"]) is dict
+                    and type(self.session.lastGpsInfo["gprmc"]["datetime"])
+                    is datetime
+                    and (
+                        gpsNow - self.session.lastGpsInfo["gprmc"]["datetime"]
+                    ).total_seconds()
+                    > 59
+                )
             ):
+                if not type(self.session.lastGpsInfo["gprmc"]) is dict:
+                    return
                 self.session.lastGpsInfo["gprmc"]["speed"] = speed
                 self.session.lastGpsInfo["gprmc"]["course"] = course
                 self.session.lastGpsInfo["gprmc"]["datetime"] = now
@@ -427,7 +439,8 @@ class Sammo:
             # Wait for one more frame in case we retrieve the speed/course at
             # the next frame. Worst case scenario: we lose 1 frame in database
             if (
-                self.session.lastGpsInfo["gprmc"]["speed"] == -9999.0
+                type(self.session.lastGpsInfo["gprmc"]) is dict
+                and self.session.lastGpsInfo["gprmc"]["speed"] == -9999.0
                 and self.session.lastGpsInfo["gprmc"]["course"] == -9999.0
             ):
                 # False -> True: speed/course are invalid so we want to wait 1
@@ -442,14 +455,28 @@ class Sammo:
 
             # we udpate the database if we don't need to wait for speed/course
             if not self.gps_wait:
+                speed = (
+                    self.session.lastGpsInfo["gprmc"]["speed"]
+                    if type(self.session.lastGpsInfo["gprmc"]) is dict
+                    and type(self.session.lastGpsInfo["gprmc"]["speed"])
+                    is float
+                    else -9999.0
+                )
+                course = (
+                    self.session.lastGpsInfo["gprmc"]["course"]
+                    if type(self.session.lastGpsInfo["gprmc"]) is dict
+                    and type(self.session.lastGpsInfo["gprmc"]["course"])
+                    is float
+                    else -9999.0
+                )
                 self.session.addGps(
                     longitude,
                     latitude,
                     h,
                     m,
                     s,
-                    self.session.lastGpsInfo["gprmc"]["speed"],
-                    self.session.lastGpsInfo["gprmc"]["course"],
+                    speed,
+                    course,
                 )
                 self.session.lastCaptureTime = gpsNow
 
@@ -459,11 +486,23 @@ class Sammo:
         # update the panel).
         if updated:
             self.iface.mapCanvas().setCenter(QgsPointXY(longitude, latitude))
+            speed = (
+                self.session.lastGpsInfo["gprmc"]["speed"]
+                if type(self.session.lastGpsInfo["gprmc"]) is dict
+                and type(self.session.lastGpsInfo["gprmc"]["speed"]) is float
+                else -9999.0
+            )
+            course = (
+                self.session.lastGpsInfo["gprmc"]["course"]
+                if type(self.session.lastGpsInfo["gprmc"]) is dict
+                and type(self.session.lastGpsInfo["gprmc"]["course"]) is float
+                else -9999.0
+            )
             self.statusDock.updateGpsInfo(
                 longitude,
                 latitude,
-                self.session.lastGpsInfo["gprmc"]["speed"],
-                self.session.lastGpsInfo["gprmc"]["course"],
+                speed,
+                course,
             )
 
     def onCreateSession(self, sessionDirectory: str) -> None:
@@ -487,7 +526,7 @@ class Sammo:
         QgsProject.instance().layerWillBeRemoved.connect(self.cleanTableDock)
 
         # init simu
-        if self.simuGpsAction:
+        if self.simuGpsAction and self.simuGpsSerialAction:
             self.simuGpsSerialAction.onNewSession()
             self.simuGpsAction.onNewSession()
         self.updateObs()
@@ -627,12 +666,12 @@ class Sammo:
         )
         self.followersAddShortcut.activated.connect(self.onFollowersAdd)
 
-    def onFollowersOk(self):
+    def onFollowersOk(self) -> None:
         self.session.saveAll()
         self.followersTable.close()
         self.soundRecordingController.onStopEventWhichNeedSoundRecord(0)
 
-    def onFollowersAdd(self):
+    def onFollowersAdd(self) -> None:
         self.session.addFollowersFeature(
             self.followersTable.datetime,
             self.followersTable.geom,
@@ -641,13 +680,17 @@ class Sammo:
         )
         self.followersTable.refresh()
 
-    def onChangeSimuGpsStatus(self, isOn: bool):
+    def onChangeSimuGpsStatus(self, isOn: bool) -> None:
+        if not self.threadSimuGps:
+            return
         if isOn:
             self.threadSimuGps.start()
         else:
             self.threadSimuGps.stop()
 
-    def onChangeSimuGpsSerialStatus(self, isOn: bool):
+    def onChangeSimuGpsSerialStatus(self, isOn: bool) -> None:
+        if not self.threadSerialSimuGps:
+            return
         if isOn:
             self.threadSerialSimuGps.start()
         else:

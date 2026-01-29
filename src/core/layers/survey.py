@@ -31,7 +31,7 @@ class SammoSurveyLayer(SammoLayer):
     def _init_widgets(self, layer: QgsVectorLayer) -> None:
         # region
         idx = layer.fields().indexFromName("region")
-        cfg = {}
+        cfg: dict = {}
         cfg["map"] = [
             {"NEA": "NEA"},
             {"NSP": "NSP"},

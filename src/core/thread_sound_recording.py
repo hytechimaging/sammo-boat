@@ -3,12 +3,13 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-from .other_thread import WorkerForOtherThread, OtherThread
-import sounddevice as sd
-import soundfile as sf
 import queue
+import soundfile as sf
+import sounddevice as sd
+from typing import Optional
 from qgis.PyQt.QtCore import pyqtSignal
 from datetime import datetime, timedelta
+from .other_thread import WorkerForOtherThread, OtherThread
 
 
 class WorkerForSoundRecording(WorkerForOtherThread):
@@ -18,11 +19,11 @@ class WorkerForSoundRecording(WorkerForOtherThread):
         super().__init__()
         self._soundFilePath = soundFilePath
         self._frameRate = 22050
-        self._queue = queue.Queue()
-        self.startRecordingTime: datetime = None
-        self._automaticStopTime: datetime = None
+        self._queue: queue.Queue = queue.Queue()
+        self.startRecordingTime: Optional[datetime] = None
+        self._automaticStopTime: Optional[datetime] = None
 
-    def callback(self, inData, frames, time, status):
+    def callback(self, inData, frames, time, status) -> None:
         self._queue.put(inData.copy())
 
     def _toDoInsideLoop(self):
@@ -63,12 +64,12 @@ class WorkerForSoundRecording(WorkerForOtherThread):
 class ThreadForSoundRecording(OtherThread):
     setAutomaticStopTimerSignal = pyqtSignal(int)
 
-    def __init__(self, onAutomaticStopRecordingTimerEndedMethod):
+    def __init__(self, onAutomaticStopRecordingTimerEndedMethod) -> None:
         super().__init__()
         self._onAutomaticStopRecordingTimerEndedMethod = (
             onAutomaticStopRecordingTimerEndedMethod
         )
-        self._worker: WorkerForOtherThread = None
+        self._worker: Optional[WorkerForOtherThread] = None
 
     def start(self, soundFilePath: str):
         self._worker = WorkerForSoundRecording(soundFilePath)
@@ -84,7 +85,7 @@ class ThreadForSoundRecording(OtherThread):
         """
         For how many seconds the sound is recorded ?
         """
-        if not self.isProceeding:
+        if not self.isProceeding or self._worker is None:
             raise RuntimeError("there is no recording currently")
 
         return (

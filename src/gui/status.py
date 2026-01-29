@@ -3,8 +3,9 @@
 __contact__ = "info@hytech-imaging.fr"
 __copyright__ = "Copyright (c) 2021 Hytech Imaging"
 
-import os
+
 import sys
+from pathlib import Path
 
 from qgis.PyQt import uic
 from qgis.core import QgsSettings
@@ -16,21 +17,17 @@ from ..core.utils import pixmap, icon
 from ..core.session import SammoSession
 from ..core.thread_widget import ThreadWidget
 
-FORM_CLASS, _ = uic.loadUiType(
-    os.path.join(os.path.dirname(__file__), "ui/status.ui")
-)
-
 OK_COLOR = "rgb(210, 241, 197)"
 KO_COLOR = "rgb(242, 186, 195)"
 
 
-class StatusWidget(QFrame, FORM_CLASS):
+class StatusWidget(QFrame):
     recordInterrupted: pyqtSignal = pyqtSignal()
     activateGPS: pyqtSignal = pyqtSignal()
 
     def __init__(self, parent):
         super().__init__(parent)
-        self.setupUi(self)
+        uic.loadUi(Path(__file__).parent / "ui/status.ui", self)
         self.record.clicked.connect(self.interrupt)
         self.gpsButton.clicked.connect(self.activateGPS)
         self.init()
@@ -70,8 +67,8 @@ class StatusWidget(QFrame, FORM_CLASS):
     def updateGps(
         self,
         status: bool,
-        latitude: str = "",
-        longitude: str = "",
+        latitude: float = -9999.0,
+        longitude: float = -9999.0,
         speed: float = -9999.0,
         course: float = -9999.0,
     ):
@@ -84,7 +81,7 @@ class StatusWidget(QFrame, FORM_CLASS):
 
         self.gpsButton.setIcon(icon(icon_path))
 
-        if latitude and longitude:
+        if latitude != -9999.0 and longitude != -9999.0:
             self.latitude.setText(f"{latitude:.4f}")
             self.longitude.setText(f"{longitude:.4f}")
 
@@ -161,7 +158,7 @@ class SammoStatusDock(QDockWidget):
         self._startThread()
         self._counter500msWithoutGpsInfo = 0
 
-        self._widget = None
+        self._widget: StatusWidget
         self._init(iface.mainWindow())
 
     def setEnabled(self, status: bool):

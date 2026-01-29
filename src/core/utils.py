@@ -41,10 +41,10 @@ def now() -> str:
     return datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
 
-def base64File(path: str) -> str:
-    path = Path(path)
+def base64File(path_str: str) -> str:
+    path = Path(path_str)
     if not (path and path.exists()):
-        return
+        return ""
     file = QFile(path.as_posix())
     file.open(QFile.ReadOnly)
     return "base64:" + str(file.readAll().toBase64())[2:-1]
@@ -172,4 +172,11 @@ def shortcutCreation():
 
 
 def qgisVersion() -> Tuple[int, int, int]:
-    return [int(x) for x in Qgis.version().split("-")[0].split(".")]
+    versions = Qgis.version().split("-")[0].split(".")
+    if len(versions) != 3:
+        raise Exception("QGIS VERSION can't be read")
+    return (
+        int(versions[0]),
+        int(versions[1]),
+        int(versions[2]),
+    )

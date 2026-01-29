@@ -56,7 +56,7 @@ class SammoSightingsLayer(SammoLayer):
     def _init_widgets(self, layer: QgsVectorLayer) -> None:
         # side
         idx = layer.fields().indexFromName("side")
-        cfg = {}
+        cfg: dict = {}
         cfg["map"] = [
             {"<NULL>": NULL},
             {"L": "L"},

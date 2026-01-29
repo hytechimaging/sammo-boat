@@ -42,7 +42,7 @@ PLATEFORM_TABLE = "plateform"
 
 
 class SammoDataBase:
-    def __init__(self):
+    def __init__(self) -> None:
         self.directory: str = ""
 
     @property

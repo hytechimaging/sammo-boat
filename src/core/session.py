@@ -52,25 +52,24 @@ from .sound_recording_controller import RecordType
 class SammoSession(QObject):
     updateObs: pyqtSignal = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.db = SammoDataBase()
 
-        self._gpsLayer: SammoGpsLayer = None
-        self._worldLayer: SammoWorldLayer = None
-        self._speciesLayer: SammoSpeciesLayer = None
-        self._behaviourSpeciesLayer: SammoBehaviourSpeciesLayer = None
-        self._followersLayer: SammoFollowersLayer = None
-        self._observersLayer: SammoObserversLayer = None
-        self._sightingsLayer: SammoSightingsLayer = None
-        self._environmentLayer: SammoEnvironmentLayer = None
-        self._surveyLayer: SammoSurveyLayer = None
-        self._surveyTypeLayer: SammoSurveyLayer = None
-        self._transectLayer: SammoTransectLayer = None
-        self._plateformLayer: SammoPlateformLayer = None
+        self._gpsLayer: Optional[SammoGpsLayer] = None
+        self._worldLayer: Optional[SammoWorldLayer] = None
+        self._speciesLayer: Optional[SammoSpeciesLayer] = None
+        self._behaviourSpeciesLayer: Optional[SammoBehaviourSpeciesLayer] = None
+        self._followersLayer: Optional[SammoFollowersLayer] = None
+        self._observersLayer: Optional[SammoObserversLayer] = None
+        self._sightingsLayer: Optional[SammoSightingsLayer] = None
+        self._environmentLayer: Optional[SammoEnvironmentLayer] = None
+        self._surveyLayer: Optional[SammoSurveyLayer] = None
+        self._surveyTypeLayer: Optional[SammoSurveyTypeLayer] = None
+        self._transectLayer: Optional[SammoTransectLayer] = None
+        self._plateformLayer: Optional[SammoPlateformLayer] = None
         self.lastGpsInfo: Dict[
-            str,
-            Union[QgsGeometry, Dict[str, Union[float, datetime], datetime]],
+            str, Union[QgsGeometry, Dict[str, Union[float, datetime]], None]
         ] = {
             "geometry": QgsGeometry(),
             "gprmc": {
@@ -87,71 +86,71 @@ class SammoSession(QObject):
         return Path(self.db.directory) / "audio"
 
     @property
-    def environmentLayer(self) -> QgsVectorLayer:
+    def environmentLayer(self) -> Optional[QgsVectorLayer]:
         if self._environmentLayer:
             return self._environmentLayer.layer
         return None
 
     @property
-    def gpsLayer(self) -> QgsVectorLayer:
+    def gpsLayer(self) -> Optional[QgsVectorLayer]:
         return self._gpsLayer.layer
 
     @property
-    def followersLayer(self) -> QgsVectorLayer:
+    def followersLayer(self) -> Optional[QgsVectorLayer]:
         if self._followersLayer:
             return self._followersLayer.layer
         return None
 
     @property
-    def observersLayer(self) -> QgsVectorLayer:
+    def observersLayer(self) -> Optional[QgsVectorLayer]:
         return self._observersLayer.layer
 
     @property
-    def speciesLayer(self) -> QgsVectorLayer:
+    def speciesLayer(self) -> Optional[QgsVectorLayer]:
         return self._speciesLayer.layer
 
     @property
-    def behaviourSpeciesLayer(self) -> QgsVectorLayer:
+    def behaviourSpeciesLayer(self) -> Optional[QgsVectorLayer]:
         return self._behaviourSpeciesLayer.layer
 
     @property
-    def sightingsLayer(self) -> QgsVectorLayer:
+    def sightingsLayer(self) -> Optional[QgsVectorLayer]:
         if self._sightingsLayer:
             return self._sightingsLayer.layer
         return None
 
     @property
-    def boatLayer(self) -> QgsVectorLayer:
+    def boatLayer(self) -> Optional[QgsVectorLayer]:
         if self._boatLayer:
             return self._boatLayer.layer
         return None
 
     @property
-    def surveyLayer(self) -> QgsVectorLayer:
+    def surveyLayer(self) -> Optional[QgsVectorLayer]:
         if self._surveyLayer:
             return self._surveyLayer.layer
         return None
 
     @property
-    def surveyTypeLayer(self) -> QgsVectorLayer:
+    def surveyTypeLayer(self) -> Optional[QgsVectorLayer]:
         if self._surveyLayer:
             return self._surveyTypeLayer.layer
         return None
 
     @property
-    def plateformLayer(self) -> QgsVectorLayer:
+    def plateformLayer(self) -> Optional[QgsVectorLayer]:
         if self._plateformLayer:
             return self._plateformLayer.layer
         return None
 
     @property
-    def transectLayer(self) -> QgsVectorLayer:
+    def transectLayer(self) -> Optional[QgsVectorLayer]:
         if self._transectLayer:
             return self._transectLayer.layer
         return None
 
     @property
-    def allLayers(self) -> List[QgsVectorLayer]:
+    def allLayers(self) -> List[Optional[QgsVectorLayer]]:
         return [
             self.environmentLayer,
             self.gpsLayer,
@@ -329,11 +328,23 @@ class SammoSession(QObject):
 
         # EffortGroup management
         self.addEnvironmentEndDateTime()
+        speed = (
+            self.lastGpsInfo["gprmc"]["speed"]
+            if type(self.lastGpsInfo["gprmc"]) is dict
+            and type(self.lastGpsInfo["gprmc"]["speed"]) is float
+            else -9999.0
+        )
+        course = (
+            self.lastGpsInfo["gprmc"]["course"]
+            if type(self.lastGpsInfo["gprmc"]) is dict
+            and type(self.lastGpsInfo["gprmc"]["course"]) is float
+            else -9999.0
+        )
         self._addFeature(
             layer,
             geom=self.lastGpsInfo["geometry"],
-            speed=self.lastGpsInfo["gprmc"]["speed"],
-            courseAverage=self.lastGpsInfo["gprmc"]["course"],
+            speed=speed,
+            courseAverage=course,
             survey=survey_value,
             cycle=cycle_value,
             session=session_value,
@@ -387,7 +398,7 @@ class SammoSession(QObject):
             computer=computer_value,
         )
 
-    def needsSaving(self) -> None:
+    def needsSaving(self) -> bool:
         for layer in [
             self.environmentLayer,
             self.sightingsLayer,
@@ -515,8 +526,8 @@ class SammoSession(QObject):
             hour,
             minu,
             sec,
-            speed,
-            course,
+            speed or -9999.0,
+            course or -9999.0,
             survey,
             cycle,
             computer,
@@ -533,9 +544,9 @@ class SammoSession(QObject):
         feat = QgsVectorLayerUtils.createFeature(layer)
 
         if not dt:
-            dt = QDateTime(datetime.fromisoformat(utils.now()))
-            dt = QDateTime(dt.date(), dt.time(), Qt.UTC)
-        feat["dateTime"] = dt
+            qdt = QDateTime(datetime.fromisoformat(utils.now()))
+            qdt = QDateTime(qdt.date(), qdt.time(), Qt.UTC)
+        feat["dateTime"] = dt or qdt
 
         if geom:
             feat.setGeometry(geom)
