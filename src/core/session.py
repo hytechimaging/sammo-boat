@@ -641,7 +641,6 @@ class SammoSession(QObject):
         environmentLayer: QgsVectorLayer,
         layer: QgsVectorLayer,
     ) -> None:
-        # Sightings
         layer.startEditing()
         sideKeys = {"L": "left", "R": "right", "C": "center"}
         for envFeat in environmentLayer.getFeatures():
@@ -657,15 +656,26 @@ class SammoSession(QObject):
             )
             request = QgsFeatureRequest().setFilterExpression(
                 f"dateTime > to_datetime('{startDateTime}') and "
-                f"datetime < to_datetime('{endDateTime}')"
+                f"dateTime < to_datetime('{endDateTime}')"
             )
             for feat in layer.getFeatures(request):
-                if layer.name() == SIGHTINGS_TABLE:
+                if layer.name().lower() == SIGHTINGS_TABLE:
                     if feat["side"] in sideKeys.keys():
-                        feat["observer"] = envFeat[sideKeys[feat["side"]]]
-                feat["_effortLeg"] = envFeat["_effortLeg"]
-                feat["_effortGroup"] = envFeat["_effortGroup"]
-                layer.updateFeature(feat)
+                        layer.changeAttributeValue(
+                            feat.id(),
+                            layer.fields().indexOf("observer"),
+                            envFeat[sideKeys[feat["side"]]]
+                        )
+                layer.changeAttributeValue(
+                    feat.id(),
+                    layer.fields().indexOf("_effortLeg"),
+                    envFeat["_effortLeg"]
+                )
+                layer.changeAttributeValue(
+                    feat.id(),
+                    layer.fields().indexOf("_effortGroup"),
+                    envFeat["_effortGroup"]
+                )
             layer.commitChanges()
             layer.startEditing()
 

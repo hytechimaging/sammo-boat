@@ -135,10 +135,10 @@ class DuplicateDialog(QDialog):
                 feat[name] = self.toDuplicate[name]
 
             dt = self.datetimeEdit.dateTime()
-            endDt = self.endDatetimeEdit.dateTime()
             dt = QDateTime(dt.date(), dt.time(), Qt.UTC)
             feat["datetime"] = dt
             if self.layer.name().lower() == "environment":
+                endDt = self.endDatetimeEdit.dateTime()
                 endDt = QDateTime(endDt.date(), endDt.time(), Qt.UTC)
                 feat["endDateTime"] = endDt
                 feat["left"] = self.leftComboBox.currentData()
@@ -284,4 +284,5 @@ layerId = "[%@layer_id%]"
 gpsLayers = QgsProject.instance().mapLayersByName("GPS")
 if gpsLayers:
     dlg = DuplicateDialog(toDuplicate, layerId, gpsLayers[0])
+    dlg.setModal(True)
     dlg.show()
